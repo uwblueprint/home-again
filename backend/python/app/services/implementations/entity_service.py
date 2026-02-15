@@ -53,4 +53,3 @@ class EntityService(IEntityService):
 
         self.logger.error("Invalid id")
         raise Exception("Invalid id")
-

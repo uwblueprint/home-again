@@ -20,6 +20,7 @@ simple_entity_service = SimpleEntityService(current_app.logger)
 # defines a shared URL prefix for all routes
 blueprint = Blueprint("simple_entity", __name__, url_prefix="/simple-entities")
 
+
 # defines GET endpoint for retrieving all simple entities
 @blueprint.route("/", methods=["GET"], strict_slashes=False)
 @require_authorization_by_role({"User", "Admin"})

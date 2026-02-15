@@ -19,6 +19,7 @@ entity_service = EntityService(current_app.logger)
 # defines a shared URL prefix for all routes
 blueprint = Blueprint("entity", __name__, url_prefix="/entities")
 
+
 # defines GET endpoint for retrieving all entities
 @blueprint.route("/", methods=["GET"], strict_slashes=False)
 def get_entities():
@@ -90,5 +91,3 @@ def delete_entity(id):
         return jsonify({"error": (error_message if error_message else str(e))}), 500
 
     return jsonify(result), 200
-
-

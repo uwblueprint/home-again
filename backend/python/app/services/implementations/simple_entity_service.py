@@ -53,4 +53,3 @@ class SimpleEntityService(ISimpleEntityService):
 
         self.logger.error("Invalid id")
         raise Exception("Invalid id")
-

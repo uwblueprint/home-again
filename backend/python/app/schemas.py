@@ -13,11 +13,12 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, field_validator
 from datetime import datetime
 
-
 # ============ Agency Schemas ============
+
 
 class AgencyBase(BaseModel):
     """Base agency data."""
+
     name: str
     email: EmailStr
     phone: str
@@ -28,11 +29,13 @@ class AgencyBase(BaseModel):
 
 class AgencyCreate(AgencyBase):
     """Schema for creating an agency."""
+
     pass
 
 
 class AgencyUpdate(BaseModel):
     """Schema for updating an agency."""
+
     name: Optional[str] = None
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
@@ -43,6 +46,7 @@ class AgencyUpdate(BaseModel):
 
 class Agency(AgencyBase):
     """Response schema for agency."""
+
     id: str
     createdAt: datetime
     updatedAt: datetime
@@ -53,8 +57,10 @@ class Agency(AgencyBase):
 
 # ============ Donor Schemas ============
 
+
 class DonorBase(BaseModel):
     """Base donor data."""
+
     name: str
     email: EmailStr
     phone: str
@@ -62,11 +68,13 @@ class DonorBase(BaseModel):
 
 class DonorCreate(DonorBase):
     """Schema for creating a donor."""
+
     pass
 
 
 class DonorUpdate(BaseModel):
     """Schema for updating a donor."""
+
     name: Optional[str] = None
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
@@ -74,6 +82,7 @@ class DonorUpdate(BaseModel):
 
 class Donor(DonorBase):
     """Response schema for donor."""
+
     id: str
     itemsDonated: int
     lastDonationDate: Optional[datetime]
@@ -86,8 +95,10 @@ class Donor(DonorBase):
 
 # ============ Client Schemas ============
 
+
 class ClientBase(BaseModel):
     """Base client data."""
+
     firstName: str
     lastName: str
     email: EmailStr
@@ -99,11 +110,13 @@ class ClientBase(BaseModel):
 
 class ClientCreate(ClientBase):
     """Schema for creating a client."""
+
     pass
 
 
 class ClientUpdate(BaseModel):
     """Schema for updating a client."""
+
     firstName: Optional[str] = None
     lastName: Optional[str] = None
     email: Optional[EmailStr] = None
@@ -115,6 +128,7 @@ class ClientUpdate(BaseModel):
 
 class Client(ClientBase):
     """Response schema for client."""
+
     id: str
     agencyId: Optional[str] = None
     createdAt: datetime
@@ -126,8 +140,10 @@ class Client(ClientBase):
 
 # ============ Inventory Schemas ============
 
+
 class InventoryItemBase(BaseModel):
     """Base inventory item data."""
+
     name: str
     category: str
     quantity: int
@@ -138,11 +154,13 @@ class InventoryItemBase(BaseModel):
 
 class InventoryItemCreate(InventoryItemBase):
     """Schema for creating an inventory item."""
+
     pass
 
 
 class InventoryItem(InventoryItemBase):
     """Response schema for inventory item."""
+
     id: str
     createdAt: datetime
     updatedAt: datetime
@@ -153,8 +171,10 @@ class InventoryItem(InventoryItemBase):
 
 # ============ Referral Schemas ============
 
+
 class ReferralBase(BaseModel):
     """Base referral data."""
+
     clientId: str
     agencyId: str
     status: str  # "pending" | "approved" | "completed" | "declined"
@@ -163,6 +183,7 @@ class ReferralBase(BaseModel):
 
 class ReferralCreate(ReferralBase):
     """Schema for creating a referral."""
+
     pass
 
 
@@ -187,8 +208,10 @@ class Referral(ReferralBase):
 
 # ============ Delivery Schemas ============
 
+
 class DeliveryBase(BaseModel):
     """Base delivery data."""
+
     referralId: str
     deliveryDate: datetime
     status: str  # "scheduled" | "in_progress" | "completed" | "cancelled"
@@ -197,11 +220,13 @@ class DeliveryBase(BaseModel):
 
 class DeliveryCreate(DeliveryBase):
     """Schema for creating a delivery."""
+
     pass
 
 
 class Delivery(DeliveryBase):
     """Response schema for delivery."""
+
     id: str
     createdAt: datetime
     updatedAt: datetime

@@ -22,7 +22,9 @@ try:
     from app.config import get_settings
     from app import database  # ensures Base is defined
 except Exception:  # pragma: no cover - keep safe for CI
-    raise RuntimeError("Unable to import application settings/models; ensure working directory is backend/python")
+    raise RuntimeError(
+        "Unable to import application settings/models; ensure working directory is backend/python"
+    )
 
 settings = get_settings()
 

@@ -53,7 +53,9 @@ def upgrade():
         sa.Column("address", sa.String(255), nullable=False),
         sa.Column("city", sa.String(100), nullable=False),
         sa.Column("province", sa.String(100), nullable=False),
-        sa.Column("agencyId", sa.String(36), sa.ForeignKey("agencies.id"), nullable=True),
+        sa.Column(
+            "agencyId", sa.String(36), sa.ForeignKey("agencies.id"), nullable=True
+        ),
         sa.Column("createdAt", sa.DateTime(), nullable=True),
         sa.Column("updatedAt", sa.DateTime(), nullable=True),
     )
@@ -75,8 +77,12 @@ def upgrade():
     op.create_table(
         "referrals",
         sa.Column("id", sa.String(36), primary_key=True),
-        sa.Column("clientId", sa.String(36), sa.ForeignKey("clients.id"), nullable=False),
-        sa.Column("agencyId", sa.String(36), sa.ForeignKey("agencies.id"), nullable=False),
+        sa.Column(
+            "clientId", sa.String(36), sa.ForeignKey("clients.id"), nullable=False
+        ),
+        sa.Column(
+            "agencyId", sa.String(36), sa.ForeignKey("agencies.id"), nullable=False
+        ),
         sa.Column("status", sa.String(50), nullable=False),
         sa.Column("requestedItems", sa.Text(), nullable=False),
         sa.Column("createdAt", sa.DateTime(), nullable=True),
@@ -86,7 +92,9 @@ def upgrade():
     op.create_table(
         "deliveries",
         sa.Column("id", sa.String(36), primary_key=True),
-        sa.Column("referralId", sa.String(36), sa.ForeignKey("referrals.id"), nullable=False),
+        sa.Column(
+            "referralId", sa.String(36), sa.ForeignKey("referrals.id"), nullable=False
+        ),
         sa.Column("deliveryDate", sa.DateTime(), nullable=False),
         sa.Column("status", sa.String(50), nullable=False),
         sa.Column("notes", sa.Text(), nullable=True),

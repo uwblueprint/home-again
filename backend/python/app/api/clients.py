@@ -17,4 +17,7 @@ async def list_clients():
     Placeholder implementation. See `backend/python/STARTER_BACKEND_GUIDE.md`
     for details on implementing this handler.
     """
-    return Response(content="Not implemented — see backend/python/STARTER_BACKEND_GUIDE.md", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+    return Response(
+        content="Not implemented — see backend/python/STARTER_BACKEND_GUIDE.md",
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+    )

@@ -12,7 +12,6 @@ from contextlib import asynccontextmanager
 from .config import get_settings
 from .api import router as api_router
 
-
 settings = get_settings()
 
 
@@ -28,7 +27,7 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
-    
+
     app = FastAPI(
         title="Home Again Furniture Bank API",
         description="REST API for the Home Again Furniture Bank system",

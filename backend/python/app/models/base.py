@@ -8,7 +8,16 @@ Using SQLAlchemy 2.0 async patterns for non-blocking operations.
 """
 
 from datetime import datetime
-from sqlalchemy import Column, String, Integer, DateTime, Float, ForeignKey, Text, Boolean
+from sqlalchemy import (
+    Column,
+    String,
+    Integer,
+    DateTime,
+    Float,
+    ForeignKey,
+    Text,
+    Boolean,
+)
 from sqlalchemy.orm import relationship
 import uuid
 
@@ -22,6 +31,7 @@ def generate_uuid() -> str:
 
 class Agency(Base):
     """Agency model for partner organizations."""
+
     __tablename__ = "agencies"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
@@ -41,6 +51,7 @@ class Agency(Base):
 
 class Donor(Base):
     """Donor model for furniture donors."""
+
     __tablename__ = "donors"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
@@ -58,6 +69,7 @@ class Donor(Base):
 
 class Client(Base):
     """Client model for recipients of furniture."""
+
     __tablename__ = "clients"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
@@ -79,6 +91,7 @@ class Client(Base):
 
 class InventoryItem(Base):
     """InventoryItem model for tracking donated furniture."""
+
     __tablename__ = "inventory"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
@@ -97,12 +110,15 @@ class InventoryItem(Base):
 
 class Referral(Base):
     """Referral model for client requests."""
+
     __tablename__ = "referrals"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     clientId = Column(String(36), ForeignKey("clients.id"))
     agencyId = Column(String(36), ForeignKey("agencies.id"))
-    status = Column(String(50), nullable=False)  # pending, approved, completed, declined
+    status = Column(
+        String(50), nullable=False
+    )  # pending, approved, completed, declined
     requestedItems = Column(Text, nullable=False)  # JSON string
     createdAt = Column(DateTime, default=datetime.utcnow)
     updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -115,12 +131,15 @@ class Referral(Base):
 
 class Delivery(Base):
     """Delivery model for tracking furniture delivery."""
+
     __tablename__ = "deliveries"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     referralId = Column(String(36), ForeignKey("referrals.id"))
     deliveryDate = Column(DateTime, nullable=False)
-    status = Column(String(50), nullable=False)  # scheduled, in_progress, completed, cancelled
+    status = Column(
+        String(50), nullable=False
+    )  # scheduled, in_progress, completed, cancelled
     notes = Column(Text, nullable=True)
     createdAt = Column(DateTime, default=datetime.utcnow)
     updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

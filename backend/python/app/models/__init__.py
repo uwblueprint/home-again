@@ -1,24 +1,5 @@
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
+"""Models package initialization."""
 
-db = SQLAlchemy()
-migrate = Migrate()
+from .base import Agency, Donor, Client, InventoryItem, Referral, Delivery
 
-
-def init_app(app):
-    from .entity import Entity
-    from .simple_entity import SimpleEntity
-
-    app.app_context().push()
-    db.init_app(app)
-    migrate.init_app(app, db)
-
-    erase_db_and_sync = app.config["TESTING"]
-
-    if erase_db_and_sync:
-        # drop tables
-        db.reflect()
-        db.drop_all()
-
-        # recreate tables
-        db.create_all()
+__all__ = ["Agency", "Donor", "Client", "InventoryItem", "Referral", "Delivery"]

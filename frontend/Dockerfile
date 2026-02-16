@@ -1,11 +1,12 @@
-FROM node:20.11.1-slim
+FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
-RUN yarn install
+COPY package.json ./
+RUN npm install
 
 COPY . ./
 
 EXPOSE 3000
-ENTRYPOINT ["yarn", "start"]
+# Turbopack + hostname for Docker; use CHOKIDAR_USEPOLLING + WATCHPACK_POLLING for file watching
+CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]

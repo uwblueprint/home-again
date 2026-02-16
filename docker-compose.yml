@@ -1,9 +1,6 @@
-version: "3.7"
-
 services:
   frontend:
-    # TODO: rename container for your project
-    container_name: scv2_frontend
+    container_name: hafb_frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -11,44 +8,54 @@ services:
       - ./frontend:/app
       - /app/node_modules
     ports:
-      - 3000:3000
+      - "3000:3000"
     environment:
       - CHOKIDAR_USEPOLLING=true
-    env_file:
-      - ./frontend/.env
+      - WATCHPACK_POLLING=true
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+    depends_on:
+      py-backend:
+        condition: service_healthy
+
   py-backend:
-    # TODO: rename container for your project
-    container_name: scv2_py_backend
-    restart: always
+    container_name: hafb_backend
     build:
       context: ./backend/python
       dockerfile: Dockerfile
     ports:
-      - 8080:8080
-    dns:
-      - 8.8.8.8
+      - "8000:8000"
     volumes:
       - ./backend/python:/app
+    environment:
+      - DATABASE_URL=postgresql://hafb_user:hafb_password@db:5432/hafb
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - DEBUG=False
+      - SECRET_KEY=dev-secret-change-in-production
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      - ./.env
-  db:
-    # TODO: rename container for your project
-    container_name: scv2_db
-    image: postgres:12-alpine
-    ports:
-      - 5432:5432
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-      - ./db-init:/docker-entrypoint-initdb.d
-    env_file:
-      - ./.env
-    environment:
-      - POSTGRES_MULTIPLE_DATABASES=${POSTGRES_DB_DEV},${POSTGRES_DB_TEST}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+
+  db:
+    container_name: hafb_db
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_USER=hafb_user
+      - POSTGRES_PASSWORD=hafb_password
+      - POSTGRES_DB=hafb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hafb_user -d hafb"]
       interval: 5s
       timeout: 5s
       retries: 5

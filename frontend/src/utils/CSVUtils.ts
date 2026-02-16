@@ -8,7 +8,7 @@ type GenerateCSVParams<T> = {
   flattenObjects?: boolean;
   flattenArrays?: boolean;
   pathsToUnwind?: string[];
-  opts?: json2csv.Options<T>;
+  opts?: any;
   transformOpts?: TransformOptions;
 };
 
@@ -57,7 +57,7 @@ export const generateCSV = async <T>({
     transforms: transformations,
     ...opts,
   };
-  return parseAsync<T>(data, options, transformOpts);
+  return parseAsync(data as any, options as any, transformOpts as any) as Promise<string>;
 };
 
 /**

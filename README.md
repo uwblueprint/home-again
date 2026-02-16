@@ -1,218 +1,265 @@
-# Starter Code V2
+# Home Again Furniture Bank - Web Application
 
-Starter Code for Blueprint projects, brought to you by the UW Blueprint Internal Tools team! 🏗️
+Getting the furniture to the people who need it most.
 
-Starter Code is an easy to set up, flexible, and customizable bootstrap that aims to encourage best development practices and provide baseline implementations of features common to UW Blueprint projects. 24 different stack combinations are supported, allowing "mix and match" between our most commonly used technologies. For more information on the motivation and design decisions behind Starter Code, please check out the home page of our [documentation site](https://uwblueprint.github.io/starter-code-v2)!
+## Quick Start
 
-Teams should adopt Starter Code and use it as a foundation to get their projects off the ground faster, and as a guideline for how to structure their applications. We hope Starter Code will help project teams output higher quality and maintainable code, and allow them to focus on building cool, interesting features instead of setting up and doing boilerplate work. Put simply, Starter Code is here to help us deliver more value to our NPO partners.
-
-## Stack Choices
-**Backend Language:** TypeScript (Express.js on Node.js) or Python (with Flask)<br>
-**Backend API:** REST or GraphQL<br>
-**Database:** PostgreSQL or MongoDB<br>
-**User Auth:** Opt-in or opt-out<br>
-**File Storage:** Opt-in or opt-out<br>
-
-The provided frontend is a React application written in TypeScript.
-
-## Key Features & Benefits
-* Many stack combinations, built with separation of concerns in mind to make it easy to swap out layers of the codebase as needed
-* Prebuilt authentication and authorization services, including Google OAuth integration
-* Basic CRUD services via PostgresSQL and MongoDB ORMs
-* Email service
-* File storage service
-* CSV export utilities
-* Out of the box support for frontend deployment to Firebase Hosting via CI/CD pipelines
-* Lots of examples of programming best practices in both the frontend and backend
-
-
-## Table of Contents
-* 📝 [Documentation](#documentation)
-* ❗❗ [Reporting Issues](#reporting-issues)
-* 👨‍💻 [Getting Started: Users](#getting-started-users)
-* 👷 [Getting Started: Internal Tools Developers](#getting-started-internal-tools-developers)
-  * ✔️ [Prerequisites](#prerequisites)
-  * ⚙️ [Set up](#set-up)
-* 🚀 [Creating a Release](#creating-a-release)
-* 🧰 [Useful Commands](#useful-commands)
-  * ℹ️ [Get Names & Statuses of Running Containers](#get-names--statuses-of-running-containers)
-  * 💽 [Accessing PostgreSQL Database](#accessing-postgresql-database)
-  * ✨ [Linting & Formatting](#linting--formatting)
-  * 🧪 [Running Tests](#running-tests)
-* ✍️ [Updating Documentation](#updating-documentation)
-* 🌳 [Version Control Guide](#version-control-guide)
-  * 🌿 [Branching](#branching)
-  * 🔒 [Commits](#commits)
-
-## Documentation
-
-https://uwblueprint.github.io/starter-code-v2
-
-
-## Reporting Issues
-
-You can open an issue in this GitHub repository, or message the #internal-tools-help channel in UW Blueprint’s Slack workspace.
-
-
-## Getting Started: Users
-
-Please follow the instructions in this [guide](https://uwblueprint.github.io/starter-code-v2/docs/getting-started) to generate and set up Starter Code. Starter Code must be preprocessed through the [`create-bp-app`](https://www.npmjs.com/package/@uwblueprint/create-bp-app) CLI tool before being used, so **please do not clone and run this repository directly**.
-
----
-
-## Getting Started: Internal Tools Developers
-
-### Prerequisites
-
-* Install Docker Desktop ([MacOS](https://docs.docker.com/docker-for-mac/install/) | [Windows (Home)](https://docs.docker.com/docker-for-windows/install-windows-home/) | [Windows (Pro, Enterprise, Education)](https://docs.docker.com/docker-for-windows/install/) | [Linux](https://docs.docker.com/engine/install/#server)) and ensure that it is running
-* Ask a member of the Internal Tools team to be added to our Firebase and MongoDB Atlas projects
-* Set up Vault client for secret management, see instructions [here](https://www.notion.so/uwblueprintexecs/Secret-Management-2d5b59ef0987415e93ec951ce05bf03e)
-
-
-### Set up
-
-1. Clone this repository and `cd` into the project folder
+### Frontend
 ```bash
-git clone https://github.com/uwblueprint/starter-code-v2.git
-cd starter-code-v2
+cd frontend
+npm install
+cp .env.example .env.local
+npm run dev  # http://localhost:3000
 ```
-2. Pull secrets from Vault
+
+### Backend
+```bash
+cd backend/python
+# (recommended) create and activate a venv:
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+python3 server.py  # http://localhost:8000/docs
 ```
-vault kv get -format=json kv/internal-tools | python update_secret_files.py
-```
-3. Generate a Firebase service account private key. Go to our project in the [Firebase console](https://console.firebase.google.com), click "Project settings" > "Service accounts" > "Generate private key", wait for a file to be downloaded. Copy the file into `/backend/typescript/` **and** `/backend/python`, and rename both to **`firebaseServiceAccount.json`**
-4. Comment out one of the backend services in `docker-compose.yml`
-5. In the root `.env` file, change the name of the MongoDB database according to the backend you're using: either `typescript-test` or `python-test`
-6. If using the Python backend, update the email address and display name on lines 23-24 in `backend/python/app/rest/auth_routes.py` to be `internaltools@uwblueprint.org` and `Internal Tools` respectively
-7. Run the application
+
+### Docker (all services)
+
+With Docker and Docker Compose you can run the full stack without installing Node, Python, or PostgreSQL locally:
+
 ```bash
 docker-compose up --build
 ```
 
-The backend runs at http://localhost:8080 and the frontend runs at http://localhost:3000. By default, we use GraphQL (with TypeScript backend), REST (with Python backend), MongoDB, with user auth.
+- **Frontend**: http://localhost:3000  
+- **Backend API**: http://localhost:8000  
+- **API docs (Swagger)**: http://localhost:8000/docs  
 
+The backend runs database migrations on startup. No `.env` files are required; see [Docker](#docker) below for overrides and details.
 
-## Creating a Release
-To update the release branch with commits from main:
-1. Create a new branch off the release branch
-2. Merge main into the new branch
-3. Open a PR from your new branch -> release branch
-4. Reviewers should be able to see just the changes from the new main commits
-5. Merge the PR, it should just show up as a single commit in the commit history of the release branch
-6. Tag the most recent `main` commit included in the release
-```bash
-git tag <semver> <short-hash-of-main-commit>
-git push origin --tags
+## Tech Stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Frontend** | Next.js 15 + TypeScript + Zustand + TanStack Query | Modern React UI with file-based routing, state management, and automatic API caching |
+| **Backend** | FastAPI + Python + Pydantic | Async REST API with automatic OpenAPI documentation |
+| **Database** | PostgreSQL / Supabase | Relational database with row-level security |
+| **Build** | Turbopack + Tailwind CSS | Fast builds with utility-first styling |
+
+## Project Structure
+
+```
+home-again/
+├── frontend/              # Next.js React application
+│   ├── app/              # App Router (file-based routing)
+│   ├── src/components/   # Reusable React components
+│   ├── src/hooks/        # TanStack Query hooks for API
+│   ├── src/stores/       # Zustand stores (auth, UI)
+│   ├── src/lib/          # Utilities (API client, Supabase)
+│   ├── src/types/        # TypeScript types matching backend
+│   └── package.json
+│
+├── backend/python/       # FastAPI application
+│   ├── app/
+│   │   ├── main.py      # FastAPI app factory
+│   │   ├── config.py    # Environment configuration
+│   │   ├── database.py  # SQLAlchemy setup
+│   │   ├── schemas.py   # Pydantic models for validation
+│   │   ├── models/      # SQLAlchemy ORM models
+│   │   └── api/         # REST API endpoints (organized by resource)
+│   ├── server.py        # Uvicorn entry point
+│   ├── requirements.txt  # Python dependencies
+│   └── .env.example     # Example configuration
+│
+├── ARCHITECTURE.md       # Detailed architecture guide
+├── README.md            # This file
+└── docker-compose.yml   # Multi-container setup
 ```
 
+## Key Features (Starter Foundation)
 
-## Useful Commands
+- **One full stack example**: Agencies have full CRUD (backend + frontend). Use this as the pattern for other resources.
+- **Type-safe**: TypeScript types in `frontend/src/types/` match Pydantic schemas; use `src/lib/apiClient.ts` and `src/hooks/useApi.ts` for API calls.
+- **Ready to extend**: Implement Donors, Clients, Inventory, Referrals, and Deliveries by following [STARTER_BACKEND_GUIDE.md](backend/python/STARTER_BACKEND_GUIDE.md) and the Agencies code.
+- **Docs**: [ARCHITECTURE.md](./ARCHITECTURE.md), [API_GUIDE.md](./backend/python/API_GUIDE.md), and [ONBOARDING.md](./ONBOARDING.md) describe patterns and how to add features.
 
-### Get Names & Statuses of Running Containers
-```bash
-docker ps
-```
+## Core Domains
 
-### Accessing PostgreSQL Database
+- **Agencies**: Full CRUD implemented at `/api/agencies` (reference implementation). Frontend example at `/agencies`.
+- **Donors, Clients, Inventory, Referrals, Deliveries**: Models and schemas exist; routers are registered but return 501 until you implement them. See [backend/python/STARTER_BACKEND_GUIDE.md](./backend/python/STARTER_BACKEND_GUIDE.md).
 
-```bash
-# run a bash shell in the container
-docker exec -it scv2_db /bin/bash
+## Documentation
 
-# in container now
-psql -U postgres -d scv2
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design, data flow, and development patterns
+- **[DOCKER.md](./DOCKER.md)** - Running with Docker Compose
+- **[backend/python/API_GUIDE.md](./backend/python/API_GUIDE.md)** - REST API patterns and adding endpoints
+- **[backend/python/STARTER_BACKEND_GUIDE.md](./backend/python/STARTER_BACKEND_GUIDE.md)** - How to implement the remaining resources
+- **[ONBOARDING.md](./ONBOARDING.md)** - Developer onboarding and first tasks
 
-# in postgres shell, some common commands:
-# display all table names
-\dt
-# quit
-\q
-# you can run any SQL query, don't forget the semicolon!
-SELECT * FROM <table-name>;
-```
+## Development
 
-### Linting & Formatting
-Python backend:
-```bash
-docker exec -it scv2_py_backend /bin/bash -c "black ."
-```
+### Making Your First Change
 
-TypeScript backend and frontend:
-```bash
-# linting & formatting warnings only
-docker exec -it scv2_ts_backend /bin/bash -c "yarn lint"
+**Backend**: Implement a resource
+1. Add/extend SQLAlchemy model in `app/models/`
+2. Add or update Pydantic schema in `app/schemas.py`
+3. Create a FastAPI router in `app/api/my_resource.py` following the examples
+4. Register the router in `app/api/__init__.py`
+5. Run the server and verify API docs at `/docs`
 
-# linting with fix & formatting
-docker exec -it scv2_ts_backend /bin/bash -c "yarn fix"
-```
+**Frontend**: Implement a UI view
+1. Create components under `src/components/`
+2. Use `src/lib/apiClient.ts` for HTTP and `src/hooks/useApi.ts` (TanStack Query) for data fetching
+3. Add a page under `frontend/app/` (e.g. `app/agencies/page.tsx`)
 
 ### Running Tests
-Python backend:
+
 ```bash
-docker exec -it scv2_py_backend /bin/bash -c "pip install -e . && pytest"
+# Backend
+cd backend/python
+pytest -v
+
+# Frontend
+cd frontend
+npm test
 ```
 
-TypeScript backend and frontend:
+### Environment Variables
+
+Frontend `.env.local` (example):
+
 ```bash
-docker exec -it scv2_ts_backend /bin/bash -c "yarn test"
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
+Backend `.env` (example):
 
-## Updating Documentation
-
-To update documentation, checkout the `gh-pages` branch:
 ```bash
-git checkout gh-pages
+DATABASE_URL=postgresql://user:password@localhost:5432/hafb
+API_HOST=0.0.0.0
+API_PORT=8000
+DEBUG=False
+SECRET_KEY=your-secret-key-change-in-production
 ```
 
-All documentation should be added to the `docs` folder. After making changes, commit and push to GitHub. The changes will be automatically deployed.
+### Docker
 
-We use Jekyll to build the site, so you will need to install some additional dependencies to run the site locally. See this [article](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll) for more details.
+**Start everything** (frontend, backend, PostgreSQL):
 
-To run locally:
 ```bash
-bundle exec jekyll serve
+docker-compose up --build
 ```
 
-## Version Control Guide
+- Frontend: http://localhost:3000  
+- Backend: http://localhost:8000  
+- API docs: http://localhost:8000/docs  
 
-### Branching
-* Branch off of `main` for all feature work and bug fixes, creating a "feature branch". Prefix the feature branch name with your name. The branch name should be in kebab case and it should be short and descriptive. E.g. `sherry/readme-update`
-* To integrate changes on `main` into your feature branch, **use rebase instead of merge**
+Containers use fixed env vars (see `docker-compose.yml`), so no `.env` or `.env.local` is required. To override (e.g. different DB password), add `backend/python/.env` or `frontend/.env.local` and uncomment or add the `env_file` entries in `docker-compose.yml`.
+
+**Useful commands:**
 
 ```bash
-# currently working on feature branch, there are new commits on main
-git pull origin main --rebase
+docker-compose up -d          # Run in background
+docker-compose down          # Stop and remove containers
+docker-compose logs -f       # Follow logs
+docker-compose exec py-backend alembic upgrade head   # Re-run migrations
+```
 
-# if there are conflicts, resolve them and then:
+## API Documentation
+
+Once the backend is running:
+
+- **Swagger UI** (interactive): http://localhost:8000/docs
+- **ReDoc** (static): http://localhost:8000/redoc
+- **OpenAPI JSON**: http://localhost:8000/openapi.json
+
+Documentation is automatically generated from Pydantic schemas.
+
+## Code Style
+
+### Python
+- Follow [PEP 8](https://www.python.org/dev/peps/pep-0008/)
+- Use type hints for all functions
+- Add docstrings to functions and classes
+
+### TypeScript
+- Use strict mode
+- Provide explicit types
+- Keep components small and focused
+- Use descriptive variable names
+
+## Database
+
+### Local Development
+```bash
+createdb hafb
+createdb hafb_test
+```
+
+### Migrations
+```bash
+cd backend/python
+alembic revision --autogenerate -m "Your migration message"
+alembic upgrade head
+```
+
+## Deployment
+
+See [ARCHITECTURE.md - Deployment Section](./ARCHITECTURE.md#deployment) for detailed deployment instructions.
+
+## Troubleshooting
+
+### Backend won't start
+```bash
+# Check Python version (need 3.9+)
+python --version
+
+# Reinstall dependencies
+pip install -r requirements.txt
+
+# Verify database connection
+psql $DATABASE_URL -c "SELECT 1"
+```
+
+### Frontend won't start
+```bash
+# Check Node version (need 18+)
+node --version
+
+# Clear cache
+rm -rf node_modules .next && npm install
+
+# Check port 3000
+lsof -i :3000
+```
+
+### Database connection error
+- Check `.env` file has correct `DATABASE_URL`
+- Verify PostgreSQL is running
+- Check credentials are correct
+
+## Getting Help
+
+- **Architecture & Design**: Read [ARCHITECTURE.md](./ARCHITECTURE.md)
+- **Backend Development**: Read [backend/python/API_GUIDE.md](./backend/python/API_GUIDE.md)
+- **FastAPI Official Docs**: https://fastapi.tiangolo.com/
+- **Next.js Official Docs**: https://nextjs.org/docs
+- **Zustand Documentation**: https://zustand.docs.pmnd.rs/
+- **TanStack Query**: https://tanstack.com/query/latest
+
+## Git Workflow
+
+```bash
+git checkout -b feature/add-new-feature
+# Make changes...
 git add .
-git rebase --continue
-
-# force push to remote feature branch
-git push -f
+git commit -m "feat: add new feature"
+git push origin feature/add-new-feature
+# Open pull request on GitHub
 ```
-
-### Commits
-* Commits should be atomic (guideline: the commit is self-contained; a reviewer could make sense of it even if they viewed the commit diff in isolation)
-* Trivial commits (e.g. fixing a typo in the previous commit, formatting changes) should be squashed or fixup'd into the last non-trivial commit
-
-```bash
-# last commit contained a typo, fixed now
-git add .
-git commit -m "Fix typo"
-
-# fixup into previous commit through interactive rebase
-# x in HEAD~x refers to the last x commits you want to view
-git rebase -i HEAD~2
-# text editor opens, follow instructions in there to fixup
-
-# force push to remote feature branch
-git push -f
-```
-
-* Commit messages and PR names are descriptive and written in **imperative tense**<sup>1</sup>. The first word should be capitalized. E.g. "Create user REST endpoints", not "Created user REST endpoints"
-* PRs can contain multiple commits, they do not need to be squashed together before merging as long as each commit is atomic. Our repo is configured to only allow squash commits to `main` so the entire PR will appear as 1 commit on `main`, but the individual commits are preserved when viewing the PR.
 
 ---
 
-1: From Git's own [guidelines](https://github.com/git/git/blob/311531c9de557d25ac087c1637818bd2aad6eb3a/Documentation/SubmittingPatches#L139-L145)
+**Ready to get started?** Check out the [Quick Start](#quick-start) section above or read [ARCHITECTURE.md](./ARCHITECTURE.md) for a complete guide! 🚀

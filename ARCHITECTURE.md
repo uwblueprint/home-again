@@ -2,7 +2,7 @@
 
 ## Overview
 
-Home Again Furniture Bank (HAFB) is a furniture donation and delivery management system built with a modern, 
+Home Again Furniture Bank (HAFB) is a furniture donation and delivery management system built with a modern,
 scalable tech stack optimized for long-term maintenance and ease of onboarding for rotating teams of developers.
 
 ## Table of Contents
@@ -34,7 +34,7 @@ The application follows a client-server architecture with clear separation of co
   - RESTful API design
   - Async/await for non-blocking operations
   - Pydantic for request/response validation
-  - OpenAPI documentation automatic
+  - Automatic OpenAPI documentation
 
 - **Database**: PostgreSQL via Supabase
   - Relational schema for structured data
@@ -71,7 +71,7 @@ The application follows a client-server architecture with clear separation of co
 │  - Structured relational schema                                │
 │  - Row-level security (RLS) policies                           │
 │  - Point-in-time recovery & automated backups                  │
-└──────────────────────────────────────────────────────────────────┘
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ## Tech Stack
@@ -108,52 +108,55 @@ home-again/
 │   ├── app/                     # App Router (file-based routing)
 │   │   ├── layout.tsx           # Root layout with Providers
 │   │   ├── page.tsx             # Home page
+│   │   ├── loading.tsx          # Global loading state
 │   │   ├── providers.tsx        # TanStack Query provider
 │   │   └── agencies/            # Example resource page
-│   ├── src/
-│   │   ├── components/          # Reusable React components
-│   │   ├── hooks/                # TanStack Query hooks (useApi)
-│   │   ├── stores/               # Zustand stores (auth, UI)
-│   │   ├── lib/                  # apiClient.ts, supabase.ts
-│   │   ├── types/                # TypeScript types (match backend)
-│   │   ├── constants/           # Config, Routes
-│   │   └── utils/                # e.g. CSVUtils for reporting
-│   ├── next.config.ts
-│   ├── tailwind.config.ts
-│   └── package.json
+│   ├── components/              # Reusable React components
+│   ├── hooks/                   # TanStack Query hooks (useApi)
+│   ├── stores/                  # Zustand stores (auth, UI)
+│   ├── lib/                     # apiClient.ts, supabase.ts
+│   ├── types/                   # TypeScript types (match backend)
+│   ├── constants/               # Config, Routes, AuthConstants
+│   └── utils/                   # e.g. CSVUtils for reporting
 │
-├── backend/
-│   └── python/
-│       ├── app/
-│       │   ├── main.py         # FastAPI app factory
-│       │   ├── config.py       # Pydantic settings
-│       │   ├── database.py     # SQLAlchemy setup
-│       │   ├── schemas.py      # Pydantic models
-│       │   ├── models/
-│       │   │   ├── base.py     # SQLAlchemy ORM models
-│       │   │   └── __init__.py
-│       │   └── api/
-│       │       ├── __init__.py # Main router
-│       │       ├── agencies.py
-│       │       ├── donors.py
-│       │       ├── clients.py
-│       │       ├── inventory.py
-│       │       ├── referrals.py
-│       │       └── deliveries.py
-│       ├── server.py           # Uvicorn entry point
-│       ├── requirements.txt    # Dependencies
-│       └── .env.example        # Example config
+├── backend/                     # FastAPI application
+│   ├── app/
+│   │   ├── main.py              # FastAPI app factory
+│   │   ├── config.py            # Pydantic settings
+│   │   ├── database.py          # SQLAlchemy setup
+│   │   ├── schemas.py           # Pydantic models
+│   │   ├── models/
+│   │   │   └── base.py          # SQLAlchemy ORM models
+│   │   ├── api/
+│   │   │   ├── __init__.py      # Main router
+│   │   │   ├── agencies.py
+│   │   │   ├── donors.py
+│   │   │   ├── clients.py
+│   │   │   ├── inventory.py
+│   │   │   ├── referrals.py
+│   │   │   └── deliveries.py
+│   │   └── utilities/
+│   │       └── csv_utils.py
+│   ├── migrations/              # Alembic migrations
+│   ├── tests/
+│   │   ├── functional/
+│   │   └── unit/
+│   ├── server.py                # Uvicorn entry point
+│   └── requirements.txt
 │
-├── docker-compose.yml          # Multi-container setup
-├── README.md                   # Project overview
-└── ARCHITECTURE.md             # This file
+├── e2e-tests/                   # End-to-end test suite
+├── docker-compose.yml           # Multi-container setup
+├── README.md                    # Project overview
+├── ARCHITECTURE.md              # This file
+├── ONBOARDING.md                # Developer onboarding
+└── DOCKER.md                    # Docker setup guide
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ and npm/yarn
+- Node.js 20+ and npm
 - Python 3.9+
 - PostgreSQL 12+ (or use Supabase)
 - Docker and Docker Compose (optional)
@@ -163,19 +166,17 @@ home-again/
 #### 1. Clone and Install
 
 ```bash
-# Clone repository
 git clone <repo-url>
 cd home-again
 
 # Install frontend dependencies
 cd frontend
 npm install
-# or yarn install
 
 # Install backend dependencies
 cd ../backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -195,8 +196,6 @@ cd ../backend
 cp .env.example .env
 # Edit with your values:
 # DATABASE_URL=postgresql://user:password@localhost:5432/hafb
-# SUPABASE_URL=...
-# SUPABASE_KEY=...
 ```
 
 #### 3. Database Setup
@@ -206,9 +205,7 @@ cp .env.example .env
 createdb hafb
 createdb hafb_test
 
-# If using Supabase, connection string automatically configured in .env
-
-# Run migrations (if any)
+# Run migrations
 cd backend
 alembic upgrade head
 ```
@@ -234,11 +231,11 @@ npm run dev
 docker-compose up --build
 ```
 
-- **Frontend**: http://localhost:3000 (Next.js dev server, with hot reload)
-- **Backend**: http://localhost:8000 (FastAPI; runs Alembic migrations on startup)
-- **PostgreSQL**: localhost:5432 (user `hafb_user`, database `hafb`)
+- **Frontend**: http://localhost:3000
+- **Backend**: http://localhost:8000
+- **API docs**: http://localhost:8000/docs
 
-No `.env` files are required; see [README.md - Docker](README.md#docker) for overrides.
+The backend runs Alembic migrations on startup. No `.env` files required.
 
 ## Development Patterns
 
@@ -246,25 +243,22 @@ No `.env` files are required; see [README.md - Docker](README.md#docker) for ove
 
 #### Example: Add a "Trucks" resource
 
-**Step 1: Backend Model** (`app/models/base.py`)
+**Step 1: Backend Model** (`backend/app/models/base.py`)
 
 ```python
-from datetime import datetime
-from sqlalchemy import Column, String, Integer, DateTime
-
 class Truck(Base):
     __tablename__ = "trucks"
-    
+
     id = Column(String(36), primary_key=True, default=generate_uuid)
     make = Column(String(100), nullable=False)
     model = Column(String(100), nullable=False)
     licensePlate = Column(String(20), nullable=False, unique=True)
-    capacity = Column(Integer, nullable=False)  # in lbs
+    capacity = Column(Integer, nullable=False)
     createdAt = Column(DateTime, default=datetime.utcnow)
     updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 ```
 
-**Step 2: Backend Schemas** (`app/schemas.py`)
+**Step 2: Backend Schemas** (`backend/app/schemas.py`)
 
 ```python
 class TruckBase(BaseModel):
@@ -280,19 +274,14 @@ class Truck(TruckBase):
     id: str
     createdAt: datetime
     updatedAt: datetime
-    
+
     class Config:
         from_attributes = True
 ```
 
-**Step 3: Backend Endpoints** (`app/api/trucks.py`)
+**Step 3: Backend Endpoints** (`backend/app/api/trucks.py`)
 
 ```python
-from fastapi import APIRouter, Depends, HTTPException, status
-from ..database import get_db
-from ..models import Truck
-from ..schemas import TruckCreate, Truck as TruckSchema
-
 router = APIRouter()
 
 @router.get("", response_model=list[TruckSchema])
@@ -307,19 +296,16 @@ async def create_truck(truck: TruckCreate, db: AsyncSession = Depends(get_db)):
     await db.commit()
     await db.refresh(db_truck)
     return db_truck
-
-# ... other CRUD operations
 ```
 
-**Step 4: Register Router** (`app/api/__init__.py`)
+**Step 4: Register Router** (`backend/app/api/__init__.py`)
 
 ```python
 from .trucks import router as trucks_router
-
 router.include_router(trucks_router, prefix="/trucks", tags=["trucks"])
 ```
 
-**Step 5: Frontend Types** (`src/types/index.ts`)
+**Step 5: Frontend Types** (`frontend/types/index.ts`)
 
 ```typescript
 export interface Truck {
@@ -333,7 +319,7 @@ export interface Truck {
 }
 ```
 
-**Step 6: Frontend Hooks** (`src/hooks/useApi.ts`)
+**Step 6: Frontend Hooks** (`frontend/hooks/useApi.ts`)
 
 ```typescript
 export function useTrucks() {
@@ -358,24 +344,24 @@ export function useCreateTruck() {
 }
 ```
 
-**Step 7: Frontend Component** (`src/components/TruckList.tsx`)
+**Step 7: Frontend Page** (`frontend/app/trucks/page.tsx`)
 
 ```typescript
 "use client";
 
 import { useTrucks } from "@/hooks/useApi";
 
-export function TruckList() {
+export default function TrucksPage() {
   const { data: trucks, isLoading, error } = useTrucks();
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (error) return <div>Error loading trucks</div>;
 
   return (
     <ul>
       {trucks?.map((truck) => (
         <li key={truck.id}>
-          {truck.make} {truck.model} - {truck.licensePlate}
+          {truck.make} {truck.model} — {truck.licensePlate}
         </li>
       ))}
     </ul>
@@ -385,217 +371,107 @@ export function TruckList() {
 
 ## Frontend Guide
 
-### File-Based Routing with Next.js App Router
+### File-Based Routing
 
-Routes are defined by your file structure in `frontend/app/`:
+Routes are defined by the file structure in `frontend/app/`:
 
 ```
 frontend/app/
 ├── page.tsx              → /
 ├── layout.tsx            → Root layout (includes Providers)
-├── providers.tsx         → QueryClientProvider for TanStack Query
+├── loading.tsx           → Global loading UI
+├── providers.tsx         → QueryClientProvider
 └── agencies/
-    └── page.tsx          → /agencies (example resource)
+    └── page.tsx          → /agencies
 ```
 
 ### Server vs Client Components
 
-**Server Components** (default) - Run on server, great for:
+**Server Components** (default) — run on server, good for:
 - Fetching sensitive data
-- Accessing backend directly (coming in future)
-- Security checks (auth, permissions)
+- Auth checks and redirects
+
+**Client Components** — run in browser, required for:
+- Hooks (useState, useEffect, TanStack Query)
+- User interactions (clicks, forms)
+- Browser APIs
 
 ```typescript
-// frontend/app/dashboard/page.tsx
-import { getCurrentUser } from "@/lib/auth";
-
-export default async function DashboardPage() {
-  const user = await getCurrentUser(); // Server-only
-  
-  if (!user) redirect("/login");
-  
-  return <Dashboard user={user} />;
-}
-```
-
-**Client Components** - Run in browser, required for:
-- User interactivity (clicks, forms, etc.)
-- Browser APIs (localStorage, etc.)
-- Hooks like useState, useEffect, custom hooks
-
-```typescript
-// src/components/Dashboard.tsx
-"use client";
-
-import { Dashboard as DashboardComponent } from "@/components/ui/dashboard";
-
-interface DashboardProps {
-  user: User;
-}
-
-export function Dashboard({ user }: DashboardProps) {
-  const [filters, setFilters] = useState({});
-  const { data: agencies } = useAgencies();
-  
-  return <DashboardComponent user={user} agencies={agencies} />;
-}
-```
-
-### State Management Patterns
-
-**Local State** - Component-only, no global access needed:
-
-```typescript
-"use client";
-
-import { useState } from "react";
-
-function SearchForm() {
-  const [query, setQuery] = useState("");
-  
-  return (
-    <input 
-      value={query} 
-      onChange={(e) => setQuery(e.target.value)}
-    />
-  );
-}
-```
-
-**Global Client State** - Auth, UI flags (Zustand):
-
-```typescript
-// Using auth store
-"use client";
-
-import { useAuthStore } from "@/stores/authStore";
-
-function UserButton() {
-  const { user, logout } = useAuthStore();
-  
-  return (
-    <button onClick={logout}>
-      Logout {user?.email}
-    </button>
-  );
-}
-```
-
-**Server State** - Data from API (TanStack Query):
-
-```typescript
-// Fetching agencies
+// Must be at the top of the file
 "use client";
 
 import { useAgencies } from "@/hooks/useApi";
 
-function AgenciesList() {
+export default function AgenciesPage() {
   const { data: agencies, isLoading } = useAgencies();
-  
-  // Automatically:
-  // - Fetches from /api/agencies
-  // - Caches result
-  // - Handles errors
-  // - Refetches on focus
-  
-  return isLoading ? <Loading /> : <List agencies={agencies} />;
+  // ...
 }
 ```
+
+### State Management
+
+| Need | Tool | Location |
+|------|------|----------|
+| Local UI state | `useState` | Inside component |
+| Global auth/UI | Zustand | `stores/authStore.ts`, `stores/uiStore.ts` |
+| Server data | TanStack Query | `hooks/useApi.ts` |
 
 ### API Integration
 
-All API calls go through the centralized client with auth handling:
-
-```typescript
-// src/lib/apiClient.ts
-import axios from "axios";
-
-const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-});
-
-// Automatically adds auth token to all requests
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("auth_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Usage in hooks:
-export function useAgencies() {
-  return useQuery({
-    queryKey: ["agencies"],
-    queryFn: () => apiClient.get("/agencies").then(r => r.data),
-  });
-}
-```
+All API calls go through `lib/apiClient.ts` — an axios instance that automatically attaches auth tokens and handles 401 redirects. Never call `fetch` directly; use the hooks in `hooks/useApi.ts`.
 
 ## Backend Guide
 
-See [API_GUIDE.md](./backend/API_GUIDE.md) for detailed backend documentation including:
-- Async patterns
-- Adding new endpoints
-- Database model relationships
-- Error handling
-- Testing
+See [API_GUIDE.md](./backend/API_GUIDE.md) for detailed backend documentation including async patterns, endpoint examples, error handling, and testing.
 
 ## Database
 
-### Schema Design
-
-The database uses a relational model supporting the HAFB workflow:
+### Schema
 
 ```
 Agencies (partner organizations)
-  ├─ Clients (furniture recipients)
-  │   └─ Referrals (requests)
-  │       └─ Deliveries (fulfillment)
-  │
+  └─ Clients (furniture recipients)
+      └─ Referrals (requests)
+          └─ Deliveries (fulfillment)
+
 Donors (furniture donors)
   └─ InventoryItems (furniture)
 ```
 
 ### Migrations
 
-Database schema changes use Alembic:
-
 ```bash
-# Create migration after model changes
 cd backend
+
+# Create migration after model changes
 alembic revision --autogenerate -m "Add truck table"
 
-# Review the generated file in migrations/versions/
-
-# Apply migration
+# Apply
 alembic upgrade head
 
-# Rollback if needed
+# Rollback
 alembic downgrade -1
 ```
 
 ## Testing
 
-### Frontend Tests
-
 ```bash
+# Frontend
 cd frontend
-npm run test
-```
+npm test
 
-### Backend Tests
-
-```bash
+# Backend unit + functional
 cd backend
-pytest
-# or watch mode
-pytest -v --tb=short
+pytest -v
+
+# End-to-end
+cd e2e-tests
+pytest -v
 ```
 
 ## Deployment
 
-### Docker Build
+### Docker
 
 ```bash
 docker-compose build
@@ -604,37 +480,22 @@ docker-compose up
 
 ### Environment Variables
 
-Never commit `.env` files. Use `.env.example` as reference.
+Never commit `.env` files. Use `.env.example` as the reference template.
 
-### Supabase Deployment
+### CI/CD
 
-1. Create Supabase project
-2. Run migrations against production database
-3. Update environment variables
-4. Deploy using your CI/CD provider
+GitHub Actions workflows in `.github/workflows/`:
+- `lint.yml` — runs ESLint (frontend) and Black (backend) on every push/PR to `main`
+- `firebase-hosting-merge.yml` — deploys frontend to Firebase on merge to `main`
+- `heroku-deploy-dev-py.yml` — deploys backend to Heroku
 
 ## Maintenance & Onboarding
 
-### For New Developers
-
-1. Read this documentation
-2. Check out [API_GUIDE.md](./backend/API_GUIDE.md)
-3. Run local dev environment
-4. Study a feature end-to-end (model → schema → endpoints → components)
-5. Start with small features
-6. Ask questions!
+See [ONBOARDING.md](./ONBOARDING.md) for the full developer onboarding guide.
 
 ### Code Style
 
-- **Python**: Follow PEP 8, use type hints
-- **TypeScript**: Use strict mode, provide explicit types
-- **Components**: Keep them small and focused
-- **Functions**: One responsibility per function
-- **Comments**: Explain *why*, not *what*
-
-### Documentation Standards
-
-- Add docstrings to functions/classes
-- Comment complex logic
-- Update docs when architecture changes
-- Keep README.md current
+- **Python**: PEP 8, type hints on all functions, docstrings on public methods
+- **TypeScript**: strict mode, explicit types, no `any`
+- **Components**: small and focused, under 100 lines
+- **Comments**: explain *why*, not *what*

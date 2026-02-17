@@ -33,7 +33,9 @@ export default function HomePage() {
         </div>
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-800 mb-3">Getting started</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-3">
+            Getting started
+          </h2>
           <ul className="text-gray-700 space-y-2">
             <li>Frontend: Next.js 15 (App Router) + TypeScript</li>
             <li>State: Zustand (global) + TanStack Query (server)</li>

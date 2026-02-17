@@ -31,12 +31,12 @@ docker-compose up --build
 
 Default env vars are set in `docker-compose.yml`. To override:
 
-1. Create `backend/python/.env` and/or `frontend/.env.local` with your values.
+1. Create `backend/.env` and/or `frontend/.env.local` with your values.
 2. In `docker-compose.yml`, add back the `env_file` key under the service, for example:
    ```yaml
    py-backend:
      env_file:
-       - ./backend/python/.env
+       - ./backend/.env
    ```
 
 Then run `docker-compose up --build` as usual.

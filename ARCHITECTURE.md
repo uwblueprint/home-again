@@ -173,7 +173,7 @@ npm install
 # or yarn install
 
 # Install backend dependencies
-cd ../backend/python
+cd ../backend
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -191,7 +191,7 @@ cp .env.example .env.local
 # NEXT_PUBLIC_SUPABASE_ANON_KEY=your-key
 
 # Backend (.env)
-cd ../backend/python
+cd ../backend
 cp .env.example .env
 # Edit with your values:
 # DATABASE_URL=postgresql://user:password@localhost:5432/hafb
@@ -209,7 +209,7 @@ createdb hafb_test
 # If using Supabase, connection string automatically configured in .env
 
 # Run migrations (if any)
-cd backend/python
+cd backend
 alembic upgrade head
 ```
 
@@ -217,7 +217,7 @@ alembic upgrade head
 
 ```bash
 # Terminal 1: Backend
-cd backend/python
+cd backend
 python server.py
 # Server runs at http://localhost:8000
 # API docs at http://localhost:8000/docs
@@ -534,7 +534,7 @@ export function useAgencies() {
 
 ## Backend Guide
 
-See [API_GUIDE.md](./backend/python/API_GUIDE.md) for detailed backend documentation including:
+See [API_GUIDE.md](./backend/API_GUIDE.md) for detailed backend documentation including:
 - Async patterns
 - Adding new endpoints
 - Database model relationships
@@ -563,7 +563,7 @@ Database schema changes use Alembic:
 
 ```bash
 # Create migration after model changes
-cd backend/python
+cd backend
 alembic revision --autogenerate -m "Add truck table"
 
 # Review the generated file in migrations/versions/
@@ -587,7 +587,7 @@ npm run test
 ### Backend Tests
 
 ```bash
-cd backend/python
+cd backend
 pytest
 # or watch mode
 pytest -v --tb=short
@@ -618,7 +618,7 @@ Never commit `.env` files. Use `.env.example` as reference.
 ### For New Developers
 
 1. Read this documentation
-2. Check out [API_GUIDE.md](./backend/python/API_GUIDE.md)
+2. Check out [API_GUIDE.md](./backend/API_GUIDE.md)
 3. Run local dev environment
 4. Study a feature end-to-end (model → schema → endpoints → components)
 5. Start with small features

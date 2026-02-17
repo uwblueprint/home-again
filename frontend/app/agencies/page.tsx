@@ -21,18 +21,22 @@ export default function AgenciesPage() {
       </header>
 
       <main className="flex-1 max-w-6xl mx-auto px-6 py-8 w-full">
-        {isLoading && (
-          <p className="text-gray-600">Loading agencies…</p>
-        )}
+        {isLoading && <p className="text-gray-600">Loading agencies…</p>}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded p-4 text-red-800">
-            <p>Failed to load agencies. Is the backend running at{" "}
-              <code className="bg-red-100 px-1 rounded">{process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"}</code>?
+            <p>
+              Failed to load agencies. Is the backend running at{" "}
+              <code className="bg-red-100 px-1 rounded">
+                {process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"}
+              </code>
+              ?
             </p>
           </div>
         )}
         {agencies && agencies.length === 0 && (
-          <p className="text-gray-600">No agencies yet. Create one via the API docs.</p>
+          <p className="text-gray-600">
+            No agencies yet. Create one via the API docs.
+          </p>
         )}
         {agencies && agencies.length > 0 && (
           <ul className="space-y-4">

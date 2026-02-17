@@ -62,7 +62,7 @@ Frontend runs at http://localhost:3000
 Open a new terminal:
 
 ```bash
-cd backend/python
+cd backend
 
 # Create Python virtual environment
 python -m venv venv
@@ -88,7 +88,7 @@ Backend runs at http://localhost:8000
 The Agencies resource is fully implemented (backend and frontend). Other
 resources (Donors, Clients, Inventory, Referrals, Deliveries) have routers
 registered but return 501 until you implement them. See
-`backend/python/STARTER_BACKEND_GUIDE.md`.
+`backend/STARTER_BACKEND_GUIDE.md`.
 
 ### Step 4: Setup Database
 
@@ -122,14 +122,14 @@ That's it! You now have:
 3. **Read the docs**:
    - `README.md` - Project overview
    - `ARCHITECTURE.md` - System design details
-   - `backend/python/API_GUIDE.md` - Backend patterns
+   - `backend/API_GUIDE.md` - Backend patterns
 
 ### Project Structure
 
 ```
 home-again/
 ├── frontend/          # React app with Next.js
-├── backend/python/    # REST API with FastAPI
+├── backend/    # REST API with FastAPI
 ├── README.md          # Quick start
 ├── ARCHITECTURE.md    # Full system design
 └── docker-compose.yml # Multi-container setup
@@ -189,13 +189,13 @@ export default function Home() {
 
 #### Add a Backend Endpoint
 
-1. Add model in `backend/python/app/models/base.py`
-2. Add schema in `backend/python/app/schemas.py`
-3. Create router in `backend/python/app/api/my_resource.py`
-4. Register in `backend/python/app/api/__init__.py`
+1. Add model in `backend/app/models/base.py`
+2. Add schema in `backend/app/schemas.py`
+3. Create router in `backend/app/api/my_resource.py`
+4. Register in `backend/app/api/__init__.py`
 5. Test at http://localhost:8000/docs
 
-See [API_GUIDE.md](backend/python/API_GUIDE.md) for detailed example.
+See [API_GUIDE.md](backend/API_GUIDE.md) for detailed example.
 
 ### Running Tests
 
@@ -205,7 +205,7 @@ cd frontend
 npm test
 
 # Backend
-cd backend/python
+cd backend
 pytest -v
 pytest -v --tb=short  # Less verbose
 pytest -k test_create  # Run specific test
@@ -220,7 +220,7 @@ npm run format        # Format code with Prettier
 npm run lint         # Check code style
 
 # Backend
-cd backend/python
+cd backend
 black .              # Format with Black
 isort .              # Sort imports
 ```

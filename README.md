@@ -14,7 +14,7 @@ npm run dev  # http://localhost:3000
 
 ### Backend
 ```bash
-cd backend/python
+cd backend
 # (recommended) create and activate a venv:
 python3 -m venv .venv
 source .venv/bin/activate
@@ -59,7 +59,7 @@ home-again/
 │   ├── src/types/        # TypeScript types matching backend
 │   └── package.json
 │
-├── backend/python/       # FastAPI application
+├── backend/       # FastAPI application
 │   ├── app/
 │   │   ├── main.py      # FastAPI app factory
 │   │   ├── config.py    # Environment configuration
@@ -80,20 +80,20 @@ home-again/
 
 - **One full stack example**: Agencies have full CRUD (backend + frontend). Use this as the pattern for other resources.
 - **Type-safe**: TypeScript types in `frontend/src/types/` match Pydantic schemas; use `src/lib/apiClient.ts` and `src/hooks/useApi.ts` for API calls.
-- **Ready to extend**: Implement Donors, Clients, Inventory, Referrals, and Deliveries by following [STARTER_BACKEND_GUIDE.md](backend/python/STARTER_BACKEND_GUIDE.md) and the Agencies code.
-- **Docs**: [ARCHITECTURE.md](./ARCHITECTURE.md), [API_GUIDE.md](./backend/python/API_GUIDE.md), and [ONBOARDING.md](./ONBOARDING.md) describe patterns and how to add features.
+- **Ready to extend**: Implement Donors, Clients, Inventory, Referrals, and Deliveries by following [STARTER_BACKEND_GUIDE.md](backend/STARTER_BACKEND_GUIDE.md) and the Agencies code.
+- **Docs**: [ARCHITECTURE.md](./ARCHITECTURE.md), [API_GUIDE.md](./backend/API_GUIDE.md), and [ONBOARDING.md](./ONBOARDING.md) describe patterns and how to add features.
 
 ## Core Domains
 
 - **Agencies**: Full CRUD implemented at `/api/agencies` (reference implementation). Frontend example at `/agencies`.
-- **Donors, Clients, Inventory, Referrals, Deliveries**: Models and schemas exist; routers are registered but return 501 until you implement them. See [backend/python/STARTER_BACKEND_GUIDE.md](./backend/python/STARTER_BACKEND_GUIDE.md).
+- **Donors, Clients, Inventory, Referrals, Deliveries**: Models and schemas exist; routers are registered but return 501 until you implement them. See [backend/STARTER_BACKEND_GUIDE.md](./backend/STARTER_BACKEND_GUIDE.md).
 
 ## Documentation
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design, data flow, and development patterns
 - **[DOCKER.md](./DOCKER.md)** - Running with Docker Compose
-- **[backend/python/API_GUIDE.md](./backend/python/API_GUIDE.md)** - REST API patterns and adding endpoints
-- **[backend/python/STARTER_BACKEND_GUIDE.md](./backend/python/STARTER_BACKEND_GUIDE.md)** - How to implement the remaining resources
+- **[backend/API_GUIDE.md](./backend/API_GUIDE.md)** - REST API patterns and adding endpoints
+- **[backend/STARTER_BACKEND_GUIDE.md](./backend/STARTER_BACKEND_GUIDE.md)** - How to implement the remaining resources
 - **[ONBOARDING.md](./ONBOARDING.md)** - Developer onboarding and first tasks
 
 ## Development
@@ -116,7 +116,7 @@ home-again/
 
 ```bash
 # Backend
-cd backend/python
+cd backend
 pytest -v
 
 # Frontend
@@ -156,7 +156,7 @@ docker-compose up --build
 - Backend: http://localhost:8000  
 - API docs: http://localhost:8000/docs  
 
-Containers use fixed env vars (see `docker-compose.yml`), so no `.env` or `.env.local` is required. To override (e.g. different DB password), add `backend/python/.env` or `frontend/.env.local` and uncomment or add the `env_file` entries in `docker-compose.yml`.
+Containers use fixed env vars (see `docker-compose.yml`), so no `.env` or `.env.local` is required. To override (e.g. different DB password), add `backend/.env` or `frontend/.env.local` and uncomment or add the `env_file` entries in `docker-compose.yml`.
 
 **Useful commands:**
 
@@ -200,7 +200,7 @@ createdb hafb_test
 
 ### Migrations
 ```bash
-cd backend/python
+cd backend
 alembic revision --autogenerate -m "Your migration message"
 alembic upgrade head
 ```
@@ -243,7 +243,7 @@ lsof -i :3000
 ## Getting Help
 
 - **Architecture & Design**: Read [ARCHITECTURE.md](./ARCHITECTURE.md)
-- **Backend Development**: Read [backend/python/API_GUIDE.md](./backend/python/API_GUIDE.md)
+- **Backend Development**: Read [backend/API_GUIDE.md](./backend/API_GUIDE.md)
 - **FastAPI Official Docs**: https://fastapi.tiangolo.com/
 - **Next.js Official Docs**: https://nextjs.org/docs
 - **Zustand Documentation**: https://zustand.docs.pmnd.rs/

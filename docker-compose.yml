@@ -20,12 +20,12 @@ services:
   py-backend:
     container_name: hafb_backend
     build:
-      context: ./backend/python
+      context: ./backend
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/python:/app
+      - ./backend:/app
     environment:
       - DATABASE_URL=postgresql://hafb_user:hafb_password@db:5432/hafb
       - API_HOST=0.0.0.0

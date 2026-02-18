@@ -21,6 +21,7 @@ if config.config_file_name is not None:
 try:
     from app.config import get_settings
     from app import database  # ensures Base is defined
+    from app.models import base  # register all models with Base.metadata
 except Exception:  # pragma: no cover - keep safe for CI
     raise RuntimeError(
         "Unable to import application settings/models; ensure working directory is backend"

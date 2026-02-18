@@ -8,12 +8,12 @@ This guide explains the backend foundation and how to implement new resource end
 
 - Keep models and Pydantic schemas as the data foundation.
 - Provide one full reference implementation (Agencies) and placeholder routers for the rest.
-- Give clear patterns so teams can implement CRUD for Donors, Clients, Inventory, Referrals, and Deliveries.
+- Give clear patterns so teams can implement CRUD for Donors, Clients, Furniture, Referrals, Routes, Admins, and Agents.
 
 ## What’s in place
 
 - **Agencies**: Full CRUD at `/api/agencies` (list, create, get, update, delete). Use this as the reference.
-- **Donors, Clients, Inventory, Referrals, Deliveries**: Routers are registered at `/api/donors`, `/api/clients`, etc., but return 501 until you implement them.
+- **Donors, Clients, Furniture, Referrals, Routes, Admins, Agents**: Routers are registered at `/api/donors`, `/api/clients`, `/api/furniture`, etc., but return 501 until you implement them.
 
 All routers are mounted in `app/api/__init__.py`. OpenAPI docs at `/docs` list every route.
 
@@ -37,7 +37,7 @@ Copy the pattern from `app/api/agencies.py`:
 
 ### 3. Register the router
 
-Routers are already included in `app/api/__init__.py`. Replace the placeholder implementation in `app/api/donors.py` (and similarly for other resources) with real CRUD using the Agencies pattern.
+Routers are already included in `app/api/__init__.py`. Replace the placeholder implementation in `app/api/donors.py`, `app/api/furniture.py`, and other resource modules with real CRUD using the Agencies pattern.
 
 ### 4. Referral requestedItems
 

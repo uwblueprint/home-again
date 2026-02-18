@@ -36,6 +36,15 @@ var/
 # Logs
 *.log
 
+# Testing
+.pytest_cache
+.coverage
+htmlcov/
+
+# Venv
+.venv
+venv/
+
 # OS / editor
 .DS_Store
 .vscode

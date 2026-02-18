@@ -14,7 +14,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/apiClient";
-import type { Agency, Client, Donor, InventoryItem, Referral } from "@/types";
+import type { Agency, Client, Donor, Furniture, Referral } from "@/types";
 
 /**
  * Fetch all agencies
@@ -30,6 +30,7 @@ export function useAgencies() {
       return response.data;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnMount: "always", // refetch when navigating to the page so list is up to date
   });
 }
 
@@ -57,7 +58,7 @@ export function useCreateAgency() {
 
   return useMutation({
     mutationFn: async (
-      agency: Omit<Agency, "id" | "createdAt" | "updatedAt">
+      agency: Omit<Agency, "id" | "created_at" | "updated_at">
     ) => {
       const response = await apiClient.post<Agency>("/agencies", agency);
       return response.data;
@@ -83,16 +84,16 @@ export function useClients() {
 }
 
 /**
- * Fetch inventory items
+ * Fetch furniture items
  */
-export function useInventory() {
+export function useFurniture() {
   return useQuery({
-    queryKey: ["inventory"],
+    queryKey: ["furniture"],
     queryFn: async () => {
-      const response = await apiClient.get<InventoryItem[]>("/inventory");
+      const response = await apiClient.get<Furniture[]>("/furniture");
       return response.data;
     },
-    staleTime: 1000 * 60 * 2, // Shorter stale time for inventory
+    staleTime: 1000 * 60 * 2,
   });
 }
 

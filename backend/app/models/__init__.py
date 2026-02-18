@@ -1,5 +1,23 @@
 """Models package initialization."""
 
-from .base import Agency, Donor, Client, InventoryItem, Referral, Delivery
+from .base import (
+    Admin,
+    Agency,
+    Agent,
+    Client,
+    Donor,
+    Furniture,
+    Referral,
+    Route,
+)
 
-__all__ = ["Agency", "Donor", "Client", "InventoryItem", "Referral", "Delivery"]
+__all__ = [
+    "Admin",
+    "Agency",
+    "Agent",
+    "Client",
+    "Donor",
+    "Furniture",
+    "Referral",
+    "Route",
+]

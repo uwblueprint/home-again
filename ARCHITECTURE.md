@@ -58,7 +58,7 @@ The application follows a client-server architecture with clear separation of co
 ┌──────────────────────────┴──────────────────────────────────────┐
 │                      Backend (FastAPI)                          │
 │  ┌────────────────────────────────────────────────────────────┐ │
-│  │ API Routes: Agencies, Donors, Clients, Inventory, etc.    │ │
+│  │ API Routes: Agencies, Donors, Clients, Furniture, etc.     │ │
 │  │ Pydantic Schemas: Type validation, OpenAPI docs           │ │
 │  │ SQLAlchemy Models: ORM, relationships                     │ │
 │  │ Database Layer: Async SQLAlchemy with PostgreSQL          │ │
@@ -110,7 +110,7 @@ home-again/
 │   │   ├── page.tsx             # Home page
 │   │   ├── loading.tsx          # Global loading state
 │   │   ├── providers.tsx        # TanStack Query provider
-│   │   └── agencies/            # Example resource page
+│   │   └── agencies/            # Agencies resource page
 │   ├── components/              # Reusable React components
 │   ├── hooks/                   # TanStack Query hooks (useApi)
 │   ├── stores/                  # Zustand stores (auth, UI)
@@ -132,9 +132,11 @@ home-again/
 │   │   │   ├── agencies.py
 │   │   │   ├── donors.py
 │   │   │   ├── clients.py
-│   │   │   ├── inventory.py
-│   │   │   ├── referrals.py
-│   │   │   └── deliveries.py
+│   │   │   ├── admins.py
+│   │   │   ├── agents.py
+│   │   │   ├── routes.py
+│   │   │   ├── furniture.py
+│   │   │   └── referrals.py
 │   │   └── utilities/
 │   │       └── csv_utils.py
 │   ├── migrations/              # Alembic migrations
@@ -429,14 +431,43 @@ See [API_GUIDE.md](./backend/API_GUIDE.md) for detailed backend documentation in
 ### Schema
 
 ```
-Agencies (partner organizations)
-  └─ Clients (furniture recipients)
-      └─ Referrals (requests)
-          └─ Deliveries (fulfillment)
+Admins (standalone; link to Supabase Auth via supabase_user_id)
 
-Donors (furniture donors)
-  └─ InventoryItems (furniture)
+Agencies (partner organizations)
+  ├─ Agents (one-to-many)
+  ├─ Clients (one-to-many)
+  └─ Referrals (one-to-many)
+
+Clients
+  ├─ Referrals (one-to-many)
+  └─ Furniture received (one-to-many, via client_id)
+
+Donors
+  └─ Furniture (one-to-many)
+
+Furniture
+  ├─ Donor (many-to-one)
+  ├─ Client (many-to-one, nullable)
+  └─ Route / dispatch (many-to-one, nullable, via dispatch_id)
+
+Referrals
+  ├─ Client (many-to-one)
+  └─ Agency (many-to-one)
+
+Routes
+  └─ Furniture (via pickup_furniture_ids / dropoff_furniture_ids and dispatch_id)
 ```
+
+### Data model relationships
+
+- **Admin** — Standalone; links to Supabase Auth via `supabase_user_id`.
+- **Agent** → **Agency** (many-to-one).
+- **Agency** → **Agents**, **Clients**, **Referrals** (one-to-many).
+- **Client** → **Agency** (many-to-one, via `agency_id`); **Agency** (many-to-one, via `agency_referred_id`); **Referrals**, **Furniture** (one-to-many).
+- **Donor** → **Furniture** (one-to-many).
+- **Furniture** → **Donor** (many-to-one); **Client** (many-to-one, nullable); **Route** (many-to-one, nullable, via `dispatch_id`).
+- **Referral** → **Client**, **Agency** (many-to-one).
+- **Route** → **Furniture** (one-to-many, via `pickup_furniture_ids`, `dropoff_furniture_ids`, and `dispatch_id`).
 
 ### Migrations
 

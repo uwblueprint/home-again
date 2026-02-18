@@ -27,9 +27,9 @@ app/
     ├── agencies.py   # Agency CRUD endpoints
     ├── donors.py     # Donor CRUD endpoints
     ├── clients.py    # Client CRUD endpoints
-    ├── inventory.py  # Inventory CRUD endpoints
+    ├── furniture.py  # Furniture CRUD endpoints
     ├── referrals.py  # Referral CRUD endpoints
-    └── deliveries.py # Delivery CRUD endpoints
+    └── routes.py    # Route (dispatch) CRUD endpoints
 ```
 
 ### Key Design Decisions
@@ -74,57 +74,58 @@ Resources map to standard HTTP verbs:
 1. **Create the SQLAlchemy Model** in `models/base.py`:
 
 ```python
-class MyEntity(Base):
-    __tablename__ = "my_entities"
-    
+class MyResource(Base):
+    __tablename__ = "my_resources"
+
     id = Column(String(36), primary_key=True, default=generate_uuid)
     name = Column(String(255), nullable=False)
-    createdAt = Column(DateTime, default=datetime.utcnow)
-    updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 ```
 
-2. **Create Pydantic Schemas** in `schemas.py`:
+2. **Create Pydantic Schemas** in `schemas.py` (use `ConfigDict(from_attributes=True)` for response schemas):
 
 ```python
-class MyEntityBase(BaseModel):
+from pydantic import BaseModel, ConfigDict
+
+class MyResourceBase(BaseModel):
     name: str
 
-class MyEntityCreate(MyEntityBase):
+class MyResourceCreate(MyResourceBase):
     pass
 
-class MyEntity(MyEntityBase):
+class MyResource(MyResourceBase):
     id: str
-    createdAt: datetime
-    updatedAt: datetime
-    
-    class Config:
-        from_attributes = True
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 ```
 
-3. **Create the Router** in `api/my_entities.py`:
+3. **Create the Router** in `api/my_resources.py` (copy the pattern from `api/agencies.py`):
 
 ```python
 from fastapi import APIRouter, Depends
 from ..database import get_db
-from ..models import MyEntity
-from ..schemas import MyEntityCreate, MyEntity as MyEntitySchema
+from ..models import MyResource
+from ..schemas import MyResourceCreate, MyResource as MyResourceSchema
 
 router = APIRouter()
 
-@router.post("", response_model=MyEntitySchema, status_code=status.HTTP_201_CREATED)
-async def create_entity(entity: MyEntityCreate, db: AsyncSession = Depends(get_db)):
-    db_entity = MyEntity(**entity.model_dump())
-    db.add(db_entity)
+@router.post("", response_model=MyResourceSchema, status_code=status.HTTP_201_CREATED)
+async def create_resource(payload: MyResourceCreate, db: AsyncSession = Depends(get_db)):
+    db_row = MyResource(**payload.model_dump())
+    db.add(db_row)
     await db.commit()
-    await db.refresh(db_entity)
-    return db_entity
+    await db.refresh(db_row)
+    return db_row
 ```
 
 4. **Register the Router** in `api/__init__.py`:
 
 ```python
-from .my_entities import router as my_entities_router
-router.include_router(my_entities_router, prefix="/my-entities", tags=["my-entities"])
+from .my_resources import router as my_resources_router
+router.include_router(my_resources_router, prefix="/my-resources", tags=["my-resources"])
 ```
 
 ### Error Handling

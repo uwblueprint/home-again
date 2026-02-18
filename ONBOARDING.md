@@ -68,7 +68,7 @@ cd backend
 alembic upgrade head
 ```
 
-The Agencies resource is fully implemented (backend + frontend). Other resources (Donors, Clients, Inventory, Referrals, Deliveries) have routers registered but return 501 until you implement them. See [backend/STARTER_BACKEND_GUIDE.md](backend/STARTER_BACKEND_GUIDE.md).
+The Agencies resource is fully implemented (backend + frontend). Other resources (Donors, Clients, Furniture, Referrals, Routes, Admins, Agents) have routers registered but return 501 until you implement them. See [backend/STARTER_BACKEND_GUIDE.md](backend/STARTER_BACKEND_GUIDE.md).
 
 ## Understanding the Project
 

@@ -53,7 +53,7 @@ home-again/
 │   │   ├── page.tsx           # Home page
 │   │   ├── loading.tsx        # Global loading state
 │   │   ├── providers.tsx      # TanStack Query provider
-│   │   └── agencies/          # Example resource page
+│   │   └── agencies/          # Agencies resource page
 │   ├── components/            # Reusable React components
 │   ├── hooks/                 # TanStack Query hooks (useApi.ts)
 │   ├── stores/                # Zustand stores (auth, UI)
@@ -82,17 +82,17 @@ home-again/
 └── docker-compose.yml         # Multi-container setup
 ```
 
-## Key Features (Starter Foundation)
+## Key Features (Starter Code)
 
 - **One full stack example**: Agencies have full CRUD (backend + frontend). Use this as the pattern for other resources.
 - **Type-safe**: TypeScript types in `frontend/types/` match Pydantic schemas; use `lib/apiClient.ts` and `hooks/useApi.ts` for all API calls.
-- **Ready to extend**: Implement Donors, Clients, Inventory, Referrals, and Deliveries by following [backend/STARTER_BACKEND_GUIDE.md](backend/STARTER_BACKEND_GUIDE.md) and the Agencies code.
+- **Ready to extend**: Implement Donors, Clients, Furniture, Referrals, Routes, Admins, and Agents by following [backend/STARTER_BACKEND_GUIDE.md](backend/STARTER_BACKEND_GUIDE.md) and the Agencies code.
 - **Documented**: [ARCHITECTURE.md](./ARCHITECTURE.md), [backend/API_GUIDE.md](./backend/API_GUIDE.md), and [ONBOARDING.md](./ONBOARDING.md) cover patterns and how to add features.
 
 ## Core Domains
 
 - **Agencies**: Full CRUD at `/api/agencies` (reference implementation). Frontend at `/agencies`.
-- **Donors, Clients, Inventory, Referrals, Deliveries**: Models and schemas exist; routers registered but return 501 until implemented. See [backend/STARTER_BACKEND_GUIDE.md](./backend/STARTER_BACKEND_GUIDE.md).
+- **Donors, Clients, Furniture, Referrals, Routes, Admins, Agents**: Models and schemas exist; routers registered but return 501 until implemented. See [backend/STARTER_BACKEND_GUIDE.md](./backend/STARTER_BACKEND_GUIDE.md).
 
 ## Documentation
 

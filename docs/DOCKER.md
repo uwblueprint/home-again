@@ -2,6 +2,15 @@
 
 This project runs with Docker Compose: frontend (Next.js), backend (FastAPI), and PostgreSQL.
 
+## Table of contents
+
+- [Quick start](#quick-start)
+- [Services](#services)
+- [Behaviour](#behaviour)
+- [Overriding configuration](#overriding-configuration)
+- [Useful commands](#useful-commands)
+- [Production](#production)
+
 ## Quick start
 
 ```bash
@@ -25,7 +34,7 @@ docker-compose up --build
 - **Database**: The `db` service creates database `hafb` with user `hafb_user` and the password set in the compose file. Scripts in `db-init/` run on first start (e.g. `create-multiple-dbs.sh` if you set `POSTGRES_MULTIPLE_DATABASES`).
 - **Migrations**: The backend container runs `alembic upgrade head` in its entrypoint before starting the API, so tables are created automatically.
 - **Backend health**: Backend has a healthcheck on `/health`; frontend starts only after backend is healthy.
-- **Frontend**: The dev server runs with Turbopack and listens on `0.0.0.0`. `CHOKIDAR_USEPOLLING` and `WATCHPACK_POLLING` are set so file changes are detected with volume mounts. The app calls the API at `http://localhost:8000/api` (browser uses the host’s port mapping).
+- **Frontend**: The dev server runs with Turbopack and listens on `0.0.0.0`. `CHOKIDAR_USEPOLLING` and `WATCHPACK_POLLING` are set so file changes are detected with volume mounts. The app calls the API at `http://localhost:8000/api` (browser uses the host's port mapping).
 
 ## Overriding configuration
 
@@ -69,4 +78,4 @@ This Compose file is aimed at local development (hot reload, dev servers). For p
 - Use a production ASGI server (e.g. Gunicorn + Uvicorn) for the backend.
 - Rely on a managed database or external PostgreSQL and set `DATABASE_URL` accordingly.
 
-See [ARCHITECTURE.md - Deployment](ARCHITECTURE.md#deployment) for more.
+See [ARCHITECTURE.md - Deployment](./ARCHITECTURE.md#deployment) for more.

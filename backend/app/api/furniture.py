@@ -4,13 +4,13 @@ Endpoints for the Furniture resource.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
+from ..config import get_settings
 from ..database import get_db
-from ..models import Furniture
 from ..schemas import FurnitureCreate, FurnitureUpdate, Furniture as FurnitureSchema
+from ..services import furniture_service
 
 router = APIRouter()
 
@@ -18,20 +18,14 @@ router = APIRouter()
 @router.get("", response_model=list[FurnitureSchema])
 async def list_furniture(db: AsyncSession = Depends(get_db)):
     """List furniture items."""
-    result = await db.execute(select(Furniture).order_by(Furniture.name))
-    return list(result.scalars().all())
+    return await furniture_service.list_furniture(db)
 
 
 @router.post("", response_model=FurnitureSchema, status_code=status.HTTP_201_CREATED)
 async def create_furniture(furniture: FurnitureCreate, db: AsyncSession = Depends(get_db)):
     """Create a new furniture item."""
-    data = {k: v for k, v in furniture.model_dump().items() if k in _FURNITURE_COLUMN_NAMES}
     try:
-        db_furniture = Furniture(**data)
-        db.add(db_furniture)
-        await db.commit()
-        await db.refresh(db_furniture)
-        return db_furniture
+        return await furniture_service.create_furniture(furniture.model_dump(), db)
     except IntegrityError as e:
         await db.rollback()
         raise HTTPException(
@@ -41,15 +35,16 @@ async def create_furniture(furniture: FurnitureCreate, db: AsyncSession = Depend
     except Exception as e:
         await db.rollback()
         if get_settings().DEBUG:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+            ) from e
         raise
 
 
 @router.get("/{furniture_id}", response_model=FurnitureSchema)
 async def get_furniture(furniture_id: str, db: AsyncSession = Depends(get_db)):
     """Get a single furniture item by ID."""
-    result = await db.execute(select(Furniture).where(Furniture.id == furniture_id))
-    furniture = result.scalar_one_or_none()
+    furniture = await furniture_service.get_furniture(furniture_id, db)
     if not furniture:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -65,30 +60,23 @@ async def update_furniture(
     db: AsyncSession = Depends(get_db),
 ):
     """Update a furniture item."""
-    result = await db.execute(select(Furniture).where(Furniture.id == furniture_id))
-    furniture = result.scalar_one_or_none()
+    furniture = await furniture_service.update_furniture(
+        furniture_id, payload.model_dump(exclude_unset=True), db
+    )
     if not furniture:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Furniture not found",
         )
-    data = payload.model_dump(exclude_unset=True)
-    for key, value in data.items():
-        setattr(furniture, key, value)
-    await db.commit()
-    await db.refresh(furniture)
     return furniture
 
 
 @router.delete("/{furniture_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_furniture(furniture_id: str, db: AsyncSession = Depends(get_db)):
     """Delete a furniture item."""
-    result = await db.execute(select(Furniture).where(Furniture.id == furniture_id))
-    furniture = result.scalar_one_or_none()
-    if not furniture:
+    deleted = await furniture_service.delete_furniture(furniture_id, db)
+    if not deleted:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Furniture not found",
         )
-    await db.delete(furniture)
-    await db.commit()

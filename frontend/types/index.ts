@@ -175,3 +175,39 @@ export interface Referral {
   created_at: string;
   updated_at: string;
 }
+
+/**
+ * ResourceList Component Types
+ *
+ * Defines interfaces for a reusable list component that can display
+ * any resource (agencies, clients, donors, etc.)
+ */
+
+export type ColumnType = "text" | "email" | "phone" | "status" | "date";
+
+export interface ColumnConfig<T> {
+  key: keyof T;
+  label: string;
+  type?: ColumnType;
+  width?: string;
+  render?: (value: unknown, row: T) => React.ReactNode;
+}
+
+export interface RowActionConfig<T> {
+  id: string;
+  label: string;
+  icon?: string;
+  className?: string;
+  onClick: (row: T) => void;
+  show?: (row: T) => boolean;
+}
+
+export interface ResourceListProps<T> {
+  columns: ColumnConfig<T>[];
+  data: T[];
+  loading: boolean;
+  error?: Error | null;
+  rowActions: RowActionConfig<T>[];
+  emptyStateMessage?: string;
+  testId?: string;
+}

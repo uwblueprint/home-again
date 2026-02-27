@@ -23,7 +23,7 @@ async def list_donors(db: AsyncSession = Depends(get_db)):
 @router.post("", response_model=DonorSchema, status_code=status.HTTP_201_CREATED)
 async def create_donor(donor: DonorCreate, db: AsyncSession = Depends(get_db)):
     """Create a new donor."""
-    try: 
+    try:
         return await donor_service.create_donor(db, donor)
     except Exception as e:
         if get_settings().DEBUG:
@@ -32,7 +32,7 @@ async def create_donor(donor: DonorCreate, db: AsyncSession = Depends(get_db)):
                 detail=str(e),
             ) from e
         raise
-    
+
 
 @router.get("/{donor_id}", response_model=DonorSchema, status_code=status.HTTP_200_OK)
 async def get_donor(donor_id: str, db: AsyncSession = Depends(get_db)):
@@ -45,8 +45,11 @@ async def get_donor(donor_id: str, db: AsyncSession = Depends(get_db)):
         )
     return donor
 
+
 @router.put("/{donor_id}", response_model=DonorSchema, status_code=status.HTTP_200_OK)
-async def update_donor(donor_id: str, payload: DonorUpdate, db: AsyncSession = Depends(get_db)):
+async def update_donor(
+    donor_id: str, payload: DonorUpdate, db: AsyncSession = Depends(get_db)
+):
     """Update a donor."""
     try:
         donor = await donor_service.update_donor(db, donor_id, payload)
@@ -65,6 +68,7 @@ async def update_donor(donor_id: str, payload: DonorUpdate, db: AsyncSession = D
                 detail=str(e),
             ) from e
         raise
+
 
 @router.delete("/{donor_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_donor(donor_id: str, db: AsyncSession = Depends(get_db)):
@@ -85,5 +89,3 @@ async def delete_donor(donor_id: str, db: AsyncSession = Depends(get_db)):
                 detail=str(e),
             ) from e
         raise
-
-

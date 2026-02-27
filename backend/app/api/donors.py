@@ -4,7 +4,6 @@ Full CRUD implementation for the Donors resource.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..config import get_settings
@@ -25,15 +24,8 @@ async def list_donors(db: AsyncSession = Depends(get_db)):
 async def create_donor(donor: DonorCreate, db: AsyncSession = Depends(get_db)):
     """Create a new donor."""
     try: 
-        return await donor_service.create_donor(db, donor.model_dump())
-    except IntegrityError as e:
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Donor with this information already exists or violates database constraints",
-        ) from e
+        return await donor_service.create_donor(db, donor)
     except Exception as e:
-        await db.rollback()
         if get_settings().DEBUG:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -57,23 +49,16 @@ async def get_donor(donor_id: str, db: AsyncSession = Depends(get_db)):
 async def update_donor(donor_id: str, payload: DonorUpdate, db: AsyncSession = Depends(get_db)):
     """Update a donor."""
     try:
-        donor = await donor_service.update_donor(db, donor_id, payload.model_dump(exclude_unset=True))
+        donor = await donor_service.update_donor(db, donor_id, payload)
         if not donor:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Donor not found",
             )
         return donor
-    except IntegrityError as e:
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Update violates database constraints",
-        ) from e
     except HTTPException:
         raise
     except Exception as e:
-        await db.rollback()
         if get_settings().DEBUG:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -91,16 +76,9 @@ async def delete_donor(donor_id: str, db: AsyncSession = Depends(get_db)):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Donor not found",
             )
-    except IntegrityError as e:
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Cannot delete donor: related records exist",
-        ) from e
     except HTTPException:
         raise
     except Exception as e:
-        await db.rollback()
         if get_settings().DEBUG:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -35,7 +35,7 @@ async def get_client(
     id: str,
     db: AsyncSession = Depends(get_db),
 ):
-    client = await clients_service.get_client_by_id(db, id)
+    client = await clients_service.get_client(db, id)
     if not client:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -50,7 +50,7 @@ async def update_client(
     payload: ClientUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    client = await clients_service.get_client_by_id(db, id)
+    client = await clients_service.get_client(db, id)
     if not client:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -71,7 +71,7 @@ async def delete_client(
     id: str,
     db: AsyncSession = Depends(get_db),
 ):
-    client = await clients_service.get_client_by_id(db, id)
+    client = await clients_service.get_client(db, id)
     if not client:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

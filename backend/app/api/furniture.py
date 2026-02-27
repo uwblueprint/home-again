@@ -22,7 +22,9 @@ async def list_furniture(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("", response_model=FurnitureSchema, status_code=status.HTTP_201_CREATED)
-async def create_furniture(furniture: FurnitureCreate, db: AsyncSession = Depends(get_db)):
+async def create_furniture(
+    furniture: FurnitureCreate, db: AsyncSession = Depends(get_db)
+):
     """Create a new furniture item."""
     try:
         return await furniture_service.create_furniture(furniture.model_dump(), db)
@@ -30,7 +32,10 @@ async def create_furniture(furniture: FurnitureCreate, db: AsyncSession = Depend
         await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid reference: donor_id, client_id, or dispatch_id must reference existing rows.",
+            detail=(
+                "Invalid reference: donor_id, client_id, or dispatch_id must "
+                "reference existing rows."
+            ),
         ) from e
     except Exception as e:
         await db.rollback()

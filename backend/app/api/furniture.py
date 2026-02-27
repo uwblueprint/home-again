@@ -65,9 +65,7 @@ async def update_furniture(
     db: AsyncSession = Depends(get_db),
 ):
     """Update a furniture item."""
-    furniture = await furniture_service.update_furniture(
-        furniture_id, payload, db
-    )
+    furniture = await furniture_service.update_furniture(furniture_id, payload, db)
     if not furniture:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

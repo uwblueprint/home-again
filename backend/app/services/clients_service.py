@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models import Client
-from ..models import Agency 
+#from ..models import Agency 
 from ..schemas import ClientCreate, ClientUpdate
 
 async def list_clients(db: AsyncSession) -> list[Client]:

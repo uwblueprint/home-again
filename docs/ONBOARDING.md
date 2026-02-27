@@ -1,6 +1,20 @@
 # Developer Onboarding Guide
 
-Welcome to Home Again Furniture Bank! This guide will get you up and running in about 15 minutes.
+## Table of contents
+
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Environment Variables](#environment-variables)
+- [API Documentation](#api-documentation)
+- [Understanding the Project](#understanding-the-project)
+- [Common Tasks](#common-tasks)
+- [Understanding State Management](#understanding-state-management)
+- [API Integration Pattern](#api-integration-pattern)
+- [Useful Commands Reference](#useful-commands-reference)
+- [Debugging Tips](#debugging-tips)
+- [Code Style Guidelines](#code-style-guidelines)
+- [Documentation Reference](#documentation-reference)
+- [Next Steps](#next-steps)
 
 ## Prerequisites
 
@@ -10,7 +24,7 @@ Make sure you have installed:
 - **Python 3.9+**: [Download](https://www.python.org/downloads/)
 - **PostgreSQL 12+**: [Download](https://www.postgresql.org/download/) (or use Supabase)
 - **Git**: [Download](https://git-scm.com/)
-- **Docker** (optional): [Download](https://www.docker.com/products/docker-desktop)
+- **Docker**: [Download](https://www.docker.com/products/docker-desktop)
 
 Verify:
 ```bash
@@ -21,14 +35,14 @@ git --version     # 2.0 or higher
 
 ## Getting Started
 
-### Option A: Docker (fastest)
+### Option A: Docker
 
 ```bash
 cd home-again
 docker-compose up --build
 ```
 
-Open http://localhost:3000 (frontend) and http://localhost:8000/docs (API docs). The database is created and migrated automatically. See [DOCKER.md](DOCKER.md) for more.
+Open http://localhost:3000 (frontend) and http://localhost:8000/docs (API docs). The database is created and migrated automatically. See [DOCKER.md](./DOCKER.md) for more.
 
 ### Option B: Local install
 
@@ -68,7 +82,23 @@ cd backend
 alembic upgrade head
 ```
 
-The Agencies resource is fully implemented (backend + frontend). Other resources (Donors, Clients, Furniture, Referrals, Routes, Admins, Agents) have routers registered but return 501 until you implement them. See [backend/STARTER_BACKEND_GUIDE.md](backend/STARTER_BACKEND_GUIDE.md).
+The Agencies resource is fully implemented (backend + frontend). Other resources (Donors, Clients, Furniture, Referrals, Routes, Admins, Agents) have routers registered but return 501 until you implement them. See [STARTER_BACKEND_GUIDE.md](./STARTER_BACKEND_GUIDE.md).
+
+## Environment Variables
+
+When running locally, copy the example env files and edit with your values:
+
+- **Frontend**: Copy [frontend/.env.example](../frontend/.env.example) to `frontend/.env.local`
+- **Backend**: Copy [backend/.env.example](../backend/.env.example) to `backend/.env`
+
+Each example file includes comments describing the variables.
+
+## API Documentation
+
+Once the backend is running:
+
+- **Swagger UI** (interactive): http://localhost:8000/docs
+- **ReDoc** (static): http://localhost:8000/redoc
 
 ## Understanding the Project
 
@@ -76,25 +106,9 @@ The Agencies resource is fully implemented (backend + frontend). Other resources
 
 1. **Visit the app**: http://localhost:3000
 2. **Explore the API**: http://localhost:8000/docs — try endpoints interactively
-3. **Read the docs**: `ARCHITECTURE.md` for system design, `backend/API_GUIDE.md` for backend patterns
+3. **Read the docs**: [ARCHITECTURE.md](./ARCHITECTURE.md) for system design, [API_GUIDE.md](./API_GUIDE.md) for backend patterns
 
-### Project Structure
-
-```
-home-again/
-├── frontend/          # Next.js React app
-│   ├── app/           # Pages (file-based routing)
-│   ├── components/    # Reusable UI components
-│   ├── hooks/         # API hooks (TanStack Query)
-│   ├── stores/        # Global state (Zustand)
-│   ├── lib/           # apiClient.ts, supabase.ts
-│   ├── types/         # TypeScript types
-│   ├── constants/     # Routes, config, auth constants
-│   └── utils/         # Utility functions
-├── backend/           # FastAPI REST API
-├── e2e-tests/         # End-to-end tests
-└── docker-compose.yml
-```
+For the repository layout (frontend, backend, docs, etc.), see [Project structure](../README.md#project-structure) in the main [README](../README.md).
 
 ### Tech Stack at a Glance
 
@@ -153,7 +167,7 @@ export default function Home() {
 4. Register in `backend/app/api/__init__.py`
 5. Test at http://localhost:8000/docs
 
-See [backend/API_GUIDE.md](backend/API_GUIDE.md) for a detailed walkthrough.
+See [API_GUIDE.md](./API_GUIDE.md) for a detailed walkthrough.
 
 ### Running Tests
 
@@ -284,42 +298,38 @@ docker-compose logs -f           # Follow logs
 docker-compose exec py-backend alembic upgrade head  # Run migrations
 ```
 
-### Git Workflow
+### Git workflow
 
-```bash
-git checkout -b feature/add-trucks
-git add .
-git commit -m "feat: add trucks resource"
-git push origin feature/add-trucks
-# Open pull request on GitHub
-```
+For branch naming, commits, PRs, and Jira keys, see [GIT.md](./GIT.md).
 
 ## Debugging Tips
 
-### Frontend
+### Frontend won't start
 
 ```bash
+node --version          # Need 20+
 rm -rf .next                              # Clear Next.js cache
 rm -rf node_modules && npm install        # Reinstall dependencies
 lsof -i :3000                             # Check if port is in use
 ```
 
-### Backend
+### Backend won't start
 
 ```bash
+python --version        # Need 3.9+
 pip install --upgrade -r requirements.txt
 psql $DATABASE_URL -c "SELECT 1"          # Test DB connection
 lsof -i :8000
 ```
 
-### Database
+### Database connection error
+
+- Check `backend/.env` has the correct `DATABASE_URL`
+- Verify PostgreSQL is running: `brew services start postgresql` (macOS) or `sudo systemctl start postgresql` (Linux)
+
+### Database reset
 
 ```bash
-# Can't connect?
-brew services start postgresql  # macOS
-sudo systemctl start postgresql # Linux
-
-# Reset database
 dropdb hafb && createdb hafb
 cd backend && alembic upgrade head
 ```
@@ -348,7 +358,6 @@ def create_agency(a, db):
 - Use type hints everywhere
 - Write docstrings on public functions
 - Follow PEP 8
-- Keep functions under 20 lines
 
 ### TypeScript
 
@@ -376,17 +385,18 @@ function AgencyCard({ a }: { a: any }) {
 
 ## Documentation Reference
 
-- **[README.md](README.md)** — Project overview and quick start
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** — Complete system design
-- **[DOCKER.md](DOCKER.md)** — Docker setup and configuration
-- **[backend/API_GUIDE.md](backend/API_GUIDE.md)** — Backend development patterns
-- **[backend/STARTER_BACKEND_GUIDE.md](backend/STARTER_BACKEND_GUIDE.md)** — Implementing remaining resources
+- **[README.md](../README.md)** — Project overview
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — Complete system design
+- **[DOCKER.md](./DOCKER.md)** — Docker setup and configuration
+- **[API_GUIDE.md](./API_GUIDE.md)** — Backend development patterns
+- **[STARTER_BACKEND_GUIDE.md](./STARTER_BACKEND_GUIDE.md)** — Implementing remaining resources
+- **[GIT.md](./GIT.md)** — Git workflow and Jira integration
 
 ## Next Steps
 
 1. ✅ Get the local environment running
 2. ✅ Browse http://localhost:3000 and http://localhost:8000/docs
-3. ✅ Read ARCHITECTURE.md
+3. ✅ Read [ARCHITECTURE.md](./ARCHITECTURE.md)
 4. ✅ Trace one feature end-to-end (Agencies: model → schema → endpoint → hook → page)
 5. ✅ Implement a new resource following the Agencies pattern
 6. ✅ Write a test
@@ -397,5 +407,5 @@ You're ready to start developing. Happy coding!
 
 ---
 
-**Questions?** Check ARCHITECTURE.md or ask your team lead.
+**Questions?** Check [ARCHITECTURE.md](./ARCHITECTURE.md) or ask your team lead.
 **Found an issue in the docs?** Please fix it — the next developer will thank you.

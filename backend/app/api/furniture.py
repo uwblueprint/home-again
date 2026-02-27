@@ -27,7 +27,7 @@ async def create_furniture(
 ):
     """Create a new furniture item."""
     try:
-        return await furniture_service.create_furniture(furniture.model_dump(), db)
+        return await furniture_service.create_furniture(furniture, db)
     except IntegrityError as e:
         await db.rollback()
         raise HTTPException(
@@ -66,7 +66,7 @@ async def update_furniture(
 ):
     """Update a furniture item."""
     furniture = await furniture_service.update_furniture(
-        furniture_id, payload.model_dump(exclude_unset=True), db
+        furniture_id, payload, db
     )
     if not furniture:
         raise HTTPException(

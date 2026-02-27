@@ -5,12 +5,16 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models import Client
-#from ..models import Agency 
+
+# from ..models import Agency
 from ..schemas import ClientCreate, ClientUpdate
+
 
 async def list_clients(db: AsyncSession) -> list[Client]:
     """Return all clients ordered by last and first name."""
-    result = await db.execute(select(Client).order_by(Client.last_name, Client.first_name))
+    result = await db.execute(
+        select(Client).order_by(Client.last_name, Client.first_name)
+    )
     return list(result.scalars().all())
 
 
@@ -33,10 +37,10 @@ async def create_client(db: AsyncSession, payload: ClientCreate) -> Client:
     for key, value in data.items():
         if isinstance(value, datetime) and value.tzinfo is not None:
             data[key] = value.replace(tzinfo=None)
-    
+
     db_client = Client(**data)
     db.add(db_client)
-    
+
     try:
         await db.commit()
     except IntegrityError as e:
@@ -47,10 +51,12 @@ async def create_client(db: AsyncSession, payload: ClientCreate) -> Client:
     return db_client
 
 
-async def update_client(db: AsyncSession, client: Client, payload: ClientUpdate) -> Client:
+async def update_client(
+    db: AsyncSession, client: Client, payload: ClientUpdate
+) -> Client:
     """Update a client, normalizing datetimes and handling partial payloads."""
     data = payload.model_dump(exclude_unset=True)
-    
+
     if not data:
         return client
 

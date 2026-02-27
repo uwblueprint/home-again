@@ -1,44 +1,24 @@
 "use client";
 
-import { SetStateAction, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import apiClient from "@/lib/apiClient";
+import { useAgency, useUpdateAgency } from "@/hooks/useApi";
 import type { Agency } from "@/types";
 
 export default function AgencyEditPage() {
   const params = useParams();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const agencyId = params.id as string;
 
   const [formData, setFormData] = useState<Partial<Agency>>({});
 
-  const { data: agency, isLoading } = useQuery<Agency, Error, Agency>({
-    queryKey: ["agency", agencyId],
-    queryFn: async (): Promise<Agency> => {
-      const response = await apiClient.get<Agency>(`/agencies/${agencyId}`);
-      return response.data;
-    },
-    onSuccess: (data: Agency) => {
-      setFormData(data);
-    },
-  });
+  const { data: agency, isLoading } = useAgency(agencyId);
 
-  const updateMutation = useMutation({
-    mutationFn: async (data: Partial<Agency>) => {
-      const response = await apiClient.put<Agency>(
-        `/agencies/${agencyId}`,
-        data
-      );
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["agency", agencyId] });
-      queryClient.invalidateQueries({ queryKey: ["agencies"] });
-      router.push(`/agencies/${agencyId}`);
-    },
-  });
+  useEffect(() => {
+    if (agency) setFormData(agency);
+  }, [agency]);
+
+  const updateMutation = useUpdateAgency(agencyId);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -52,7 +32,9 @@ export default function AgencyEditPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateMutation.mutate(formData);
+    updateMutation.mutate(formData, {
+      onSuccess: () => router.push(`/agencies/${agencyId}`),
+    });
   };
 
   if (isLoading) {

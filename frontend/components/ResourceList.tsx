@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { ResourceListProps, ColumnConfig, RowActionConfig } from "@/types";
+import type { ResourceListProps, CellRendererProps, ResourceListSkeletonProps } from "@/types";
 
 /**
  * ResourceList Component
@@ -43,7 +43,7 @@ export default function ResourceList<T extends { id: string }>({
       )}
 
       {/* Loading State */}
-      {loading && <ResourceListSkeleton columns={columns} />}
+      {loading && <ResourceListSkeleton columns={columns} hasActions={rowActions.length > 0} />}
 
       {/* Empty State */}
       {!loading && !error && data.length === 0 && (
@@ -161,12 +161,6 @@ export default function ResourceList<T extends { id: string }>({
  * Renders cell content with optional custom formatting.
  * Falls back to default rendering if no custom render function is provided.
  */
-interface CellRendererProps<T> {
-  column: ColumnConfig<T>;
-  row: T;
-  value: unknown;
-}
-
 function CellRenderer<T>({ column, row, value }: CellRendererProps<T>) {
   if (column.render) {
     return <>{column.render(value, row)}</>;
@@ -264,14 +258,11 @@ function StatusBadge({ status }: { status: string }) {
  *
  * Loading skeleton that mimics the table structure.
  */
-interface ResourceListSkeletonProps<T> {
-  columns: ColumnConfig<T>[];
-}
-
 function ResourceListSkeleton<T extends { id: string }>({
   columns,
+  hasActions,
 }: ResourceListSkeletonProps<T>) {
-  const rows = 5; // Number of skeleton rows to show
+  const rows = 5;
 
   return (
     <div className="overflow-x-auto rounded-lg border border-gray-200 shadow">
@@ -288,9 +279,11 @@ function ResourceListSkeleton<T extends { id: string }>({
                 {column.label}
               </th>
             ))}
-            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700">
-              Actions
-            </th>
+            {hasActions && (
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700">
+                Actions
+              </th>
+            )}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
@@ -307,12 +300,14 @@ function ResourceListSkeleton<T extends { id: string }>({
                   <div className="h-4 w-24 rounded bg-gray-200" />
                 </td>
               ))}
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="flex gap-2">
-                  <div className="h-4 w-12 rounded bg-gray-200" />
-                  <div className="h-4 w-12 rounded bg-gray-200" />
-                </div>
-              </td>
+              {hasActions && (
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex gap-2">
+                    <div className="h-4 w-12 rounded bg-gray-200" />
+                    <div className="h-4 w-12 rounded bg-gray-200" />
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAgencies } from "@/hooks/useApi";
+import { useAgencies, useDeleteAgency } from "@/hooks/useApi";
 import ResourceList from "@/components/ResourceList";
 import type { Agency, ColumnConfig, RowActionConfig } from "@/types";
 
@@ -43,6 +43,7 @@ const agencyColumns: ColumnConfig<Agency>[] = [
 export default function AgenciesPage() {
   const router = useRouter();
   const { data: agencies, isLoading, error } = useAgencies();
+  const { mutate: deleteAgency } = useDeleteAgency();
 
   const rowActions: RowActionConfig<Agency>[] = [
     {
@@ -69,8 +70,7 @@ export default function AgenciesPage() {
       className: "text-red-600 hover:text-red-800 hover:underline transition",
       onClick: (agency) => {
         if (confirm(`Are you sure you want to delete "${agency.name}"?`)) {
-          // TODO: Implement delete functionality
-          console.log("Delete agency:", agency.id);
+          deleteAgency(agency.id);
         }
       },
     },

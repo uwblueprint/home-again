@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import AgenciesPage from "../page";
-import { useAgencies } from "@/hooks/useApi";
+import { useAgencies, useDeleteAgency } from "@/hooks/useApi";
 
 jest.mock("@/hooks/useApi");
 
@@ -31,6 +31,8 @@ const sample = [
 describe("AgenciesPage integration", () => {
   beforeEach(() => {
     (useAgencies as jest.Mock).mockReset();
+    (useDeleteAgency as jest.Mock).mockReturnValue({ mutate: jest.fn() });
+    jest.spyOn(global, "confirm").mockReturnValue(true);
   });
 
   it("renders list and allows view action", () => {
@@ -44,7 +46,6 @@ describe("AgenciesPage integration", () => {
 
     expect(screen.getByText("Test Agency")).toBeInTheDocument();
 
-    // click view action
     fireEvent.click(screen.getByTestId("action-view-1"));
     expect(mockPush).toHaveBeenCalledWith("/agencies/1");
   });
@@ -68,7 +69,6 @@ describe("AgenciesPage integration", () => {
     });
 
     render(<AgenciesPage />);
-    // skeleton appears; we can check that the resource-list container exists
     expect(screen.getByTestId("agencies-list")).toBeInTheDocument();
   });
 });

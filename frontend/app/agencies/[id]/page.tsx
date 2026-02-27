@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import apiClient from "@/lib/apiClient";
+import { useAgency } from "@/hooks/useApi";
 import type { Agency } from "@/types";
 
 export default function AgencyDetailPage() {
@@ -11,13 +10,7 @@ export default function AgencyDetailPage() {
   const router = useRouter();
   const agencyId = params.id as string;
 
-  const { data: agency, isLoading, error } = useQuery({
-    queryKey: ["agency", agencyId],
-    queryFn: async () => {
-      const response = await apiClient.get<Agency>(`/agencies/${agencyId}`);
-      return response.data;
-    },
-  });
+  const { data: agency, isLoading, error } = useAgency(agencyId);
 
   if (isLoading) {
     return (

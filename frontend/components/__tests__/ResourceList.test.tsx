@@ -42,11 +42,9 @@ describe("ResourceList", () => {
       />
     );
 
-    // skeleton rows have animate-pulse class
     const skeleton = screen.getByRole("table");
     expect(skeleton).toBeInTheDocument();
-    expect(skeleton).toHaveClass("divide-y"); // table exists
-    // simply ensure no actual data text
+    expect(skeleton).toHaveClass("divide-y");
     expect(screen.queryByText("A")).not.toBeInTheDocument();
   });
 

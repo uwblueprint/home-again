@@ -6,6 +6,8 @@
  * Auth is handled by Supabase; Admin/Agent link via supabase_user_id.
  */
 
+import type { ReactNode } from "react";
+
 export interface Admin {
   id: string;
   supabase_user_id: string | null;
@@ -190,7 +192,7 @@ export interface ColumnConfig<T> {
   label: string;
   type?: ColumnType;
   width?: string;
-  render?: (value: unknown, row: T) => React.ReactNode;
+  render?: (value: unknown, row: T) => ReactNode;
 }
 
 export interface RowActionConfig<T> {
@@ -210,4 +212,15 @@ export interface ResourceListProps<T> {
   rowActions: RowActionConfig<T>[];
   emptyStateMessage?: string;
   testId?: string;
+}
+
+export interface CellRendererProps<T> {
+  column: ColumnConfig<T>;
+  row: T;
+  value: unknown;
+}
+
+export interface ResourceListSkeletonProps {
+  columns: ColumnConfig<unknown>[];
+  hasActions: boolean;
 }

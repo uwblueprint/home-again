@@ -1,8 +1,6 @@
 """Clients REST API."""
 
-from typing import Any
-
-from fastapi import APIRouter, Depends, Header, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
@@ -13,24 +11,8 @@ from ..services import clients_service
 router = APIRouter()
 
 
-async def get_current_user(authorization: str | None = Header(default=None)) -> Any:
-    """Placeholder auth dependency.
-
-    Returns 401 when no bearer token is provided.
-    """
-    if not authorization:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
-        )
-    return {"token": authorization}
-
-
 @router.get("", response_model=list[ClientSchema], status_code=status.HTTP_200_OK)
-async def list_clients(
-    db: AsyncSession = Depends(get_db),
-    _: Any = Depends(get_current_user),
-):
+async def list_clients(db: AsyncSession = Depends(get_db)):
     return await clients_service.list_clients(db)
 
 
@@ -38,7 +20,6 @@ async def list_clients(
 async def create_client(
     payload: ClientCreate,
     db: AsyncSession = Depends(get_db),
-    _: Any = Depends(get_current_user),
 ):
     try:
         return await clients_service.create_client(db, payload)
@@ -53,7 +34,6 @@ async def create_client(
 async def get_client(
     id: str,
     db: AsyncSession = Depends(get_db),
-    _: Any = Depends(get_current_user),
 ):
     client = await clients_service.get_client_by_id(db, id)
     if not client:
@@ -69,7 +49,6 @@ async def update_client(
     id: str,
     payload: ClientUpdate,
     db: AsyncSession = Depends(get_db),
-    _: Any = Depends(get_current_user),
 ):
     client = await clients_service.get_client_by_id(db, id)
     if not client:
@@ -91,7 +70,6 @@ async def update_client(
 async def delete_client(
     id: str,
     db: AsyncSession = Depends(get_db),
-    _: Any = Depends(get_current_user),
 ):
     client = await clients_service.get_client_by_id(db, id)
     if not client:

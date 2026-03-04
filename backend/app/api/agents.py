@@ -11,7 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
-from ..models import Agency, Agent                        
+from ..models import Agency, Agent
 from ..schemas import AgentCreate, AgentUpdate, Agent as AgentSchema
 
 router = APIRouter()
@@ -27,8 +27,8 @@ async def get_agent_or_404(agent_id: str, db: AsyncSession) -> Agent:
     agent = result.scalar_one_or_none()
     if not agent:
         raise HTTPException(
-            status_code = status.HTTP_404_NOT_FOUND,
-            detail = f"Agent with agent ID '{agent_id}' not found", 
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail = f"Agent with agent ID '{agent_id}' not found",
         )
     return agent
 
@@ -44,9 +44,9 @@ async def validate_agency_exists(agency_id: str, db: AsyncSession) -> None:
             status_code = status.HTTP_404_NOT_FOUND,
             detail = f"Agency with agency ID '{agency_id}' not found. Cannot assign agent to non-existent agency."
         )
-    
+
 # Endpoints
- 
+
 @router.get("", response_model = list[AgentSchema])
 async def list_agents(db: AsyncSession = Depends(get_db)):
     """
@@ -76,7 +76,7 @@ async def create_agent(agent: AgentCreate, db: AsyncSession = Depends(get_db)):
     await db.refresh(db_agent)
     return db_agent
 
-@router.get("/{agent_id}",response_model = AgentSchema)
+@router.get("/{agent_id}", response_model = AgentSchema)
 async def get_agent(agent_id: str, db: AsyncSession = Depends(get_db)):
     """
     GET /api/agents/{agent_id}
@@ -117,4 +117,4 @@ async def delete_agent(agent_id: str, db: AsyncSession = Depends(get_db)):
     """
     agent = await get_agent_or_404(agent_id, db)
     await db.delete(agent)
-    await db.commit()    
+    await db.commit()

@@ -1,11 +1,21 @@
-"""
-API Documentation and Architecture Guide
+# API documentation and architecture guide
 
 This API is built with FastAPI and follows REST principles.
+
+## Table of contents
+
+- [Architecture Overview](#architecture-overview)
+- [Adding New Endpoints](#adding-new-endpoints)
+- [Error Handling](#error-handling)
+- [Testing](#testing)
+- [Database Migrations with Alembic](#database-migrations-with-alembic)
+- [API Documentation](#api-documentation)
+- [Environment Variables](#environment-variables)
 
 ## Architecture Overview
 
 ### Technology Stack
+
 - **Framework**: FastAPI 0.115+
 - **Database**: PostgreSQL via SQLAlchemy 2.0
 - **Authentication**: JWT tokens (via Supabase or custom)
@@ -35,6 +45,7 @@ app/
 ### Key Design Decisions
 
 #### 1. Async/Await with SQLAlchemy
+
 All database operations use async patterns for non-blocking I/O:
 
 ```python
@@ -45,6 +56,7 @@ async def list_agencies(db: AsyncSession = Depends(get_db)):
 ```
 
 #### 2. Dependency Injection
+
 FastAPI's dependency injection provides:
 - Database session management
 - Automatic cleanup
@@ -56,12 +68,14 @@ async def list_agencies(db: AsyncSession = Depends(get_db)):
 ```
 
 #### 3. Pydantic Schemas
+
 Request/response validation in one place:
 - Automatic OpenAPI documentation
 - Type-safe client code generation
 - Clear API contracts
 
 #### 4. RESTful Design
+
 Resources map to standard HTTP verbs:
 - GET /agencies → list agencies
 - POST /agencies → create agency
@@ -203,4 +217,3 @@ Key variables:
 - `API_HOST`, `API_PORT`: Server address
 - `DEBUG`: Enable debug logging
 - `SECRET_KEY`: For JWT tokens (CHANGE IN PRODUCTION)
-"""

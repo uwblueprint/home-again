@@ -1,5 +1,13 @@
 # Starter Backend Guide
 
+## Table of contents
+
+- [Purpose](#purpose)
+- [Goals](#goals)
+- [What's in place](#whats-in-place)
+- [Implementing a new resource (e.g. Donors)](#implementing-a-new-resource-eg-donors)
+- [Running and testing](#running-and-testing)
+
 ## Purpose
 
 This guide explains the backend foundation and how to implement new resource endpoints on top of it.
@@ -10,7 +18,7 @@ This guide explains the backend foundation and how to implement new resource end
 - Provide one full reference implementation (Agencies) and placeholder routers for the rest.
 - Give clear patterns so teams can implement CRUD for Donors, Clients, Furniture, Referrals, Routes, Admins, and Agents.
 
-## What’s in place
+## What's in place
 
 - **Agencies**: Full CRUD at `/api/agencies` (list, create, get, update, delete). Use this as the reference.
 - **Donors, Clients, Furniture, Referrals, Routes, Admins, Agents**: Routers are registered at `/api/donors`, `/api/clients`, `/api/furniture`, etc., but return 501 until you implement them.
@@ -53,4 +61,3 @@ python server.py
 ```
 
 Use the Swagger UI at `/docs` to try Agencies and, after implementing them, other resources.
-

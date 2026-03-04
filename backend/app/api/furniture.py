@@ -12,10 +12,10 @@ router = APIRouter()
 async def list_furniture():
     """List furniture items.
 
-    Placeholder implementation. See `backend/STARTER_BACKEND_GUIDE.md`
+    Placeholder implementation. See `docs/STARTER_BACKEND_GUIDE.md`
     for details on implementing this handler with the Furniture model and schemas.
     """
     return Response(
-        content="Not implemented — see backend/STARTER_BACKEND_GUIDE.md",
+        content="Not implemented — see docs/STARTER_BACKEND_GUIDE.md",
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
     )

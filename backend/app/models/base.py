@@ -223,10 +223,10 @@ class Route(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    furniture_pickups = relationship(
+    furniture = relationship(
         "Furniture",
-        foreign_keys="Furniture.dispatch_id",
-        back_populates="dispatch",
+        foreign_keys="Furniture.route_id",
+        back_populates="route",
     )
 
 
@@ -253,7 +253,7 @@ class Furniture(Base):
     address_dropoff = Column(String(255), nullable=True)
     client_id = Column(String(36), ForeignKey("clients.id"), nullable=True)
     change_log = Column(Text, nullable=True)  # JSON array of strings
-    dispatch_id = Column(String(36), ForeignKey("routes.id"), nullable=True)
+    route_id = Column(String(36), ForeignKey("routes.id"), nullable=True)
     condition = Column(String(50), nullable=True)  # excellent, good, fair, poor
     colour = Column(String(50), nullable=True)
     donor_id = Column(String(36), ForeignKey("donors.id"), nullable=False)
@@ -276,9 +276,7 @@ class Furniture(Base):
     # Relationships
     donor = relationship("Donor", back_populates="furniture_donated")
     client = relationship("Client", back_populates="furniture_received")
-    dispatch = relationship(
-        "Route", back_populates="furniture_pickups", foreign_keys=[dispatch_id]
-    )
+    route = relationship("Route", back_populates="furniture", foreign_keys=[route_id])
 
 
 # ---------------------------------------------------------------------------

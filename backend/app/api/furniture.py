@@ -33,7 +33,7 @@ async def create_furniture(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=(
-                "Invalid reference: donor_id, client_id, or dispatch_id must "
+                "Invalid reference: donor_id, client_id, or route_id must "
                 "reference existing rows."
             ),
         ) from e

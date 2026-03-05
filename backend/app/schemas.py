@@ -330,7 +330,7 @@ class FurnitureBase(BaseModel):
     address_dropoff: Optional[str] = None
     client_id: Optional[str] = None
     change_log: Optional[str] = None  # JSON array of strings
-    dispatch_id: Optional[str] = None
+    route_id: Optional[str] = None
     condition: Optional[str] = None  # excellent, good, fair, poor
     colour: Optional[str] = None
     donor_id: str
@@ -364,7 +364,7 @@ class FurnitureUpdate(BaseModel):
     address_dropoff: Optional[str] = None
     client_id: Optional[str] = None
     change_log: Optional[str] = None
-    dispatch_id: Optional[str] = None
+    route_id: Optional[str] = None
     condition: Optional[str] = None
     colour: Optional[str] = None
     donor_id: Optional[str] = None

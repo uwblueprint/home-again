@@ -4,9 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models import Client
-
-# from ..models import Agency
+from ..models import Agency, Client
 from ..schemas import ClientCreate, ClientUpdate
 
 
@@ -15,7 +13,7 @@ async def list_clients(db: AsyncSession) -> list[Client]:
     result = await db.execute(
         select(Client).order_by(Client.last_name, Client.first_name)
     )
-    return list(result.scalars().all())
+    return result.scalars().all()
 
 
 async def get_client(db: AsyncSession, client_id: str) -> Client | None:
@@ -26,13 +24,13 @@ async def get_client(db: AsyncSession, client_id: str) -> Client | None:
 
 async def create_client(db: AsyncSession, payload: ClientCreate) -> Client:
     data = payload.model_dump(exclude_unset=True)
-    # UNCOMMENT WHEN AGENCIES ARE IMPLEMENTED FOR AGENCY VALIDATION
-    """
+
     if "agency_id" in data:
-        agency_check = await db.execute(select(Agency).where(Agency.id == data["agency_id"]))
+        agency_check = await db.execute(
+            select(Agency).where(Agency.id == data["agency_id"])
+        )
         if not agency_check.scalar_one_or_none():
             raise ValueError(f"Agency with ID '{data['agency_id']}' does not exist.")
-    """
 
     for key, value in data.items():
         if isinstance(value, datetime) and value.tzinfo is not None:
@@ -45,7 +43,7 @@ async def create_client(db: AsyncSession, payload: ClientCreate) -> Client:
         await db.commit()
     except IntegrityError as e:
         await db.rollback()
-        raise ValueError("Unable to create client: Data integrity violation.") from e
+        raise ValueError(f"Unable to create client: {str(e.orig)}") from e
 
     await db.refresh(db_client)
     return db_client
@@ -58,7 +56,7 @@ async def update_client(
     data = payload.model_dump(exclude_unset=True)
 
     if not data:
-        return client
+        raise ValueError("No update fields were provided.")
 
     for key, value in data.items():
         if isinstance(value, datetime) and value.tzinfo is not None:
@@ -69,7 +67,7 @@ async def update_client(
         await db.commit()
     except IntegrityError as e:
         await db.rollback()
-        raise ValueError("Update failed: Data integrity violation") from e
+        raise ValueError(f"Update failed: {str(e.orig)}") from e
 
     await db.refresh(client)
     return client
@@ -82,4 +80,4 @@ async def delete_client(db: AsyncSession, client: Client) -> None:
         await db.commit()
     except IntegrityError as e:
         await db.rollback()
-        raise ValueError("Unable to delete client: Data integrity violation") from e
+        raise ValueError(f"Unable to delete client: {str(e.orig)}") from e

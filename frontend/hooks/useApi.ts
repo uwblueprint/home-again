@@ -35,6 +35,24 @@ export function useAgencies() {
 }
 
 /**
+ * Fetch a single agency by ID
+ */
+export function useAgency(agencyId?: string) {
+  return useQuery({
+    queryKey: ["agencies", agencyId],
+    queryFn: async () => {
+      if (!agencyId) {
+        throw new Error("Agency ID is required");
+      }
+      const response = await apiClient.get<Agency>(`/agencies/${agencyId}`);
+      return response.data;
+    },
+    enabled: Boolean(agencyId),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+/**
  * Fetch all donors
  */
 export function useDonors() {
@@ -65,6 +83,25 @@ export function useCreateAgency() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["agencies"] });
+    },
+  });
+}
+
+/**
+ * Delete an agency by ID
+ *
+ * Invalidates agencies cache and agency detail cache on success.
+ */
+export function useDeleteAgency() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (agencyId: string) => {
+      await apiClient.delete(`/agencies/${agencyId}`);
+    },
+    onSuccess: (_, agencyId) => {
+      queryClient.invalidateQueries({ queryKey: ["agencies"] });
+      queryClient.invalidateQueries({ queryKey: ["agencies", agencyId] });
     },
   });
 }

@@ -45,11 +45,21 @@ export default function AgenciesPage() {
                 key={agency.id}
                 className="bg-white rounded-lg shadow p-4 border border-gray-200"
               >
-                <h2 className="font-semibold text-lg">{agency.name}</h2>
-                <p className="text-gray-600 text-sm">{agency.email}</p>
-                <p className="text-gray-500 text-sm">
-                  {agency.city}, {agency.province}
-                </p>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="font-semibold text-lg">{agency.name}</h2>
+                    <p className="text-gray-600 text-sm">{agency.email}</p>
+                    <p className="text-gray-500 text-sm">
+                      {agency.city}, {agency.province}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/agencies/${agency.id}`}
+                    className="inline-flex items-center rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 transition"
+                  >
+                    View details
+                  </Link>
+                </div>
               </li>
             ))}
           </ul>

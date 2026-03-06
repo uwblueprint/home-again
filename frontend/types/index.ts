@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 /**
  * Common Types
  *
@@ -174,4 +176,21 @@ export interface Referral {
   secondary_agent_phone: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface ResourceDetailField<T extends object> {
+  key: keyof T;
+  label: string;
+  emptyValue?: string;
+  render?: (value: T[keyof T], data: T) => ReactNode;
+}
+
+export interface ResourceDetailProps<T extends object> {
+  title?: string;
+  fields: ResourceDetailField<T>[];
+  data: T;
+  onDelete?: () => Promise<void> | void;
+  deleteTitle?: string;
+  deleteMessage?: string;
+  isDeleting?: boolean;
 }

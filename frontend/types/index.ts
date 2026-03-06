@@ -178,11 +178,14 @@ export interface Referral {
   updated_at: string;
 }
 
-export interface ResourceDetailField<T extends object> {
-  key: keyof T;
+export interface ResourceDetailField<
+  T extends object,
+  K extends keyof T = keyof T,
+> {
+  key: K;
   label: string;
   emptyValue?: string;
-  render?: (value: T[keyof T], data: T) => ReactNode;
+  render?: (value: T[K], data: T) => ReactNode;
 }
 
 export interface ResourceDetailProps<T extends object> {

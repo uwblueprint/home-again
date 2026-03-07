@@ -29,11 +29,7 @@ async def get_agent_or_404(agent_id: str, db: AsyncSession) -> Agent:
     if not agent:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-<<<<<<< HEAD
-            detail = f"Agent with agent ID '{agent_id}' not found",
-=======
             detail=f"Agent with agent ID '{agent_id}' not found",
->>>>>>> 6c9d216 (style: apply Black formatting (DEV-70))
         )
     return agent
 

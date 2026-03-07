@@ -10,7 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
 from ..models import Agency
-from ..schemas import AgencyCreate, AgencyUpdate, Agency as AgencySchema
+from ..schemas import Agency as AgencySchema
+from ..schemas import AgencyCreate, AgencyUpdate
 
 router = APIRouter()
 

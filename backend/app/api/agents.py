@@ -50,6 +50,7 @@ async def validate_agency_exists(agency_id: str, db: AsyncSession) -> None:
 
 # Endpoints
 
+
 @router.get("", response_model=list[AgentSchema])
 async def list_agents(db: AsyncSession = Depends(get_db)):
     """

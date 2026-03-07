@@ -18,6 +18,7 @@ router = APIRouter()
 
 # Helpers
 
+
 async def get_agent_or_404(agent_id: str, db: AsyncSession) -> Agent:
     """
     Reusable helper: looks up agent by ID
@@ -28,9 +29,14 @@ async def get_agent_or_404(agent_id: str, db: AsyncSession) -> Agent:
     if not agent:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
+<<<<<<< HEAD
             detail = f"Agent with agent ID '{agent_id}' not found",
+=======
+            detail=f"Agent with agent ID '{agent_id}' not found",
+>>>>>>> 6c9d216 (style: apply Black formatting (DEV-70))
         )
     return agent
+
 
 async def validate_agency_exists(agency_id: str, db: AsyncSession) -> None:
     """
@@ -41,42 +47,47 @@ async def validate_agency_exists(agency_id: str, db: AsyncSession) -> None:
     agency = result.scalar_one_or_none()
     if not agency:
         raise HTTPException(
-            status_code = status.HTTP_404_NOT_FOUND,
-            detail = f"Agency with agency ID '{agency_id}' not found. Cannot assign agent to non-existent agency."
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Agency with agency ID '{agency_id}' not found. Cannot assign agent to non-existent agency.",
         )
+
 
 # Endpoints
 
-@router.get("", response_model = list[AgentSchema])
+@router.get("", response_model=list[AgentSchema])
 async def list_agents(db: AsyncSession = Depends(get_db)):
     """
     GET /api/agents
     Returns list of all agents, ordered by last name, first name
     """
-    result = await db.execute(
-        select(Agent).order_by(Agent.last_name, Agent.first_name)
-    )
+    result = await db.execute(select(Agent).order_by(Agent.last_name, Agent.first_name))
     return list(result.scalars().all())
 
-@router.post("", response_model = AgentSchema, status_code = status.HTTP_201_CREATED)
+
+@router.post("", response_model=AgentSchema, status_code=status.HTTP_201_CREATED)
 async def create_agent(agent: AgentCreate, db: AsyncSession = Depends(get_db)):
     """
     POST /api/agents
     Creates a new agent
-    
+
     Validates that the agency_id in the request body refers to a real agency before saving
     Returns 201 Created with the new agent on success
     """
     await validate_agency_exists(agent.agency_id, db)
 
     db_agent = Agent(**agent.model_dump())
-    
-    db.add(db_agent)        
+
+    db.add(db_agent)
     await db.commit()
     await db.refresh(db_agent)
     return db_agent
 
+<<<<<<< HEAD
 @router.get("/{agent_id}", response_model = AgentSchema)
+=======
+
+@router.get("/{agent_id}", response_model=AgentSchema)
+>>>>>>> 6c9d216 (style: apply Black formatting (DEV-70))
 async def get_agent(agent_id: str, db: AsyncSession = Depends(get_db)):
     """
     GET /api/agents/{agent_id}
@@ -84,6 +95,7 @@ async def get_agent(agent_id: str, db: AsyncSession = Depends(get_db)):
     Returns 404 if not found.
     """
     return await get_agent_or_404(agent_id, db)
+
 
 @router.put("/{agent_id}", response_model=AgentSchema)
 async def update_agent(
@@ -107,6 +119,7 @@ async def update_agent(
     await db.commit()
     await db.refresh(agent)
     return agent
+
 
 @router.delete("/{agent_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_agent(agent_id: str, db: AsyncSession = Depends(get_db)):

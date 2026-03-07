@@ -78,12 +78,8 @@ async def create_agent(agent: AgentCreate, db: AsyncSession = Depends(get_db)):
     await db.refresh(db_agent)
     return db_agent
 
-<<<<<<< HEAD
-@router.get("/{agent_id}", response_model = AgentSchema)
-=======
 
 @router.get("/{agent_id}", response_model=AgentSchema)
->>>>>>> 6c9d216 (style: apply Black formatting (DEV-70))
 async def get_agent(agent_id: str, db: AsyncSession = Depends(get_db)):
     """
     GET /api/agents/{agent_id}

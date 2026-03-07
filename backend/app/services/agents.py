@@ -19,9 +19,7 @@ async def list_agents(db: AsyncSession) -> list[Agent]:
     """
     Return all agents ordered by last name, first name.
     """
-    result = await db.execute(
-        select(Agent).order_by(Agent.last_name, Agent.first_name)
-    )
+    result = await db.execute(select(Agent).order_by(Agent.last_name, Agent.first_name))
     return result.scalars().all()
 
 
@@ -44,7 +42,11 @@ async def create_agent(payload: AgentCreate, db: AsyncSession) -> Agent:
     return db_agent
 
 
-async def update_agent(agent: Agent,payload: AgentUpdate,db: AsyncSession,) -> Agent:
+async def update_agent(
+    agent: Agent,
+    payload: AgentUpdate,
+    db: AsyncSession,
+) -> Agent:
     """
     Update and return an existing agent.
     """

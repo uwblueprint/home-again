@@ -28,7 +28,9 @@ async def get_agent_or_404(agent_id: str, db: AsyncSession) -> Agent:
         )
     return agent
 
+
 # Endpoints
+
 
 @router.get("", response_model=list[AgentSchema])
 async def list_agents(db: AsyncSession = Depends(get_db)):
@@ -37,6 +39,7 @@ async def list_agents(db: AsyncSession = Depends(get_db)):
     Returns list of all agents
     """
     return await agent_service.list_agents(db)
+
 
 @router.post("", response_model=AgentSchema, status_code=status.HTTP_201_CREATED)
 async def create_agent(agent: AgentCreate, db: AsyncSession = Depends(get_db)):
@@ -76,6 +79,7 @@ async def update_agent(
                 detail=f"Agency with id '{payload.agency_id}' not found.",
             )
     return await agent_service.update_agent(agent, payload, db)
+
 
 @router.delete("/{agent_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_agent(agent_id: str, db: AsyncSession = Depends(get_db)):

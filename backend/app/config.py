@@ -8,8 +8,9 @@ Uses pydantic-settings for type-safe configuration.
 """
 
 from functools import lru_cache
-from pydantic_settings import BaseSettings
 from typing import List
+
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):

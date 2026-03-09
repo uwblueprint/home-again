@@ -192,7 +192,6 @@ class Client(Base):
     previous_referral_date = Column(DateTime, nullable=True)
     previous_referral_reason = Column(Text, nullable=True)
     additional_support_required = Column(Boolean, default=False)
-    agency_referred_id = Column(String(36), ForeignKey("agencies.id"), nullable=True)
     pending_delivery = Column(Boolean, default=False)
     last_delivery_date = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -200,7 +199,6 @@ class Client(Base):
 
     # Relationships
     agency = relationship("Agency", back_populates="clients", foreign_keys=[agency_id])
-    agency_referred = relationship("Agency", foreign_keys=[agency_referred_id])
     referrals = relationship("Referral", back_populates="client")
     furniture_received = relationship("Furniture", back_populates="client")
 

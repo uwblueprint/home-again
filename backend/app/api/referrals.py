@@ -5,9 +5,8 @@ from ..database import get_db
 from ..schemas import Referral as ReferralSchema
 from ..schemas import ReferralCreate, ReferralUpdate
 from ..services import referrals as referrals_service
-from .dependencies import require_bearer_token
 
-router = APIRouter(dependencies=[Depends(require_bearer_token)])
+router = APIRouter()
 
 
 @router.get("", response_model=list[ReferralSchema], status_code=status.HTTP_200_OK)

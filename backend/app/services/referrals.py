@@ -84,9 +84,7 @@ def _prepare_payload(data: dict[str, Any]) -> dict[str, Any]:
     return prepared
 
 
-async def _validate_related_records(
-    db: AsyncSession, data: dict[str, Any]
-) -> None:
+async def _validate_related_records(db: AsyncSession, data: dict[str, Any]) -> None:
     """Ensure related client and agency records exist when provided."""
     if "client_id" in data:
         client_result = await db.execute(

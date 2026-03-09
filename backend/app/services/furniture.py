@@ -13,7 +13,7 @@ from ..schemas import FurnitureCreate, FurnitureUpdate
 async def list_furniture(db: AsyncSession) -> list[Furniture]:
     """Return furniture items ordered by name."""
     result = await db.execute(select(Furniture).order_by(Furniture.name))
-    return list(result.scalars().all())
+    return result.scalars().all()
 
 
 async def get_furniture(furniture_id: str, db: AsyncSession) -> Furniture | None:
@@ -23,7 +23,7 @@ async def get_furniture(furniture_id: str, db: AsyncSession) -> Furniture | None
 
 
 async def create_furniture(payload: FurnitureCreate, db: AsyncSession) -> Furniture:
-    """Create a furniture item. Caller must commit; IntegrityError may be raised."""
+    """Create a furniture item. IntegrityError may be raised."""
     db_furniture = Furniture(**payload.model_dump())
     db.add(db_furniture)
     await db.commit()

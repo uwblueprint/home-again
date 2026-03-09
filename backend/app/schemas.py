@@ -265,7 +265,6 @@ class ClientBase(BaseModel):
     previous_referral_date: Optional[datetime] = None
     previous_referral_reason: Optional[str] = None
     additional_support_required: bool = False
-    agency_referred_id: Optional[str] = None
     pending_delivery: bool = False
     last_delivery_date: Optional[datetime] = None
 
@@ -299,7 +298,6 @@ class ClientUpdate(BaseModel):
     previous_referral_date: Optional[datetime] = None
     previous_referral_reason: Optional[str] = None
     additional_support_required: Optional[bool] = None
-    agency_referred_id: Optional[str] = None
     pending_delivery: Optional[bool] = None
     last_delivery_date: Optional[datetime] = None
 

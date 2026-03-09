@@ -38,9 +38,7 @@ async def get_donor(db: AsyncSession, donor_id: str) -> Donor | None:
     return result.scalar_one_or_none()
 
 
-async def update_donor(
-    db: AsyncSession, donor: Donor, payload: DonorUpdate
-) -> Donor:
+async def update_donor(db: AsyncSession, donor: Donor, payload: DonorUpdate) -> Donor:
     """Update a donor."""
     try:
         # Only update fields that were actually provided in the request

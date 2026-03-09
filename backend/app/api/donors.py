@@ -3,10 +3,9 @@
 Full CRUD implementation for the Donors resource.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..config import get_settings
 from ..database import get_db
 from ..schemas import DonorCreate, DonorUpdate, Donor as DonorSchema
 from ..services import donor_service
@@ -20,21 +19,29 @@ async def list_donors(db: AsyncSession = Depends(get_db)):
     return await donor_service.list_donors(db)
 
 
-@router.post("", response_model=DonorSchema, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=DonorSchema,
+    status_code=status.HTTP_201_CREATED,
+    responses={400: {"description": "Integrity error (e.g., duplicate donor email)"}},
+)
 async def create_donor(donor: DonorCreate, db: AsyncSession = Depends(get_db)):
     """Create a new donor."""
     try:
         return await donor_service.create_donor(db, donor)
-    except Exception as e:
-        if get_settings().DEBUG:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=str(e),
-            ) from e
-        raise
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
 
 
-@router.get("/{donor_id}", response_model=DonorSchema, status_code=status.HTTP_200_OK)
+@router.get(
+    "/{donor_id}",
+    response_model=DonorSchema,
+    status_code=status.HTTP_200_OK,
+    responses={404: {"description": "Donor not found"}},
+)
 async def get_donor(donor_id: str, db: AsyncSession = Depends(get_db)):
     """Get a single donor by ID."""
     donor = await donor_service.get_donor(db, donor_id)
@@ -46,46 +53,60 @@ async def get_donor(donor_id: str, db: AsyncSession = Depends(get_db)):
     return donor
 
 
-@router.put("/{donor_id}", response_model=DonorSchema, status_code=status.HTTP_200_OK)
+@router.put(
+    "/{donor_id}",
+    response_model=DonorSchema,
+    status_code=status.HTTP_200_OK,
+    responses={
+        400: {"description": "Integrity error (e.g., duplicate donor email)"},
+        404: {"description": "Donor not found"},
+    },
+)
 async def update_donor(
     donor_id: str, payload: DonorUpdate, db: AsyncSession = Depends(get_db)
 ):
     """Update a donor."""
+    donor = await donor_service.get_donor(db, donor_id)
+    if not donor:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Donor not found",
+        )
+
     try:
-        donor = await donor_service.update_donor(db, donor_id, payload)
-        if not donor:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Donor not found",
-            )
-        return donor
-    except HTTPException:
-        raise
-    except Exception as e:
-        if get_settings().DEBUG:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=str(e),
-            ) from e
-        raise
+        return await donor_service.update_donor(db, donor, payload)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
 
 
-@router.delete("/{donor_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{donor_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        400: {
+            "description": "Integrity error (e.g., donor has linked furniture records)"
+        },
+        404: {"description": "Donor not found"},
+    },
+)
 async def delete_donor(donor_id: str, db: AsyncSession = Depends(get_db)):
     """Delete a donor."""
+    donor = await donor_service.get_donor(db, donor_id)
+    if not donor:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Donor not found",
+        )
+
     try:
-        deleted = await donor_service.delete_donor(db, donor_id)
-        if not deleted:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Donor not found",
-            )
-    except HTTPException:
-        raise
-    except Exception as e:
-        if get_settings().DEBUG:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=str(e),
-            ) from e
-        raise
+        await donor_service.delete_donor(db, donor)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

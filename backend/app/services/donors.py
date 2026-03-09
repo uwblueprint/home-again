@@ -4,6 +4,7 @@ Contains business logic for donor-related operations.
 """
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..models import Donor
 from ..schemas import DonorCreate, DonorUpdate
@@ -12,7 +13,7 @@ from ..schemas import DonorCreate, DonorUpdate
 async def list_donors(db: AsyncSession) -> list[Donor]:
     """List all donors."""
     result = await db.execute(select(Donor).order_by(Donor.name))
-    return list(result.scalars().all())
+    return result.scalars().all()
 
 
 async def create_donor(db: AsyncSession, donor: DonorCreate) -> Donor:
@@ -23,6 +24,9 @@ async def create_donor(db: AsyncSession, donor: DonorCreate) -> Donor:
         await db.commit()
         await db.refresh(db_donor)
         return db_donor
+    except IntegrityError as e:
+        await db.rollback()
+        raise ValueError(f"Unable to create donor: {str(e.orig)}") from e
     except Exception:
         await db.rollback()
         raise
@@ -35,13 +39,9 @@ async def get_donor(db: AsyncSession, donor_id: str) -> Donor | None:
 
 
 async def update_donor(
-    db: AsyncSession, donor_id: str, payload: DonorUpdate
-) -> Donor | None:
+    db: AsyncSession, donor: Donor, payload: DonorUpdate
+) -> Donor:
     """Update a donor."""
-    donor = await get_donor(db, donor_id)
-    if not donor:
-        return None
-
     try:
         # Only update fields that were actually provided in the request
         update_data = payload.model_dump(exclude_unset=True)
@@ -51,20 +51,22 @@ async def update_donor(
         await db.commit()
         await db.refresh(donor)
         return donor
+    except IntegrityError as e:
+        await db.rollback()
+        raise ValueError(f"Unable to update donor: {str(e.orig)}") from e
     except Exception:
         await db.rollback()
         raise
 
 
-async def delete_donor(db: AsyncSession, donor_id: str) -> bool:
+async def delete_donor(db: AsyncSession, donor: Donor) -> None:
     """Delete a donor."""
-    donor = await get_donor(db, donor_id)
-    if not donor:
-        return False
     try:
         await db.delete(donor)
         await db.commit()
-        return True
+    except IntegrityError as e:
+        await db.rollback()
+        raise ValueError(f"Unable to delete donor: {str(e.orig)}") from e
     except Exception:
         await db.rollback()
         raise

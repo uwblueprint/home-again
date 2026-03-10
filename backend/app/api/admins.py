@@ -35,7 +35,7 @@ async def get_admin(
     db: AsyncSession = Depends(get_db),
 ):
     """Get a single admin."""
-    admin = await admin.get_admin(db, id)
+    admin = await admins.get_admin(db, id)
 
     if not admin:
         raise HTTPException(

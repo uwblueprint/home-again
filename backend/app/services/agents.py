@@ -1,6 +1,7 @@
 """Agents service."""
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models import Agency, Agent
@@ -37,7 +38,11 @@ async def create_agent(payload: AgentCreate, db: AsyncSession) -> Agent:
     """
     db_agent = Agent(**payload.model_dump())
     db.add(db_agent)
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError as e:
+        await db.rollback()
+        raise ValueError(f"Unable to create agent: {str(e.orig)}") from e
     await db.refresh(db_agent)
     return db_agent
 
@@ -53,7 +58,11 @@ async def update_agent(
     update_data = payload.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(agent, key, value)
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError as e:
+        await db.rollback()
+        raise ValueError(f"Unable to update agent: {str(e.orig)}") from e
     await db.refresh(agent)
     return agent
 
@@ -63,4 +72,8 @@ async def delete_agent(agent: Agent, db: AsyncSession) -> None:
     Delete an agent permanently.
     """
     await db.delete(agent)
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError as e:
+        await db.rollback()
+        raise ValueError(f"Unable to delete agent: {str(e.orig)}") from e

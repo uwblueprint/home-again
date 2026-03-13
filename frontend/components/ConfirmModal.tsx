@@ -1,18 +1,11 @@
 "use client";
-
-interface ConfirmModalProps {
-  isOpen: boolean;
-  title: string;
-  message: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-  isLoading?: boolean;
-}
+import type { ConfirmModalProps } from "@/types";
 
 export default function ConfirmModal({
   isOpen,
   title,
   message,
+  errorMessage,
   onConfirm,
   onCancel,
   isLoading = false,
@@ -33,6 +26,11 @@ export default function ConfirmModal({
           {title}
         </h2>
         <p className="mt-2 text-sm text-gray-600">{message}</p>
+        {errorMessage && (
+          <div className="mt-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {errorMessage}
+          </div>
+        )}
 
         <div className="mt-6 flex justify-end gap-3">
           <button

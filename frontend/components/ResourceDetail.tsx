@@ -20,6 +20,35 @@ function defaultDisplayValue(value: unknown, emptyValue = "-") {
   return String(value);
 }
 
+function extractErrorMessage(error: unknown): string | null {
+  if (!error) {
+    return null;
+  }
+
+  if (typeof error === "string") {
+    return error.trim() ? error : null;
+  }
+
+  if (error instanceof Error) {
+    return error.message?.trim() ? error.message : null;
+  }
+
+  if (typeof error === "object") {
+    const maybeAxiosDetail = (error as { response?: { data?: { detail?: unknown } } })
+      ?.response?.data?.detail;
+    if (typeof maybeAxiosDetail === "string" && maybeAxiosDetail.trim()) {
+      return maybeAxiosDetail;
+    }
+
+    const maybeMessage = (error as { message?: unknown })?.message;
+    if (typeof maybeMessage === "string" && maybeMessage.trim()) {
+      return maybeMessage;
+    }
+  }
+
+  return null;
+}
+
 export default function ResourceDetail<T extends object>({
   title,
   fields,
@@ -30,14 +59,22 @@ export default function ResourceDetail<T extends object>({
   isDeleting = false,
 }: ResourceDetailProps<T>) {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmError, setConfirmError] = useState<string | null>(null);
 
   const handleDeleteConfirm = async () => {
     if (!onDelete) {
       return;
     }
 
-    await onDelete();
-    setShowConfirmModal(false);
+    setConfirmError(null);
+    try {
+      await onDelete();
+      setShowConfirmModal(false);
+    } catch (error) {
+      setConfirmError(
+        extractErrorMessage(error) ?? "Unable to delete. Please try again."
+      );
+    }
   };
 
   return (
@@ -50,7 +87,10 @@ export default function ResourceDetail<T extends object>({
           {onDelete && (
             <button
               type="button"
-              onClick={() => setShowConfirmModal(true)}
+              onClick={() => {
+                setConfirmError(null);
+                setShowConfirmModal(true);
+              }}
               disabled={isDeleting}
               className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -85,8 +125,12 @@ export default function ResourceDetail<T extends object>({
         isOpen={showConfirmModal}
         title={deleteTitle}
         message={deleteMessage}
+        errorMessage={confirmError}
         onConfirm={handleDeleteConfirm}
-        onCancel={() => setShowConfirmModal(false)}
+        onCancel={() => {
+          setConfirmError(null);
+          setShowConfirmModal(false);
+        }}
         isLoading={isDeleting}
       />
     </>

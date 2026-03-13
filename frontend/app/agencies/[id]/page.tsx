@@ -21,6 +21,7 @@ const agencyFields: ResourceDetailField<Agency>[] = [
     key: "billing_profiles",
     label: "Billing Profiles",
     emptyValue: "None",
+    render: (value) => Array.isArray(value) ? `${value.length} profile(s)` : "-",
   },
   {
     key: "created_at",
@@ -38,7 +39,7 @@ export default function AgencyDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const rawId = params?.id;
-  const agencyId = Array.isArray(rawId) ? rawId[0] : rawId;
+  const agencyId = params?.id;
 
   const { data: agency, isLoading, error } = useAgency(agencyId);
   const deleteAgency = useDeleteAgency();

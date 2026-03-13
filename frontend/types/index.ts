@@ -178,6 +178,20 @@ export interface Referral {
   updated_at: string;
 }
 
+
+/*
+Resource Detail Types
+*/
+export interface ConfirmModalProps {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isLoading?: boolean;
+  errorMessage?: string | null;
+}
+
 export interface ResourceDetailField<
   T extends object,
   K extends keyof T = keyof T,

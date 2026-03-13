@@ -63,7 +63,10 @@ async def update_agency(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Agency not found",
         )
-    return await agencies_service.update_agency(db, agency, payload)
+    try:
+        return await agencies_service.update_agency(db, agency, payload)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.delete("/{agency_id}", status_code=status.HTTP_204_NO_CONTENT)

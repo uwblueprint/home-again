@@ -23,7 +23,7 @@ async def create_referral(
         return await referrals_service.create_referral(db, payload)
     except ValueError as e:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         ) from e
 
@@ -59,7 +59,7 @@ async def update_referral(
         return await referrals_service.update_referral(db, referral, payload)
     except ValueError as e:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         ) from e
 
@@ -80,7 +80,7 @@ async def delete_referral(
         await referrals_service.delete_referral(db, referral)
     except ValueError as e:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         ) from e
 

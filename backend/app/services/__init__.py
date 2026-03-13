@@ -1,3 +1,9 @@
-from . import agents as agents_service
+"""Services package.
 
-__all__ = ["agents_service"]
+Business logic layer; API routes depend on services, not the reverse.
+"""
+
+from . import donors as donor_service
+from . import clients as clients_service
+
+__all__ = ["donor_service", "clients_service"]

@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
-from ..models import Agency
+from ..models import Agency, Agent
 from ..schemas import AgencyCreate, AgencyUpdate, Agency as AgencySchema
 
 router = APIRouter()
@@ -25,6 +25,13 @@ async def list_agencies(db: AsyncSession = Depends(get_db)):
 @router.post("", response_model=AgencySchema, status_code=status.HTTP_201_CREATED)
 async def create_agency(agency: AgencyCreate, db: AsyncSession = Depends(get_db)):
     """Create a new agency."""
+    if agency.main_agent_id:
+        result = await db.execute(select(Agent).where(Agent.id == agency.main_agent_id))
+        if not result.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="main_agent_id does not exist",
+            )
     db_agency = Agency(**agency.model_dump())
     db.add(db_agency)
     await db.commit()

@@ -345,7 +345,7 @@ Routes
 - **Admin** — Standalone; links to Supabase Auth via `supabase_user_id`.
 - **Agent** → **Agency** (many-to-one).
 - **Agency** → **Agents**, **Clients**, **Referrals** (one-to-many).
-- **Client** → **Agency** (many-to-one, via `agency_id`); **Agency** (many-to-one, via `agency_referred_id`); **Referrals**, **Furniture** (one-to-many).
+- **Client** → **Agency** (many-to-one, via `agency_id`); **Referrals**, **Furniture** (one-to-many).
 - **Donor** → **Furniture** (one-to-many).
 - **Furniture** → **Donor** (many-to-one); **Client** (many-to-one, nullable); **Route** (many-to-one, nullable, via `dispatch_id`).
 - **Referral** → **Client**, **Agency** (many-to-one).

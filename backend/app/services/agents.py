@@ -56,6 +56,8 @@ async def update_agent(
     Update and return an existing agent.
     """
     update_data = payload.model_dump(exclude_unset=True)
+    if not update_data:
+        raise ValueError("No update fields were provided.")
     for key, value in update_data.items():
         setattr(agent, key, value)
     try:

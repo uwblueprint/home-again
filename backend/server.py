@@ -5,6 +5,7 @@ Starts the Uvicorn server with the FastAPI app.
 """
 
 import os
+
 import uvicorn
 from dotenv import load_dotenv
 

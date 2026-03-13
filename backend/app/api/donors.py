@@ -7,7 +7,8 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
-from ..schemas import DonorCreate, DonorUpdate, Donor as DonorSchema
+from ..schemas import Donor as DonorSchema
+from ..schemas import DonorCreate, DonorUpdate
 from ..services import donor_service
 
 router = APIRouter()

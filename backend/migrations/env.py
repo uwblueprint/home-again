@@ -19,8 +19,8 @@ if config.config_file_name is not None:
 
 # Import application settings and models so alembic can autogenerate
 try:
-    from app.config import get_settings
     from app import database  # ensures Base is defined
+    from app.config import get_settings
     from app.models import base  # register all models with Base.metadata
 except Exception:  # pragma: no cover - keep safe for CI
     raise RuntimeError(

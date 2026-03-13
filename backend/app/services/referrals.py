@@ -34,6 +34,9 @@ async def create_referral(db: AsyncSession, payload: ReferralCreate) -> Referral
     except IntegrityError as e:
         await db.rollback()
         raise ValueError(f"Unable to create referral: {str(e.orig)}") from e
+    except Exception:
+        await db.rollback()
+        raise
 
     await db.refresh(referral)
     return referral
@@ -44,6 +47,10 @@ async def update_referral(
 ) -> Referral:
     """Update an existing referral with validated, normalized data."""
     data = payload.model_dump(exclude_unset=True)
+
+    if not data:
+        raise ValueError("No update fields were provided.")
+
     await _validate_related_records(db, data)
 
     for key, value in _prepare_payload(data).items():
@@ -54,6 +61,9 @@ async def update_referral(
     except IntegrityError as e:
         await db.rollback()
         raise ValueError(f"Unable to update referral: {str(e.orig)}") from e
+    except Exception:
+        await db.rollback()
+        raise
 
     await db.refresh(referral)
     return referral
@@ -68,6 +78,9 @@ async def delete_referral(db: AsyncSession, referral: Referral) -> None:
     except IntegrityError as e:
         await db.rollback()
         raise ValueError(f"Unable to delete referral: {str(e.orig)}") from e
+    except Exception:
+        await db.rollback()
+        raise
 
 
 def _prepare_payload(data: dict[str, Any]) -> dict[str, Any]:

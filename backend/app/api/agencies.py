@@ -21,10 +21,21 @@ async def list_agencies(db: AsyncSession = Depends(get_db)):
     return await agencies_service.list_agencies(db)
 
 
-@router.post("", response_model=AgencySchema, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=AgencySchema,
+    status_code=status.HTTP_201_CREATED,
+    responses={400: {"description": "Bad Request"}},
+)
 async def create_agency(agency: AgencyCreate, db: AsyncSession = Depends(get_db)):
     """Create a new agency."""
-    return await agencies_service.create_agency(db, agency)
+    try:
+        return await agencies_service.create_agency(db, agency)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
 
 
 @router.get("/{agency_id}", response_model=AgencySchema)

@@ -9,7 +9,7 @@ from ..schemas import AgencyCreate, AgencyUpdate
 async def list_agencies(db: AsyncSession) -> list[Agency]:
     """Return all agencies ordered by name."""
     result = await db.execute(select(Agency).order_by(Agency.name))
-  return result.scalars().all()
+    return result.scalars().all()
 
 
 async def get_agency(db: AsyncSession, agency_id: str) -> Agency | None:

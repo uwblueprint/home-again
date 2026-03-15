@@ -107,6 +107,7 @@ export function useAgency(agencyId: string) {
       const response = await apiClient.get<Agency>(`/agencies/${agencyId}`);
       return response.data;
     },
+    enabled: Boolean(agencyId),
     staleTime: 1000 * 60 * 5,
   });
 }

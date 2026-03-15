@@ -4,21 +4,26 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAgency, useUpdateAgency } from "@/hooks/useApi";
 import type { Agency } from "@/types";
+import PageLayout from "@/components/PageLayout";
 
 export default function AgencyEditPage() {
   const params = useParams();
   const router = useRouter();
-  const agencyId = params.id as string;
+  const agencyId = typeof params.id === "string" && params.id ? params.id : null;
 
   const [formData, setFormData] = useState<Partial<Agency>>({});
 
-  const { data: agency, isLoading } = useAgency(agencyId);
+  const { data: agency, isLoading } = useAgency(agencyId ?? "");
 
   useEffect(() => {
     if (agency) setFormData(agency);
   }, [agency]);
 
-  const updateMutation = useUpdateAgency(agencyId);
+  const updateMutation = useUpdateAgency(agencyId ?? "");
+
+  if (!agencyId) {
+    return <p className="p-6 text-red-600">Invalid or missing agency ID.</p>;
+  }
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -37,65 +42,35 @@ export default function AgencyEditPage() {
     });
   };
 
+  const backButton = (
+    <button
+      onClick={() => router.back()}
+      className="px-4 py-2 bg-white/20 rounded hover:bg-white/30 transition"
+    >
+      Back
+    </button>
+  );
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <header className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
-          <div className="max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Loading…</h1>
-            <button
-              onClick={() => router.back()}
-              className="px-4 py-2 bg-white/20 rounded hover:bg-white/30 transition"
-            >
-              Back
-            </button>
-          </div>
-        </header>
-        <main className="flex-1 max-w-6xl mx-auto px-6 py-8 w-full">
-          <div className="animate-pulse">Loading…</div>
-        </main>
-      </div>
+      <PageLayout title="Loading…" actions={backButton}>
+        <div className="animate-pulse">Loading…</div>
+      </PageLayout>
     );
   }
 
   if (!agency) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <header className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
-          <div className="max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Error</h1>
-            <button
-              onClick={() => router.back()}
-              className="px-4 py-2 bg-white/20 rounded hover:bg-white/30 transition"
-            >
-              Back
-            </button>
-          </div>
-        </header>
-        <main className="flex-1 max-w-6xl mx-auto px-6 py-8 w-full">
-          <div className="bg-red-50 border border-red-200 rounded p-4 text-red-800">
-            <p>Agency not found.</p>
-          </div>
-        </main>
-      </div>
+      <PageLayout title="Error" actions={backButton}>
+        <div className="bg-red-50 border border-red-200 rounded p-4 text-red-800">
+          <p>Agency not found.</p>
+        </div>
+      </PageLayout>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
-        <div className="max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Edit {agency.name}</h1>
-          <button
-            onClick={() => router.back()}
-            className="px-4 py-2 bg-white/20 rounded hover:bg-white/30 transition"
-          >
-            Back
-          </button>
-        </div>
-      </header>
-
-      <main className="flex-1 max-w-6xl mx-auto px-6 py-8 w-full">
+    <PageLayout title={`Edit ${agency.name}`} actions={backButton}>
         <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -224,7 +199,6 @@ export default function AgencyEditPage() {
             </div>
           )}
         </form>
-      </main>
-    </div>
+    </PageLayout>
   );
 }

@@ -35,6 +35,10 @@ describe("AgenciesPage integration", () => {
     jest.spyOn(global, "confirm").mockReturnValue(true);
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it("renders list and allows view action", () => {
     (useAgencies as jest.Mock).mockReturnValue({
       data: sample,

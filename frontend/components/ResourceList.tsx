@@ -32,7 +32,7 @@ export default function ResourceList<T extends { id: string }>({
   return (
     <div className="w-full" data-testid={testId}>
       {/* Error State */}
-      {error && (
+      {error && !loading && (
         <div
           className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800"
           role="alert"
@@ -192,7 +192,7 @@ function CellRenderer<T>({ column, row, value }: CellRendererProps<T>) {
 
     case "text":
     default:
-      return value != null ? String(value) : "—";
+      return <>{value != null ? String(value) : "—"}</>;
   }
 }
 
@@ -258,7 +258,7 @@ function StatusBadge({ status }: { status: string }) {
  *
  * Loading skeleton that mimics the table structure.
  */
-function ResourceListSkeleton<T extends { id: string }>({
+function ResourceListSkeleton<T>({
   columns,
   hasActions,
 }: ResourceListSkeletonProps<T>) {

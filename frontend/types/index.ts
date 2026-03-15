@@ -220,7 +220,7 @@ export interface CellRendererProps<T> {
   value: unknown;
 }
 
-export interface ResourceListSkeletonProps {
-  columns: ColumnConfig<unknown>[];
+export interface ResourceListSkeletonProps<T = unknown> {
+  columns: ColumnConfig<T>[];
   hasActions: boolean;
 }

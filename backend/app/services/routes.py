@@ -10,16 +10,16 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-logger = logging.getLogger(__name__)
-
 from ..models import Route
 from ..schemas import RouteCreate, RouteUpdate
+
+logger = logging.getLogger(__name__)
 
 
 async def list_routes(db: AsyncSession) -> list[Route]:
     """List all routes ordered by date."""
     result = await db.execute(select(Route).order_by(Route.date))
-    return list(result.scalars().all())
+    return result.scalars().all()
 
 
 async def get_route(db: AsyncSession, route_id: str) -> Route | None:

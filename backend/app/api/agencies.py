@@ -8,9 +8,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
-from ..schemas import Agency as AgencySchema
-from ..schemas import AgencyCreate, AgencyUpdate
-from ..services import agencies_service
+from ..services import agency_service
+from ..models import Agency, Agent
+from ..schemas import AgencyCreate, AgencyUpdate, Agency as AgencySchema
 
 router = APIRouter()
 
@@ -29,13 +29,18 @@ async def list_agencies(db: AsyncSession = Depends(get_db)):
 )
 async def create_agency(agency: AgencyCreate, db: AsyncSession = Depends(get_db)):
     """Create a new agency."""
-    try:
-        return await agencies_service.create_agency(db, agency)
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e),
-        ) from e
+    if agency.main_agent_id:
+        result = await db.execute(select(Agent).where(Agent.id == agency.main_agent_id))
+        if not result.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="main_agent_id does not exist",
+            )
+    db_agency = Agency(**agency.model_dump())
+    db.add(db_agency)
+    await db.commit()
+    await db.refresh(db_agency)
+    return db_agency
 
 
 @router.get("/{agency_id}", response_model=AgencySchema)

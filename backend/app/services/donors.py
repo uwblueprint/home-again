@@ -13,7 +13,7 @@ from ..schemas import DonorCreate, DonorUpdate
 
 async def list_donors(db: AsyncSession) -> list[Donor]:
     """List all donors."""
-    result = await db.execute(select(Donor).order_by(Donor.name))
+    result = await db.execute(select(Donor).order_by(Donor.last_name, Donor.first_name))
     return result.scalars().all()
 
 

@@ -8,19 +8,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
-
-<<<<<<< HEAD
-from ..models import Agency
-from ..schemas import Agency as AgencySchema
-from ..schemas import AgencyCreate, AgencyUpdate
-
-=======
 from ..models import Agency, Agent
 from ..schemas import Agency as AgencySchema
 from ..schemas import AgencyCreate, AgencyUpdate
 from ..services import agencies_service
-
->>>>>>> main
 
 router = APIRouter()
 

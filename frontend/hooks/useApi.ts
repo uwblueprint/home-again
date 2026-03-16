@@ -101,7 +101,7 @@ export function useDeleteAgency() {
     },
     onSuccess: (_, agencyId) => {
       queryClient.invalidateQueries({ queryKey: ["agencies"] });
-      queryClient.invalidateQueries({ queryKey: ["agencies", agencyId] });
+      queryClient.invalidateQueries({ queryKey: ["agency", agencyId] });
     },
   });
 }

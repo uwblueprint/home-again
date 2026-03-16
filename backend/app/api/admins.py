@@ -16,7 +16,6 @@ router = APIRouter()
 
 # Helper
 
-
 async def get_admin_or_404(admin_id: str, db: AsyncSession) -> Admin:
     """
     Reusable helper: looks up admin by ID

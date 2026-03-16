@@ -1,22 +1,16 @@
 # Home Again Furniture Bank - Technical Documentation
 
-## Overview
-
-Home Again Furniture Bank (HAFB) is a furniture donation and delivery management system built with a modern,
-scalable tech stack optimized for long-term maintenance and ease of onboarding for rotating teams of developers.
-
 ## Table of Contents
 
 1. [Architecture](#architecture)
 2. [Tech Stack](#tech-stack)
-3. [Project Structure](#project-structure)
-4. [Getting Started](#getting-started)
-5. [Development Patterns](#development-patterns)
-6. [Frontend Guide](#frontend-guide)
-7. [Backend Guide](#backend-guide)
-8. [Database](#database)
-9. [Testing](#testing)
-10. [Deployment](#deployment)
+3. [Getting Started](#getting-started)
+4. [Development Patterns](#development-patterns)
+5. [Frontend Guide](#frontend-guide)
+6. [Backend Guide](#backend-guide)
+7. [Database](#database)
+8. [Testing](#testing)
+9. [Deployment](#deployment)
 
 ## Architecture
 
@@ -100,59 +94,7 @@ The application follows a client-server architecture with clear separation of co
 | Platform | Supabase | Managed PostgreSQL, auth, RLS, row-level security |
 | Testing | pytest | Industry standard, great async support |
 
-## Project Structure
-
-```
-home-again/
-├── frontend/                    # Next.js application
-│   ├── app/                     # App Router (file-based routing)
-│   │   ├── layout.tsx           # Root layout with Providers
-│   │   ├── page.tsx             # Home page
-│   │   ├── loading.tsx          # Global loading state
-│   │   ├── providers.tsx        # TanStack Query provider
-│   │   └── agencies/            # Agencies resource page
-│   ├── components/              # Reusable React components
-│   ├── hooks/                   # TanStack Query hooks (useApi)
-│   ├── stores/                  # Zustand stores (auth, UI)
-│   ├── lib/                     # apiClient.ts, supabase.ts
-│   ├── types/                   # TypeScript types (match backend)
-│   ├── constants/               # Config, Routes, AuthConstants
-│   └── utils/                   # e.g. CSVUtils for reporting
-│
-├── backend/                     # FastAPI application
-│   ├── app/
-│   │   ├── main.py              # FastAPI app factory
-│   │   ├── config.py            # Pydantic settings
-│   │   ├── database.py          # SQLAlchemy setup
-│   │   ├── schemas.py           # Pydantic models
-│   │   ├── models/
-│   │   │   └── base.py          # SQLAlchemy ORM models
-│   │   ├── api/
-│   │   │   ├── __init__.py      # Main router
-│   │   │   ├── agencies.py
-│   │   │   ├── donors.py
-│   │   │   ├── clients.py
-│   │   │   ├── admins.py
-│   │   │   ├── agents.py
-│   │   │   ├── routes.py
-│   │   │   ├── furniture.py
-│   │   │   └── referrals.py
-│   │   └── utilities/
-│   │       └── csv_utils.py
-│   ├── migrations/              # Alembic migrations
-│   ├── tests/
-│   │   ├── functional/
-│   │   └── unit/
-│   ├── server.py                # Uvicorn entry point
-│   └── requirements.txt
-│
-├── e2e-tests/                   # End-to-end test suite
-├── docker-compose.yml           # Multi-container setup
-├── README.md                    # Project overview
-├── ARCHITECTURE.md              # This file
-├── ONBOARDING.md                # Developer onboarding
-└── DOCKER.md                    # Docker setup guide
-```
+For the repository layout (frontend, backend, docs, etc.), see [Project structure](../README.md#project-structure) in the main [README](../README.md).
 
 ## Getting Started
 
@@ -165,67 +107,7 @@ home-again/
 
 ### Local Development
 
-#### 1. Clone and Install
-
-```bash
-git clone <repo-url>
-cd home-again
-
-# Install frontend dependencies
-cd frontend
-npm install
-
-# Install backend dependencies
-cd ../backend
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-#### 2. Environment Configuration
-
-```bash
-# Frontend (.env.local)
-cd frontend
-cp .env.example .env.local
-# Edit with your values:
-# NEXT_PUBLIC_API_URL=http://localhost:8000/api
-# NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-# NEXT_PUBLIC_SUPABASE_ANON_KEY=your-key
-
-# Backend (.env)
-cd ../backend
-cp .env.example .env
-# Edit with your values:
-# DATABASE_URL=postgresql://user:password@localhost:5432/hafb
-```
-
-#### 3. Database Setup
-
-```bash
-# If using local PostgreSQL:
-createdb hafb
-createdb hafb_test
-
-# Run migrations
-cd backend
-alembic upgrade head
-```
-
-#### 4. Start Development Servers
-
-```bash
-# Terminal 1: Backend
-cd backend
-python server.py
-# Server runs at http://localhost:8000
-# API docs at http://localhost:8000/docs
-
-# Terminal 2: Frontend
-cd frontend
-npm run dev
-# App runs at http://localhost:3000
-```
+See [ONBOARDING.md](./ONBOARDING.md) for clone, install, and environment setup.
 
 ### Docker Setup
 
@@ -424,7 +306,7 @@ All API calls go through `lib/apiClient.ts` — an axios instance that automatic
 
 ## Backend Guide
 
-See [API_GUIDE.md](./backend/API_GUIDE.md) for detailed backend documentation including async patterns, endpoint examples, error handling, and testing.
+See [API_GUIDE.md](./API_GUIDE.md) for detailed backend documentation including async patterns, endpoint examples, error handling, and testing.
 
 ## Database
 
@@ -463,7 +345,7 @@ Routes
 - **Admin** — Standalone; links to Supabase Auth via `supabase_user_id`.
 - **Agent** → **Agency** (many-to-one).
 - **Agency** → **Agents**, **Clients**, **Referrals** (one-to-many).
-- **Client** → **Agency** (many-to-one, via `agency_id`); **Agency** (many-to-one, via `agency_referred_id`); **Referrals**, **Furniture** (one-to-many).
+- **Client** → **Agency** (many-to-one, via `agency_id`); **Referrals**, **Furniture** (one-to-many).
 - **Donor** → **Furniture** (one-to-many).
 - **Furniture** → **Donor** (many-to-one); **Client** (many-to-one, nullable); **Route** (many-to-one, nullable, via `dispatch_id`).
 - **Referral** → **Client**, **Agency** (many-to-one).

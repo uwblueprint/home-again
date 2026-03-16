@@ -1,6 +1,6 @@
-## Notion ticket link
-<!-- Please replace with your ticket's URL -->
-[Ticket Name](https://www.notion.so/uwblueprintexecs/Task-Board-db95cd7b93f245f78ee85e3a8a6a316d)
+## Jira ticket link
+<!-- Please replace with your Jira ticket URL -->
+[Jira ticket](https://your-atlassian-instance.atlassian.net/browse/PROJ-123)
 
 
 <!-- Give a quick summary of the implementation details, provide design justifications if necessary -->
@@ -19,7 +19,13 @@
 
 
 ## Checklist
+
+Format for branch, commit, and PR title: [docs/GIT.md](../docs/GIT.md).
+
+- [ ] My branch name includes the Jira ticket key
 - [ ] My PR name is descriptive and in imperative tense
+- [ ] My PR name includes the Jira ticket key
 - [ ] My commit messages are descriptive and in imperative tense. My commits are atomic and trivial commits are squashed or fixup'd into non-trivial commits
+- [ ] My commit messages include the Jira ticket key
 - [ ] I have run the appropriate linter(s)
 - [ ] I have requested a review from the PL, as well as other devs who have background knowledge on this PR or who will be building on top of this PR

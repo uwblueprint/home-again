@@ -34,7 +34,6 @@ export default function HomePage() {
           </div>
         </div>
 
-
         <div className="flex flex-wrap gap-4">
           <a
             href="http://localhost:8000/docs"

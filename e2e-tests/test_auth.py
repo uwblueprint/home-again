@@ -1,6 +1,5 @@
 import inflection
 import requests
-
 from test_user import delete_user
 
 

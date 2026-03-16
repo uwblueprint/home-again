@@ -1,5 +1,6 @@
-import inflection
 import os
+
+import inflection
 import pytest
 import requests
 from dotenv import load_dotenv

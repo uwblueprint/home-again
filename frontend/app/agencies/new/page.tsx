@@ -38,8 +38,12 @@ export default function NewAgencyPage() {
             initialValues={defaultAgencyValues}
             mode="create"
             onSubmit={async (values) => {
-              await createAgency.mutateAsync(toAgencyPayload(values));
-              router.push("/agencies");
+              try {
+                await createAgency.mutateAsync(toAgencyPayload(values));
+                router.push("/agencies");
+              } catch (err) {
+                console.error("Failed to create agency:", err);
+              }
             }}
           />
         </div>

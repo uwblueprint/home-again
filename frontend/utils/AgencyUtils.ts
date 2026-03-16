@@ -8,7 +8,9 @@ function optionalString(value: unknown): string | null {
   return normalized === "" ? null : normalized;
 }
 
-export function toAgencyPayload(values: Record<string, unknown>): AgencyFormValues {
+export function toAgencyPayload(
+  values: Record<string, unknown>
+): AgencyFormValues {
   return {
     name: String(values.name ?? "").trim(),
     email: String(values.email ?? "").trim(),

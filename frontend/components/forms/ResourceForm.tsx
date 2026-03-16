@@ -5,7 +5,10 @@ import type { ResourceFormField, ResourceFormProps } from "@/types/forms";
 
 type Errors = Record<string, string>;
 
-function normalizeFieldValue(field: ResourceFormField, value: unknown): unknown {
+function normalizeFieldValue(
+  field: ResourceFormField,
+  value: unknown
+): unknown {
   if (field.type === "checkbox") {
     return Boolean(value);
   }
@@ -63,13 +66,17 @@ export function ResourceForm({
   const normalizedInitialValues = useMemo(() => {
     const values: Record<string, unknown> = {};
     fields.forEach((field) => {
-      values[field.name] = normalizeFieldValue(field, initialValues[field.name]);
+      values[field.name] = normalizeFieldValue(
+        field,
+        initialValues[field.name]
+      );
     });
     return values;
   }, [fields, initialValues]);
 
-  const [values, setValues] =
-    useState<Record<string, unknown>>(normalizedInitialValues);
+  const [values, setValues] = useState<Record<string, unknown>>(
+    normalizedInitialValues
+  );
   const [errors, setErrors] = useState<Errors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -119,7 +126,10 @@ export function ResourceForm({
 
         return (
           <div key={field.name} className="space-y-1">
-            <label htmlFor={inputId} className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor={inputId}
+              className="block text-sm font-medium text-gray-700"
+            >
               {field.label}
               {field.required && <span className="text-red-600"> *</span>}
             </label>
@@ -200,7 +210,9 @@ export function ResourceForm({
                   disabled={field.disabled || isSubmitting}
                   onChange={(e) => setValue(field.name, e.target.checked)}
                 />
-                <span className="text-sm text-gray-700">{field.placeholder || field.label}</span>
+                <span className="text-sm text-gray-700">
+                  {field.placeholder || field.label}
+                </span>
               </label>
             )}
 
@@ -214,7 +226,13 @@ export function ResourceForm({
         disabled={isSubmitting}
         className="rounded bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
       >
-        {isSubmitting ? (mode === "create" ? "Creating..." : "Saving...") : mode === "create" ? "Create" : "Update"}
+        {isSubmitting
+          ? mode === "create"
+            ? "Creating..."
+            : "Saving..."
+          : mode === "create"
+            ? "Create"
+            : "Update"}
       </button>
     </form>
   );

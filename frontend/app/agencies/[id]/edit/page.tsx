@@ -14,6 +14,50 @@ export default function EditAgencyPage() {
   const { data: agency, isLoading, error } = useAgency(agencyId);
   const updateAgency = useUpdateAgency();
 
+  const renderContent = () => {
+    if (isLoading) {
+      return <p className="text-gray-600">Loading agency...</p>;
+    }
+
+    if (error) {
+      return (
+        <div className="rounded border border-red-200 bg-red-50 p-3 text-red-700">
+          Failed to load agency.
+        </div>
+      );
+    }
+
+    if (agency) {
+      return (
+        <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+          {updateAgency.error && (
+            <div className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-red-700">
+              Failed to update agency. Please check the values and try again.
+            </div>
+          )}
+
+          <ResourceForm
+            fields={agencyFields}
+            initialValues={{ ...defaultAgencyValues, ...agency }}
+            mode="edit"
+            onSubmit={async (values) => {
+              try {
+                await updateAgency.mutateAsync({
+                  id: agencyId,
+                  agency: toAgencyPayload(values),
+                });
+                router.push("/agencies");
+              } catch (err) {
+                console.error("Failed to update agency:", err);
+              }
+            }}
+          />
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
@@ -29,35 +73,7 @@ export default function EditAgencyPage() {
       </header>
 
       <main className="flex-1 max-w-3xl mx-auto px-6 py-8 w-full">
-        {isLoading && <p className="text-gray-600">Loading agency...</p>}
-        {error && (
-          <div className="rounded border border-red-200 bg-red-50 p-3 text-red-700">
-            Failed to load agency.
-          </div>
-        )}
-
-        {agency && (
-          <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
-            {updateAgency.error && (
-              <div className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-red-700">
-                Failed to update agency. Please check the values and try again.
-              </div>
-            )}
-
-            <ResourceForm
-              fields={agencyFields}
-              initialValues={{ ...defaultAgencyValues, ...agency }}
-              mode="edit"
-              onSubmit={async (values) => {
-                await updateAgency.mutateAsync({
-                  id: agencyId,
-                  agency: toAgencyPayload(values),
-                });
-                router.push("/agencies");
-              }}
-            />
-          </div>
-        )}
+        {renderContent()}
       </main>
     </div>
   );

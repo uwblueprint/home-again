@@ -39,7 +39,7 @@ export function useAgencies() {
  */
 export function useAgency(agencyId?: string) {
   return useQuery({
-    queryKey: ["agencies", agencyId],
+    queryKey: ["agency", agencyId],
     queryFn: async () => {
       if (!agencyId) {
         throw new Error("Agency ID is required");

@@ -9,8 +9,11 @@ Uses SQLAlchemy 2.0 with async support for non-blocking database operations.
 <<<<<<< HEAD
 from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
                                     create_async_engine)
+
 =======
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
+
 >>>>>>> main
 from sqlalchemy.orm import declarative_base
 

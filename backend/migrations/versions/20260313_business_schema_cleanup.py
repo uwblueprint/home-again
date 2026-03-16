@@ -8,8 +8,8 @@ Drop/rename columns so DB matches current SQLAlchemy models (business fields onl
 This is a destructive cleanup migration.
 """
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision = "20260313_business_cleanup"
 down_revision = "1fac88bbbe70"

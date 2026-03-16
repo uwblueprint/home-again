@@ -12,18 +12,18 @@ import json
 from datetime import date, datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 # ============ Admin Schemas ============
 
 
 class AdminBase(BaseModel):
-    """Base admin data. Auth via Supabase; supabase_user_id optional."""
+    """Admin business fields. Auth via Supabase; supabase_user_id optional."""
 
-    phone_number: Optional[str] = None
-    email: Optional[str] = None
     first_name: str
     last_name: str
+    email: Optional[str] = None
+    phone_number: Optional[str] = None
 
 
 class AdminCreate(AdminBase):
@@ -35,11 +35,11 @@ class AdminCreate(AdminBase):
 class AdminUpdate(BaseModel):
     """Schema for updating an admin."""
 
-    supabase_user_id: Optional[str] = None
-    phone_number: Optional[str] = None
-    email: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    email: Optional[str] = None
+    phone_number: Optional[str] = None
+    supabase_user_id: Optional[str] = None
 
 
 class Admin(AdminBase):
@@ -57,18 +57,15 @@ class Admin(AdminBase):
 
 
 class AgencyBase(BaseModel):
-    """Base agency data."""
+    """Agency business fields."""
 
     name: str
-    email: str
-    phone: str
-    address: str
+    address_line_1: str
+    address_line_2: Optional[str] = None
     city: str
-    province: str
-    description: Optional[str] = None
-    status: Optional[str] = None  # unprocessed, approved, deactivated
-    require_pre_payment: bool = False
-    billing_profiles: Optional[str] = None  # JSON string
+    postal_code: Optional[str] = None
+    phone: str
+    main_agent_id: Optional[str] = None
 
 
 class AgencyCreate(AgencyBase):
@@ -81,15 +78,12 @@ class AgencyUpdate(BaseModel):
     """Schema for updating an agency."""
 
     name: Optional[str] = None
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    address: Optional[str] = None
+    address_line_1: Optional[str] = None
+    address_line_2: Optional[str] = None
     city: Optional[str] = None
-    province: Optional[str] = None
-    description: Optional[str] = None
-    status: Optional[str] = None
-    require_pre_payment: Optional[bool] = None
-    billing_profiles: Optional[str] = None
+    postal_code: Optional[str] = None
+    phone: Optional[str] = None
+    main_agent_id: Optional[str] = None
 
 
 class Agency(AgencyBase):
@@ -106,17 +100,13 @@ class Agency(AgencyBase):
 
 
 class AgentBase(BaseModel):
-    """Base agent data. Auth via Supabase; supabase_user_id optional."""
+    """Agent business fields."""
 
-    agency_id: str
-    phone_number: Optional[str] = None
-    email: Optional[str] = None
     first_name: str
     last_name: str
-    alternate_phone: Optional[str] = None
-    extension: Optional[str] = None
-    location: Optional[str] = None
-    status: Optional[str] = None  # active, inactive
+    email: Optional[str] = None
+    phone_number: Optional[str] = None
+    agency_id: str
 
 
 class AgentCreate(AgentBase):
@@ -128,16 +118,12 @@ class AgentCreate(AgentBase):
 class AgentUpdate(BaseModel):
     """Schema for updating an agent."""
 
-    agency_id: Optional[str] = None
-    supabase_user_id: Optional[str] = None
-    phone_number: Optional[str] = None
-    email: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    alternate_phone: Optional[str] = None
-    extension: Optional[str] = None
-    location: Optional[str] = None
-    status: Optional[str] = None
+    email: Optional[str] = None
+    phone_number: Optional[str] = None
+    agency_id: Optional[str] = None
+    supabase_user_id: Optional[str] = None
 
 
 class Agent(AgentBase):
@@ -155,9 +141,10 @@ class Agent(AgentBase):
 
 
 class RouteBase(BaseModel):
-    """Base route data."""
+    """Route business fields."""
 
     date: datetime
+    status: Optional[str] = None
     pickup_furniture_ids: Optional[str] = None  # JSON array of UUIDs
     dropoff_furniture_ids: Optional[str] = None  # JSON array of UUIDs
 
@@ -172,6 +159,7 @@ class RouteUpdate(BaseModel):
     """Schema for updating a route."""
 
     date: Optional[datetime] = None
+    status: Optional[str] = None
     pickup_furniture_ids: Optional[str] = None
     dropoff_furniture_ids: Optional[str] = None
 
@@ -190,20 +178,12 @@ class Route(RouteBase):
 
 
 class DonorBase(BaseModel):
-    """Base donor data."""
+    """Donor business fields."""
 
-    name: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
-    address: Optional[str] = None
-    city: Optional[str] = None
-    postal_code: Optional[str] = None
-    country: Optional[str] = None
-    smoking_household: Optional[bool] = None
-    donation_type: Optional[str] = None  # person, charity, business, community_drive
-    is_anonymous: bool = False
 
 
 class DonorCreate(DonorBase):
@@ -215,18 +195,10 @@ class DonorCreate(DonorBase):
 class DonorUpdate(BaseModel):
     """Schema for updating a donor."""
 
-    name: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
-    address: Optional[str] = None
-    city: Optional[str] = None
-    postal_code: Optional[str] = None
-    country: Optional[str] = None
-    smoking_household: Optional[bool] = None
-    donation_type: Optional[str] = None
-    is_anonymous: Optional[bool] = None
 
 
 class Donor(DonorBase):
@@ -239,35 +211,69 @@ class Donor(DonorBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+# ============ Donation Schemas ============
+
+
+class DonationBase(BaseModel):
+    """Donation business fields."""
+
+    donor_id: str
+    donation_type: Optional[str] = None  # person, charity, business, community_drive
+    charitable_receipt_estimate: Optional[float] = None
+    address_line_1: Optional[str] = None
+    address_line_2: Optional[str] = None
+    city: Optional[str] = None
+    postal_code: Optional[str] = None
+    status: Optional[str] = None
+
+
+class DonationCreate(DonationBase):
+    """Schema for creating a donation."""
+
+    pass
+
+
+class DonationUpdate(BaseModel):
+    """Schema for updating a donation."""
+
+    donor_id: Optional[str] = None
+    donation_type: Optional[str] = None
+    charitable_receipt_estimate: Optional[float] = None
+    address_line_1: Optional[str] = None
+    address_line_2: Optional[str] = None
+    city: Optional[str] = None
+    postal_code: Optional[str] = None
+    status: Optional[str] = None
+
+
+class Donation(DonationBase):
+    """Response schema for donation."""
+
+    id: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 # ============ Client Schemas ============
 
 
 class ClientBase(BaseModel):
-    """Base client data."""
+    """Client business fields."""
 
     first_name: str
     last_name: str
-    email: Optional[str] = None
     phone: Optional[str] = None
-    address: str
-    apartment_unit: Optional[str] = None
-    city: str
-    province: str
-    postal_code: Optional[str] = None
-    agency_id: Optional[str] = None
+    phone_notes: Optional[str] = None
     birthday: Optional[date] = None
     gender: Optional[str] = None  # female, male, other, prefer_not_to_say
-    phone_notes: Optional[str] = None
-    family_type: Optional[str] = None  # single, family
-    num_children: int = 0
-    num_adults: int = 1
-    has_received_furniture_before: Optional[bool] = None
-    previous_referral_date: Optional[datetime] = None
-    previous_referral_reason: Optional[str] = None
-    additional_support_required: bool = False
-    agency_referred_id: Optional[str] = None
-    pending_delivery: bool = False
-    last_delivery_date: Optional[datetime] = None
+    family_type: str  # single, family
+    num_children: int
+    num_adults: int
+    coordinated_access_required: bool = False
+    agency_id: Optional[str] = None
+    immigration_status: Optional[str] = None  # PR, Refugee, Canadian citizen
 
 
 class ClientCreate(ClientBase):
@@ -281,27 +287,16 @@ class ClientUpdate(BaseModel):
 
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    email: Optional[str] = None
     phone: Optional[str] = None
-    address: Optional[str] = None
-    apartment_unit: Optional[str] = None
-    city: Optional[str] = None
-    province: Optional[str] = None
-    postal_code: Optional[str] = None
-    agency_id: Optional[str] = None
     birthday: Optional[date] = None
     gender: Optional[str] = None
     phone_notes: Optional[str] = None
     family_type: Optional[str] = None
     num_children: Optional[int] = None
     num_adults: Optional[int] = None
-    has_received_furniture_before: Optional[bool] = None
-    previous_referral_date: Optional[datetime] = None
-    previous_referral_reason: Optional[str] = None
-    additional_support_required: Optional[bool] = None
-    agency_referred_id: Optional[str] = None
-    pending_delivery: Optional[bool] = None
-    last_delivery_date: Optional[datetime] = None
+    coordinated_access_required: Optional[bool] = None
+    agency_id: Optional[str] = None
+    immigration_status: Optional[str] = None
 
 
 class Client(ClientBase):
@@ -318,31 +313,18 @@ class Client(ClientBase):
 
 
 class FurnitureBase(BaseModel):
-    """Base furniture data."""
+    """Furniture business fields."""
 
     name: str
-    status: str  # PICKUP_PENDING, APPROVED, OFFERED, SCHEDULED, DELIVERED, CLOSED
     image_url: Optional[str] = None
     description: Optional[str] = None
-    date_donated: Optional[datetime] = None
-    date_received: Optional[datetime] = None
-    address_pickup: Optional[str] = None
-    address_dropoff: Optional[str] = None
-    client_id: Optional[str] = None
-    change_log: Optional[str] = None  # JSON array of strings
-    dispatch_id: Optional[str] = None
+    referral_id: Optional[str] = None
     condition: Optional[str] = None  # excellent, good, fair, poor
     colour: Optional[str] = None
-    donor_id: str
     category: Optional[str] = None
-    quantity: int = 1
     smoking_household: Optional[bool] = None
-    donation_type: Optional[str] = None
-    charitable_receipt_estimate: Optional[float] = None
-    cash_cheque_amount: Optional[float] = None
-    cash_cheque_note: Optional[str] = None
-    admin_note: Optional[str] = None
-    picked_up_or_dropped_off: Optional[str] = None  # picked_up, dropped_off
+    donation_id: Optional[str] = None
+    status: str  # PICKUP_PENDING, APPROVED, OFFERED, SCHEDULED, DELIVERED, CLOSED
 
 
 class FurnitureCreate(FurnitureBase):
@@ -355,28 +337,15 @@ class FurnitureUpdate(BaseModel):
     """Schema for updating furniture."""
 
     name: Optional[str] = None
-    status: Optional[str] = None
     image_url: Optional[str] = None
     description: Optional[str] = None
-    date_donated: Optional[datetime] = None
-    date_received: Optional[datetime] = None
-    address_pickup: Optional[str] = None
-    address_dropoff: Optional[str] = None
-    client_id: Optional[str] = None
-    change_log: Optional[str] = None
-    dispatch_id: Optional[str] = None
+    referral_id: Optional[str] = None
     condition: Optional[str] = None
     colour: Optional[str] = None
-    donor_id: Optional[str] = None
     category: Optional[str] = None
-    quantity: Optional[int] = None
     smoking_household: Optional[bool] = None
-    donation_type: Optional[str] = None
-    charitable_receipt_estimate: Optional[float] = None
-    cash_cheque_amount: Optional[float] = None
-    cash_cheque_note: Optional[str] = None
-    admin_note: Optional[str] = None
-    picked_up_or_dropped_off: Optional[str] = None
+    donation_id: Optional[str] = None
+    status: Optional[str] = None
 
 
 class Furniture(FurnitureBase):
@@ -393,36 +362,47 @@ class Furniture(FurnitureBase):
 
 
 class ReferralBase(BaseModel):
-    """Base referral data."""
+    """Referral business fields."""
 
+    # Client / furniture selected
     client_id: str
-    agency_id: str
-    status: str  # pending, approved, completed, declined
-    requested_items: list[Any]  # JSON array of furniture item requests
-    dispatch_required: Optional[bool] = None
-    referral_date: Optional[datetime] = None
+    requested_items: list[Any]  # furniture selected (JSON)
+
+    # Agent information
+    agent_id: Optional[str] = None
+    secondary_agent_id: Optional[str] = None
+    agents_present_during_delivery: Optional[bool] = None
+
+    # Referral details
     is_priority: bool = False
-    contact_in_case_of_cancellation: bool = False
-    coordinated_access_required: bool = False
-    date_items_needed: Optional[datetime] = None
-    related_to_move: Optional[bool] = None
-    staircases: Optional[bool] = None
-    narrow_passageways: Optional[bool] = None
-    adequate_parking: Optional[bool] = None
-    move_other_info: Optional[str] = None
+    priority_description: Optional[str] = None
+
+    # Reasons (check all that apply)
     reason_low_income: bool = False
     reason_exiting_homelessness: bool = False
     reason_new_to_community: bool = False
+    previous_city_town_country: Optional[str] = None
     reason_escaping_abuse: bool = False
     reason_mental_health: bool = False
     reason_exiting_prison: bool = False
     reason_physical_disability: bool = False
     reason_health_issues: bool = False
     reason_other: bool = False
-    reason_other_info: Optional[str] = None
-    secondary_agent_name: Optional[str] = None
-    secondary_agent_email: Optional[str] = None
-    secondary_agent_phone: Optional[str] = None
+    reason_other_info: Optional[str] = None  # Other description
+
+    # Delivery details
+    address_line_1: str
+    address_line_2: Optional[str] = None
+    city: str
+    postal_code: Optional[str] = None
+    date_items_needed: Optional[datetime] = None
+    staircases: Optional[bool] = None
+    narrow_passageways: Optional[bool] = None
+    adequate_parking: Optional[bool] = None
+    move_other_info: Optional[str] = None  # Other (text field)
+    notes_and_instructions: Optional[str] = None
+
+    status: str  # pending, approved, completed, declined
 
 
 class ReferralCreate(ReferralBase):
@@ -435,23 +415,19 @@ class ReferralUpdate(BaseModel):
     """Schema for updating a referral."""
 
     client_id: Optional[str] = None
-    agency_id: Optional[str] = None
-    status: Optional[str] = None
     requested_items: Optional[list[Any]] = None
-    dispatch_required: Optional[bool] = None
-    referral_date: Optional[datetime] = None
+
+    agent_id: Optional[str] = None
+    secondary_agent_id: Optional[str] = None
+    agents_present_during_delivery: Optional[bool] = None
+
     is_priority: Optional[bool] = None
-    contact_in_case_of_cancellation: Optional[bool] = None
-    coordinated_access_required: Optional[bool] = None
-    date_items_needed: Optional[datetime] = None
-    related_to_move: Optional[bool] = None
-    staircases: Optional[bool] = None
-    narrow_passageways: Optional[bool] = None
-    adequate_parking: Optional[bool] = None
-    move_other_info: Optional[str] = None
+    priority_description: Optional[str] = None
+
     reason_low_income: Optional[bool] = None
     reason_exiting_homelessness: Optional[bool] = None
     reason_new_to_community: Optional[bool] = None
+    previous_city_town_country: Optional[str] = None
     reason_escaping_abuse: Optional[bool] = None
     reason_mental_health: Optional[bool] = None
     reason_exiting_prison: Optional[bool] = None
@@ -459,9 +435,19 @@ class ReferralUpdate(BaseModel):
     reason_health_issues: Optional[bool] = None
     reason_other: Optional[bool] = None
     reason_other_info: Optional[str] = None
-    secondary_agent_name: Optional[str] = None
-    secondary_agent_email: Optional[str] = None
-    secondary_agent_phone: Optional[str] = None
+
+    address_line_1: Optional[str] = None
+    address_line_2: Optional[str] = None
+    city: Optional[str] = None
+    postal_code: Optional[str] = None
+    date_items_needed: Optional[datetime] = None
+    staircases: Optional[bool] = None
+    narrow_passageways: Optional[bool] = None
+    adequate_parking: Optional[bool] = None
+    move_other_info: Optional[str] = None
+    notes_and_instructions: Optional[str] = None
+
+    status: Optional[str] = None
 
 
 class Referral(ReferralBase):

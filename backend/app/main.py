@@ -5,12 +5,13 @@ Initializes the FastAPI application with all middleware, routes, and
 dependencies configured.
 """
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from .config import get_settings
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from .api import router as api_router
+from .config import get_settings
 
 settings = get_settings()
 

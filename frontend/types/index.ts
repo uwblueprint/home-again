@@ -100,7 +100,6 @@ export interface Client {
   previous_referral_date: string | null;
   previous_referral_reason: string | null;
   additional_support_required: boolean;
-  agency_referred_id: string | null;
   pending_delivery: boolean;
   last_delivery_date: string | null;
   created_at: string;

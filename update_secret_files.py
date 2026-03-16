@@ -1,5 +1,5 @@
-import sys
 import json
+import sys
 
 # Open secret.config file
 configFileNotFound = False

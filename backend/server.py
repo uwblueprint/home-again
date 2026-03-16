@@ -7,9 +7,8 @@ Starts the Uvicorn server with the FastAPI app.
 import os
 
 import uvicorn
-from dotenv import load_dotenv
-
 from app.main import create_app
+from dotenv import load_dotenv
 
 if __name__ == "__main__":
     load_dotenv()

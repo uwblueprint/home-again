@@ -104,7 +104,9 @@ async def _validate_related_records(db: AsyncSession, data: dict[str, Any]) -> N
         if client_id is None or client_id == "":
             raise ValueError(f"Client with ID '{client_id}' does not exist.")
 
-        client_result = await db.execute(select(Client.id).where(Client.id == client_id))
+        client_result = await db.execute(
+            select(Client.id).where(Client.id == client_id)
+        )
         if not client_result.scalar_one_or_none():
             raise ValueError(f"Client with ID '{data['client_id']}' does not exist.")
 
@@ -113,6 +115,8 @@ async def _validate_related_records(db: AsyncSession, data: dict[str, Any]) -> N
         if agency_id is None or agency_id == "":
             raise ValueError(f"Agency with ID '{agency_id}' does not exist.")
 
-        agency_result = await db.execute(select(Agency.id).where(Agency.id == agency_id))
+        agency_result = await db.execute(
+            select(Agency.id).where(Agency.id == agency_id)
+        )
         if not agency_result.scalar_one_or_none():
             raise ValueError(f"Agency with ID '{data['agency_id']}' does not exist.")

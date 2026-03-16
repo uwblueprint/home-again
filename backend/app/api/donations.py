@@ -41,7 +41,9 @@ async def create_donation(
         ) from e
 
 
-@router.get("/{donation_id}", response_model=DonationSchema, status_code=status.HTTP_200_OK)
+@router.get(
+    "/{donation_id}", response_model=DonationSchema, status_code=status.HTTP_200_OK
+)
 async def get_donation(
     donation_id: str,
     db: AsyncSession = Depends(get_db),
@@ -56,7 +58,9 @@ async def get_donation(
     return donation
 
 
-@router.put("/{donation_id}", response_model=DonationSchema, status_code=status.HTTP_200_OK)
+@router.put(
+    "/{donation_id}", response_model=DonationSchema, status_code=status.HTTP_200_OK
+)
 async def update_donation(
     donation_id: str,
     payload: DonationUpdate,
@@ -70,10 +74,9 @@ async def update_donation(
             detail="Donation not found",
         )
 
-    if (
-        "donor_id" in payload.model_dump(exclude_unset=True)
-        and not await donations_service.donor_exists(db, payload.donor_id)
-    ):
+    if "donor_id" in payload.model_dump(
+        exclude_unset=True
+    ) and not await donations_service.donor_exists(db, payload.donor_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Donor not found",

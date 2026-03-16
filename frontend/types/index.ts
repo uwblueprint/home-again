@@ -186,7 +186,7 @@ export interface ConfirmModalProps {
   isOpen: boolean;
   title: string;
   message: string;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
   errorMessage?: string | null;

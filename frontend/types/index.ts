@@ -1,5 +1,3 @@
-import type { ReactNode } from "react";
-
 /**
  * Common Types
  *
@@ -7,6 +5,8 @@ import type { ReactNode } from "react";
  * These should match the FastAPI backend schemas exactly.
  * Auth is handled by Supabase; Admin/Agent link via supabase_user_id.
  */
+
+import type { ReactNode } from "react";
 
 export interface Admin {
   id: string;
@@ -209,4 +209,51 @@ export interface ResourceDetailProps<T extends object> {
   deleteTitle?: string;
   deleteMessage?: string;
   isDeleting?: boolean;
+}
+
+/**
+ * ResourceList Component Types
+ *
+ * Defines interfaces for a reusable list component that can display
+ * any resource (agencies, clients, donors, etc.)
+ */
+
+export type ColumnType = "text" | "email" | "phone" | "status" | "date";
+
+export interface ColumnConfig<T> {
+  key: keyof T;
+  label: string;
+  type?: ColumnType;
+  width?: string;
+  render?: (value: unknown, row: T) => ReactNode;
+}
+
+export interface RowActionConfig<T> {
+  id: string;
+  label: string;
+  icon?: string;
+  className?: string;
+  onClick: (row: T) => void;
+  show?: (row: T) => boolean;
+}
+
+export interface ResourceListProps<T> {
+  columns: ColumnConfig<T>[];
+  data: T[];
+  loading: boolean;
+  error?: Error | null;
+  rowActions: RowActionConfig<T>[];
+  emptyStateMessage?: string;
+  testId?: string;
+}
+
+export interface CellRendererProps<T> {
+  column: ColumnConfig<T>;
+  row: T;
+  value: unknown;
+}
+
+export interface ResourceListSkeletonProps<T = unknown> {
+  columns: ColumnConfig<T>[];
+  hasActions: boolean;
 }

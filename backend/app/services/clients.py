@@ -1,5 +1,3 @@
-from datetime import datetime, timezone
-
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,10 +30,6 @@ async def create_client(db: AsyncSession, payload: ClientCreate) -> Client:
         if not agency_check.scalar_one_or_none():
             raise ValueError(f"Agency with ID '{data['agency_id']}' does not exist.")
 
-    for key, value in data.items():
-        if isinstance(value, datetime) and value.tzinfo is not None:
-            data[key] = value.replace(tzinfo=None)
-
     db_client = Client(**data)
     db.add(db_client)
 
@@ -52,15 +46,13 @@ async def create_client(db: AsyncSession, payload: ClientCreate) -> Client:
 async def update_client(
     db: AsyncSession, client: Client, payload: ClientUpdate
 ) -> Client:
-    """Update a client, normalizing datetimes and handling partial payloads."""
+    """Update a client, handling partial payloads."""
     data = payload.model_dump(exclude_unset=True)
 
     if not data:
         raise ValueError("No update fields were provided.")
 
     for key, value in data.items():
-        if isinstance(value, datetime) and value.tzinfo is not None:
-            value = value.astimezone(timezone.utc).replace(tzinfo=None)
         setattr(client, key, value)
 
     try:

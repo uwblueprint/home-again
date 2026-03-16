@@ -3,7 +3,7 @@
 Full CRUD implementation for the Donations resource.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
@@ -111,5 +111,3 @@ async def delete_donation(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         ) from e
-
-    return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -27,6 +27,9 @@ async def get_donation(db: AsyncSession, donation_id: str) -> Optional[Donation]
 
 async def donor_exists(db: AsyncSession, donor_id: str) -> bool:
     """Return whether a donor exists for a given ID."""
+    if not donor_id:
+        return False
+
     result = await db.execute(select(Donor.id).where(Donor.id == donor_id))
     return result.scalar_one_or_none() is not None
 
@@ -41,6 +44,9 @@ async def create_donation(db: AsyncSession, payload: DonationCreate) -> Donation
     except IntegrityError as e:
         await db.rollback()
         raise ValueError(f"Unable to create donation: {str(e.orig)}") from e
+    except Exception:
+        await db.rollback()
+        raise
 
     await db.refresh(db_donation)
     return db_donation
@@ -63,6 +69,9 @@ async def update_donation(
     except IntegrityError as e:
         await db.rollback()
         raise ValueError(f"Update failed: {str(e.orig)}") from e
+    except Exception:
+        await db.rollback()
+        raise
 
     await db.refresh(donation)
     return donation
@@ -77,3 +86,6 @@ async def delete_donation(db: AsyncSession, donation: Donation) -> None:
     except IntegrityError as e:
         await db.rollback()
         raise ValueError(f"Unable to delete donation: {str(e.orig)}") from e
+    except Exception:
+        await db.rollback()
+        raise

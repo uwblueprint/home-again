@@ -6,6 +6,8 @@
  * Auth is handled by Supabase; Admin/Agent link via supabase_user_id.
  */
 
+import type { ReactNode } from "react";
+
 export interface Admin {
   id: string;
   supabase_user_id: string | null;
@@ -98,7 +100,6 @@ export interface Client {
   previous_referral_date: string | null;
   previous_referral_reason: string | null;
   additional_support_required: boolean;
-  agency_referred_id: string | null;
   pending_delivery: boolean;
   last_delivery_date: string | null;
   created_at: string;
@@ -174,4 +175,51 @@ export interface Referral {
   secondary_agent_phone: string | null;
   created_at: string;
   updated_at: string;
+}
+
+/**
+ * ResourceList Component Types
+ *
+ * Defines interfaces for a reusable list component that can display
+ * any resource (agencies, clients, donors, etc.)
+ */
+
+export type ColumnType = "text" | "email" | "phone" | "status" | "date";
+
+export interface ColumnConfig<T> {
+  key: keyof T;
+  label: string;
+  type?: ColumnType;
+  width?: string;
+  render?: (value: unknown, row: T) => ReactNode;
+}
+
+export interface RowActionConfig<T> {
+  id: string;
+  label: string;
+  icon?: string;
+  className?: string;
+  onClick: (row: T) => void;
+  show?: (row: T) => boolean;
+}
+
+export interface ResourceListProps<T> {
+  columns: ColumnConfig<T>[];
+  data: T[];
+  loading: boolean;
+  error?: Error | null;
+  rowActions: RowActionConfig<T>[];
+  emptyStateMessage?: string;
+  testId?: string;
+}
+
+export interface CellRendererProps<T> {
+  column: ColumnConfig<T>;
+  row: T;
+  value: unknown;
+}
+
+export interface ResourceListSkeletonProps<T = unknown> {
+  columns: ColumnConfig<T>[];
+  hasActions: boolean;
 }

@@ -98,6 +98,59 @@ export function useFurniture() {
 }
 
 /**
+ * Fetch a single agency by ID
+ */
+export function useAgency(agencyId: string) {
+  return useQuery({
+    queryKey: ["agency", agencyId],
+    queryFn: async () => {
+      const response = await apiClient.get<Agency>(`/agencies/${agencyId}`);
+      return response.data;
+    },
+    enabled: Boolean(agencyId),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+/**
+ * Update an agency by ID
+ *
+ * Automatically invalidates the agency and agencies query cache after success.
+ */
+export function useUpdateAgency(agencyId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: Partial<Agency>) => {
+      const response = await apiClient.put<Agency>(`/agencies/${agencyId}`, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agency", agencyId] });
+      queryClient.invalidateQueries({ queryKey: ["agencies"] });
+    },
+  });
+}
+
+/**
+ * Delete an agency by ID
+ *
+ * Automatically invalidates the agencies query cache after success.
+ */
+export function useDeleteAgency() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (agencyId: string) => {
+      await apiClient.delete(`/agencies/${agencyId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agencies"] });
+    },
+  });
+}
+
+/**
  * Fetch referrals
  */
 export function useReferrals() {

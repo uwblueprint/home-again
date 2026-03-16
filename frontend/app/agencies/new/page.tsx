@@ -4,11 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ResourceForm } from "@/components/forms/ResourceForm";
 import { useCreateAgency } from "@/hooks/useApi";
-import {
-  agencyFields,
-  defaultAgencyValues,
-  toAgencyPayload,
-} from "@/app/agencies/formConfig";
+import { agencyFields, defaultAgencyValues } from "@/app/agencies/formConfig";
+import { toAgencyPayload } from "@/utils/AgencyUtils";
 
 export default function NewAgencyPage() {
   const router = useRouter();

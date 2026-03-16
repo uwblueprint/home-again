@@ -4,11 +4,8 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ResourceForm } from "@/components/forms/ResourceForm";
 import { useAgency, useUpdateAgency } from "@/hooks/useApi";
-import {
-  agencyFields,
-  defaultAgencyValues,
-  toAgencyPayload,
-} from "@/app/agencies/formConfig";
+import { agencyFields, defaultAgencyValues } from "@/app/agencies/formConfig";
+import { toAgencyPayload } from "@/utils/AgencyUtils";
 
 export default function EditAgencyPage() {
   const params = useParams<{ id: string }>();

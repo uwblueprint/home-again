@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { ResourceListProps, CellRendererProps, ResourceListSkeletonProps } from "@/types";
+import { formatDate } from "@/utils/DateUtils";
 
 /**
  * ResourceList Component
@@ -314,24 +315,4 @@ function ResourceListSkeleton<T>({
       </table>
     </div>
   );
-}
-
-/**
- * formatDate
- *
- * Formats ISO date strings to a readable format.
- */
-function formatDate(dateString: string): string {
-  if (!dateString) return "—";
-
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  } catch {
-    return dateString;
-  }
 }

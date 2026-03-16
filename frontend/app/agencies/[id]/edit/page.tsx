@@ -21,8 +21,23 @@ export default function AgencyEditPage() {
 
   const updateMutation = useUpdateAgency(agencyId ?? "");
 
+  const listButton = (
+    <button
+      onClick={() => router.push("/agencies")}
+      className="px-4 py-2 bg-white/20 rounded hover:bg-white/30 transition"
+    >
+      Agencies
+    </button>
+  );
+
   if (!agencyId) {
-    return <p className="p-6 text-red-600">Invalid or missing agency ID.</p>;
+    return (
+      <PageLayout title="Invalid Agency" actions={listButton}>
+        <div className="bg-red-50 border border-red-200 rounded p-4 text-red-800">
+          <p>Invalid or missing agency ID.</p>
+        </div>
+      </PageLayout>
+    );
   }
 
   const handleChange = (

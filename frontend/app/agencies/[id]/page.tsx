@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useAgency } from "@/hooks/useApi";
 import PageLayout from "@/components/PageLayout";
+import { formatDate } from "@/utils/DateUtils";
 
 export default function AgencyDetailPage() {
   const params = useParams();
@@ -118,10 +119,10 @@ export default function AgencyDetailPage() {
 
         <div className="mt-8 pt-6 border-t">
           <p className="text-xs text-gray-500">
-            Created: {new Date(agency.created_at).toLocaleDateString()}
+            Created: {formatDate(agency.created_at)}
           </p>
           <p className="text-xs text-gray-500">
-            Updated: {new Date(agency.updated_at).toLocaleDateString()}
+            Updated: {formatDate(agency.updated_at)}
           </p>
         </div>
     </PageLayout>

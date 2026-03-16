@@ -6,8 +6,12 @@ Uses SQLAlchemy 2.0 with async support for non-blocking database operations.
 @see https://docs.sqlalchemy.org/en/20/orm/
 """
 
+<<<<<<< HEAD
 from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
                                     create_async_engine)
+=======
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+>>>>>>> main
 from sqlalchemy.orm import declarative_base
 
 from .config import get_settings

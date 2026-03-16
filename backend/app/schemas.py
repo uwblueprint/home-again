@@ -318,7 +318,6 @@ class FurnitureBase(BaseModel):
     name: str
     image_url: Optional[str] = None
     description: Optional[str] = None
-<<<<<<< HEAD
     date_donated: Optional[datetime] = None
     date_received: Optional[datetime] = None
     address_pickup: Optional[str] = None
@@ -326,9 +325,7 @@ class FurnitureBase(BaseModel):
     client_id: Optional[str] = None
     change_log: Optional[str] = None  # JSON array of strings
     route_id: Optional[str] = None
-=======
     referral_id: Optional[str] = None
->>>>>>> origin/main
     condition: Optional[str] = None  # excellent, good, fair, poor
     colour: Optional[str] = None
     category: Optional[str] = None
@@ -349,7 +346,6 @@ class FurnitureUpdate(BaseModel):
     name: Optional[str] = None
     image_url: Optional[str] = None
     description: Optional[str] = None
-<<<<<<< HEAD
     date_donated: Optional[datetime] = None
     date_received: Optional[datetime] = None
     address_pickup: Optional[str] = None
@@ -357,9 +353,7 @@ class FurnitureUpdate(BaseModel):
     client_id: Optional[str] = None
     change_log: Optional[str] = None
     route_id: Optional[str] = None
-=======
     referral_id: Optional[str] = None
->>>>>>> origin/main
     condition: Optional[str] = None
     colour: Optional[str] = None
     category: Optional[str] = None

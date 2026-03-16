@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useRef } from "react";
 import type { ConfirmModalProps } from "@/types";
 
 export default function ConfirmModal({
@@ -10,6 +11,63 @@ export default function ConfirmModal({
   onCancel,
   isLoading = false,
 }: ConfirmModalProps) {
+  const modalRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const modal = modalRef.current;
+    if (!modal) {
+      return;
+    }
+
+    const focusable = modal.querySelectorAll<HTMLElement>(
+      "a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])",
+    );
+    const first = focusable[0] ?? modal;
+    first.focus();
+  }, [isOpen]);
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Tab") {
+      return;
+    }
+
+    const modal = modalRef.current;
+    if (!modal) {
+      return;
+    }
+
+    const focusable = modal.querySelectorAll<HTMLElement>(
+      "a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])",
+    );
+
+    if (focusable.length === 0) {
+      event.preventDefault();
+      modal.focus();
+      return;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement as HTMLElement | null;
+
+    if (event.shiftKey) {
+      if (!active || !modal.contains(active) || active === first) {
+        event.preventDefault();
+        last.focus();
+      }
+      return;
+    }
+
+    if (active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+
   if (!isOpen) {
     return null;
   }
@@ -20,8 +78,15 @@ export default function ConfirmModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-modal-title"
+      onClick={onCancel}
     >
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+      <div
+        className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+        ref={modalRef}
+        tabIndex={-1}
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={handleKeyDown}
+      >
         <h2 id="confirm-modal-title" className="text-xl font-semibold text-gray-900">
           {title}
         </h2>

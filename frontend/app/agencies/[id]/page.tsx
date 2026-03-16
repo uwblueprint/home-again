@@ -38,7 +38,6 @@ const agencyFields: ResourceDetailField<Agency>[] = [
 export default function AgencyDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const rawId = params?.id;
   const agencyId = params?.id;
 
   const { data: agency, isLoading, error } = useAgency(agencyId);
@@ -52,6 +51,36 @@ export default function AgencyDetailPage() {
     await deleteAgency.mutateAsync(agencyId);
     router.push("/agencies");
   };
+
+  let content: React.ReactNode;
+
+  if (isLoading) {
+    content = <p className="text-gray-600">Loading agency details...</p>;
+  } else if (error) {
+    content = (
+      <div className="bg-red-50 border border-red-200 rounded p-4 text-red-800">
+        <p>{error.message}</p>
+      </div>
+    );
+  } else if (!agency) {
+    content = (
+      <div className="bg-yellow-50 border border-yellow-200 rounded p-4 text-yellow-800">
+        <p>Agency not found.</p>
+      </div>
+    );
+  } else {
+    content = (
+      <ResourceDetail
+        title={agency.name}
+        fields={agencyFields}
+        data={agency}
+        onDelete={handleDelete}
+        isDeleting={deleteAgency.isPending}
+        deleteTitle="Delete agency"
+        deleteMessage={`Are you sure you want to delete this agency (${agency.name})?`}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -76,37 +105,7 @@ export default function AgencyDetailPage() {
       </header>
 
       <main className="flex-1 max-w-6xl mx-auto px-6 py-8 w-full">
-        {isLoading && <p className="text-gray-600">Loading agency details...</p>}
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded p-4 text-red-800">
-            <p>Failed to load agency details.</p>
-          </div>
-        )}
-
-        {!isLoading && !error && !agency && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded p-4 text-yellow-800">
-            <p>Agency not found.</p>
-          </div>
-        )}
-
-        {agency && (
-          <ResourceDetail
-            title={agency.name}
-            fields={agencyFields}
-            data={agency}
-            onDelete={handleDelete}
-            isDeleting={deleteAgency.isPending}
-            deleteTitle="Delete agency"
-            deleteMessage={`Are you sure you want to delete this agency (${agency.name})?`}
-          />
-        )}
-
-        {deleteAgency.isError && (
-          <div className="mt-4 bg-red-50 border border-red-200 rounded p-4 text-red-800">
-            <p>Unable to delete agency. Please try again.</p>
-          </div>
-        )}
+        {content}
       </main>
     </div>
   );

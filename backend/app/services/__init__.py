@@ -3,6 +3,7 @@
 Business logic layer; API routes depend on services, not the reverse.
 """
 
+from . import admins as admin_service
 from . import agencies as agencies_service
 from . import furniture as furniture_service
 from . import clients as clients_service
@@ -13,4 +14,5 @@ __all__ = [
     "furniture_service",
     "clients_service",
     "donor_service",
+    "admin_service",
 ]

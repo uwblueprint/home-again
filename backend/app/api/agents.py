@@ -8,7 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
 from ..models import Agent
-from ..schemas import AgentCreate, AgentUpdate, Agent as AgentSchema
+from ..schemas import Agent as AgentSchema
+from ..schemas import AgentCreate, AgentUpdate
 from ..services import agents as agent_service
 
 router = APIRouter()

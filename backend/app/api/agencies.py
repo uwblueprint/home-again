@@ -4,14 +4,14 @@ Full CRUD implementation for the Agencies resource.
 Use this module as the reference pattern for other resources.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
 from ..models import Agency, Agent
 from ..schemas import Agency as AgencySchema
 from ..schemas import AgencyCreate, AgencyUpdate
-from ..services import agencies_service
+from ..services import agency_service
 
 router = APIRouter()
 

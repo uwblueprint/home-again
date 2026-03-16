@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
-from ..services import agency_service
+from ..services import agencies_service
 from ..models import Agency, Agent
 from ..schemas import AgencyCreate, AgencyUpdate, Agency as AgencySchema
 

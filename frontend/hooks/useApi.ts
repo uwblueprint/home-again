@@ -155,6 +155,13 @@ export function useUpdateAgency(agencyId: string) {
 }
 
 /**
+ * Delete an agency by ID
+ *
+ * Automatically invalidates the agencies query cache after success.
+ */
+
+
+/**
  * Fetch referrals
  */
 export function useReferrals() {

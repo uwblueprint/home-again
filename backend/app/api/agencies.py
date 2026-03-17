@@ -11,7 +11,7 @@ from ..database import get_db
 from ..models import Agency, Agent
 from ..schemas import Agency as AgencySchema
 from ..schemas import AgencyCreate, AgencyUpdate
-from ..services import agency_service
+from ..services import agencies_service
 
 router = APIRouter()
 
@@ -84,4 +84,7 @@ async def delete_agency(agency_id: str, db: AsyncSession = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Agency not found",
         )
-    await agencies_service.delete_agency(db, agency)
+    try:
+        await agencies_service.delete_agency(db, agency)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

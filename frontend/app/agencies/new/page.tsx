@@ -29,7 +29,7 @@ export default function NewAgencyPage() {
         <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
           {createAgency.error && (
             <div className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-red-700">
-              Failed to create agency. Please check the values and try again.
+              Failed to create agency: {createAgency.error.message}
             </div>
           )}
 

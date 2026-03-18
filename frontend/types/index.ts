@@ -218,7 +218,7 @@ export interface ResourceDetailProps<T extends object> {
  * any resource (agencies, clients, donors, etc.)
  */
 
-export type ColumnType = "text" | "email" | "phone" | "status";
+export type ColumnType = "text" | "email" | "phone" | "status" | "date";
 
 export interface ColumnConfig<T> {
   key: keyof T;

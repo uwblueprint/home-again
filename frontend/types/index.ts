@@ -6,6 +6,8 @@
  * Auth is handled by Supabase; Admin/Agent link via supabase_user_id.
  */
 
+import type { ReactNode } from "react";
+
 export interface Admin {
   id: string;
   supabase_user_id: string | null;
@@ -173,4 +175,85 @@ export interface Referral {
   secondary_agent_phone: string | null;
   created_at: string;
   updated_at: string;
+}
+
+
+/*
+Resource Detail Types
+*/
+export interface ConfirmModalProps {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void | Promise<void>;
+  onCancel: () => void;
+  isLoading?: boolean;
+  errorMessage?: string | null;
+}
+
+export interface ResourceDetailField<
+  T extends object,
+  K extends keyof T = keyof T,
+> {
+  key: K;
+  label: string;
+  emptyValue?: string;
+  render?: (value: T[K], data: T) => ReactNode;
+}
+
+export interface ResourceDetailProps<T extends object> {
+  title?: string;
+  fields: ResourceDetailField<T>[];
+  data: T;
+  onDelete?: () => Promise<void> | void;
+  deleteTitle?: string;
+  deleteMessage?: string;
+  isDeleting?: boolean;
+}
+
+/**
+ * ResourceList Component Types
+ *
+ * Defines interfaces for a reusable list component that can display
+ * any resource (agencies, clients, donors, etc.)
+ */
+
+export type ColumnType = "text" | "email" | "phone" | "status";
+
+export interface ColumnConfig<T> {
+  key: keyof T;
+  label: string;
+  type?: ColumnType;
+  width?: string;
+  render?: (value: unknown, row: T) => ReactNode;
+}
+
+export interface RowActionConfig<T> {
+  id: string;
+  label: string;
+  icon?: string;
+  className?: string;
+  onClick: (row: T) => void;
+  show?: (row: T) => boolean;
+}
+
+export interface ResourceListProps<T> {
+  columns: ColumnConfig<T>[];
+  data: T[];
+  loading: boolean;
+  error?: Error | null;
+  rowActions: RowActionConfig<T>[];
+  emptyStateMessage?: string;
+  testId?: string;
+}
+
+export interface CellRendererProps<T> {
+  column: ColumnConfig<T>;
+  row: T;
+  value: unknown;
+}
+
+export interface ResourceListSkeletonProps<T = unknown> {
+  columns: ColumnConfig<T>[];
+  hasActions: boolean;
 }

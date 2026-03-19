@@ -3,8 +3,6 @@
 Contains business logic for donation-related operations.
 """
 
-from typing import Optional
-
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,7 +17,7 @@ async def list_donations(db: AsyncSession) -> list[Donation]:
     return result.scalars().all()
 
 
-async def get_donation(db: AsyncSession, donation_id: str) -> Optional[Donation]:
+async def get_donation(db: AsyncSession, donation_id: str) -> Donation | None:
     """Return a single donation by ID or None when not found."""
     result = await db.execute(select(Donation).where(Donation.id == donation_id))
     return result.scalar_one_or_none()

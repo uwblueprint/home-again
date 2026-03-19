@@ -74,9 +74,17 @@ async def update_donation(
             detail="Donation not found",
         )
 
-    if "donor_id" in payload.model_dump(
-        exclude_unset=True
-    ) and not await donations_service.donor_exists(db, payload.donor_id):
+    update_data = payload.model_dump(exclude_unset=True)
+
+    if "donor_id" in update_data and payload.donor_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="donor_id cannot be null",
+        )
+
+    if "donor_id" in update_data and not await donations_service.donor_exists(
+        db, payload.donor_id
+    ):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Donor not found",

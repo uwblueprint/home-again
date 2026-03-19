@@ -223,6 +223,13 @@ class Route(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    # Relationships
+    furniture = relationship(
+        "Furniture",
+        foreign_keys="Furniture.route_id",
+        back_populates="route",
+    )
+
 
 # ---------------------------------------------------------------------------
 # Furniture
@@ -241,6 +248,13 @@ class Furniture(Base):
     )  # PICKUP_PENDING, APPROVED, OFFERED, SCHEDULED, DELIVERED, CLOSED
     image_url = Column(String(500), nullable=True)
     description = Column(Text, nullable=True)
+    date_donated = Column(DateTime, nullable=True)
+    date_received = Column(DateTime, nullable=True)
+    address_pickup = Column(String(255), nullable=True)
+    address_dropoff = Column(String(255), nullable=True)
+    client_id = Column(String(36), ForeignKey("clients.id"), nullable=True)
+    change_log = Column(Text, nullable=True)  # JSON array of strings
+    route_id = Column(String(36), ForeignKey("routes.id"), nullable=True)
     condition = Column(String(50), nullable=True)  # excellent, good, fair, poor
     colour = Column(String(50), nullable=True)
     category = Column(String(100), nullable=True)
@@ -251,6 +265,9 @@ class Furniture(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
+    donor = relationship("Donor", back_populates="furniture_donated")
+    client = relationship("Client", back_populates="furniture_received")
+    route = relationship("Route", back_populates="furniture", foreign_keys=[route_id])
     donation = relationship("Donation", back_populates="furniture_items")
     referral = relationship("Referral", back_populates="furniture_items")
 

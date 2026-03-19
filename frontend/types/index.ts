@@ -126,7 +126,7 @@ export interface Furniture {
   address_dropoff: string | null;
   client_id: string | null;
   change_log: string | null;
-  dispatch_id: string | null;
+  route_id: string | null;
   condition: string | null;
   colour: string | null;
   donor_id: string;
@@ -177,6 +177,40 @@ export interface Referral {
   updated_at: string;
 }
 
+
+/*
+Resource Detail Types
+*/
+export interface ConfirmModalProps {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void | Promise<void>;
+  onCancel: () => void;
+  isLoading?: boolean;
+  errorMessage?: string | null;
+}
+
+export interface ResourceDetailField<
+  T extends object,
+  K extends keyof T = keyof T,
+> {
+  key: K;
+  label: string;
+  emptyValue?: string;
+  render?: (value: T[K], data: T) => ReactNode;
+}
+
+export interface ResourceDetailProps<T extends object> {
+  title?: string;
+  fields: ResourceDetailField<T>[];
+  data: T;
+  onDelete?: () => Promise<void> | void;
+  deleteTitle?: string;
+  deleteMessage?: string;
+  isDeleting?: boolean;
+}
+
 /**
  * ResourceList Component Types
  *
@@ -184,7 +218,7 @@ export interface Referral {
  * any resource (agencies, clients, donors, etc.)
  */
 
-export type ColumnType = "text" | "email" | "phone" | "status" | "date";
+export type ColumnType = "text" | "email" | "phone" | "status";
 
 export interface ColumnConfig<T> {
   key: keyof T;

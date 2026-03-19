@@ -35,6 +35,24 @@ export function useAgencies() {
 }
 
 /**
+ * Fetch a single agency by ID
+ */
+export function useAgency(agencyId?: string) {
+  return useQuery({
+    queryKey: ["agency", agencyId],
+    queryFn: async () => {
+      if (!agencyId) {
+        throw new Error("Agency ID is required");
+      }
+      const response = await apiClient.get<Agency>(`/agencies/${agencyId}`);
+      return response.data;
+    },
+    enabled: Boolean(agencyId),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+/**
  * Fetch all donors
  */
 export function useDonors() {
@@ -70,6 +88,25 @@ export function useCreateAgency() {
 }
 
 /**
+ * Delete an agency by ID
+ *
+ * Invalidates agencies cache and agency detail cache on success.
+ */
+export function useDeleteAgency() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (agencyId: string) => {
+      await apiClient.delete(`/agencies/${agencyId}`);
+    },
+    onSuccess: (_, agencyId) => {
+      queryClient.invalidateQueries({ queryKey: ["agencies"] });
+      queryClient.invalidateQueries({ queryKey: ["agency", agencyId] });
+    },
+  });
+}
+
+/**
  * Fetch all clients
  */
 export function useClients() {
@@ -98,21 +135,6 @@ export function useFurniture() {
 }
 
 /**
- * Fetch a single agency by ID
- */
-export function useAgency(agencyId: string) {
-  return useQuery({
-    queryKey: ["agency", agencyId],
-    queryFn: async () => {
-      const response = await apiClient.get<Agency>(`/agencies/${agencyId}`);
-      return response.data;
-    },
-    enabled: Boolean(agencyId),
-    staleTime: 1000 * 60 * 5,
-  });
-}
-
-/**
  * Update an agency by ID
  *
  * Automatically invalidates the agency and agencies query cache after success.
@@ -137,18 +159,7 @@ export function useUpdateAgency(agencyId: string) {
  *
  * Automatically invalidates the agencies query cache after success.
  */
-export function useDeleteAgency() {
-  const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (agencyId: string) => {
-      await apiClient.delete(`/agencies/${agencyId}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["agencies"] });
-    },
-  });
-}
 
 /**
  * Fetch referrals

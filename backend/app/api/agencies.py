@@ -4,7 +4,7 @@ Full CRUD implementation for the Agencies resource.
 Use this module as the reference pattern for other resources.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
@@ -84,4 +84,7 @@ async def delete_agency(agency_id: str, db: AsyncSession = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Agency not found",
         )
-    await agencies_service.delete_agency(db, agency)
+    try:
+        await agencies_service.delete_agency(db, agency)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

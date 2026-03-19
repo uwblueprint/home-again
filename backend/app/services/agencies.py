@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models import Agency
+from ..models import Agency, Agent
 from ..schemas import AgencyCreate, AgencyUpdate
 
 
@@ -51,6 +51,10 @@ async def update_agency(
 
 async def delete_agency(db: AsyncSession, agency: Agency) -> None:
     """Delete an existing agency."""
+    result = await db.execute(select(Agent.id).where(Agent.agency_id == agency.id))
+    if result.first() is not None:
+        raise ValueError("Unable to delete agency: agency has assigned agents.")
+
     await db.delete(agency)
     try:
         await db.commit()

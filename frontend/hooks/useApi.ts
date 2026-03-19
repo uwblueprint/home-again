@@ -158,25 +158,7 @@ export function useFurniture() {
   });
 }
 
-/**
- * Update an agency by ID
- *
- * Automatically invalidates the agency and agencies query cache after success.
- */
-export function useUpdateAgency(agencyId: string) {
-  const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (data: Partial<Agency>) => {
-      const response = await apiClient.put<Agency>(`/agencies/${agencyId}`, data);
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["agency", agencyId] });
-      queryClient.invalidateQueries({ queryKey: ["agencies"] });
-    },
-  });
-}
 
 /**
  * Delete an agency by ID

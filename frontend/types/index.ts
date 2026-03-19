@@ -126,7 +126,7 @@ export interface Furniture {
   address_dropoff: string | null;
   client_id: string | null;
   change_log: string | null;
-  dispatch_id: string | null;
+  route_id: string | null;
   condition: string | null;
   colour: string | null;
   donor_id: string;

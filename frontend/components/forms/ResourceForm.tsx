@@ -127,7 +127,14 @@ export function ResourceForm({
             {field.type === "text" && (
               <input
                 id={inputId}
-                type="text"
+                type={field.inputType ?? "text"}
+                autoComplete={
+                  field.inputType === "email"
+                    ? "email"
+                    : field.inputType === "tel"
+                      ? "tel"
+                      : undefined
+                }
                 className={commonClasses}
                 value={String(value ?? "")}
                 placeholder={field.placeholder}
@@ -207,7 +214,7 @@ export function ResourceForm({
         disabled={isSubmitting}
         className="rounded bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
       >
-        {isSubmitting ? "Saving..." : mode === "create" ? "Create" : "Update"}
+        {isSubmitting ? (mode === "create" ? "Creating..." : "Saving...") : mode === "create" ? "Create" : "Update"}
       </button>
     </form>
   );

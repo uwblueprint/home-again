@@ -125,7 +125,7 @@ export function useUpdateAgency() {
     },
     onSuccess: (_updatedAgency, variables) => {
       queryClient.invalidateQueries({ queryKey: ["agencies"] });
-      queryClient.invalidateQueries({ queryKey: ["agencies", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["agency", variables.id] });
     },
   });
 }

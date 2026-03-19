@@ -3,8 +3,8 @@ import type { ResourceFormField } from "@/types/forms";
 
 export const agencyFields: ResourceFormField[] = [
   { name: "name", label: "Name", type: "text", required: true },
-  { name: "email", label: "Email", type: "text", required: true },
-  { name: "phone", label: "Phone", type: "text", required: true },
+  { name: "email", label: "Email", type: "text", inputType: "email", required: true },
+  { name: "phone", label: "Phone", type: "text", inputType: "tel", required: true },
   { name: "address", label: "Address", type: "text", required: true },
   { name: "city", label: "City", type: "text", required: true },
   { name: "province", label: "Province", type: "text", required: true },

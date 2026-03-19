@@ -1,7 +1,5 @@
-import { Agency } from "@/types";
-import { ResourceFormField } from "@/components/forms/ResourceForm";
-
-export type AgencyFormValues = Omit<Agency, "id" | "created_at" | "updated_at">;
+import type { AgencyFormValues } from "@/types/agencies";
+import type { ResourceFormField } from "@/types/forms";
 
 export const agencyFields: ResourceFormField[] = [
   { name: "name", label: "Name", type: "text", required: true },

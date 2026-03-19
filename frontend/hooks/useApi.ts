@@ -107,6 +107,30 @@ export function useDeleteAgency() {
 }
 
 /**
+ * Update an existing agency
+ */
+export function useUpdateAgency() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      agency,
+    }: {
+      id: string;
+      agency: Omit<Agency, "id" | "created_at" | "updated_at">;
+    }) => {
+      const response = await apiClient.put<Agency>(`/agencies/${id}`, agency);
+      return response.data;
+    },
+    onSuccess: (_updatedAgency, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["agencies"] });
+      queryClient.invalidateQueries({ queryKey: ["agencies", variables.id] });
+    },
+  });
+}
+
+/**
  * Fetch all clients
  */
 export function useClients() {

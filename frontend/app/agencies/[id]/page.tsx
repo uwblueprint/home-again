@@ -2,129 +2,111 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useAgency } from "@/hooks/useApi";
-import PageLayout from "@/components/PageLayout";
-import { formatDate } from "@/utils/DateUtils";
+import ResourceDetail from "@/components/ResourceDetail";
+import { useAgency, useDeleteAgency } from "@/hooks/useApi";
+import type { Agency, ResourceDetailField } from "@/types";
+
+const agencyFields: ResourceDetailField<Agency>[] = [
+  { key: "id", label: "ID" },
+  { key: "name", label: "Name" },
+  { key: "email", label: "Email" },
+  { key: "phone", label: "Phone" },
+  { key: "address", label: "Address" },
+  { key: "city", label: "City" },
+  { key: "province", label: "Province" },
+  { key: "description", label: "Description", emptyValue: "No description" },
+  { key: "status", label: "Status", emptyValue: "Unknown" },
+  { key: "require_pre_payment", label: "Require Pre-payment" },
+  {
+    key: "billing_profiles",
+    label: "Billing Profiles",
+    emptyValue: "None",
+    render: (value) => Array.isArray(value) ? `${value.length} profile(s)` : "-",
+  },
+  {
+    key: "created_at",
+    label: "Created",
+    render: (value) => new Date(String(value)).toLocaleString(),
+  },
+  {
+    key: "updated_at",
+    label: "Updated",
+    render: (value) => new Date(String(value)).toLocaleString(),
+  },
+];
 
 export default function AgencyDetailPage() {
-  const params = useParams();
+  const params = useParams<{ id: string }>();
   const router = useRouter();
-  const agencyId = typeof params.id === "string" && params.id ? params.id : null;
+  const agencyId = params?.id;
 
-  const { data: agency, isLoading, error } = useAgency(agencyId ?? "");
+  const { data: agency, isLoading, error } = useAgency(agencyId);
+  const deleteAgency = useDeleteAgency();
 
-  if (!agencyId) {
-    return <p className="p-6 text-red-600">Invalid or missing agency ID.</p>;
-  }
+  const handleDelete = async () => {
+    if (!agencyId) {
+      return;
+    }
 
-  const backButton = (
-    <button
-      onClick={() => router.back()}
-      className="px-4 py-2 bg-white/20 rounded hover:bg-white/30 transition"
-    >
-      Back
-    </button>
-  );
+    await deleteAgency.mutateAsync(agencyId);
+    router.push("/agencies");
+  };
+
+  let content: React.ReactNode;
 
   if (isLoading) {
-    return (
-      <PageLayout title="Loading…" actions={backButton}>
-        <div className="animate-pulse">Loading agency details…</div>
-      </PageLayout>
+    content = <p className="text-gray-600">Loading agency details...</p>;
+  } else if (error) {
+    content = (
+      <div className="bg-red-50 border border-red-200 rounded p-4 text-red-800">
+        <p>{error.message}</p>
+      </div>
     );
-  }
-
-  if (error || !agency) {
-    return (
-      <PageLayout title="Error" actions={backButton}>
-        <div className="bg-red-50 border border-red-200 rounded p-4 text-red-800">
-          <p>Failed to load agency details.</p>
-        </div>
-      </PageLayout>
+  } else if (!agency) {
+    content = (
+      <div className="bg-yellow-50 border border-yellow-200 rounded p-4 text-yellow-800">
+        <p>Agency not found.</p>
+      </div>
+    );
+  } else {
+    content = (
+      <ResourceDetail
+        title={agency.name}
+        fields={agencyFields}
+        data={agency}
+        onDelete={handleDelete}
+        isDeleting={deleteAgency.isPending}
+        deleteTitle="Delete agency"
+        deleteMessage={`Are you sure you want to delete this agency (${agency.name})?`}
+      />
     );
   }
 
   return (
-    <PageLayout
-      title={agency.name}
-      actions={
-        <>
-          <Link
-            href={`/agencies/${agencyId}/edit`}
-            className="px-4 py-2 bg-amber-500 hover:bg-amber-600 rounded transition"
-          >
-            Edit
-          </Link>
-          <button
-            onClick={() => router.back()}
-            className="px-4 py-2 bg-white/20 rounded hover:bg-white/30 transition"
-          >
-            Back
-          </button>
-        </>
-      }
-    >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <p className="mt-1 text-gray-900">{agency.email}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Phone
-              </label>
-              <p className="mt-1 text-gray-900">{agency.phone}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Status
-              </label>
-              <p className="mt-1">
-                <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 border border-blue-200 capitalize">
-                  {agency.status || "unset"}
-                </span>
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Address
-              </label>
-              <p className="mt-1 text-gray-900">{agency.address}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                City
-              </label>
-              <p className="mt-1 text-gray-900">
-                {agency.city}, {agency.province}
-              </p>
-            </div>
+    <div className="min-h-screen flex flex-col">
+      <header className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
+        <div className="max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Agency Details</h1>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/agencies"
+              className="px-4 py-2 bg-white/20 rounded hover:bg-white/30 transition"
+            >
+              Back to Agencies
+            </Link>
+            <Link
+              href="/"
+              className="px-4 py-2 bg-white/20 rounded hover:bg-white/30 transition"
+            >
+              Home
+            </Link>
           </div>
         </div>
+      </header>
 
-        {agency.description && (
-          <div className="mt-8">
-            <label className="block text-sm font-medium text-gray-700">
-              Description
-            </label>
-            <p className="mt-1 text-gray-900">{agency.description}</p>
-          </div>
-        )}
-
-        <div className="mt-8 pt-6 border-t">
-          <p className="text-xs text-gray-500">
-            Created: {formatDate(agency.created_at)}
-          </p>
-          <p className="text-xs text-gray-500">
-            Updated: {formatDate(agency.updated_at)}
-          </p>
-        </div>
-    </PageLayout>
+      <main className="flex-1 max-w-6xl mx-auto px-6 py-8 w-full">
+        {content}
+      </main>
+    </div>
   );
 }

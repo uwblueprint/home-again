@@ -36,6 +36,9 @@ var/
 # Logs
 *.log
 
+# TypeScript incremental build
+*.tsbuildinfo
+
 # Testing
 .pytest_cache
 .coverage

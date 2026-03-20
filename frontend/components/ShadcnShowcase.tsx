@@ -24,6 +24,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -40,7 +41,7 @@ import {
 } from "@/components/ui/dialog";
 
 export function ShadcnShowcase() {
-  const [selectValue, setSelectValue] = useState<string>("agencies");
+  const [selectValue, setSelectValue] = useState<string>("Agencies");
 
   return (
     <section className="mt-10">
@@ -56,9 +57,11 @@ export function ShadcnShowcase() {
                 Actions
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuLabel>Starter actions</DropdownMenuLabel>
-                <DropdownMenuItem>Create record</DropdownMenuItem>
-                <DropdownMenuItem>Export CSV</DropdownMenuItem>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Starter actions</DropdownMenuLabel>
+                  <DropdownMenuItem>Create record</DropdownMenuItem>
+                  <DropdownMenuItem>Export CSV</DropdownMenuItem>
+                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem variant="destructive">
                   Archive all
@@ -85,15 +88,15 @@ export function ShadcnShowcase() {
             <Label>Resource type</Label>
             <Select
               value={selectValue}
-              onValueChange={(value) => setSelectValue(value ?? "agencies")}
+              onValueChange={(value) => setSelectValue(value ?? "Agencies")}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a resource" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="agencies">Agencies</SelectItem>
-                <SelectItem value="clients">Clients</SelectItem>
-                <SelectItem value="donors">Donors</SelectItem>
+              <SelectContent className="border-border bg-card text-card-foreground">
+                <SelectItem value="Agencies">Agencies</SelectItem>
+                <SelectItem value="Clients">Clients</SelectItem>
+                <SelectItem value="Donors">Donors</SelectItem>
               </SelectContent>
             </Select>
           </div>

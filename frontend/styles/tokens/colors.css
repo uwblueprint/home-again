@@ -96,7 +96,7 @@
   --destructive-foreground: var(--general-destructive-foreground);
 
   --border: var(--general-border);
-  --input: var(--general-input);
+  --input: var(--general-border);
 
   /* Normal focus ring color. (Error ring uses destructive tokens in shadcn components.) */
   --ring: var(--general-primary);

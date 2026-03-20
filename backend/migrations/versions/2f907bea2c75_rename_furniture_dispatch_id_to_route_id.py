@@ -35,10 +35,11 @@ def upgrade():
         )
     # If cleanup already dropped dispatch_id, add route_id directly.
     elif "route_id" not in columns:
-        op.add_column("furniture", sa.Column("route_id", sa.String(length=36), nullable=True))
+        op.add_column(
+            "furniture", sa.Column("route_id", sa.String(length=36), nullable=True)
+        )
 
-    op.execute(
-        """
+    op.execute("""
         DO $$
         BEGIN
             IF NOT EXISTS (
@@ -51,8 +52,7 @@ def upgrade():
                 FOREIGN KEY (route_id) REFERENCES routes (id);
             END IF;
         END $$;
-        """
-    )
+        """)
 
 
 def downgrade():
@@ -60,7 +60,9 @@ def downgrade():
     inspector = sa.inspect(bind)
     columns = {column["name"] for column in inspector.get_columns("furniture")}
 
-    op.execute("ALTER TABLE furniture DROP CONSTRAINT IF EXISTS furniture_route_id_fkey")
+    op.execute(
+        "ALTER TABLE furniture DROP CONSTRAINT IF EXISTS furniture_route_id_fkey"
+    )
 
     if "route_id" in columns:
         op.alter_column(
@@ -70,8 +72,7 @@ def downgrade():
             existing_nullable=True,
             new_column_name="dispatch_id",
         )
-        op.execute(
-            """
+        op.execute("""
             DO $$
             BEGIN
                 IF NOT EXISTS (
@@ -84,5 +85,4 @@ def downgrade():
                     FOREIGN KEY (dispatch_id) REFERENCES routes (id);
                 END IF;
             END $$;
-            """
-        )
+            """)

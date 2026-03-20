@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { ResourceForm } from "@/components/forms/ResourceForm";
 import { useCreateAgency } from "@/hooks/useApi";
 import {
-  agencyFields,
-  defaultAgencyValues,
-} from "@/app/agencies/_config/agencyFormConfig";
+  agencyFormFields,
+  defaultAgencyFormValues,
+} from "@/app/agencies/config/agencyFormFields";
 import { toAgencyPayload } from "@/utils/AgencyUtils";
 
 export default function NewAgencyPage() {
@@ -37,8 +37,8 @@ export default function NewAgencyPage() {
           )}
 
           <ResourceForm
-            fields={agencyFields}
-            initialValues={defaultAgencyValues}
+            fields={agencyFormFields}
+            initialValues={defaultAgencyFormValues}
             mode="create"
             onSubmit={async (values) => {
               try {

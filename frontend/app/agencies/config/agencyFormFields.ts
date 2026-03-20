@@ -1,7 +1,7 @@
 import type { AgencyFormValues } from "@/types/agencies";
 import type { ResourceFormField } from "@/types/forms";
 
-export const agencyFields: ResourceFormField[] = [
+export const agencyFormFields: ResourceFormField[] = [
   { name: "name", label: "Name", type: "text", required: true },
   {
     name: "email",
@@ -50,7 +50,7 @@ export const agencyFields: ResourceFormField[] = [
   },
 ];
 
-export const defaultAgencyValues: AgencyFormValues = {
+export const defaultAgencyFormValues: AgencyFormValues = {
   name: "",
   email: "",
   phone: "",

@@ -84,6 +84,13 @@ def upgrade():
         "ALTER TABLE clients ADD COLUMN coordinated_access_required BOOLEAN NOT NULL DEFAULT FALSE"
     )
     op.execute("ALTER TABLE clients ADD COLUMN immigration_status VARCHAR(50)")
+    # Backfill existing rows before tightening NOT NULL constraints.
+    op.execute(
+        "UPDATE clients SET family_type = 'single' "
+        "WHERE family_type IS NULL OR BTRIM(family_type) = ''"
+    )
+    op.execute("UPDATE clients SET num_children = 0 WHERE num_children IS NULL")
+    op.execute("UPDATE clients SET num_adults = 1 WHERE num_adults IS NULL")
     op.execute("ALTER TABLE clients ALTER COLUMN family_type SET NOT NULL")
     op.execute("ALTER TABLE clients ALTER COLUMN num_children SET NOT NULL")
     op.execute("ALTER TABLE clients ALTER COLUMN num_adults SET NOT NULL")

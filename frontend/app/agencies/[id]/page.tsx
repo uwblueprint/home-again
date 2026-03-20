@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import ResourceDetail from "@/components/ResourceDetail";
 import { useAgency, useDeleteAgency } from "@/hooks/useApi";
-import { agencyDetailFields } from "./_config/agencyDetailFields";
+import { agencyDetailFields } from "@/app/agencies/config/agencyDetailFields";
 
 export default function AgencyDetailPage() {
   const params = useParams<{ id: string }>();

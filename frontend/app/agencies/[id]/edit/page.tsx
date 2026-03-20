@@ -5,9 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import { ResourceForm } from "@/components/forms/ResourceForm";
 import { useAgency, useUpdateAgency } from "@/hooks/useApi";
 import {
-  agencyFields,
-  defaultAgencyValues,
-} from "@/app/agencies/_config/agencyFormConfig";
+  agencyFormFields,
+  defaultAgencyFormValues,
+} from "@/app/agencies/config/agencyFormFields";
 import { toAgencyPayload } from "@/utils/AgencyUtils";
 
 export default function EditAgencyPage() {
@@ -40,8 +40,8 @@ export default function EditAgencyPage() {
           )}
 
           <ResourceForm
-            fields={agencyFields}
-            initialValues={{ ...defaultAgencyValues, ...agency }}
+            fields={agencyFormFields}
+            initialValues={{ ...defaultAgencyFormValues, ...agency }}
             mode="edit"
             onSubmit={async (values) => {
               try {

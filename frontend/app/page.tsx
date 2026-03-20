@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { ShadcnShowcase } from "@/components/ShadcnShowcase";
 
 export default function HomePage() {
   return (
@@ -50,6 +51,8 @@ export default function HomePage() {
             Agencies
           </Link>
         </div>
+
+        <ShadcnShowcase />
       </main>
     </div>
   );

@@ -8,6 +8,7 @@ Ending furniture poverty for good — one delivery at a time.
 - [Project Structure](#project-structure)
 - [Key Features (Starter Code)](#key-features-starter-code)
 - [Core Domains](#core-domains)
+- [Design System Variables](#design-system-variables)
 - [Documentation](#documentation)
 - [Getting Help](#getting-help)
 
@@ -75,6 +76,27 @@ home-again/
 - **Agencies**: Full CRUD at `/api/agencies` (reference implementation). Frontend at `/agencies`.
 - **Donors, Clients, Furniture, Referrals, Routes, Admins, Agents**: Models and schemas exist; routers registered but return 501 until implemented. See [docs/STARTER_BACKEND_GUIDE.md](docs/STARTER_BACKEND_GUIDE.md).
 
+## Design System Variables
+
+Theme variables are split into token files and wired through `frontend/app/globals.css`.
+
+- **Token files**
+  - `frontend/styles/tokens/colors.css` (semantic/brand/raw colors + dark overrides)
+  - `frontend/styles/tokens/typography.css` (font/typography tokens)
+  - `frontend/styles/tokens/radii-spacing.css` (radii, spacing, and related utility tokens)
+- **Wiring entrypoint**
+  - `frontend/app/globals.css` imports token files and maps variables in `@theme inline`
+
+When adding a new variable:
+
+1. Add the variable in the correct token file (for example `--status-success` in `colors.css`).
+2. If it needs dark mode behavior, add/override it in the `.dark` block in `colors.css`.
+3. If Tailwind utility classes should expose it (for example `bg-status-success`), map it in `frontend/app/globals.css` inside `@theme inline`:
+   - `--color-status-success: var(--status-success);`
+4. Use it in UI via Tailwind utility classes or CSS variables in components.
+5. Run frontend checks:
+   - `cd frontend && npm run type-check && npm run lint && npm run test && npm run build`
+
 ## Documentation
 
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — System design, data flow, and development patterns
@@ -83,6 +105,7 @@ home-again/
 - **[docs/API_GUIDE.md](docs/API_GUIDE.md)** — REST API patterns and adding endpoints
 - **[docs/STARTER_BACKEND_GUIDE.md](docs/STARTER_BACKEND_GUIDE.md)** — How to implement the remaining resources
 - **[docs/GIT.md](docs/GIT.md)** — Git workflow and Jira integration
+- **[docs/shadcn.md](docs/shadcn.md)** — shadcn usage, token architecture, and component workflow
 
 New to the repo? See [Developer onboarding](docs/ONBOARDING.md) to get the local environment running and for development workflows, tests, linting, environment variables, and troubleshooting.
 

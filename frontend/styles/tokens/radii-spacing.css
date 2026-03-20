@@ -1,0 +1,70 @@
+:root {
+  --radius: var(--border-radii-absolute-radius-10);
+  --rounded-2xl: var(--border-radii-absolute-radius-16);
+  --rounded-3xl: var(--border-radii-absolute-radius-24);
+  --rounded-full: var(--border-radii-absolute-radius-infinite);
+  --rounded-lg: var(--border-radii-absolute-radius-8);
+  --rounded-md: var(--border-radii-absolute-radius-6);
+  --rounded-none: 0rem;
+  --rounded-sm: var(--border-radii-absolute-radius-4);
+  --rounded-xl: var(--border-radii-absolute-radius-12);
+  --rounded-xs: var(--border-radii-absolute-radius-2);
+
+  --border-radii-absolute-radius-10: 0.625rem;
+  --border-radii-absolute-radius-12: 0.75rem;
+  --border-radii-absolute-radius-16: 1rem;
+  --border-radii-absolute-radius-2: 0.125rem;
+  --border-radii-absolute-radius-24: 1.5rem;
+  --border-radii-absolute-radius-4: 0.25rem;
+  --border-radii-absolute-radius-6: 0.375rem;
+  --border-radii-absolute-radius-8: 0.5rem;
+  --border-radii-absolute-radius-infinite: 624.9375rem;
+
+  --spacing-absolute-0-5: 0.125rem;
+  --spacing-absolute-1: 0.25rem;
+  --spacing-absolute-2: 0.5rem;
+  --spacing-absolute-3: 0.75rem;
+  --spacing-absolute-4: 1rem;
+  --spacing-absolute-5: 1.25rem;
+  --spacing-absolute-6: 1.5rem;
+  --spacing-absolute-8: 2rem;
+  --spacing-absolute-10: 2.5rem;
+  --spacing-absolute-12: 3rem;
+  --spacing-absolute-16: 4rem;
+  --spacing-absolute-20: 5rem;
+  --spacing-absolute-24: 6rem;
+  --spacing-absolute-28: 7rem;
+  --spacing-absolute-32: 8rem;
+  --spacing-absolute-36: 9rem;
+
+  --xs: var(--spacing-absolute-2);
+  --sm: var(--spacing-absolute-3);
+  --md: var(--spacing-absolute-4);
+  --lg: var(--spacing-absolute-5);
+  --xl: var(--spacing-absolute-6);
+
+  --categorical-chart-1: oklch(0.648 0.217 37.1);
+  --categorical-chart-2: oklch(0.605 0.107 184.2);
+  --categorical-chart-3: oklch(0.397 0.07 227.2);
+  --categorical-chart-4: oklch(0.829 0.171 81);
+  --categorical-chart-5: oklch(0.772 0.173 65.4);
+
+  --sentiment-negative: oklch(0.648 0.217 37.1);
+  --sentiment-positive: oklch(0.605 0.107 184.2);
+
+  --shades-fill: oklch(0.888 0.057 251);
+  --shades-fill-2: oklch(0.838 0.081 258.3);
+  --shades-stroke: oklch(0.807 0.101 250.4);
+  --shades-stroke-2: oklch(0.653 0.186 258.2);
+
+  --font-sans: Geist, sans-serif;
+  --font-mono: Geist Mono, monospace;
+  --radius-sm: 0.375rem;
+  --radius-xs: 0.125rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+  --radius-md: 0.5rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+}

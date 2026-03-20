@@ -1,9 +1,9 @@
-FROM node:18-alpine
+FROM node:22-bullseye
 
 WORKDIR /app
 
-COPY package.json ./
-RUN npm install
+COPY package.json package-lock.json ./
+RUN rm -rf node_modules && npm install
 
 COPY . ./
 

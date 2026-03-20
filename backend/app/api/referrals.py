@@ -1,23 +1,87 @@
-"""Starter endpoints for the Referrals API.
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
-This module contains a minimal placeholder for contributors to extend.
-Refer to `docs/STARTER_BACKEND_GUIDE.md` for implementation
-examples and guidance on using `AsyncSession`, models, and schemas.
-"""
-
-from fastapi import APIRouter, Response, status
+from ..database import get_db
+from ..schemas import Referral as ReferralSchema
+from ..schemas import ReferralCreate, ReferralUpdate
+from ..services import referrals as referrals_service
 
 router = APIRouter()
 
 
-@router.get("")
-async def list_referrals():
-    """List referrals.
+@router.get("", response_model=list[ReferralSchema], status_code=status.HTTP_200_OK)
+async def list_referrals(db: AsyncSession = Depends(get_db)):
+    return await referrals_service.list_referrals(db)
 
-    Placeholder implementation. See `docs/STARTER_BACKEND_GUIDE.md` (repo root)
-    for details on implementing this handler.
-    """
-    return Response(
-        content="Not implemented — see docs/STARTER_BACKEND_GUIDE.md",
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-    )
+
+@router.post("", response_model=ReferralSchema, status_code=status.HTTP_201_CREATED)
+async def create_referral(
+    payload: ReferralCreate,
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        return await referrals_service.create_referral(db, payload)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+
+@router.get("/{id}", response_model=ReferralSchema, status_code=status.HTTP_200_OK)
+async def get_referral(
+    id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    referral = await referrals_service.get_referral(db, id)
+    if not referral:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Referral not found",
+        )
+    return referral
+
+
+@router.put("/{id}", response_model=ReferralSchema, status_code=status.HTTP_200_OK)
+async def update_referral(
+    id: str,
+    payload: ReferralUpdate,
+    db: AsyncSession = Depends(get_db),
+):
+    referral = await referrals_service.get_referral(db, id)
+    if not referral:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Referral not found",
+        )
+
+    try:
+        return await referrals_service.update_referral(db, referral, payload)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_referral(
+    id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    referral = await referrals_service.get_referral(db, id)
+    if not referral:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Referral not found",
+        )
+
+    try:
+        await referrals_service.delete_referral(db, referral)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

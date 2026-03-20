@@ -330,14 +330,14 @@ Donors
 Furniture
   ├─ Donor (many-to-one)
   ├─ Client (many-to-one, nullable)
-  └─ Route / dispatch (many-to-one, nullable, via dispatch_id)
+  └─ Route (many-to-one, nullable, via route_id)
 
 Referrals
   ├─ Client (many-to-one)
   └─ Agency (many-to-one)
 
 Routes
-  └─ Furniture (via pickup_furniture_ids / dropoff_furniture_ids and dispatch_id)
+  └─ Furniture (via pickup_furniture_ids / dropoff_furniture_ids and route_id)
 ```
 
 ### Data model relationships
@@ -347,9 +347,9 @@ Routes
 - **Agency** → **Agents**, **Clients**, **Referrals** (one-to-many).
 - **Client** → **Agency** (many-to-one, via `agency_id`); **Referrals**, **Furniture** (one-to-many).
 - **Donor** → **Furniture** (one-to-many).
-- **Furniture** → **Donor** (many-to-one); **Client** (many-to-one, nullable); **Route** (many-to-one, nullable, via `dispatch_id`).
+- **Furniture** → **Donor** (many-to-one); **Client** (many-to-one, nullable); **Route** (many-to-one, nullable, via `route_id`).
 - **Referral** → **Client**, **Agency** (many-to-one).
-- **Route** → **Furniture** (one-to-many, via `pickup_furniture_ids`, `dropoff_furniture_ids`, and `dispatch_id`).
+- **Route** → **Furniture** (one-to-many, via `pickup_furniture_ids`, `dropoff_furniture_ids`, and `route_id`).
 
 ### Migrations
 

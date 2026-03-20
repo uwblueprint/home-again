@@ -7,12 +7,16 @@ from . import admins as admin_service
 from . import agencies as agencies_service
 from . import clients as clients_service
 from . import donors as donor_service
+from . import furniture as furniture_service
+from . import referrals as referrals_service
 from . import routes as route_service
 
 __all__ = [
-    "agencies_service",
-    "donor_service",
-    "clients_service",
     "admin_service",
+    "agencies_service",
+    "clients_service",
+    "donor_service",
+    "furniture_service",
+    "referrals_service",
     "route_service",
 ]

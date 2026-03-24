@@ -4,3 +4,6 @@
  */
 
 export const HOME_PAGE = "/";
+
+// Agent portal
+export const AGENT_LOGIN_PAGE = "/agent/login";

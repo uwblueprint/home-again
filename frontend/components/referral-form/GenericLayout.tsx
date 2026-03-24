@@ -35,7 +35,7 @@ function GenericLayout({
   }, [breadcrumbs])
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center gap-6 px-4 pb-8 pt-12">
+    <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center gap-6 px-4 pb-4 pt-12">
       <header className="flex w-full flex-col gap-3">
         <Breadcrumb
           className={cn(

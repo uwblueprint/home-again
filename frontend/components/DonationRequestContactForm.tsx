@@ -5,25 +5,22 @@ import { ChangeEvent, FormEvent, useState } from "react";
 
 import { useCreateDonor } from "@/hooks/useApi";
 import { cn } from "@/lib/utils";
-import type { CreateDonorInput } from "@/types";
+import type {
+  CreateDonorInput,
+  DonationRequestContactFormErrors,
+  DonationRequestContactFormSubmitStatus,
+  DonationRequestContactFormValues,
+} from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-type FormValues = {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-};
-
-type FormErrors = Partial<Record<keyof FormValues, string>>;
-type SubmitStatus = { type: "success" | "error"; text: string } | null;
-
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function validateForm(values: FormValues): FormErrors {
-  const errors: FormErrors = {};
+function validateForm(
+  values: DonationRequestContactFormValues
+): DonationRequestContactFormErrors {
+  const errors: DonationRequestContactFormErrors = {};
 
   if (!values.first_name.trim()) {
     errors.first_name = "First name is required.";
@@ -44,17 +41,19 @@ function validateForm(values: FormValues): FormErrors {
 
 export default function DonationRequestContactForm() {
   const createDonor = useCreateDonor();
-  const [values, setValues] = useState<FormValues>({
+  const [values, setValues] = useState<DonationRequestContactFormValues>({
     first_name: "",
     last_name: "",
     email: "",
     phone: "",
   });
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>(null);
+  const [errors, setErrors] = useState<DonationRequestContactFormErrors>({});
+  const [submitStatus, setSubmitStatus] =
+    useState<DonationRequestContactFormSubmitStatus>(null);
 
   const handleChange =
-    (field: keyof FormValues) => (event: ChangeEvent<HTMLInputElement>) => {
+    (field: keyof DonationRequestContactFormValues) =>
+    (event: ChangeEvent<HTMLInputElement>) => {
       const nextValue = event.target.value;
       setValues((previous) => ({ ...previous, [field]: nextValue }));
       setSubmitStatus(null);
@@ -64,7 +63,7 @@ export default function DonationRequestContactForm() {
       }
     };
 
-  const handleBlur = (field: keyof FormValues) => {
+  const handleBlur = (field: keyof DonationRequestContactFormValues) => {
     const nextErrors = validateForm(values);
     setErrors((previous) => ({
       ...previous,

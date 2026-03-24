@@ -14,7 +14,14 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/apiClient";
-import type { Agency, Client, Donor, Furniture, Referral } from "@/types";
+import type {
+  Agency,
+  Client,
+  CreateDonorInput,
+  Donor,
+  Furniture,
+  Referral,
+} from "@/types";
 
 /**
  * Fetch all agencies
@@ -63,6 +70,25 @@ export function useDonors() {
       return response.data;
     },
     staleTime: 1000 * 60 * 5,
+  });
+}
+
+/**
+ * Create a new donor
+ *
+ * Automatically invalidates the donors query cache after success.
+ */
+export function useCreateDonor() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: CreateDonorInput) => {
+      const response = await apiClient.post<Donor>("/donors", payload);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["donors"] });
+    },
   });
 }
 

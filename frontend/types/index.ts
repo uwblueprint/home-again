@@ -78,6 +78,13 @@ export interface Donor {
   updated_at: string;
 }
 
+export interface CreateDonorInput {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+}
+
 export interface Client {
   id: string;
   first_name: string;

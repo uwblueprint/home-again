@@ -10,22 +10,21 @@ import StepDonationSummary from "@/components/donation-requests/StepDonationSumm
 function DonationPageInner() {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
-  const handleNext =
-    currentStep < 3
-      ? () => setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3)
+  function handleNext() {
+    if (currentStep < 3) {
+      setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
+    } else if (typeof window !== "undefined") {
+      window.alert("Your donation request has been submitted.");
+    }
+  }
+
+  const handleBack =
+    currentStep > 1
+      ? () => setCurrentStep((prev) => (prev - 1) as 1 | 2 | 3)
       : undefined;
 
-  // undefined on step 1 — DonationLayout won't render Back at all
-  const handleBack = currentStep > 1
-    ? () => setCurrentStep((prev) => (prev - 1) as 1 | 2 | 3)
-    : undefined;
-
   return (
-    <DonationLayout
-      currentStep={currentStep}
-      onNext={handleNext}
-      onBack={handleBack}
-    >
+    <DonationLayout currentStep={currentStep} onNext={handleNext} onBack={handleBack}>
       {currentStep === 1 && <StepFurnitureDetails />}
       {currentStep === 2 && <StepSchedulePickup />}
       {currentStep === 3 && <StepDonationSummary />}

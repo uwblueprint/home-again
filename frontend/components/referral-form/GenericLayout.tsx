@@ -1,11 +1,16 @@
 "use client"
 
 import * as React from "react"
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
+import {
+  Breadcrumb as BreadcrumbNav,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-export type Breadcrumb = {
+export type BreadcrumbStep = {
   label: string
   current?: boolean
 }
@@ -15,7 +20,7 @@ type GenericLayoutProps = {
   onBack?: () => void
   isSubmitting?: boolean
   title: string
-  breadcrumbs?: Breadcrumb[]
+  breadcrumbs?: BreadcrumbStep[]
   breadcrumbLabels?: string[]
   activeBreadcrumbIndex?: number
   nextLabel?: string
@@ -33,7 +38,7 @@ function GenericLayout({
   nextLabel = "Next",
   children,
 }: GenericLayoutProps) {
-  const resolvedBreadcrumbs: Breadcrumb[] = React.useMemo(() => {
+  const resolvedBreadcrumbs: BreadcrumbStep[] = React.useMemo(() => {
     if (breadcrumbLabels?.length) {
       return breadcrumbLabels.map((label, idx) => ({
         label,
@@ -63,11 +68,11 @@ function GenericLayout({
           "flex flex-col items-center gap-3"
         )}
       >
-        <Breadcrumb
+        <BreadcrumbNav
           className={cn(
             "w-full",
-            "text-paragraph-small-font-size leading-paragraph-small-line-height tracking-paragraph-small-letter-spacing",
-            "font-font-definitions-font-family-body text-general-muted-foreground"
+            "text-sm leading-5 tracking-normal",
+            "font-sans text-muted-foreground"
           )}
         >
           <BreadcrumbList className="mx-auto flex flex-wrap items-center justify-center gap-[var(--sm,12px)]">
@@ -102,7 +107,7 @@ function GenericLayout({
               )
             })}
           </BreadcrumbList>
-        </Breadcrumb>
+        </BreadcrumbNav>
       </header>
       <div className="flex w-full flex-col gap-6 rounded-xl border border-border bg-background p-6 shadow-sm">
         <h1 className="text-xl font-semibold text-foreground">{title}</h1>

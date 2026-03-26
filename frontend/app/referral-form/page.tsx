@@ -165,10 +165,14 @@ export default function ReferralLayoutDemoPage() {
   const current = steps[stepIndex]
 
   const handleNext = () => {
+    if (isSubmitting) return
+
     if (stepIndex === steps.length - 1) {
       setIsSubmitting(true)
-      // Simulate submit work
-      setTimeout(() => setIsSubmitting(false), 1200)
+      // TODO: submit the form, replace delay
+      setTimeout(() => {
+        setIsSubmitting(false)
+      }, 2000)
       return
     }
     setStepIndex((prev) => Math.min(prev + 1, steps.length - 1))

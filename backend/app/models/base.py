@@ -202,6 +202,7 @@ class Client(Base):
 
     # Relationships
     agency = relationship("Agency", back_populates="clients", foreign_keys=[agency_id])
+    furniture_received = relationship("Furniture", back_populates="client")
     referrals = relationship("Referral", back_populates="client")
 
 
@@ -265,7 +266,6 @@ class Furniture(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    donor = relationship("Donor", back_populates="furniture_donated")
     client = relationship("Client", back_populates="furniture_received")
     route = relationship("Route", back_populates="furniture", foreign_keys=[route_id])
     donation = relationship("Donation", back_populates="furniture_items")

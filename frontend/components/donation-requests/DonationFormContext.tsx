@@ -14,7 +14,7 @@ const DonationFormContext = createContext<DonationFormContextType | null>(null);
 
 
 export function DonationFormProvider({ children }: { children: React.ReactNode }) {
-  const [formState, setFormState] = useState<DonationFormState>({
+  const [formState] = useState<DonationFormState>({
     pickupDate: null,
   });
 

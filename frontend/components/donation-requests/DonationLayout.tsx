@@ -2,6 +2,7 @@
 
 import React from "react";
 import { StepIndicator } from "@/components/ui/step-indicator";
+import { cn } from "@/lib/utils";
 
 const STEPS = [
   { label: "Furniture Details" },
@@ -12,32 +13,60 @@ const STEPS = [
 interface DonationLayoutProps {
   currentStep: 1 | 2 | 3;
   onNext: () => void;
-  onBack: () => void;
+  onBack?: () => void;
   children: React.ReactNode;
 }
 
-export default function DonationLayout({ currentStep, onNext, onBack, children }: DonationLayoutProps) {
+export default function DonationLayout({
+  currentStep,
+  onNext,
+  onBack,
+  children,
+}: DonationLayoutProps) {
+  const stepIndex = currentStep - 1;
+
+  const nextLabel =
+    currentStep === 1 ? "Schedule Pickup" :
+    currentStep === 2 ? "Continue to Summary" :
+    "Submit Request";
+
   return (
-    <div>
-      <header className="border-b border-gray-200 bg-white px-6 py-4">
-        <StepIndicator
-          steps={STEPS}
-          currentStep={currentStep - 1}
-        />
+    <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-4">
+      {/* Header */}
+      <header className="pt-8 flex justify-center">
+        <StepIndicator steps={STEPS} currentStep={stepIndex} />
       </header>
-      <main>{children}</main>
-      <footer className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white px-6 py-4 flex justify-between items-center">
-        {currentStep > 1 ? (
-          <button onClick={onBack} className="px-4 py-2 border border-gray-300 rounded-md text-sm">
-            Back
+
+      {/* Content card */}
+      <div className="flex w-full flex-col gap-6 rounded-xl border border-border bg-background p-6 shadow-sm">
+        {children}
+      </div>
+
+      {/* Bottom nav */}
+      <nav className={cn(
+        "mt-auto w-screen max-w-none",
+        "-mx-[calc((100vw-100%)/2)]",
+        "border-t border-border bg-background px-4 py-3 pb-6"
+      )}>
+        <div className="ml-auto flex w-full max-w-3xl items-center justify-end gap-2">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="flex min-h-[40px] items-center px-6 py-2.5 rounded-lg bg-neutral-100 text-sm text-muted-foreground hover:bg-neutral-200"
+            >
+              Back
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onNext}
+            className="flex min-h-[40px] items-center px-6 py-2.5 rounded-lg bg-[#9E4876] text-white text-sm hover:bg-[#9E4876]/90"
+          >
+            {nextLabel}
           </button>
-        ) : (
-          <span /> 
-        )}
-        <button onClick={onNext} className="px-4 py-2 bg-gray-900 text-white rounded-md text-sm">
-          {currentStep === 1 ? "Schedule Pickup" : currentStep === 2 ? "Continue to Summary" : "Submit Request"}
-        </button>
-      </footer>
+        </div>
+      </nav>
     </div>
   );
 }

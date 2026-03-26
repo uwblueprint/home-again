@@ -68,14 +68,14 @@ function GenericLayout({
           "flex flex-col items-center gap-3"
         )}
       >
-        <BreadcrumbNav
-          className={cn(
-            "w-full",
-            "text-sm leading-5 tracking-normal",
-            "font-sans text-muted-foreground"
-          )}
-        >
-          <BreadcrumbList className="mx-auto flex flex-wrap items-center justify-center gap-[var(--sm,12px)]">
+          <BreadcrumbNav
+            className={cn(
+              "w-full",
+              "text-sm leading-5 tracking-normal",
+              "font-sans text-muted-foreground"
+            )}
+          >
+          <BreadcrumbList className="mx-auto flex flex-wrap items-center justify-center gap-3">
             {resolvedBreadcrumbs.map((crumb, index) => {
               const isActive = index === activeIndex
 
@@ -86,7 +86,7 @@ function GenericLayout({
                       className={cn(
                         "flex size-6 items-center justify-center rounded-full bg-neutral-100",
                         "w-[26px] h-[26px] px-[10px] py-[5px] flex-col gap-[10px] aspect-square",
-                        "text-[16px] leading-[150%] tracking-[-0.176px] font-medium text-general-muted-foreground",
+                        "text-[16px] leading-[150%] tracking-[-0.176px] font-medium text-muted-foreground",
                         isActive && "text-foreground"
                       )}
                       aria-current={isActive ? "step" : undefined}
@@ -130,10 +130,10 @@ function GenericLayout({
               onClick={onBack}
               data-testid="back-button"
               className={cn(
-                "flex min-h-[40px] items-center justify-center gap-[var(--xs,8px)]",
-                "px-[var(--xl,24px)] py-[var(--hacks-to-fit-scale-10,10px)]",
-                "rounded-lg bg-[var(--general-secondary,#F5F5F5)]",
-                "text-sm text-muted-foreground hover:bg-[var(--general-secondary,#F5F5F5)] hover:text-foreground"
+                "flex min-h-[40px] items-center justify-center gap-2",
+                "px-6 py-2.5",
+                "rounded-lg bg-neutral-100",
+                "text-sm text-muted-foreground hover:bg-neutral-200 hover:text-foreground"
               )}
             >
               Back
@@ -147,10 +147,10 @@ function GenericLayout({
             data-testid="next-button"
             aria-busy={isSubmitting}
             className={cn(
-              "flex min-h-[40px] items-center justify-center gap-[var(--xs,8px)]",
-              "px-[var(--xl,24px)] py-[var(--hacks-to-fit-scale-10,10px)]",
-              "rounded-lg bg-[var(--general-primary,#9E4876)] text-primary-foreground",
-              "hover:bg-[var(--general-primary,#9E4876)]/90"
+              "flex min-h-[40px] items-center justify-center gap-2",
+              "px-6 py-2.5",
+              "rounded-lg bg-[#9E4876] text-primary-foreground",
+              "hover:bg-[#9E4876]/90"
             )}
           >
             {isSubmitting ? "Loading..." : nextLabel}

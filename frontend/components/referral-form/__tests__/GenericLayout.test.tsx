@@ -19,10 +19,10 @@ jest.mock(
   { virtual: true }
 )
 
-import GenericLayout, { type Breadcrumb } from "../GenericLayout"
+import GenericLayout, { type BreadcrumbStep } from "../GenericLayout"
 
 describe("GenericLayout", () => {
-  const breadcrumbs: Breadcrumb[] = [
+  const breadcrumbs: BreadcrumbStep[] = [
     { label: "Step 1" },
     { label: "Step 2" },
   ]

@@ -1,7 +1,7 @@
 import React from "react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 
-import DonationRequestContactForm from "../DonationRequestContactForm";
+import DonationRequestContactForm from "../donation-requests/DonationRequestContactForm";
 import { useCreateDonor } from "@/hooks/useApi";
 
 jest.mock("@/hooks/useApi");

@@ -2,9 +2,7 @@
 
 import { useMemo, useState } from "react"
 
-import GenericLayout, {
-  type Breadcrumb,
-} from "@/components/referral-form/GenericLayout"
+import GenericLayout from "@/components/referral-form/GenericLayout"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -12,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea"
 
 type Step = {
   title: string
-  breadcrumbs: Breadcrumb[]
   content: JSX.Element
 }
 
@@ -23,8 +20,7 @@ export default function ReferralLayoutDemoPage() {
   const steps: Step[] = useMemo(
     () => [
       {
-        title: "Basic information",
-        breadcrumbs: [{ label: "Basic" }, { label: "Details" }, { label: "Confirm" }],
+        title: "Client",
         content: (
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -43,8 +39,7 @@ export default function ReferralLayoutDemoPage() {
         ),
       },
       {
-        title: "Referral details",
-        breadcrumbs: [{ label: "Basic" }, { label: "Details", current: true }, { label: "Confirm" }],
+        title: "Agent",
         content: (
           <div className="grid gap-4">
             <div className="grid gap-2 sm:grid-cols-2">
@@ -82,8 +77,71 @@ export default function ReferralLayoutDemoPage() {
         ),
       },
       {
-        title: "Confirm & submit",
-        breadcrumbs: [{ label: "Basic" }, { label: "Details" }, { label: "Confirm", current: true }],
+        title: "Referral",
+        content: (
+          <div className="space-y-3 text-sm">
+            <p className="text-muted-foreground">
+              This is a simple preview screen. In a real flow you would summarize what was entered
+              and maybe add a final acknowledgement checkbox.
+            </p>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>Breadcrumbs highlight the current step.</li>
+              <li>Back button only appears when the handler is provided.</li>
+              <li>Primary action shows loading state via <code>isSubmitting</code>.</li>
+            </ul>
+          </div>
+        ),
+      },
+      {
+        title: "Furniture",
+        content: (
+          <div className="space-y-3 text-sm">
+            <p className="text-muted-foreground">
+              This is a simple preview screen. In a real flow you would summarize what was entered
+              and maybe add a final acknowledgement checkbox.
+            </p>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>Breadcrumbs highlight the current step.</li>
+              <li>Back button only appears when the handler is provided.</li>
+              <li>Primary action shows loading state via <code>isSubmitting</code>.</li>
+            </ul>
+          </div>
+        ),
+      },
+      {
+        title: "Delivery",
+        content: (
+          <div className="space-y-3 text-sm">
+            <p className="text-muted-foreground">
+              This is a simple preview screen. In a real flow you would summarize what was entered
+              and maybe add a final acknowledgement checkbox.
+            </p>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>Breadcrumbs highlight the current step.</li>
+              <li>Back button only appears when the handler is provided.</li>
+              <li>Primary action shows loading state via <code>isSubmitting</code>.</li>
+            </ul>
+          </div>
+        ),
+      },
+      {
+        title: "Agreements",
+        content: (
+          <div className="space-y-3 text-sm">
+            <p className="text-muted-foreground">
+              This is a simple preview screen. In a real flow you would summarize what was entered
+              and maybe add a final acknowledgement checkbox.
+            </p>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>Breadcrumbs highlight the current step.</li>
+              <li>Back button only appears when the handler is provided.</li>
+              <li>Primary action shows loading state via <code>isSubmitting</code>.</li>
+            </ul>
+          </div>
+        ),
+      },
+      {
+        title: "Review",
         content: (
           <div className="space-y-3 text-sm">
             <p className="text-muted-foreground">
@@ -102,6 +160,8 @@ export default function ReferralLayoutDemoPage() {
     []
   )
 
+  const baseBreadcrumbs = useMemo(() => steps.map((step) => step.title), [steps])
+
   const current = steps[stepIndex]
 
   const handleNext = () => {
@@ -117,10 +177,11 @@ export default function ReferralLayoutDemoPage() {
   const handleBack = stepIndex > 0 ? () => setStepIndex((prev) => Math.max(prev - 1, 0)) : undefined
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8">
+    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4">
       <GenericLayout
         title={current.title}
-        breadcrumbs={current.breadcrumbs}
+        breadcrumbLabels={baseBreadcrumbs}
+        activeBreadcrumbIndex={stepIndex}
         onNext={handleNext}
         onBack={handleBack}
         isSubmitting={isSubmitting}

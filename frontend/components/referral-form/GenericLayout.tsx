@@ -15,7 +15,9 @@ type GenericLayoutProps = {
   onBack?: () => void
   isSubmitting?: boolean
   title: string
-  breadcrumbs: Breadcrumb[]
+  breadcrumbs?: Breadcrumb[]
+  breadcrumbLabels?: string[]
+  activeBreadcrumbIndex?: number
   nextLabel?: string
   children: React.ReactNode
 }
@@ -23,29 +25,53 @@ type GenericLayoutProps = {
 function GenericLayout({
   title,
   breadcrumbs,
+  breadcrumbLabels,
+  activeBreadcrumbIndex = 0,
   onNext,
   onBack,
   isSubmitting = false,
   nextLabel = "Next",
   children,
 }: GenericLayoutProps) {
+  const resolvedBreadcrumbs: Breadcrumb[] = React.useMemo(() => {
+    if (breadcrumbLabels?.length) {
+      return breadcrumbLabels.map((label, idx) => ({
+        label,
+        current: idx === activeBreadcrumbIndex,
+      }))
+    }
+    return breadcrumbs ?? []
+  }, [breadcrumbLabels, activeBreadcrumbIndex, breadcrumbs])
+
   const activeIndex = React.useMemo(() => {
-    const explicit = breadcrumbs.findIndex((crumb) => crumb.current)
+    if (breadcrumbLabels?.length) {
+      return Math.min(
+        Math.max(activeBreadcrumbIndex, 0),
+        Math.max(resolvedBreadcrumbs.length - 1, 0)
+      )
+    }
+    const explicit = resolvedBreadcrumbs.findIndex((crumb) => crumb.current)
     return explicit >= 0 ? explicit : 0
-  }, [breadcrumbs])
+  }, [activeBreadcrumbIndex, breadcrumbLabels, resolvedBreadcrumbs])
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center gap-6 px-4 pb-4 pt-12">
-      <header className="flex w-full flex-col gap-3">
+      <header
+        className={cn(
+          "w-screen max-w-none px-4",
+          "-mx-[calc((100vw-100%)/2)]",
+          "flex flex-col items-center gap-3"
+        )}
+      >
         <Breadcrumb
           className={cn(
-            "mx-auto mb-3",
+            "w-full",
             "text-paragraph-small-font-size leading-paragraph-small-line-height tracking-paragraph-small-letter-spacing",
             "font-font-definitions-font-family-body text-general-muted-foreground"
           )}
         >
-          <BreadcrumbList className="flex flex-wrap items-center gap-sm">
-            {breadcrumbs.map((crumb, index) => {
+          <BreadcrumbList className="mx-auto flex flex-wrap items-center justify-center gap-[var(--sm,12px)]">
+            {resolvedBreadcrumbs.map((crumb, index) => {
               const isActive = index === activeIndex
 
               return (
@@ -71,7 +97,7 @@ function GenericLayout({
                       {crumb.label}
                     </span>
                   </BreadcrumbItem>
-                  {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
+                  {index < resolvedBreadcrumbs.length - 1 && <BreadcrumbSeparator />}
                 </React.Fragment>
               )
             })}

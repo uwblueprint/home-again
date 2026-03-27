@@ -115,12 +115,12 @@ export default function DonationRequestContactForm() {
   return (
     <div className="bg-background text-foreground">
       <div className="flex min-h-screen w-full items-stretch justify-start">
-        <aside className="hidden w-123 shrink-0 p-5 md:flex">
+        <aside className="hidden w-[492px] shrink-0 p-5 md:flex">
           <div className="h-full w-full rounded-xl bg-border/60" />
         </aside>
 
         <section className="flex min-h-screen flex-1 items-center justify-center px-6 py-10 sm:px-8">
-          <div className="w-full max-w-119 space-y-5">
+          <div className="w-full max-w-[476px] space-y-5">
             <Image
               src="/hafb_logo.svg"
               alt="Home Again Furniture Bank"
@@ -240,16 +240,8 @@ export default function DonationRequestContactForm() {
                   placeholder="(+1)"
                   value={values.phone}
                   onChange={handleChange("phone")}
-                  onBlur={() => handleBlur("phone")}
-                  aria-invalid={Boolean(errors.phone)}
-                  aria-describedby={errors.phone ? "phone-error" : undefined}
                   className="h-10 rounded-lg border-input bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
                 />
-                {errors.phone ? (
-                  <p id="phone-error" className="text-destructive text-sm" role="alert">
-                    {errors.phone}
-                  </p>
-                ) : null}
               </div>
 
               <Button

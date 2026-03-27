@@ -16,6 +16,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_ALLOWED_CHARACTERS_REGEX = /^[+\d\s().-]+$/;
+
+function isValidPhoneNumber(phone: string): boolean {
+  const normalizedPhone = phone.replace(/\D/g, "");
+  return (
+    PHONE_ALLOWED_CHARACTERS_REGEX.test(phone) &&
+    normalizedPhone.length >= 10 &&
+    normalizedPhone.length <= 15
+  );
+}
 
 function validateForm(
   values: DonationRequestContactFormValues
@@ -34,6 +44,10 @@ function validateForm(
     errors.email = "Email address is required.";
   } else if (!EMAIL_REGEX.test(values.email.trim())) {
     errors.email = "Enter a valid email address.";
+  }
+
+  if (values.phone.trim() && !isValidPhoneNumber(values.phone.trim())) {
+    errors.phone = "Enter a valid phone number.";
   }
 
   return errors;
@@ -240,8 +254,16 @@ export default function DonationRequestContactForm() {
                   placeholder="(+1)"
                   value={values.phone}
                   onChange={handleChange("phone")}
+                  onBlur={() => handleBlur("phone")}
+                  aria-invalid={Boolean(errors.phone)}
+                  aria-describedby={errors.phone ? "phone-error" : undefined}
                   className="h-10 rounded-lg border-input bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
                 />
+                {errors.phone ? (
+                  <p id="phone-error" className="text-destructive text-sm" role="alert">
+                    {errors.phone}
+                  </p>
+                ) : null}
               </div>
 
               <Button

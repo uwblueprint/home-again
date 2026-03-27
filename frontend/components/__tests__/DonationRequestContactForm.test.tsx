@@ -58,7 +58,7 @@ describe("DonationRequestContactForm", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows required and email validation messages", () => {
+  it("shows required, email, and phone validation messages", () => {
     render(<DonationRequestContactForm />);
 
     fireEvent.click(
@@ -78,12 +78,16 @@ describe("DonationRequestContactForm", () => {
     fireEvent.change(screen.getByLabelText("Email Address"), {
       target: { value: "invalid-email" },
     });
+    fireEvent.change(screen.getByLabelText("Phone Number"), {
+      target: { value: "abc123" },
+    });
 
     fireEvent.click(
       screen.getByRole("button", { name: /submit a donation request/i })
     );
 
     expect(screen.getByText("Enter a valid email address.")).toBeInTheDocument();
+    expect(screen.getByText("Enter a valid phone number.")).toBeInTheDocument();
   });
 
   it("submits expected payload through useCreateDonor", () => {
@@ -99,7 +103,7 @@ describe("DonationRequestContactForm", () => {
       target: { value: "jane@example.com" },
     });
     fireEvent.change(screen.getByLabelText("Phone Number"), {
-      target: { value: "+1 555 1234" },
+      target: { value: "+1 (555) 123-4567" },
     });
 
     fireEvent.click(
@@ -112,7 +116,7 @@ describe("DonationRequestContactForm", () => {
         first_name: "Jane",
         last_name: "Doe",
         email: "jane@example.com",
-        phone: "+1 555 1234",
+        phone: "+1 (555) 123-4567",
       },
       expect.objectContaining({
         onSuccess: expect.any(Function),

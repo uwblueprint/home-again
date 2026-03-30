@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, SquarePen } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export interface AgentFormData {
   firstName: string;
@@ -35,10 +34,16 @@ export function AgentCard({
 }: AgentCardProps) {
   const [formData, setFormData] = useState<AgentFormData>(agent);
 
+  useEffect(() => {
+    setFormData(agent);
+  }, [agent]);
+
   const displayName =
     agent.firstName || agent.lastName
       ? `${agent.firstName} ${agent.lastName}`.trim()
       : "New Agent";
+
+  const isSaved = agent.firstName !== "" || agent.lastName !== "";
 
   function handleSave() {
     onSave(formData);
@@ -59,7 +64,7 @@ export function AgentCard({
               onClick={onClose}
               className="text-foreground/60 hover:text-foreground transition-colors"
             >
-              <X className="size-5" />
+              <X className="size-6" />
             </button>
           </div>
 
@@ -137,18 +142,28 @@ export function AgentCard({
 
   // Collapsed state
   return (
-    <div className="flex w-full items-center justify-between rounded-[14px] border border-foreground/10 bg-card px-6 py-4 shadow-sm">
+    <div className="flex w-full items-center justify-between rounded-[14px] border border-foreground/10 bg-card p-6 shadow-sm">
       <p className="text-sm text-foreground">
         <span className="font-semibold">Agent {index + 1}:</span>{" "}
         {displayName}
       </p>
-      <button
-        type="button"
-        onClick={onEdit}
-        className="text-foreground/60 hover:text-foreground transition-colors"
-      >
-        <SquarePen className="size-5" />
-      </button>
+      {isSaved ? (
+        <button
+          type="button"
+          onClick={onEdit}
+          className="text-foreground/60 hover:text-foreground transition-colors"
+        >
+          <SquarePen className="size-6" />
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={onRemove}
+          className="text-foreground/60 hover:text-foreground transition-colors"
+        >
+          <X className="size-6" />
+        </button>
+      )}
     </div>
   );
 }

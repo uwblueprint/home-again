@@ -8,18 +8,19 @@ interface DonationFormState {
 
 interface DonationFormContextType {
   formState: DonationFormState;
+  setFormState: React.Dispatch<React.SetStateAction<DonationFormState>>;
 }
 
 const DonationFormContext = createContext<DonationFormContextType | null>(null);
 
 
 export function DonationFormProvider({ children }: { children: React.ReactNode }) {
-  const [formState] = useState<DonationFormState>({
+  const [formState, setFormState] = useState<DonationFormState>({
     pickupDate: null,
   });
 
   return (
-    <DonationFormContext.Provider value={{ formState }}>
+    <DonationFormContext.Provider value={{ formState, setFormState }}>
       {children}
     </DonationFormContext.Provider>
   );

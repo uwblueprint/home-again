@@ -37,6 +37,10 @@ export default function DonationLayout({
         <StepIndicator steps={STEPS} currentStep={stepIndex} />
       </header>
 
+      <h2 className="text-xl font-semibold text-foreground">
+        {STEPS[stepIndex].label}
+      </h2>
+
       {/* Content card */}
       <div className="flex w-full flex-col gap-6 rounded-xl border border-border bg-background p-6 shadow-sm">
         {children}
@@ -46,14 +50,14 @@ export default function DonationLayout({
       <nav className={cn(
         "mt-auto w-screen max-w-none",
         "-mx-[calc((100vw-100%)/2)]",
-        "border-t border-border bg-background px-4 py-3 pb-6"
+        "border-t border-border bg-background px-4 py-6 pb-6"
       )}>
         <div className="ml-auto flex w-full max-w-3xl items-center justify-end gap-2">
           {onBack && (
             <button
               type="button"
               onClick={onBack}
-              className="flex min-h-[40px] items-center px-6 py-2.5 rounded-lg bg-neutral-100 text-sm text-muted-foreground hover:bg-neutral-200"
+              className="flex min-h-[40px] items-center px-6 py-2.5 rounded-lg bg-neutral-100 text-sm text-muted-foreground hover:bg-neutral-200 cursor-pointer"
             >
               Back
             </button>
@@ -61,7 +65,7 @@ export default function DonationLayout({
           <button
             type="button"
             onClick={onNext}
-            className="flex min-h-[40px] items-center px-6 py-2.5 rounded-lg bg-[#9E4876] text-white text-sm hover:bg-[#9E4876]/90"
+            className="flex min-h-[40px] items-center px-6 py-2.5 rounded-lg bg-[#9E4876] text-white text-sm hover:bg-[#9E4876]/90 cursor-pointer"
           >
             {nextLabel}
           </button>

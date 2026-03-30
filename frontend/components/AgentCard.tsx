@@ -64,14 +64,16 @@ export function AgentCard({
         <div className="flex flex-col gap-6">
           {/* Header — click row to collapse, X to delete */}
           <div className="flex items-center justify-between">
-            <button
-              type="button"
+            <div
+              role="button"
+              tabIndex={0}
               onClick={onClose}
-              className="text-sm text-foreground hover:opacity-70 transition-opacity cursor-pointer text-left"
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClose(); }}
+              className="flex-1 cursor-pointer py-1 text-sm text-foreground hover:opacity-70 transition-opacity"
             >
               <span className="font-semibold">Agent {index + 1}:</span>{" "}
               {displayName}
-            </button>
+            </div>
             <button
               type="button"
               onClick={onRemove}

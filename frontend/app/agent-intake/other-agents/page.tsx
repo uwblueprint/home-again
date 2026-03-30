@@ -28,8 +28,11 @@ export default function OtherAgentsStep() {
 
   function handleRemove(index: number) {
     setAgents((prev) => prev.filter((_, i) => i !== index));
+    if (editingIndex === null) return;
     if (editingIndex === index) {
       setEditingIndex(null);
+    } else if (editingIndex > index) {
+      setEditingIndex(editingIndex - 1);
     }
   }
 

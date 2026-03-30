@@ -45,6 +45,12 @@ export function AgentCard({
 
   const isSaved = agent.firstName !== "" || agent.lastName !== "";
 
+  const canSave =
+    formData.firstName.trim() !== "" &&
+    formData.lastName.trim() !== "" &&
+    formData.email.trim() !== "" &&
+    formData.phoneNumber.trim() !== "";
+
   function handleSave() {
     onSave(formData);
   }
@@ -135,6 +141,7 @@ export function AgentCard({
           <Button
             variant="secondary"
             className="w-full rounded-full"
+            disabled={!canSave}
             onClick={handleSave}
           >
             Save

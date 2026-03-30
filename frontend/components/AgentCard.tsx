@@ -62,15 +62,19 @@ export function AgentCard({
     return (
       <div className="w-full rounded-xl border border-border bg-card px-12 py-6 shadow-sm">
         <div className="flex flex-col gap-6">
-          {/* Header */}
+          {/* Header — click row to collapse, X to delete */}
           <div className="flex items-center justify-between">
-            <p className="text-sm text-foreground">
-              <span className="font-semibold">Agent {index + 1}:</span>{" "}
-              {displayName}
-            </p>
             <button
               type="button"
               onClick={onClose}
+              className="text-sm text-foreground hover:opacity-70 transition-opacity cursor-pointer text-left"
+            >
+              <span className="font-semibold">Agent {index + 1}:</span>{" "}
+              {displayName}
+            </button>
+            <button
+              type="button"
+              onClick={onRemove}
               className="text-foreground/60 hover:text-foreground transition-colors"
             >
               <X className="size-6" />

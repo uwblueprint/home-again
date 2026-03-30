@@ -74,6 +74,7 @@ export function AgentCard({
               <Label htmlFor={`firstName-${index}`}>First Name</Label>
               <Input
                 id={`firstName-${index}`}
+                placeholder="John"
                 value={formData.firstName}
                 onChange={(e) =>
                   setFormData((prev) => ({
@@ -87,6 +88,7 @@ export function AgentCard({
               <Label htmlFor={`lastName-${index}`}>Last Name</Label>
               <Input
                 id={`lastName-${index}`}
+                placeholder="Doe"
                 value={formData.lastName}
                 onChange={(e) =>
                   setFormData((prev) => ({
@@ -105,6 +107,7 @@ export function AgentCard({
               <Input
                 id={`email-${index}`}
                 type="email"
+                placeholder="name@agency.org"
                 value={formData.email}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, email: e.target.value }))
@@ -116,6 +119,7 @@ export function AgentCard({
               <Input
                 id={`phone-${index}`}
                 type="tel"
+                placeholder="22901220132"
                 value={formData.phoneNumber}
                 onChange={(e) =>
                   setFormData((prev) => ({

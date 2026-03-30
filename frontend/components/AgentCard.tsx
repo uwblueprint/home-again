@@ -65,11 +65,11 @@ export function AgentCard({
           {/* Header — click row to collapse, X to delete */}
           <div className="flex items-center justify-between">
             <div
-              role="button"
-              tabIndex={0}
-              onClick={onClose}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClose(); }}
-              className="flex-1 cursor-pointer py-1 text-sm text-foreground hover:opacity-70 transition-opacity"
+              role={isSaved ? "button" : undefined}
+              tabIndex={isSaved ? 0 : undefined}
+              onClick={isSaved ? onClose : undefined}
+              onKeyDown={isSaved ? (e) => { if (e.key === "Enter" || e.key === " ") onClose(); } : undefined}
+              className={`flex-1 py-1 text-sm text-foreground ${isSaved ? "cursor-pointer hover:opacity-70 transition-opacity" : ""}`}
             >
               <span className="font-semibold">Agent {index + 1}:</span>{" "}
               {displayName}

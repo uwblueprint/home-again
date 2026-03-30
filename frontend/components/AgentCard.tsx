@@ -45,11 +45,14 @@ export function AgentCard({
 
   const isSaved = agent.firstName !== "" || agent.lastName !== "";
 
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
+  const isValidPhone = /^\d{10,15}$/.test(formData.phoneNumber.replace(/\D/g, ""));
+
   const canSave =
     formData.firstName.trim() !== "" &&
     formData.lastName.trim() !== "" &&
-    formData.email.trim() !== "" &&
-    formData.phoneNumber.trim() !== "";
+    isValidEmail &&
+    isValidPhone;
 
   function handleSave() {
     onSave(formData);

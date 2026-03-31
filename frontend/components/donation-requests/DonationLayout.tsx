@@ -3,6 +3,7 @@
 import React from "react";
 import { StepIndicator } from "@/components/ui/step-indicator";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 const STEPS = [
   { label: "Furniture Details" },
@@ -42,33 +43,25 @@ export default function DonationLayout({
       </h2>
 
       {/* Content card */}
-      <div className="flex w-full flex-col gap-6 rounded-xl border border-border bg-background p-6 shadow-sm">
+      <div className="flex w-full flex-col gap-6 rounded-xl border border-border bg-background p-6 pb-24 shadow-sm">
         {children}
       </div>
 
       {/* Bottom nav */}
       <nav className={cn(
-        "mt-auto w-screen max-w-none",
+        "mt-auto bottom-0 w-screen max-w-none",
         "-mx-[calc((100vw-100%)/2)]",
         "border-t border-border bg-background px-4 py-6 pb-6"
       )}>
         <div className="ml-auto flex w-full max-w-3xl items-center justify-end gap-2">
           {onBack && (
-            <button
-              type="button"
-              onClick={onBack}
-              className="flex min-h-[40px] items-center px-6 py-2.5 rounded-lg bg-neutral-100 text-sm text-muted-foreground hover:bg-neutral-200 cursor-pointer"
-            >
+            <Button size="lg" variant="secondary" className="px-6 py-5" onClick={onBack}>
               Back
-            </button>
+            </Button>
           )}
-          <button
-            type="button"
-            onClick={onNext}
-            className="flex min-h-[40px] items-center px-6 py-2.5 rounded-lg bg-[#9E4876] text-white text-sm hover:bg-[#9E4876]/90 cursor-pointer"
-          >
+          <Button size="lg" className="px-6 py-5" onClick={onNext}>
             {nextLabel}
-          </button>
+          </Button>
         </div>
       </nav>
     </div>

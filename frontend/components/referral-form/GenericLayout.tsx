@@ -20,9 +20,8 @@ type GenericLayoutProps = {
   onBack?: () => void
   isSubmitting?: boolean
   title: string
+  activeIndex: number
   breadcrumbs?: BreadcrumbStep[]
-  breadcrumbLabels?: string[]
-  activeBreadcrumbIndex?: number
   nextLabel?: string
   children: React.ReactNode
 }
@@ -30,34 +29,23 @@ type GenericLayoutProps = {
 function GenericLayout({
   title,
   breadcrumbs,
-  breadcrumbLabels,
-  activeBreadcrumbIndex = 0,
+  activeIndex,
   onNext,
   onBack,
   isSubmitting = false,
   nextLabel = "Next",
   children,
 }: GenericLayoutProps) {
-  const resolvedBreadcrumbs: BreadcrumbStep[] = React.useMemo(() => {
-    if (breadcrumbLabels?.length) {
-      return breadcrumbLabels.map((label, idx) => ({
-        label,
-        current: idx === activeBreadcrumbIndex,
-      }))
-    }
-    return breadcrumbs ?? []
-  }, [breadcrumbLabels, activeBreadcrumbIndex, breadcrumbs])
 
-  const activeIndex = React.useMemo(() => {
-    if (breadcrumbLabels?.length) {
-      return Math.min(
-        Math.max(activeBreadcrumbIndex, 0),
-        Math.max(resolvedBreadcrumbs.length - 1, 0)
-      )
-    }
-    const explicit = resolvedBreadcrumbs.findIndex((crumb) => crumb.current)
-    return explicit >= 0 ? explicit : 0
-  }, [activeBreadcrumbIndex, breadcrumbLabels, resolvedBreadcrumbs])
+  // Derive breadcrumbs from provided data and ensure exactly one is active.
+  const resolvedBreadcrumbs: BreadcrumbStep[] = React.useMemo(() => {
+    if (!breadcrumbs?.length) return []
+
+    return breadcrumbs.map((crumb, idx) => ({
+      ...crumb,
+      current: idx === activeIndex,
+    }))
+  }, [breadcrumbs, activeIndex])
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center gap-6 px-4 pb-4 pt-12">
@@ -77,8 +65,6 @@ function GenericLayout({
           >
           <BreadcrumbList className="mx-auto flex flex-wrap items-center justify-center gap-3">
             {resolvedBreadcrumbs.map((crumb, index) => {
-              const isActive = index === activeIndex
-
               return (
                 <React.Fragment key={`${crumb.label}-${index}`}>
                   <BreadcrumbItem className="flex items-center gap-2">
@@ -87,16 +73,16 @@ function GenericLayout({
                         "flex size-6 items-center justify-center rounded-full bg-neutral-100",
                         "w-[26px] h-[26px] px-[10px] py-[5px] flex-col gap-[10px] aspect-square",
                         "text-[16px] leading-[150%] tracking-[-0.176px] font-medium text-muted-foreground",
-                        isActive && "text-foreground"
+                        crumb.current && "text-foreground"
                       )}
-                      aria-current={isActive ? "step" : undefined}
+                      aria-current={crumb.current ? "step" : undefined}
                     >
                       {index + 1}
                     </span>
                     <span
                       className={cn(
                         "text-muted-foreground",
-                        isActive && "text-foreground"
+                        crumb.current && "text-foreground"
                       )}
                     >
                       {crumb.label}

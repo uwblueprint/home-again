@@ -160,7 +160,10 @@ export default function ReferralLayoutDemoPage() {
     []
   )
 
-  const baseBreadcrumbs = useMemo(() => steps.map((step) => step.title), [steps])
+  const breadcrumbs = useMemo(
+    () => steps.map((step, idx) => ({ label: step.title, current: idx === stepIndex })),
+    [steps, stepIndex]
+  )
 
   const current = steps[stepIndex]
 
@@ -184,8 +187,8 @@ export default function ReferralLayoutDemoPage() {
     <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4">
       <GenericLayout
         title={current.title}
-        breadcrumbLabels={baseBreadcrumbs}
-        activeBreadcrumbIndex={stepIndex}
+        activeIndex={stepIndex}
+        breadcrumbs={breadcrumbs}
         onNext={handleNext}
         onBack={handleBack}
         isSubmitting={isSubmitting}

@@ -11,7 +11,14 @@ function DonationPageInner() {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
   function handleNext() {
-    if (currentStep < 3) setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
+    if (currentStep < 3) {
+      setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
+    } else {
+      // Final step (3): perform a submit action so the "Submit Request" button is not a no-op.
+      if (typeof window !== "undefined") {
+        window.alert("Your donation request has been submitted.");
+      }
+    }
   }
 
   function handleBack() {

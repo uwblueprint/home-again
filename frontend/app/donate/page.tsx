@@ -10,9 +10,10 @@ import StepDonationSummary from "@/components/donation-requests/StepDonationSumm
 function DonationPageInner() {
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
-  function handleNext() {
-    if (currentStep < 3) setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
-  }
+  const handleNext =
+    currentStep < 3
+      ? () => setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3)
+      : undefined;
 
   // undefined on step 1 — DonationLayout won't render Back at all
   const handleBack = currentStep > 1

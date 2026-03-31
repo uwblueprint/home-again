@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useState } from "react";
 
 import { useCreateDonor } from "@/hooks/useApi";
@@ -54,6 +55,7 @@ function validateForm(
 }
 
 export default function DonationRequestContactForm() {
+  const router = useRouter();
   const createDonor = useCreateDonor();
   const [values, setValues] = useState<DonationRequestContactFormValues>({
     first_name: "",
@@ -104,18 +106,15 @@ export default function DonationRequestContactForm() {
     };
 
     createDonor.mutate(payload, {
-      onSuccess: () => {
+      onSuccess: (createdDonor) => {
+        if (createdDonor.id) {
+          router.push(`/donate/${createdDonor.id}`);
+          return;
+        }
         setSubmitStatus({
-          type: "success",
-          text: "Thanks. Your contact information has been submitted.",
+          type: "error",
+          text: "Your request was submitted, but we could not continue. Please try again.",
         });
-        setValues({
-          first_name: "",
-          last_name: "",
-          email: "",
-          phone: "",
-        });
-        setErrors({});
       },
       onError: () => {
         setSubmitStatus({

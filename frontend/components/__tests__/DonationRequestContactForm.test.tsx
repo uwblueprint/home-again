@@ -3,8 +3,12 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 
 import DonationRequestContactForm from "../donation-requests/DonationRequestContactForm";
 import { useCreateDonor } from "@/hooks/useApi";
+import { useRouter } from "next/navigation";
 
 jest.mock("@/hooks/useApi");
+jest.mock("next/navigation", () => ({
+  useRouter: jest.fn(),
+}));
 jest.mock("@/lib/utils", () => ({
   cn: (...inputs: Array<string | undefined | null | false>) =>
     inputs.filter(Boolean).join(" "),
@@ -35,10 +39,15 @@ jest.mock("next/image", () => ({
 }));
 
 const mockMutate = jest.fn();
+const mockPush = jest.fn();
 
 describe("DonationRequestContactForm", () => {
   beforeEach(() => {
     mockMutate.mockReset();
+    mockPush.mockReset();
+    (useRouter as jest.Mock).mockReturnValue({
+      push: mockPush,
+    });
     (useCreateDonor as jest.Mock).mockReturnValue({
       mutate: mockMutate,
       isPending: false,
@@ -138,7 +147,7 @@ describe("DonationRequestContactForm", () => {
     expect(button).toHaveTextContent("Submitting...");
   });
 
-  it("shows success and error announcement messages", () => {
+  it("redirects to /donate/:id on successful submit and shows error on failure", () => {
     render(<DonationRequestContactForm />);
 
     fireEvent.change(screen.getByLabelText("First Name"), {
@@ -158,12 +167,10 @@ describe("DonationRequestContactForm", () => {
     const mutateOptions = mockMutate.mock.calls[0][1];
 
     act(() => {
-      mutateOptions.onSuccess();
+      mutateOptions.onSuccess({ id: "donor-123" });
     });
 
-    expect(
-      screen.getByText("Thanks. Your contact information has been submitted.")
-    ).toBeInTheDocument();
+    expect(mockPush).toHaveBeenCalledWith("/donate/donor-123");
 
     fireEvent.change(screen.getByLabelText("First Name"), {
       target: { value: "Jane" },

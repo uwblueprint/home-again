@@ -19,7 +19,7 @@ function DonationPageInner() {
   }
 
   return (
-    <DonationLayout currentStep={currentStep} onNext={handleNext} onBack={handleBack}>
+    <DonationLayout currentStep={currentStep} onNext={handleNext} onBack={currentStep === 1 ? undefined : handleBack}>
       {currentStep === 1 && <StepFurnitureDetails />}
       {currentStep === 2 && <StepSchedulePickup />}
       {currentStep === 3 && <StepDonationSummary />}

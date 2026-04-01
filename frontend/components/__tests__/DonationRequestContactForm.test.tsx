@@ -77,6 +77,7 @@ describe("DonationRequestContactForm", () => {
     expect(screen.getByText("First name is required.")).toBeInTheDocument();
     expect(screen.getByText("Last name is required.")).toBeInTheDocument();
     expect(screen.getByText("Email address is required.")).toBeInTheDocument();
+    expect(screen.getByText("Phone number is required.")).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("First Name"), {
       target: { value: "Jane" },
@@ -159,6 +160,9 @@ describe("DonationRequestContactForm", () => {
     fireEvent.change(screen.getByLabelText("Email Address"), {
       target: { value: "jane@example.com" },
     });
+    fireEvent.change(screen.getByLabelText("Phone Number"), {
+      target: { value: "+1 (555) 123-4567" },
+    });
 
     fireEvent.click(
       screen.getByRole("button", { name: /submit a donation request/i })
@@ -180,6 +184,9 @@ describe("DonationRequestContactForm", () => {
     });
     fireEvent.change(screen.getByLabelText("Email Address"), {
       target: { value: "jane@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Phone Number"), {
+      target: { value: "+1 (555) 123-4567" },
     });
 
     fireEvent.click(

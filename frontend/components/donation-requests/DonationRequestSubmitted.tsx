@@ -8,7 +8,7 @@ export default function DonationRequestSubmitted() {
     <div className="min-h-screen bg-background">
       <div className="flex min-h-screen flex-col md:flex-row">
         <aside className="hidden w-[34.2%] items-center justify-center py-5 pl-3 pr-5 md:flex">
-          <div className="h-full w-full rounded-xl bg-muted" />
+          <div className="h-full w-full rounded-xl bg-border/60" />
         </aside>
 
         <main className="flex flex-1 items-center justify-center px-6 py-16 md:px-10">

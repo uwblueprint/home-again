@@ -1,4 +1,4 @@
-import DonationRequestSubmitted from "@/components/DonationRequestSubmitted";
+import DonationRequestSubmitted from "@/components/donation-requests/DonationRequestSubmitted";
 
 export default function DonationRequestSubmittedPage() {
   return <DonationRequestSubmitted />;

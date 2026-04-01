@@ -1,8 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useMemo } from "react";
 
 interface DonationFormState {
+  donorId: string | null;
   pickupDate: string | null;
 }
 
@@ -13,14 +14,27 @@ interface DonationFormContextType {
 
 const DonationFormContext = createContext<DonationFormContextType | null>(null);
 
+interface DonationFormProviderProps {
+  children: React.ReactNode;
+  initialDonorId?: string | null;
+}
 
-export function DonationFormProvider({ children }: { children: React.ReactNode }) {
+export function DonationFormProvider({
+  children,
+  initialDonorId = null,
+}: DonationFormProviderProps) {
   const [formState, setFormState] = useState<DonationFormState>({
+    donorId: initialDonorId,
     pickupDate: null,
   });
 
+  const contextValue = useMemo(
+    () => ({ formState, setFormState }),
+    [formState]
+  );
+
   return (
-    <DonationFormContext.Provider value={{ formState, setFormState }}>
+    <DonationFormContext.Provider value={contextValue}>
       {children}
     </DonationFormContext.Provider>
   );

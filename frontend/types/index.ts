@@ -78,6 +78,29 @@ export interface Donor {
   updated_at: string;
 }
 
+export interface CreateDonorInput {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+}
+
+export interface DonationRequestContactFormValues {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+}
+
+export type DonationRequestContactFormErrors = Partial<
+  Record<keyof DonationRequestContactFormValues, string>
+>;
+
+export type DonationRequestContactFormSubmitStatus = {
+  type: "success" | "error";
+  text: string;
+} | null;
+
 export interface Client {
   id: string;
   first_name: string;

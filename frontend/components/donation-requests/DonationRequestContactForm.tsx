@@ -47,7 +47,9 @@ function validateForm(
     errors.email = "Enter a valid email address.";
   }
 
-  if (values.phone.trim() && !isValidPhoneNumber(values.phone.trim())) {
+  if (!values.phone.trim()) {
+    errors.phone = "Phone number is required.";
+  } else if (!isValidPhoneNumber(values.phone.trim())) {
     errors.phone = "Enter a valid phone number.";
   }
 
@@ -102,7 +104,7 @@ export default function DonationRequestContactForm() {
       first_name: values.first_name.trim(),
       last_name: values.last_name.trim(),
       email: values.email.trim(),
-      ...(values.phone.trim() ? { phone: values.phone.trim() } : {}),
+      phone: values.phone.trim(),
     };
 
     createDonor.mutate(payload, {

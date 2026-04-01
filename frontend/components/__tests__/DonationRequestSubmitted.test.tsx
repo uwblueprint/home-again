@@ -16,7 +16,7 @@ describe("DonationRequestSubmitted", () => {
       )
     ).toBeInTheDocument();
 
-    const backToHome = screen.getByRole("button", { name: "Back to Home" });
+    const backToHome = screen.getByRole("link", { name: "Back to Home" });
     expect(backToHome).toBeInTheDocument();
     expect(backToHome).toHaveAttribute("href", "/");
   });

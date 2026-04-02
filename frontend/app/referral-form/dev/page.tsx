@@ -2,16 +2,31 @@
 
 import { useState } from "react"
 import FurnitureItemCard from "@/components/referral-form/FurnitureItemCard"
+import SummaryList from "@/components/referral-form/SummaryList"
+import { cn } from "@/lib/utils"
 
 type Item = {
   id: string
   label: string
+  category: string
 }
 
 const SAMPLE_ITEMS: Item[] = [
-  { id: "sofa", label: "Sofa/Couch" },
-  { id: "table", label: "Dining Table" },
-  { id: "bed", label: "Mattress Only" },
+  { id: "sofa", label: "Sofa/Couch", category: "Seating" },
+  { id: "table", label: "Dining Table", category: "Tables" },
+  { id: "bed", label: "Mattress Only", category: "Bed" },
+  { id: "box", label: "Box Spring Only", category: "Bed" },
+  { id: "metal", label: "Metal Bed Frame", category: "Bed" },
+  { id: "captain", label: "Captain's/Mate's Bed", category: "Bed" },
+]
+
+const CATEGORIES = [
+  "Seating",
+  "Storage & Shelving",
+  "Bed",
+  "Household",
+  "Electronics",
+  "Tables",
 ]
 
 export default function ReferralFormDevPage() {
@@ -27,16 +42,40 @@ export default function ReferralFormDevPage() {
       { id: "double", label: "Double", quantity: 1 },
       { id: "queen", label: "Queen", quantity: 0 },
     ],
+    box: [
+      { id: "twin", label: "Twin", quantity: 2 },
+      { id: "double", label: "Double", quantity: 1 },
+      { id: "queen", label: "Queen", quantity: 0 },
+    ],
+    metal: [
+      { id: "twdb", label: "TW/DB", quantity: 1 },
+      { id: "dbqn", label: "DB/QN", quantity: 0 },
+    ],
   })
   const [quantities, setQuantities] = useState<Record<string, number>>({
     sofa: 1,
     table: 1,
-    bed: 1,
+    bed: 0,
+    box: 0,
+    metal: 0,
+    captain: 0,
   })
   const [notes, setNotes] = useState<Record<string, string>>({
     sofa: "",
     table: "",
     bed: "",
+    box: "",
+    metal: "",
+    captain: "",
+  })
+
+  const [activeCategory, setActiveCategory] = useState<string>("Bed")
+  const [search, setSearch] = useState("")
+
+  const filteredItems = SAMPLE_ITEMS.filter((item) => {
+    const inCategory = item.category === activeCategory
+    const matchesSearch = item.label.toLowerCase().includes(search.toLowerCase())
+    return inCategory && matchesSearch
   })
 
   return (
@@ -54,8 +93,34 @@ export default function ReferralFormDevPage() {
         </p>
       </header>
 
+      <div className="flex flex-wrap items-center gap-3">
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={cn(
+              "flex items-center gap-1 rounded-full border px-3 py-1 text-sm transition",
+              activeCategory === cat
+                ? "border-[#9E4876] text-[#9E4876]"
+                : "border-neutral-200 text-neutral-700 hover:border-neutral-300"
+            )}
+          >
+            {cat}
+          </button>
+        ))}
+        <div className="ml-auto flex items-center gap-2 rounded-full border border-neutral-200 px-3 py-1">
+          <span className="text-neutral-400">🔍</span>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search for furniture"
+            className="w-48 bg-transparent text-sm outline-none"
+          />
+        </div>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {SAMPLE_ITEMS.map((item) => {
+        {filteredItems.map((item) => {
           const isSelected = selected[item.id] ?? false
           const qty = quantities[item.id] ?? 0
           const note = notes[item.id] ?? ""
@@ -94,6 +159,17 @@ export default function ReferralFormDevPage() {
           )
         })}
       </div>
+
+      <section className="mt-8 space-y-4">
+        <h2 className="text-2xl font-semibold text-foreground">Summary</h2>
+        <SummaryList
+          items={SAMPLE_ITEMS}
+          selected={selected}
+          quantities={quantities}
+          notes={notes}
+          subOptions={subOptions}
+        />
+      </section>
     </main>
   )
 }

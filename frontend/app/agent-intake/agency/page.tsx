@@ -68,9 +68,13 @@ function validate(form: AgencyFormData): FormErrors {
   return errors;
 }
 
-function FieldError({ message }: { message?: string }) {
+function FieldError({ id, message }: { id?: string; message?: string }) {
   if (!message) return null;
-  return <p className="text-sm text-destructive mt-1">{message}</p>;
+  return (
+    <p id={id} role="alert" className="text-sm text-destructive mt-1">
+      {message}
+    </p>
+  );
 }
 
 export default function AgencyStep() {

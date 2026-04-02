@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 // TODO: Replace mock data with actual form state once state management is implemented
 const MOCK_MAIN_AGENT = {
   firstName: "John",
@@ -8,6 +10,14 @@ const MOCK_MAIN_AGENT = {
   phone: "(+1) 647 123 4567",
   role: "Community Manager",
 };
+
+const MOCK_OTHER_AGENTS = Array.from({ length: 13 }, (_, i) => ({
+  name: `Agent ${i + 1}`,
+  email: "john@agency.com",
+  phone: "(+1) 647 123 4567",
+}));
+
+const AGENTS_PER_PAGE = 3;
 
 const MOCK_AGENCY = {
   name: "Home Again",
@@ -29,6 +39,22 @@ function ReviewField({ label, value }: { label: string; value: string }) {
   );
 }
 
+function AgentCard({
+  agent,
+}: {
+  agent: { name: string; email: string; phone: string };
+}) {
+  return (
+    <div className="border border-border rounded-lg shadow-sm p-3 flex flex-col gap-3">
+      <p className="text-sm text-foreground">{agent.name}</p>
+      <div className="flex gap-12 text-sm text-muted-foreground">
+        <span>{agent.email}</span>
+        <span>{agent.phone}</span>
+      </div>
+    </div>
+  );
+}
+
 function ReviewCard({ children }: { children: React.ReactNode }) {
   return (
     <div className="border border-border rounded-lg shadow-sm p-3 flex flex-col gap-4">
@@ -38,6 +64,10 @@ function ReviewCard({ children }: { children: React.ReactNode }) {
 }
 
 export default function ReviewStep() {
+  const [visibleCount, setVisibleCount] = useState(AGENTS_PER_PAGE);
+  const visibleAgents = MOCK_OTHER_AGENTS.slice(0, visibleCount);
+  const remaining = MOCK_OTHER_AGENTS.length - visibleCount;
+
   return (
     <div className="max-w-3xl mx-auto flex flex-col gap-8">
       <div className="flex flex-col gap-3">
@@ -102,6 +132,25 @@ export default function ReviewStep() {
             <ReviewField label="Role" value={MOCK_MAIN_AGENT.role} />
           </div>
         </ReviewCard>
+      </div>
+
+      {/* Other Agents */}
+      <div className="flex flex-col gap-5">
+        <h3 className="text-xl font-semibold text-foreground">Other Agents</h3>
+        {visibleAgents.map((agent, index) => (
+          <AgentCard key={index} agent={agent} />
+        ))}
+        {remaining > 0 && (
+          <button
+            type="button"
+            className="text-sm font-medium text-foreground text-left"
+            onClick={() =>
+              setVisibleCount((prev) => prev + AGENTS_PER_PAGE)
+            }
+          >
+            Load {Math.min(remaining, AGENTS_PER_PAGE)} more agents
+          </button>
+        )}
       </div>
     </div>
   );

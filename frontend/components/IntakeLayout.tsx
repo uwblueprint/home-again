@@ -51,8 +51,12 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
 
   async function handleNext() {
     setIsNavigating(true);
-    const valid = await runValidator();
-    setIsNavigating(false);
+    let valid: boolean;
+    try {
+      valid = await runValidator();
+    } finally {
+      setIsNavigating(false);
+    }
     if (!valid) return;
 
     if (isLastStep) {

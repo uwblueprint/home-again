@@ -54,11 +54,14 @@ function validate(form: AgencyFormData): FormErrors {
     }
   }
 
-  if (form.postal_code && !POSTAL_CODE_RE.test(form.postal_code)) {
+  const postalCode = form.postal_code.trim();
+  const phone = form.phone.trim();
+
+  if (postalCode && !POSTAL_CODE_RE.test(postalCode)) {
     errors.postal_code = "Enter a valid Canadian postal code (e.g. A1B 2C3).";
   }
 
-  if (form.phone && !PHONE_RE.test(form.phone)) {
+  if (phone && !PHONE_RE.test(phone)) {
     errors.phone = "Enter a valid phone number.";
   }
 

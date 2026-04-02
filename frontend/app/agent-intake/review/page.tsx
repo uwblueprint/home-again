@@ -1,6 +1,14 @@
 "use client";
 
 // TODO: Replace mock data with actual form state once state management is implemented
+const MOCK_MAIN_AGENT = {
+  firstName: "John",
+  lastName: "Smith",
+  email: "john@agency.com",
+  phone: "(+1) 647 123 4567",
+  role: "Community Manager",
+};
+
 const MOCK_AGENCY = {
   name: "Home Again",
   addressLine1: "226 Phillip Street",
@@ -68,6 +76,30 @@ export default function ReviewStep() {
               label="Phone Number Notes"
               value={MOCK_AGENCY.phoneNotes}
             />
+          </div>
+        </ReviewCard>
+      </div>
+
+      {/* Main Agent Details */}
+      <div className="flex flex-col gap-5">
+        <h3 className="text-xl font-semibold text-foreground">
+          Main Agent Details
+        </h3>
+        <ReviewCard>
+          <div className="flex gap-3">
+            <ReviewField
+              label="First Name"
+              value={MOCK_MAIN_AGENT.firstName}
+            />
+            <ReviewField label="Last Name" value={MOCK_MAIN_AGENT.lastName} />
+            <ReviewField label="" value="" />
+          </div>
+          <div className="flex gap-3">
+            <ReviewField label="Email" value={MOCK_MAIN_AGENT.email} />
+            <ReviewField label="Phone number" value={MOCK_MAIN_AGENT.phone} />
+          </div>
+          <div className="flex">
+            <ReviewField label="Role" value={MOCK_MAIN_AGENT.role} />
           </div>
         </ReviewCard>
       </div>

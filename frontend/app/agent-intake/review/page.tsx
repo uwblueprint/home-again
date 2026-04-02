@@ -127,6 +127,7 @@ export default function ReviewStep() {
           <div className="flex gap-3">
             <ReviewField label="Email" value={MOCK_MAIN_AGENT.email} />
             <ReviewField label="Phone number" value={MOCK_MAIN_AGENT.phone} />
+            <ReviewField label="" value="" />
           </div>
           <div className="flex">
             <ReviewField label="Role" value={MOCK_MAIN_AGENT.role} />

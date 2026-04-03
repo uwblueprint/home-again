@@ -3,44 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useIntakeContext } from "@/context/IntakeContext";
-import { useIntakeStore, type AgencyFormData } from "@/stores/intakeStore";
-
-// Canadian provinces and territories
-const PROVINCES = [
-  "Alberta",
-  "British Columbia",
-  "Manitoba",
-  "New Brunswick",
-  "Newfoundland & Labrador",
-  "Northwest Territories",
-  "Nova Scotia",
-  "Nunavut",
-  "Ontario",
-  "Prince Edward Island",
-  "Quebec",
-  "Saskatchewan",
-  "Yukon",
-];
+import {
+  useIntakeFormStore,
+  type AgencyFormData,
+} from "@/stores/intakeFormStore";
 
 type FormErrors = Partial<Record<keyof AgencyFormData, string>>;
-
-const REQUIRED_FIELDS: (keyof AgencyFormData)[] = [
-  "name",
-  "address_line_1",
-  "city",
-  "province",
-  "country",
-  "postal_code",
-  "phone",
-];
 
 const POSTAL_CODE_RE = /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/;
 const PHONE_RE = /^[\d\s()+\-]{7,20}$/;
@@ -48,42 +17,49 @@ const PHONE_RE = /^[\d\s()+\-]{7,20}$/;
 function validate(form: AgencyFormData): FormErrors {
   const errors: FormErrors = {};
 
-  for (const field of REQUIRED_FIELDS) {
-    if (!form[field].trim()) {
-      errors[field] = "This field is required.";
-    }
+  if (!form.name.trim()) errors.name = "Enter your agency name.";
+  if (!form.addressLine1.trim()) errors.addressLine1 = "Enter a street address.";
+  if (!form.city.trim()) errors.city = "Enter your city.";
+  if (!form.postalCode.trim()) errors.postalCode = "Enter your postal code.";
+  if (!form.phone.trim()) errors.phone = "Enter your phone number.";
+
+  if (form.postalCode && !POSTAL_CODE_RE.test(form.postalCode.trim())) {
+    errors.postalCode = "Enter a valid Canadian postal code (e.g. A1B 2C3).";
   }
 
-  const postalCode = form.postal_code.trim();
-  const phone = form.phone.trim();
-
-  if (postalCode && !POSTAL_CODE_RE.test(postalCode)) {
-    errors.postal_code = "Enter a valid Canadian postal code (e.g. A1B 2C3).";
-  }
-
-  if (phone && !PHONE_RE.test(phone)) {
+  if (form.phone && !PHONE_RE.test(form.phone.trim())) {
     errors.phone = "Enter a valid phone number.";
   }
 
   return errors;
 }
 
-function FieldError({ id, message }: { id?: string; message?: string }) {
+function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p id={id} role="alert" className="text-sm text-destructive mt-1">
+    <p role="alert" className="text-sm text-destructive mt-1">
       {message}
     </p>
   );
 }
 
+const TOUCHED_ON_SUBMIT: (keyof AgencyFormData)[] = [
+  "name",
+  "addressLine1",
+  "city",
+  "postalCode",
+  "phone",
+];
+
 export default function AgencyStep() {
-  const { agency, setAgency } = useIntakeStore();
+  const { agency, setAgency } = useIntakeFormStore();
   const { registerValidator } = useIntakeContext();
 
   const [form, setForm] = useState<AgencyFormData>(agency);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [touched, setTouched] = useState<Partial<Record<keyof AgencyFormData, boolean>>>({});
+  const [touched, setTouched] = useState<
+    Partial<Record<keyof AgencyFormData, boolean>>
+  >({});
 
   // Sync local form to store on change
   useEffect(() => {
@@ -95,8 +71,7 @@ export default function AgencyStep() {
     registerValidator(() => {
       const errs = validate(form);
       setErrors(errs);
-      // Mark all required fields as touched so errors are visible
-      const allTouched = REQUIRED_FIELDS.reduce(
+      const allTouched = TOUCHED_ON_SUBMIT.reduce(
         (acc, f) => ({ ...acc, [f]: true }),
         {} as Partial<Record<keyof AgencyFormData, boolean>>
       );
@@ -118,10 +93,7 @@ export default function AgencyStep() {
 
   function handleBlur(field: keyof AgencyFormData) {
     setTouched((prev) => ({ ...prev, [field]: true }));
-    setErrors((prev) => ({
-      ...prev,
-      [field]: validate(form)[field],
-    }));
+    setErrors((prev) => ({ ...prev, [field]: validate(form)[field] }));
   }
 
   const field = (id: keyof AgencyFormData) => ({
@@ -157,24 +129,22 @@ export default function AgencyStep() {
         {/* Address line 1 + 2 */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="address_line_1">Address line 1</Label>
+            <Label htmlFor="addressLine1">Address line 1</Label>
             <Input
-              {...field("address_line_1")}
+              {...field("addressLine1")}
               placeholder="Street address"
               className="h-11"
             />
             <FieldError
-              message={
-                touched.address_line_1 ? errors.address_line_1 : undefined
-              }
+              message={touched.addressLine1 ? errors.addressLine1 : undefined}
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="address_line_2">Address line 2</Label>
+            <Label htmlFor="addressLine2">Address line 2</Label>
             <Input
-              id="address_line_2"
-              value={form.address_line_2}
-              onChange={(e) => handleChange("address_line_2", e.target.value)}
+              id="addressLine2"
+              value={form.addressLine2}
+              onChange={(e) => handleChange("addressLine2", e.target.value)}
               placeholder="Suite, unit, floor, or building"
               className="h-11"
             />
@@ -194,32 +164,12 @@ export default function AgencyStep() {
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="province">Province</Label>
-            <Select
+            <Input
+              id="province"
               value={form.province}
-              onValueChange={(val) => {
-                handleChange("province", val);
-                handleBlur("province");
-              }}
-            >
-              <SelectTrigger
-                id="province"
-                className="h-11 w-full"
-                aria-invalid={
-                  touched.province && !!errors.province ? true : undefined
-                }
-              >
-                <SelectValue placeholder="Select a province" />
-              </SelectTrigger>
-              <SelectContent>
-                {PROVINCES.map((p) => (
-                  <SelectItem key={p} value={p}>
-                    {p}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FieldError
-              message={touched.province ? errors.province : undefined}
+              disabled
+              readOnly
+              className="h-11"
             />
           </div>
         </div>
@@ -229,23 +179,22 @@ export default function AgencyStep() {
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="country">Country</Label>
             <Input
-              {...field("country")}
-              placeholder="Enter country"
+              id="country"
+              value={form.country}
+              disabled
+              readOnly
               className="h-11"
-            />
-            <FieldError
-              message={touched.country ? errors.country : undefined}
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="postal_code">Postal code</Label>
+            <Label htmlFor="postalCode">Postal code</Label>
             <Input
-              {...field("postal_code")}
+              {...field("postalCode")}
               placeholder="Enter postal code"
               className="h-11"
             />
             <FieldError
-              message={touched.postal_code ? errors.postal_code : undefined}
+              message={touched.postalCode ? errors.postalCode : undefined}
             />
           </div>
         </div>

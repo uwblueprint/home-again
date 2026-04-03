@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, UsersRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgentCard, type AgentFormData } from "@/components/AgentCard";
@@ -14,9 +14,15 @@ const EMPTY_AGENT: AgentFormData = {
 };
 
 export default function OtherAgentsStep() {
-  const { otherAgents, addOtherAgent, updateOtherAgent, removeOtherAgent } =
-    useIntakeFormStore();
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const {
+    otherAgents,
+    addOtherAgent,
+    updateOtherAgent,
+    removeOtherAgent,
+    setOtherAgentsStepLocked,
+  } = useIntakeFormStore();
+  const [editingIndex, setEditingIndex] = useState<number | "new" | null>(null);
+  const [draftAgent, setDraftAgent] = useState<AgentFormData | null>(null);
   const isEditingAgent = editingIndex !== null;
 
   const agents: AgentFormData[] = otherAgents.map((a) => ({
@@ -25,10 +31,19 @@ export default function OtherAgentsStep() {
     email: a.email,
     phoneNumber: a.phone,
   }));
+  const hasVisibleAgents = agents.length > 0 || draftAgent !== null;
+
+  useEffect(() => {
+    setOtherAgentsStepLocked(isEditingAgent);
+
+    return () => {
+      setOtherAgentsStepLocked(false);
+    };
+  }, [isEditingAgent, setOtherAgentsStepLocked]);
 
   function handleAddAgent() {
-    addOtherAgent({ firstName: "", lastName: "", email: "", phone: "" });
-    setEditingIndex(otherAgents.length);
+    setDraftAgent({ ...EMPTY_AGENT });
+    setEditingIndex("new");
   }
 
   function handleSave(index: number, data: AgentFormData) {
@@ -41,9 +56,25 @@ export default function OtherAgentsStep() {
     setEditingIndex(null);
   }
 
+  function handleSaveDraft(data: AgentFormData) {
+    addOtherAgent({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      phone: data.phoneNumber,
+    });
+    setDraftAgent(null);
+    setEditingIndex(null);
+  }
+
+  function handleDiscardDraft() {
+    setDraftAgent(null);
+    setEditingIndex(null);
+  }
+
   function handleRemove(index: number) {
     removeOtherAgent(index);
-    if (editingIndex === null) return;
+    if (editingIndex === null || editingIndex === "new") return;
     if (editingIndex === index) {
       setEditingIndex(null);
     } else if (editingIndex > index) {
@@ -64,7 +95,7 @@ export default function OtherAgentsStep() {
         </p>
       </div>
 
-      {agents.length === 0 ? (
+      {!hasVisibleAgents ? (
         /* Empty State */
         <div className="border border-border rounded-xl shadow-sm p-12 flex items-center justify-center min-h-[418px]">
           <div className="flex flex-col items-center gap-4">
@@ -92,6 +123,19 @@ export default function OtherAgentsStep() {
               onRemove={() => handleRemove(index)}
             />
           ))}
+
+          {draftAgent ? (
+            <AgentCard
+              key="new-agent"
+              index={agents.length}
+              agent={draftAgent}
+              isEditing={editingIndex === "new"}
+              onEdit={() => setEditingIndex("new")}
+              onClose={handleDiscardDraft}
+              onSave={handleSaveDraft}
+              onRemove={handleDiscardDraft}
+            />
+          ) : null}
 
           {/* Add Agent Button */}
           <Button

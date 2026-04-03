@@ -30,11 +30,16 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const otherAgents = useIntakeFormStore((state) => state.otherAgents);
+  const otherAgentsStepLocked = useIntakeFormStore(
+    (state) => state.otherAgentsStepLocked
+  );
 
   const currentStepIndex = INTAKE_STEPS.findIndex(
     (step) => pathname === step.path
   );
   const currentStep = currentStepIndex === -1 ? 0 : currentStepIndex;
+  const isOtherAgentsStep = currentStep === OTHER_AGENTS_STEP;
+  const isNavigationLocked = isOtherAgentsStep && otherAgentsStepLocked;
   const hasSavedOtherAgent = otherAgents.some(
     (agent) =>
       agent.firstName.trim() !== "" &&
@@ -47,6 +52,10 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
   const isLastStep = currentStep === INTAKE_STEPS.length - 1;
 
   function handleBack() {
+    if (isNavigationLocked) {
+      return;
+    }
+
     if (isFirstStep) {
       // TODO: Navigate to login page once it's implemented
       return;
@@ -58,6 +67,10 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
   }
 
   function handleNext() {
+    if (isNavigationLocked) {
+      return;
+    }
+
     const nextPath = INTAKE_STEPS[currentStep + 1]?.path;
     if (!isLastStep && nextPath) {
       router.push(nextPath);
@@ -92,10 +105,15 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
             variant="secondary"
             className="h-10 px-6"
             onClick={handleBack}
+            disabled={isNavigationLocked}
           >
             Back
           </Button>
-          <Button className="h-10 px-6" onClick={handleNext}>
+          <Button
+            className="h-10 px-6"
+            onClick={handleNext}
+            disabled={isNavigationLocked}
+          >
             {isLastStep
               ? "Submit"
               : currentStep === OTHER_AGENTS_STEP

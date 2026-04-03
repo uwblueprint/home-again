@@ -29,10 +29,12 @@ interface IntakeFormStore {
   agency: AgencyFormData;
   mainAgent: MainAgentFormData;
   otherAgents: OtherAgentFormData[];
+  otherAgentsStepLocked: boolean;
 
   setAgency: (data: Partial<AgencyFormData>) => void;
   setMainAgent: (data: Partial<MainAgentFormData>) => void;
   setOtherAgents: (agents: OtherAgentFormData[]) => void;
+  setOtherAgentsStepLocked: (locked: boolean) => void;
   addOtherAgent: (agent: OtherAgentFormData) => void;
   removeOtherAgent: (index: number) => void;
   updateOtherAgent: (index: number, data: Partial<OtherAgentFormData>) => void;
@@ -61,6 +63,7 @@ export const useIntakeFormStore = create<IntakeFormStore>((set) => ({
   agency: initialAgency,
   mainAgent: initialMainAgent,
   otherAgents: [],
+  otherAgentsStepLocked: false,
 
   setAgency: (data) =>
     set((state) => ({ agency: { ...state.agency, ...data } })),
@@ -69,6 +72,8 @@ export const useIntakeFormStore = create<IntakeFormStore>((set) => ({
     set((state) => ({ mainAgent: { ...state.mainAgent, ...data } })),
 
   setOtherAgents: (agents) => set({ otherAgents: agents }),
+
+  setOtherAgentsStepLocked: (locked) => set({ otherAgentsStepLocked: locked }),
 
   addOtherAgent: (agent) =>
     set((state) => ({ otherAgents: [...state.otherAgents, agent] })),
@@ -86,5 +91,10 @@ export const useIntakeFormStore = create<IntakeFormStore>((set) => ({
     })),
 
   reset: () =>
-    set({ agency: initialAgency, mainAgent: initialMainAgent, otherAgents: [] }),
+    set({
+      agency: initialAgency,
+      mainAgent: initialMainAgent,
+      otherAgents: [],
+      otherAgentsStepLocked: false,
+    }),
 }));

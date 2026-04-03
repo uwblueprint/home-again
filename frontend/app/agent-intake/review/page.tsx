@@ -1,34 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-// TODO: Replace mock data with actual form state once state management is implemented
-const MOCK_MAIN_AGENT = {
-  firstName: "John",
-  lastName: "Smith",
-  email: "john@agency.com",
-  phone: "(+1) 647 123 4567",
-  role: "Community Manager",
-};
-
-const MOCK_OTHER_AGENTS = Array.from({ length: 13 }, (_, i) => ({
-  name: `Agent ${i + 1}`,
-  email: "john@agency.com",
-  phone: "(+1) 647 123 4567",
-}));
+import { useIntakeFormStore } from "@/stores/intakeFormStore";
 
 const AGENTS_PER_PAGE = 3;
+const EMPTY_VALUE = "—";
 
-const MOCK_AGENCY = {
-  name: "Home Again",
-  addressLine1: "226 Phillip Street",
-  addressLine2: "N/A",
-  city: "Toronto",
-  province: "Ontario",
-  phone: "(+1) 647 123 4567",
-  phoneNotes:
-    "Phone number belongs to relative, please take time to coordinate",
-};
+function formatValue(value: string) {
+  return value.trim() || EMPTY_VALUE;
+}
+
+function formatName(firstName: string, lastName: string) {
+  const fullName = `${firstName} ${lastName}`.trim();
+  return fullName || EMPTY_VALUE;
+}
 
 function ReviewField({ label, value }: { label: string; value: string }) {
   return (
@@ -42,14 +28,16 @@ function ReviewField({ label, value }: { label: string; value: string }) {
 function AgentCard({
   agent,
 }: {
-  agent: { name: string; email: string; phone: string };
+  agent: { firstName: string; lastName: string; email: string; phone: string };
 }) {
   return (
     <div className="border border-border rounded-lg shadow-sm p-3 flex flex-col gap-3">
-      <p className="text-sm text-foreground">{agent.name}</p>
-      <div className="flex gap-12 text-sm text-muted-foreground">
-        <span>{agent.email}</span>
-        <span>{agent.phone}</span>
+      <p className="text-sm text-foreground">
+        {formatName(agent.firstName, agent.lastName)}
+      </p>
+      <div className="flex flex-col gap-1 text-sm text-muted-foreground sm:flex-row sm:gap-12">
+        <span>{formatValue(agent.email)}</span>
+        <span>{formatValue(agent.phone)}</span>
       </div>
     </div>
   );
@@ -64,9 +52,19 @@ function ReviewCard({ children }: { children: React.ReactNode }) {
 }
 
 export default function ReviewStep() {
+  const agency = useIntakeFormStore((state) => state.agency);
+  const mainAgent = useIntakeFormStore((state) => state.mainAgent);
+  const otherAgents = useIntakeFormStore((state) => state.otherAgents);
   const [visibleCount, setVisibleCount] = useState(AGENTS_PER_PAGE);
-  const visibleAgents = MOCK_OTHER_AGENTS.slice(0, visibleCount);
-  const remaining = MOCK_OTHER_AGENTS.length - visibleCount;
+
+  useEffect(() => {
+    setVisibleCount((current) =>
+      Math.max(AGENTS_PER_PAGE, Math.min(current, otherAgents.length || AGENTS_PER_PAGE))
+    );
+  }, [otherAgents.length]);
+
+  const visibleAgents = otherAgents.slice(0, visibleCount);
+  const remaining = Math.max(0, otherAgents.length - visibleCount);
 
   return (
     <div className="max-w-3xl mx-auto flex flex-col gap-8">
@@ -85,26 +83,26 @@ export default function ReviewStep() {
           Agency information
         </h3>
         <ReviewCard>
-          <div className="flex gap-3">
-            <ReviewField label="Agency name" value={MOCK_AGENCY.name} />
+          <div className="grid gap-3 md:grid-cols-3">
+            <ReviewField label="Agency name" value={formatValue(agency.name)} />
             <ReviewField
               label="Address line 1"
-              value={MOCK_AGENCY.addressLine1}
+              value={formatValue(agency.addressLine1)}
             />
             <ReviewField
               label="Address line 2"
-              value={MOCK_AGENCY.addressLine2}
+              value={formatValue(agency.addressLine2)}
             />
           </div>
-          <div className="flex gap-3">
-            <ReviewField label="City" value={MOCK_AGENCY.city} />
-            <ReviewField label="Province" value={MOCK_AGENCY.province} />
-            <ReviewField label="Phone number" value={MOCK_AGENCY.phone} />
+          <div className="grid gap-3 md:grid-cols-3">
+            <ReviewField label="City" value={formatValue(agency.city)} />
+            <ReviewField label="Province" value={formatValue(agency.province)} />
+            <ReviewField label="Phone number" value={formatValue(agency.phone)} />
           </div>
           <div className="flex">
             <ReviewField
               label="Phone Number Notes"
-              value={MOCK_AGENCY.phoneNotes}
+              value={formatValue(agency.phoneNotes)}
             />
           </div>
         </ReviewCard>
@@ -116,21 +114,25 @@ export default function ReviewStep() {
           Main Agent Details
         </h3>
         <ReviewCard>
-          <div className="flex gap-3">
+          <div className="grid gap-3 md:grid-cols-2">
             <ReviewField
               label="First Name"
-              value={MOCK_MAIN_AGENT.firstName}
+              value={formatValue(mainAgent.firstName)}
             />
-            <ReviewField label="Last Name" value={MOCK_MAIN_AGENT.lastName} />
-            <ReviewField label="" value="" />
+            <ReviewField
+              label="Last Name"
+              value={formatValue(mainAgent.lastName)}
+            />
           </div>
-          <div className="flex gap-3">
-            <ReviewField label="Email" value={MOCK_MAIN_AGENT.email} />
-            <ReviewField label="Phone number" value={MOCK_MAIN_AGENT.phone} />
-            <ReviewField label="" value="" />
+          <div className="grid gap-3 md:grid-cols-2">
+            <ReviewField label="Email" value={formatValue(mainAgent.email)} />
+            <ReviewField
+              label="Phone number"
+              value={formatValue(mainAgent.phone)}
+            />
           </div>
           <div className="flex">
-            <ReviewField label="Role" value={MOCK_MAIN_AGENT.role} />
+            <ReviewField label="Role" value={formatValue(mainAgent.role)} />
           </div>
         </ReviewCard>
       </div>
@@ -138,9 +140,17 @@ export default function ReviewStep() {
       {/* Other Agents */}
       <div className="flex flex-col gap-5">
         <h3 className="text-xl font-semibold text-foreground">Other Agents</h3>
-        {visibleAgents.map((agent, index) => (
-          <AgentCard key={index} agent={agent} />
-        ))}
+        {visibleAgents.length > 0 ? (
+          visibleAgents.map((agent, index) => (
+            <AgentCard key={`${agent.email}-${index}`} agent={agent} />
+          ))
+        ) : (
+          <ReviewCard>
+            <p className="text-sm text-muted-foreground">
+              No additional agents have been added.
+            </p>
+          </ReviewCard>
+        )}
         {remaining > 0 && (
           <button
             type="button"

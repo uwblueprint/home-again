@@ -12,6 +12,8 @@ import {
   INTAKE_REVIEW,
 } from "@/constants/Routes";
 
+const OTHER_AGENTS_STEP = 2;
+
 const INTAKE_STEPS: Step[] = [
   { label: "Agency", path: INTAKE_AGENCY },
   { label: "Main Agent", path: INTAKE_MAIN_AGENT },
@@ -85,7 +87,11 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
             Back
           </Button>
           <Button className="h-10 px-6" onClick={handleNext}>
-            {isLastStep ? "Submit" : "Next"}
+            {isLastStep
+              ? "Submit"
+              : currentStep === OTHER_AGENTS_STEP
+                ? "Maybe later"
+                : "Next"}
           </Button>
         </div>
       </footer>

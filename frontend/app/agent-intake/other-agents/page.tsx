@@ -96,7 +96,7 @@ export default function OtherAgentsStep() {
           {/* Add Agent Button */}
           <Button
             variant="outline"
-            className="w-full rounded-[14px] border-dashed py-4 h-auto"
+            className="h-auto w-full rounded-[14px] border-dashed py-4 hover:bg-accent aria-expanded:bg-accent"
             onClick={handleAddAgent}
             disabled={isEditingAgent}
           >

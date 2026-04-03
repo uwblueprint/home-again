@@ -3,6 +3,11 @@
 import React from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+
+import {
+  IntakeFooterProvider,
+  useIntakeFooter,
+} from "@/components/intake/IntakeFooterContext";
 import { Button } from "@/components/ui/button";
 import { StepIndicator, type Step } from "@/components/ui/step-indicator";
 import {
@@ -23,9 +28,10 @@ interface IntakeLayoutProps {
   children: React.ReactNode;
 }
 
-export default function IntakeLayout({ children }: IntakeLayoutProps) {
+function IntakeLayoutContent({ children }: IntakeLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { footerState } = useIntakeFooter();
 
   const currentStepIndex = INTAKE_STEPS.findIndex(
     (step) => pathname === step.path
@@ -37,25 +43,35 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
 
   function handleBack() {
     if (isFirstStep) {
-      // TODO: Navigate to login page once it's implemented
       return;
     }
+
     const prevPath = INTAKE_STEPS[currentStep - 1]?.path;
     if (prevPath) {
       router.push(prevPath);
     }
   }
 
-  function handleNext() {
+  async function handleNext() {
+    if (isLastStep) {
+      await footerState.submitHandler?.();
+      return;
+    }
+
     const nextPath = INTAKE_STEPS[currentStep + 1]?.path;
-    if (!isLastStep && nextPath) {
+    if (nextPath) {
       router.push(nextPath);
     }
   }
 
+  const isSubmitDisabled =
+    isLastStep &&
+    (!footerState.submitHandler ||
+      footerState.isSubmitting ||
+      footerState.isSubmitDisabled);
+
   return (
     <div className="bg-background min-h-screen flex flex-col">
-      {/* Header */}
       <header className="flex items-center justify-between px-10 py-5 bg-background">
         <Image
           src="/logo192.png"
@@ -67,28 +83,47 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
 
         <StepIndicator steps={INTAKE_STEPS} currentStep={currentStep} />
 
-        {/* Spacer to balance the logo on the left */}
         <div className="w-[91px]" />
       </header>
 
-      {/* Step Content */}
       <main className="flex-1 px-16 py-8">{children}</main>
 
-      {/* Bottom Navigation */}
-      <footer className="border-t border-border px-16 py-8 flex items-center justify-end">
+      <footer className="border-t border-border px-16 py-8 flex items-center justify-between gap-6">
+        <div className="min-h-5 flex-1">
+          {isLastStep && footerState.submitError ? (
+            <p className="text-sm text-destructive">{footerState.submitError}</p>
+          ) : null}
+        </div>
         <div className="flex items-center gap-3">
           <Button
             variant="secondary"
             className="h-10 px-6"
             onClick={handleBack}
+            disabled={footerState.isSubmitting}
           >
             Back
           </Button>
-          <Button className="h-10 px-6" onClick={handleNext}>
-            {isLastStep ? "Submit" : "Next"}
+          <Button
+            className="h-10 px-6"
+            onClick={handleNext}
+            disabled={isSubmitDisabled}
+          >
+            {isLastStep && footerState.isSubmitting
+              ? "Submitting..."
+              : isLastStep
+                ? "Submit"
+                : "Next"}
           </Button>
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function IntakeLayout({ children }: IntakeLayoutProps) {
+  return (
+    <IntakeFooterProvider>
+      <IntakeLayoutContent>{children}</IntakeLayoutContent>
+    </IntakeFooterProvider>
   );
 }

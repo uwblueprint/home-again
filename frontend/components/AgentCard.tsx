@@ -23,6 +23,47 @@ interface AgentCardProps {
   onRemove: () => void;
 }
 
+type FormErrors = Partial<Record<keyof AgentFormData, string>>;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RE = /^[\d\s()+\-]{7,20}$/;
+const TOUCHED_ON_SAVE: (keyof AgentFormData)[] = [
+  "firstName",
+  "lastName",
+  "email",
+  "phoneNumber",
+];
+
+function validate(form: AgentFormData): FormErrors {
+  const errors: FormErrors = {};
+
+  if (!form.firstName.trim()) errors.firstName = "Enter your first name.";
+  if (!form.lastName.trim()) errors.lastName = "Enter your last name.";
+  if (!form.email.trim()) {
+    errors.email = "Enter your email address.";
+  } else if (!EMAIL_RE.test(form.email.trim())) {
+    errors.email = "Enter a valid email address.";
+  }
+
+  if (!form.phoneNumber.trim()) {
+    errors.phoneNumber = "Enter your phone number.";
+  } else if (!PHONE_RE.test(form.phoneNumber.trim())) {
+    errors.phoneNumber = "Enter a valid phone number.";
+  }
+
+  return errors;
+}
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+
+  return (
+    <p role="alert" className="mt-1 text-sm text-destructive">
+      {message}
+    </p>
+  );
+}
+
 export function AgentCard({
   index,
   agent,
@@ -33,9 +74,15 @@ export function AgentCard({
   onRemove,
 }: AgentCardProps) {
   const [formData, setFormData] = useState<AgentFormData>(agent);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<
+    Partial<Record<keyof AgentFormData, boolean>>
+  >({});
 
   useEffect(() => {
     setFormData(agent);
+    setErrors({});
+    setTouched({});
   }, [agent]);
 
   const displayName =
@@ -45,18 +92,52 @@ export function AgentCard({
 
   const isSaved = agent.firstName !== "" || agent.lastName !== "";
 
-  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
-  const isValidPhone = /^\d{10,15}$/.test(formData.phoneNumber.replace(/\D/g, ""));
-
-  const canSave =
-    formData.firstName.trim() !== "" &&
-    formData.lastName.trim() !== "" &&
-    isValidEmail &&
-    isValidPhone;
-
   function handleSave() {
+    const validationErrors = validate(formData);
+    setErrors(validationErrors);
+    setTouched(
+      TOUCHED_ON_SAVE.reduce(
+        (acc, field) => ({ ...acc, [field]: true }),
+        {} as Partial<Record<keyof AgentFormData, boolean>>
+      )
+    );
+
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+
     onSave(formData);
   }
+
+  function handleChange(field: keyof AgentFormData, value: string) {
+    const nextForm = { ...formData, [field]: value };
+
+    setFormData(nextForm);
+
+    if (touched[field]) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: validate(nextForm)[field],
+      }));
+    }
+  }
+
+  function handleBlur(field: keyof AgentFormData) {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    setErrors((prev) => ({
+      ...prev,
+      [field]: validate(formData)[field],
+    }));
+  }
+
+  const fieldProps = (field: keyof AgentFormData) => ({
+    value: formData[field],
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+      handleChange(field, e.target.value),
+    onBlur: () => handleBlur(field),
+    "aria-invalid":
+      touched[field] && !!errors[field] ? (true as const) : undefined,
+  });
 
   if (isEditing) {
     return (
@@ -90,13 +171,10 @@ export function AgentCard({
               <Input
                 id={`firstName-${index}`}
                 placeholder="John"
-                value={formData.firstName}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    firstName: e.target.value,
-                  }))
-                }
+                {...fieldProps("firstName")}
+              />
+              <FieldError
+                message={touched.firstName ? errors.firstName : undefined}
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -104,13 +182,10 @@ export function AgentCard({
               <Input
                 id={`lastName-${index}`}
                 placeholder="Doe"
-                value={formData.lastName}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    lastName: e.target.value,
-                  }))
-                }
+                {...fieldProps("lastName")}
+              />
+              <FieldError
+                message={touched.lastName ? errors.lastName : undefined}
               />
             </div>
           </div>
@@ -123,11 +198,9 @@ export function AgentCard({
                 id={`email-${index}`}
                 type="email"
                 placeholder="name@agency.org"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, email: e.target.value }))
-                }
+                {...fieldProps("email")}
               />
+              <FieldError message={touched.email ? errors.email : undefined} />
             </div>
             <div className="flex flex-col gap-1">
               <Label htmlFor={`phone-${index}`}>Phone Number</Label>
@@ -135,24 +208,16 @@ export function AgentCard({
                 id={`phone-${index}`}
                 type="tel"
                 placeholder="22901220132"
-                value={formData.phoneNumber}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    phoneNumber: e.target.value,
-                  }))
-                }
+                {...fieldProps("phoneNumber")}
+              />
+              <FieldError
+                message={touched.phoneNumber ? errors.phoneNumber : undefined}
               />
             </div>
           </div>
 
           {/* Save Button */}
-          <Button
-            variant="secondary"
-            className="w-full rounded-full"
-            disabled={!canSave}
-            onClick={handleSave}
-          >
+          <Button variant="secondary" className="w-full rounded-full" onClick={handleSave}>
             Save
           </Button>
         </div>

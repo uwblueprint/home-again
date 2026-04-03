@@ -11,6 +11,7 @@ import {
   INTAKE_OTHER_AGENTS,
   INTAKE_REVIEW,
 } from "@/constants/Routes";
+import { useIntakeFormStore } from "@/stores/intakeFormStore";
 
 const OTHER_AGENTS_STEP = 2;
 
@@ -28,11 +29,19 @@ interface IntakeLayoutProps {
 export default function IntakeLayout({ children }: IntakeLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const otherAgents = useIntakeFormStore((state) => state.otherAgents);
 
   const currentStepIndex = INTAKE_STEPS.findIndex(
     (step) => pathname === step.path
   );
   const currentStep = currentStepIndex === -1 ? 0 : currentStepIndex;
+  const hasSavedOtherAgent = otherAgents.some(
+    (agent) =>
+      agent.firstName.trim() !== "" &&
+      agent.lastName.trim() !== "" &&
+      agent.email.trim() !== "" &&
+      agent.phone.trim() !== ""
+  );
 
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === INTAKE_STEPS.length - 1;
@@ -90,7 +99,9 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
             {isLastStep
               ? "Submit"
               : currentStep === OTHER_AGENTS_STEP
-                ? "Maybe later"
+                ? hasSavedOtherAgent
+                  ? "Next"
+                  : "Maybe later"
                 : "Next"}
           </Button>
         </div>

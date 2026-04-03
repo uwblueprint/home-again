@@ -17,6 +17,7 @@ export default function OtherAgentsStep() {
   const { otherAgents, addOtherAgent, updateOtherAgent, removeOtherAgent } =
     useIntakeFormStore();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const isEditingAgent = editingIndex !== null;
 
   const agents: AgentFormData[] = otherAgents.map((a) => ({
     firstName: a.firstName,
@@ -97,6 +98,7 @@ export default function OtherAgentsStep() {
             variant="outline"
             className="w-full rounded-[14px] border-dashed py-4 h-auto"
             onClick={handleAddAgent}
+            disabled={isEditingAgent}
           >
             <Plus className="size-4" />
             Add Agent

@@ -19,23 +19,40 @@ export interface Admin {
   updated_at: string;
 }
 
-export interface Agency {
+export interface AgencyRecord {
   id: string;
   name: string;
-  email: string;
   phone: string;
-  address: string;
+  address_line_1: string;
+  address_line_2: string | null;
   city: string;
-  province: string;
-  description: string | null;
-  status: string | null; // unprocessed, approved, deactivated
-  require_pre_payment: boolean;
-  billing_profiles: string | null;
+  postal_code: string | null;
+  main_agent_id: string | null;
   created_at: string;
   updated_at: string;
 }
 
-export interface Agent {
+export interface CreateAgencyInput {
+  name: string;
+  address_line_1: string;
+  address_line_2?: string | null;
+  city: string;
+  postal_code?: string | null;
+  phone: string;
+  main_agent_id?: string | null;
+}
+
+export interface UpdateAgencyInput {
+  name?: string;
+  address_line_1?: string;
+  address_line_2?: string | null;
+  city?: string;
+  postal_code?: string | null;
+  phone?: string;
+  main_agent_id?: string | null;
+}
+
+export interface AgentRecord {
   id: string;
   agency_id: string;
   supabase_user_id: string | null;
@@ -43,12 +60,17 @@ export interface Agent {
   email: string | null;
   first_name: string;
   last_name: string;
-  alternate_phone: string | null;
-  extension: string | null;
-  location: string | null;
-  status: string | null; // active, inactive
   created_at: string;
   updated_at: string;
+}
+
+export interface CreateAgentInput {
+  first_name: string;
+  last_name: string;
+  email?: string | null;
+  phone_number?: string | null;
+  agency_id: string;
+  supabase_user_id?: string | null;
 }
 
 export interface Route {

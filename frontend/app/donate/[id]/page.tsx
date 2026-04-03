@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { DonationFormProvider } from "@/components/donation-requests/DonationFormContext";
 import DonationLayout from "@/components/donation-requests/DonationLayout";
 import StepFurnitureDetails from "@/components/donation-requests/StepFurnitureDetails";
@@ -14,13 +14,14 @@ const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function DonationFlowPageInner() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
   function handleNext() {
     if (currentStep < 3) {
       setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
-    } else if (typeof window !== "undefined") {
-      window.alert("Your donation request has been submitted.");
+    } else {
+      router.push("/donate/request-submitted");
     }
   }
 

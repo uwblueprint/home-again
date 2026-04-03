@@ -1,11 +1,18 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { useIntakeFooter } from "@/components/intake/IntakeFooterContext";
+import { useSubmitIntake } from "@/hooks/useSubmitIntake";
 import { useIntakeFormStore } from "@/stores/intakeFormStore";
 
 const AGENTS_PER_PAGE = 3;
 const EMPTY_VALUE = "—";
+const REVIEW_THREE_COLUMN_GRID = "grid gap-3 md:grid-cols-3";
+const SUCCESS_REDIRECT_DELAY_MS = 1200;
+const UNSUPPORTED_FIELDS_MESSAGE =
+  "Province, phone number notes, and role are shown for review only and are not saved yet.";
 
 function formatValue(value: string) {
   return value.trim() || EMPTY_VALUE;
@@ -18,7 +25,7 @@ function formatName(firstName: string, lastName: string) {
 
 function ReviewField({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-1 flex-1 min-w-0">
+    <div className="flex min-w-0 flex-1 flex-col gap-1">
       <p className="text-sm font-medium text-foreground">{label}</p>
       <p className="text-sm text-muted-foreground">{value}</p>
     </div>
@@ -31,7 +38,7 @@ function AgentCard({
   agent: { firstName: string; lastName: string; email: string; phone: string };
 }) {
   return (
-    <div className="border border-border rounded-lg shadow-sm p-3 flex flex-col gap-3">
+    <div className="flex flex-col gap-3 rounded-lg border border-border p-3 shadow-sm">
       <p className="text-sm text-foreground">
         {formatName(agent.firstName, agent.lastName)}
       </p>
@@ -45,134 +52,196 @@ function AgentCard({
 
 function ReviewCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border rounded-lg shadow-sm p-3 flex flex-col gap-4">
+    <div className="flex flex-col gap-4 rounded-lg border border-border p-3 shadow-sm">
       {children}
     </div>
   );
 }
 
-const REVIEW_THREE_COLUMN_GRID = "grid gap-3 md:grid-cols-3";
+function SubmissionSuccessDialog() {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 px-4">
+      <div className="flex h-[337px] w-full max-w-[517px] flex-col items-center justify-center gap-4 rounded-xl border border-border bg-background p-8 text-center shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.1)]">
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          className="h-6 w-6 text-foreground"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m7 12 3 3 7-7" />
+          <path d="m3 12 3 3" />
+        </svg>
+        <p className="text-sm text-muted-foreground">
+          Profile created successfully
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export default function ReviewStep() {
+  const router = useRouter();
   const agency = useIntakeFormStore((state) => state.agency);
   const mainAgent = useIntakeFormStore((state) => state.mainAgent);
   const otherAgents = useIntakeFormStore((state) => state.otherAgents);
+  const { setFooterState, resetFooterState } = useIntakeFooter();
+  const {
+    submit,
+    isSubmitting,
+    submitError,
+    submittedAgencyId,
+    isSuccess,
+    resetAfterSuccess,
+  } = useSubmitIntake();
   const [visibleCount, setVisibleCount] = useState(AGENTS_PER_PAGE);
 
   useEffect(() => {
     setVisibleCount((current) =>
-      Math.max(AGENTS_PER_PAGE, Math.min(current, otherAgents.length || AGENTS_PER_PAGE))
+      Math.max(
+        AGENTS_PER_PAGE,
+        Math.min(current, otherAgents.length || AGENTS_PER_PAGE)
+      )
     );
   }, [otherAgents.length]);
+
+  useEffect(() => {
+    setFooterState({
+      submitHandler: submit,
+      isSubmitting,
+      submitError,
+      isSubmitDisabled: isSuccess,
+    });
+  }, [isSubmitting, isSuccess, setFooterState, submit, submitError]);
+
+  useEffect(() => resetFooterState, [resetFooterState]);
+
+  useEffect(() => {
+    if (!submittedAgencyId) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      resetAfterSuccess();
+      router.push(`/agencies/${submittedAgencyId}`);
+    }, SUCCESS_REDIRECT_DELAY_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [resetAfterSuccess, router, submittedAgencyId]);
 
   const visibleAgents = otherAgents.slice(0, visibleCount);
   const remaining = Math.max(0, otherAgents.length - visibleCount);
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col gap-8">
-      <div className="flex flex-col gap-3">
-        <h2 className="text-[30px] font-semibold leading-[30px] tracking-[-1px] text-foreground">
-          Review
-        </h2>
-        <p className="text-lg text-muted-foreground leading-[27px]">
-          Review your agency and contact details before submitting.
-        </p>
-      </div>
+    <>
+      <div className="mx-auto flex max-w-3xl flex-col gap-8">
+        <div className="flex flex-col gap-3">
+          <h2 className="text-[30px] font-semibold leading-[30px] tracking-[-1px] text-foreground">
+            Review
+          </h2>
+          <p className="text-lg leading-[27px] text-muted-foreground">
+            Review your agency and contact details before submitting.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {UNSUPPORTED_FIELDS_MESSAGE}
+          </p>
+        </div>
 
-      {/* Agency Information */}
-      <div className="flex flex-col gap-5">
-        <h3 className="text-xl font-semibold text-foreground">
-          Agency information
-        </h3>
-        <ReviewCard>
-          <div className={REVIEW_THREE_COLUMN_GRID}>
-            <ReviewField label="Agency name" value={formatValue(agency.name)} />
-            <ReviewField
-              label="Address line 1"
-              value={formatValue(agency.addressLine1)}
-            />
-            <ReviewField
-              label="Address line 2"
-              value={formatValue(agency.addressLine2)}
-            />
-          </div>
-          <div className={REVIEW_THREE_COLUMN_GRID}>
-            <ReviewField label="City" value={formatValue(agency.city)} />
-            <ReviewField label="Province" value={formatValue(agency.province)} />
-            <ReviewField label="Phone number" value={formatValue(agency.phone)} />
-          </div>
-          <div className="flex">
-            <ReviewField
-              label="Phone Number Notes"
-              value={formatValue(agency.phoneNotes)}
-            />
-          </div>
-        </ReviewCard>
-      </div>
-
-      {/* Main Agent Details */}
-      <div className="flex flex-col gap-5">
-        <h3 className="text-xl font-semibold text-foreground">
-          Main Agent Details
-        </h3>
-        <ReviewCard>
-          <div className={REVIEW_THREE_COLUMN_GRID}>
-            <div className="md:col-span-1">
-              <ReviewField
-                label="First Name"
-                value={formatValue(mainAgent.firstName)}
-              />
-            </div>
-            <div className="md:col-span-1">
-              <ReviewField
-                label="Last Name"
-                value={formatValue(mainAgent.lastName)}
-              />
-            </div>
-          </div>
-          <div className={REVIEW_THREE_COLUMN_GRID}>
-            <div className="md:col-span-1">
-              <ReviewField label="Email" value={formatValue(mainAgent.email)} />
-            </div>
-            <div className="md:col-span-1">
-              <ReviewField
-                label="Phone number"
-                value={formatValue(mainAgent.phone)}
-              />
-            </div>
-          </div>
-          <div className="flex">
-            <ReviewField label="Role" value={formatValue(mainAgent.role)} />
-          </div>
-        </ReviewCard>
-      </div>
-
-      {/* Other Agents */}
-      <div className="flex flex-col gap-5">
-        <h3 className="text-xl font-semibold text-foreground">Other Agents</h3>
-        {visibleAgents.length > 0 ? (
-          visibleAgents.map((agent, index) => (
-            <AgentCard key={`${agent.email}-${index}`} agent={agent} />
-          ))
-        ) : (
+        <div className="flex flex-col gap-5">
+          <h3 className="text-xl font-semibold text-foreground">
+            Agency information
+          </h3>
           <ReviewCard>
-            <p className="text-sm text-muted-foreground">
-              No additional agents have been added.
-            </p>
+            <div className={REVIEW_THREE_COLUMN_GRID}>
+              <ReviewField label="Agency name" value={formatValue(agency.name)} />
+              <ReviewField
+                label="Address line 1"
+                value={formatValue(agency.addressLine1)}
+              />
+              <ReviewField
+                label="Address line 2"
+                value={formatValue(agency.addressLine2)}
+              />
+            </div>
+            <div className={REVIEW_THREE_COLUMN_GRID}>
+              <ReviewField label="City" value={formatValue(agency.city)} />
+              <ReviewField label="Province" value={formatValue(agency.province)} />
+              <ReviewField label="Phone number" value={formatValue(agency.phone)} />
+            </div>
+            <div className="flex">
+              <ReviewField
+                label="Phone Number Notes"
+                value={formatValue(agency.phoneNotes)}
+              />
+            </div>
           </ReviewCard>
-        )}
-        {remaining > 0 && (
-          <button
-            type="button"
-            className="text-sm font-medium text-foreground text-left"
-            onClick={() =>
-              setVisibleCount((prev) => prev + AGENTS_PER_PAGE)
-            }
-          >
-            Load {Math.min(remaining, AGENTS_PER_PAGE)} more agents
-          </button>
-        )}
+        </div>
+
+        <div className="flex flex-col gap-5">
+          <h3 className="text-xl font-semibold text-foreground">
+            Main Agent Details
+          </h3>
+          <ReviewCard>
+            <div className={REVIEW_THREE_COLUMN_GRID}>
+              <div>
+                <ReviewField
+                  label="First Name"
+                  value={formatValue(mainAgent.firstName)}
+                />
+              </div>
+              <div>
+                <ReviewField
+                  label="Last Name"
+                  value={formatValue(mainAgent.lastName)}
+                />
+              </div>
+            </div>
+            <div className={REVIEW_THREE_COLUMN_GRID}>
+              <div>
+                <ReviewField label="Email" value={formatValue(mainAgent.email)} />
+              </div>
+              <div>
+                <ReviewField
+                  label="Phone number"
+                  value={formatValue(mainAgent.phone)}
+                />
+              </div>
+            </div>
+            <div className="flex">
+              <ReviewField label="Role" value={formatValue(mainAgent.role)} />
+            </div>
+          </ReviewCard>
+        </div>
+
+        <div className="flex flex-col gap-5">
+          <h3 className="text-xl font-semibold text-foreground">Other Agents</h3>
+          {visibleAgents.length > 0 ? (
+            visibleAgents.map((agent, index) => (
+              <AgentCard key={`${agent.email}-${index}`} agent={agent} />
+            ))
+          ) : (
+            <ReviewCard>
+              <p className="text-sm text-muted-foreground">
+                No additional agents have been added.
+              </p>
+            </ReviewCard>
+          )}
+          {remaining > 0 ? (
+            <button
+              type="button"
+              className="text-left text-sm font-medium text-foreground"
+              onClick={() => setVisibleCount((prev) => prev + AGENTS_PER_PAGE)}
+            >
+              Load {Math.min(remaining, AGENTS_PER_PAGE)} more agents
+            </button>
+          ) : null}
+        </div>
       </div>
-    </div>
+
+      {isSuccess ? <SubmissionSuccessDialog /> : null}
+    </>
   );
 }

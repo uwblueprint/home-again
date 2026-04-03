@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, UsersRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgentCard, type AgentFormData } from "@/components/AgentCard";
 import { useIntakeFormStore } from "@/stores/intakeFormStore";
@@ -63,31 +63,46 @@ export default function OtherAgentsStep() {
         </p>
       </div>
 
-      {/* Agent Cards */}
-      <div className="flex flex-col gap-5">
-        {agents.map((agent, index) => (
-          <AgentCard
-            key={index}
-            index={index}
-            agent={agent}
-            isEditing={editingIndex === index}
-            onEdit={() => setEditingIndex(index)}
-            onClose={() => setEditingIndex(null)}
-            onSave={(data) => handleSave(index, data)}
-            onRemove={() => handleRemove(index)}
-          />
-        ))}
+      {agents.length === 0 ? (
+        /* Empty State */
+        <div className="border border-border rounded-xl shadow-sm p-12 flex items-center justify-center min-h-[418px]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="bg-secondary rounded-lg p-2">
+              <UsersRound className="size-6 text-muted-foreground" />
+            </div>
+            <p className="text-base font-medium text-primary">
+              No agents added yet
+            </p>
+            <Button onClick={handleAddAgent}>Add an agent</Button>
+          </div>
+        </div>
+      ) : (
+        /* Agent Cards */
+        <div className="flex flex-col gap-5">
+          {agents.map((agent, index) => (
+            <AgentCard
+              key={index}
+              index={index}
+              agent={agent}
+              isEditing={editingIndex === index}
+              onEdit={() => setEditingIndex(index)}
+              onClose={() => setEditingIndex(null)}
+              onSave={(data) => handleSave(index, data)}
+              onRemove={() => handleRemove(index)}
+            />
+          ))}
 
-        {/* Add Agent Button */}
-        <Button
-          variant="outline"
-          className="w-full rounded-[14px] border-dashed py-4 h-auto"
-          onClick={handleAddAgent}
-        >
-          <Plus className="size-4" />
-          Add Agent
-        </Button>
-      </div>
+          {/* Add Agent Button */}
+          <Button
+            variant="outline"
+            className="w-full rounded-[14px] border-dashed py-4 h-auto"
+            onClick={handleAddAgent}
+          >
+            <Plus className="size-4" />
+            Add Agent
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -5,13 +5,13 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
 type SubmitHandler = () => Promise<void> | void;
 
 interface IntakeFooterState {
-  submitHandler: SubmitHandler | null;
   isSubmitting: boolean;
   submitError: string | null;
   isSubmitDisabled: boolean;
@@ -20,11 +20,13 @@ interface IntakeFooterState {
 interface IntakeFooterContextValue {
   footerState: IntakeFooterState;
   setFooterState: (nextState: Partial<IntakeFooterState>) => void;
+  setSubmitHandler: (handler: SubmitHandler | null) => void;
+  runSubmitHandler: () => Promise<void>;
+  hasSubmitHandler: boolean;
   resetFooterState: () => void;
 }
 
 const defaultFooterState: IntakeFooterState = {
-  submitHandler: null,
   isSubmitting: false,
   submitError: null,
   isSubmitDisabled: false,
@@ -37,14 +39,39 @@ export function IntakeFooterProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const submitHandlerRef = useRef<SubmitHandler | null>(null);
+  const [hasSubmitHandler, setHasSubmitHandler] = useState(false);
   const [footerState, setFooterStateValue] =
     useState<IntakeFooterState>(defaultFooterState);
 
   const setFooterState = useCallback((nextState: Partial<IntakeFooterState>) => {
-    setFooterStateValue((current) => ({ ...current, ...nextState }));
+    setFooterStateValue((current) => {
+      const nextValue = { ...current, ...nextState };
+
+      if (
+        current.isSubmitting === nextValue.isSubmitting &&
+        current.submitError === nextValue.submitError &&
+        current.isSubmitDisabled === nextValue.isSubmitDisabled
+      ) {
+        return current;
+      }
+
+      return nextValue;
+    });
+  }, []);
+
+  const setSubmitHandler = useCallback((handler: SubmitHandler | null) => {
+    submitHandlerRef.current = handler;
+    setHasSubmitHandler(handler !== null);
+  }, []);
+
+  const runSubmitHandler = useCallback(async () => {
+    await submitHandlerRef.current?.();
   }, []);
 
   const resetFooterState = useCallback(() => {
+    submitHandlerRef.current = null;
+    setHasSubmitHandler(false);
     setFooterStateValue(defaultFooterState);
   }, []);
 
@@ -52,9 +79,19 @@ export function IntakeFooterProvider({
     () => ({
       footerState,
       setFooterState,
+      setSubmitHandler,
+      runSubmitHandler,
+      hasSubmitHandler,
       resetFooterState,
     }),
-    [footerState, resetFooterState, setFooterState]
+    [
+      footerState,
+      hasSubmitHandler,
+      resetFooterState,
+      runSubmitHandler,
+      setFooterState,
+      setSubmitHandler,
+    ]
   );
 
   return (

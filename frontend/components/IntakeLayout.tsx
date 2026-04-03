@@ -31,7 +31,7 @@ interface IntakeLayoutProps {
 function IntakeLayoutContent({ children }: IntakeLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { footerState } = useIntakeFooter();
+  const { footerState, runSubmitHandler, hasSubmitHandler } = useIntakeFooter();
 
   const currentStepIndex = INTAKE_STEPS.findIndex(
     (step) => pathname === step.path
@@ -54,7 +54,7 @@ function IntakeLayoutContent({ children }: IntakeLayoutProps) {
 
   async function handleNext() {
     if (isLastStep) {
-      await footerState.submitHandler?.();
+      await runSubmitHandler();
       return;
     }
 
@@ -66,7 +66,7 @@ function IntakeLayoutContent({ children }: IntakeLayoutProps) {
 
   const isSubmitDisabled =
     isLastStep &&
-    (!footerState.submitHandler ||
+    (!hasSubmitHandler ||
       footerState.isSubmitting ||
       footerState.isSubmitDisabled);
 

@@ -51,6 +51,8 @@ function ReviewCard({ children }: { children: React.ReactNode }) {
   );
 }
 
+const REVIEW_THREE_COLUMN_GRID = "grid gap-3 md:grid-cols-3";
+
 export default function ReviewStep() {
   const agency = useIntakeFormStore((state) => state.agency);
   const mainAgent = useIntakeFormStore((state) => state.mainAgent);
@@ -83,7 +85,7 @@ export default function ReviewStep() {
           Agency information
         </h3>
         <ReviewCard>
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className={REVIEW_THREE_COLUMN_GRID}>
             <ReviewField label="Agency name" value={formatValue(agency.name)} />
             <ReviewField
               label="Address line 1"
@@ -94,7 +96,7 @@ export default function ReviewStep() {
               value={formatValue(agency.addressLine2)}
             />
           </div>
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className={REVIEW_THREE_COLUMN_GRID}>
             <ReviewField label="City" value={formatValue(agency.city)} />
             <ReviewField label="Province" value={formatValue(agency.province)} />
             <ReviewField label="Phone number" value={formatValue(agency.phone)} />
@@ -114,22 +116,30 @@ export default function ReviewStep() {
           Main Agent Details
         </h3>
         <ReviewCard>
-          <div className="grid gap-3 md:grid-cols-2">
-            <ReviewField
-              label="First Name"
-              value={formatValue(mainAgent.firstName)}
-            />
-            <ReviewField
-              label="Last Name"
-              value={formatValue(mainAgent.lastName)}
-            />
+          <div className={REVIEW_THREE_COLUMN_GRID}>
+            <div className="md:col-span-1">
+              <ReviewField
+                label="First Name"
+                value={formatValue(mainAgent.firstName)}
+              />
+            </div>
+            <div className="md:col-span-1">
+              <ReviewField
+                label="Last Name"
+                value={formatValue(mainAgent.lastName)}
+              />
+            </div>
           </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            <ReviewField label="Email" value={formatValue(mainAgent.email)} />
-            <ReviewField
-              label="Phone number"
-              value={formatValue(mainAgent.phone)}
-            />
+          <div className={REVIEW_THREE_COLUMN_GRID}>
+            <div className="md:col-span-1">
+              <ReviewField label="Email" value={formatValue(mainAgent.email)} />
+            </div>
+            <div className="md:col-span-1">
+              <ReviewField
+                label="Phone number"
+                value={formatValue(mainAgent.phone)}
+              />
+            </div>
           </div>
           <div className="flex">
             <ReviewField label="Role" value={formatValue(mainAgent.role)} />

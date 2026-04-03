@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AgentCard, type AgentFormData } from "@/components/AgentCard";
+import { useIntakeFormStore } from "@/stores/intakeFormStore";
 
 const EMPTY_AGENT: AgentFormData = {
   firstName: "",
@@ -13,21 +14,34 @@ const EMPTY_AGENT: AgentFormData = {
 };
 
 export default function OtherAgentsStep() {
-  const [agents, setAgents] = useState<AgentFormData[]>([]);
+  const { otherAgents, addOtherAgent, updateOtherAgent, removeOtherAgent } =
+    useIntakeFormStore();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
+  const agents: AgentFormData[] = otherAgents.map((a) => ({
+    firstName: a.firstName,
+    lastName: a.lastName,
+    email: a.email,
+    phoneNumber: a.phone,
+  }));
+
   function handleAddAgent() {
-    setAgents((prev) => [...prev, { ...EMPTY_AGENT }]);
-    setEditingIndex(agents.length);
+    addOtherAgent({ firstName: "", lastName: "", email: "", phone: "" });
+    setEditingIndex(otherAgents.length);
   }
 
   function handleSave(index: number, data: AgentFormData) {
-    setAgents((prev) => prev.map((a, i) => (i === index ? data : a)));
+    updateOtherAgent(index, {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      phone: data.phoneNumber,
+    });
     setEditingIndex(null);
   }
 
   function handleRemove(index: number) {
-    setAgents((prev) => prev.filter((_, i) => i !== index));
+    removeOtherAgent(index);
     if (editingIndex === null) return;
     if (editingIndex === index) {
       setEditingIndex(null);

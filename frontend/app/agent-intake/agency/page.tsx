@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import IntakeStepPage from "@/components/intake/IntakeStepPage";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useIntakeContext } from "@/context/IntakeContext";
@@ -106,14 +107,10 @@ export default function AgencyStep() {
   });
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <h2 className="text-2xl font-semibold text-foreground mb-1">
-        Partner Agency Details
-      </h2>
-      <p className="text-muted-foreground mb-8">
-        Provide some basic information about your partner agency.
-      </p>
-
+    <IntakeStepPage
+      title="Partner Agency Details"
+      description="Provide some basic information about your partner agency."
+    >
       <div className="flex flex-col gap-6">
         {/* Agency name */}
         <div className="flex flex-col gap-1.5">
@@ -211,6 +208,6 @@ export default function AgencyStep() {
           <FieldError message={touched.phone ? errors.phone : undefined} />
         </div>
       </div>
-    </div>
+    </IntakeStepPage>
   );
 }

@@ -4,6 +4,7 @@ import React, { useCallback, useRef, useMemo, useEffect } from "react";
 import { ChevronUp, ChevronDown, Trash2, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import {
   FURNITURE_TYPES,
   type FurnitureType,
@@ -222,7 +223,7 @@ export default function FurnitureItemCard({
                       key={`${file.name}-${i}`}
                       className="relative size-16 overflow-hidden rounded-md border border-border"
                     >
-                      <img
+                      <Image
                         src={photoUrls[i]}
                         alt={file.name}
                         className="size-full object-cover"

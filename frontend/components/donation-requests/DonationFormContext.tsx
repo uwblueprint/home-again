@@ -46,8 +46,6 @@ interface DonationFormContextType {
 
 // Helpers
 
-let itemCounter = 0;
-
 function createItem(): FurnitureItemData {
   return {
     id: crypto.randomUUID(),

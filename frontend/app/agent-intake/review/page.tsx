@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import IntakeStepPage from "@/components/intake/IntakeStepPage";
 import { useIntakeFooter } from "@/components/intake/IntakeFooterContext";
 import { useSubmitIntake } from "@/hooks/useSubmitIntake";
 import { useIntakeFormStore } from "@/stores/intakeFormStore";
@@ -142,18 +143,13 @@ export default function ReviewStep() {
 
   return (
     <>
-      <div className="mx-auto flex max-w-3xl flex-col gap-8">
-        <div className="flex flex-col gap-3">
-          <h2 className="text-[30px] font-semibold leading-[30px] tracking-[-1px] text-foreground">
-            Review
-          </h2>
-          <p className="text-lg leading-[27px] text-muted-foreground">
-            Review your agency and contact details before submitting.
-          </p>
+      <IntakeStepPage
+        title="Review"
+        description="Review your agency and contact details before submitting."
+      >
           <p className="text-sm text-muted-foreground">
             {UNSUPPORTED_FIELDS_MESSAGE}
           </p>
-        </div>
 
         <div className="flex flex-col gap-5">
           <h3 className="text-xl font-semibold text-foreground">
@@ -244,7 +240,7 @@ export default function ReviewStep() {
             </button>
           ) : null}
         </div>
-      </div>
+      </IntakeStepPage>
 
       {isSuccess ? <SubmissionSuccessDialog /> : null}
     </>

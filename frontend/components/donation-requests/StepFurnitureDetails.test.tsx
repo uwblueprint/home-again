@@ -3,6 +3,7 @@ import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { DonationFormProvider } from "./DonationFormContext";
 import StepFurnitureDetails from "./StepFurnitureDetails";
+import { useDonationForm } from "./DonationFormContext";
 
 // Helpers
 
@@ -24,8 +25,6 @@ function TestHarness() {
 }
 
 function StepFurnitureDetailsWithAddButton() {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { useDonationForm } = require("../DonationFormContext");
   const { addItem } = useDonationForm();
   return (
     <>

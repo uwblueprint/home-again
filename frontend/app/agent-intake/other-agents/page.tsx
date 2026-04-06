@@ -121,6 +121,7 @@ export default function OtherAgentsStep() {
               index={index}
               agent={agent}
               isEditing={editingIndex === index}
+              disabled={isEditingAgent && editingIndex !== index}
               onEdit={() => setEditingIndex(index)}
               onClose={() => setEditingIndex(null)}
               onSave={(data) => handleSave(index, data)}

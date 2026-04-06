@@ -24,6 +24,7 @@ interface AgentCardProps {
   index: number;
   agent: AgentFormData;
   isEditing: boolean;
+  disabled?: boolean;
   onEdit: () => void;
   onClose: () => void;
   onSave: (data: AgentFormData) => void;
@@ -76,6 +77,7 @@ export function AgentCard({
   index,
   agent,
   isEditing,
+  disabled = false,
   onEdit,
   onClose,
   onSave,
@@ -271,7 +273,9 @@ export function AgentCard({
         <button
           type="button"
           onClick={onEdit}
-          className="text-foreground/60 hover:text-foreground transition-colors"
+          disabled={disabled}
+          aria-disabled={disabled || undefined}
+          className="text-foreground/60 transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-foreground/60"
         >
           <SquarePen className="size-6" />
         </button>

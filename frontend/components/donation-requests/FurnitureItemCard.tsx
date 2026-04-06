@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useMemo, useEffect } from "react";
 import { ChevronUp, ChevronDown, Trash2, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -61,6 +61,17 @@ export default function FurnitureItemCard({
     },
     [onUpdate],
   );
+
+  const photoUrls = useMemo(
+    () => itemData.photos.map((file) => URL.createObjectURL(file)),
+    [itemData.photos],
+  );
+
+  useEffect(() => {
+    return () => {
+      photoUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [photoUrls]);
 
   const handlePhotoUpload = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,24 +169,26 @@ export default function FurnitureItemCard({
             <div className="inline-flex overflow-hidden rounded-md border border-border">
               <button
                 type="button"
+                aria-pressed={itemData.hasStains === true}
                 onClick={() => handleStainsChange(true)}
                 className={cn(
                   "px-4 py-1.5 text-sm font-medium transition-colors",
                   itemData.hasStains === true
                     ? "bg-neutral-200 text-foreground"
-                    : "bg-background text-foreground hover:bg-neutral-100",
+                    : "bg-background text-foreground hover:bg-muted"
                 )}
               >
                 Yes
               </button>
               <button
                 type="button"
+                aria-pressed={itemData.hasStains === true}
                 onClick={() => handleStainsChange(false)}
                 className={cn(
                   "border-l border-border px-4 py-1.5 text-sm font-medium transition-colors",
                   itemData.hasStains === false
                     ? "bg-neutral-200 text-foreground"
-                    : "bg-background text-foreground hover:bg-neutral-100",
+                    : "bg-background text-foreground hover:bg-muted"
                 )}
               >
                 No
@@ -203,7 +216,7 @@ export default function FurnitureItemCard({
               size="sm"
               onClick={() => fileInputRef.current?.click()}
               disabled={itemData.photos.length >= MAX_PHOTOS}
-              className="gap-2 hover:bg-neutral-100"
+              className="gap-2"
             >
               <Upload className="size-4" />
               Upload Photos
@@ -219,7 +232,7 @@ export default function FurnitureItemCard({
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={URL.createObjectURL(file)}
+                      src={photoUrls[i]}
                       alt={file.name}
                       className="size-full object-cover"
                     />

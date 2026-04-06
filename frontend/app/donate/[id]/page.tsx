@@ -39,7 +39,7 @@ function DonationFlowPageInner() {
         type="button"
         variant="outline"
         size="lg"
-        className="gap-1.5 px-5 py-5 border-neutral-300 bg-white text-foreground hover:bg-neutral-100"
+        className="gap-1.5 px-5 py-5"
         onClick={addItem}
       >
         <Plus className="size-4" />

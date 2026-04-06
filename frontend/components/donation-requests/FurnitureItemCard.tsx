@@ -162,8 +162,8 @@ export default function FurnitureItemCard({
                 className={cn(
                   "px-4 py-1.5 text-sm font-medium transition-colors",
                   itemData.hasStains === true
-                    ? "bg-primary text-primary-foreground"
-                    : "border-l border-border bg-background text-foreground hover:bg-neutral-100"
+                    ? "bg-neutral-200 text-foreground"
+                    : "bg-background text-foreground hover:bg-neutral-100",
                 )}
               >
                 Yes
@@ -174,8 +174,8 @@ export default function FurnitureItemCard({
                 className={cn(
                   "border-l border-border px-4 py-1.5 text-sm font-medium transition-colors",
                   itemData.hasStains === false
-                    ? "bg-primary text-primary-foreground"
-                    : "border-l border-border bg-background text-foreground hover:bg-neutral-100"
+                    ? "bg-neutral-200 text-foreground"
+                    : "bg-background text-foreground hover:bg-neutral-100",
                 )}
               >
                 No

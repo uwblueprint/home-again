@@ -88,7 +88,7 @@ export default function ReviewStep() {
   const agency = useIntakeFormStore((state) => state.agency);
   const mainAgent = useIntakeFormStore((state) => state.mainAgent);
   const otherAgents = useIntakeFormStore((state) => state.otherAgents);
-  const { setFooterState, resetFooterState } = useIntakeFooter();
+  const { setFooterState, setSubmitHandler, resetFooterState } = useIntakeFooter();
   const {
     submit,
     isSubmitting,
@@ -109,13 +109,18 @@ export default function ReviewStep() {
   }, [otherAgents.length]);
 
   useEffect(() => {
+    setSubmitHandler(async () => {
+      await submit();
+    });
+  }, [setSubmitHandler, submit]);
+
+  useEffect(() => {
     setFooterState({
-      submitHandler: submit,
       isSubmitting,
       submitError,
       isSubmitDisabled: isSuccess,
     });
-  }, [isSubmitting, isSuccess, setFooterState, submit, submitError]);
+  }, [isSubmitting, isSuccess, setFooterState, submitError]);
 
   useEffect(() => resetFooterState, [resetFooterState]);
 

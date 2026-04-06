@@ -3,11 +3,13 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { DonationFormProvider } from "@/components/donation-requests/DonationFormContext";
+import { Plus } from "lucide-react";
+import { DonationFormProvider, useDonationForm } from "@/components/donation-requests/DonationFormContext";
 import DonationLayout from "@/components/donation-requests/DonationLayout";
 import StepFurnitureDetails from "@/components/donation-requests/StepFurnitureDetails";
 import StepSchedulePickup from "@/components/donation-requests/StepSchedulePickup";
 import StepDonationSummary from "@/components/donation-requests/StepDonationSummary";
+import { Button } from "@/components/ui/button";
 
 // For UUID Validation: Enforces 36-character format: xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx
 const UUID_REGEX =
@@ -15,6 +17,7 @@ const UUID_REGEX =
 
 function DonationFlowPageInner() {
   const router = useRouter();
+  const { addItem } = useDonationForm();
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
   function handleNext() {
@@ -30,8 +33,27 @@ function DonationFlowPageInner() {
       ? () => setCurrentStep((prev) => (prev - 1) as 1 | 2 | 3)
       : undefined;
 
+  const leftAction =
+    currentStep === 1 ? (
+      <Button
+        type="button"
+        variant="outline"
+        size="lg"
+        className="gap-1.5 px-5 py-5 border-neutral-300 bg-white text-foreground hover:bg-neutral-100"
+        onClick={addItem}
+      >
+        <Plus className="size-4" />
+        Add Item
+      </Button>
+    ) : undefined;
+
   return (
-    <DonationLayout currentStep={currentStep} onNext={handleNext} onBack={handleBack}>
+    <DonationLayout
+      currentStep={currentStep}
+      onNext={handleNext}
+      onBack={handleBack}
+      leftAction={leftAction}
+    >
       {currentStep === 1 && <StepFurnitureDetails />}
       {currentStep === 2 && <StepSchedulePickup />}
       {currentStep === 3 && <StepDonationSummary />}

@@ -23,6 +23,7 @@ export interface OtherAgentFormData {
   lastName: string;
   email: string;
   phone: string;
+  isAdmin: boolean;
 }
 
 interface IntakeFormStore {

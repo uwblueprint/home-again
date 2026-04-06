@@ -1,16 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, SquarePen } from "lucide-react";
+import { X, SquarePen, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export interface AgentFormData {
   firstName: string;
   lastName: string;
   email: string;
   phoneNumber: string;
+  isAdmin: boolean;
 }
 
 interface AgentCardProps {
@@ -23,11 +30,12 @@ interface AgentCardProps {
   onRemove: () => void;
 }
 
-type FormErrors = Partial<Record<keyof AgentFormData, string>>;
+type AgentTextField = "firstName" | "lastName" | "email" | "phoneNumber";
+type FormErrors = Partial<Record<AgentTextField, string>>;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[\d\s()+\-]{7,20}$/;
-const TOUCHED_ON_SAVE: (keyof AgentFormData)[] = [
+const TOUCHED_ON_SAVE: AgentTextField[] = [
   "firstName",
   "lastName",
   "email",
@@ -76,7 +84,7 @@ export function AgentCard({
   const [formData, setFormData] = useState<AgentFormData>(agent);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<
-    Partial<Record<keyof AgentFormData, boolean>>
+    Partial<Record<AgentTextField, boolean>>
   >({});
 
   useEffect(() => {
@@ -98,7 +106,7 @@ export function AgentCard({
     setTouched(
       TOUCHED_ON_SAVE.reduce(
         (acc, field) => ({ ...acc, [field]: true }),
-        {} as Partial<Record<keyof AgentFormData, boolean>>
+        {} as Partial<Record<AgentTextField, boolean>>
       )
     );
 
@@ -109,7 +117,7 @@ export function AgentCard({
     onSave(formData);
   }
 
-  function handleChange(field: keyof AgentFormData, value: string) {
+  function handleChange(field: AgentTextField, value: string) {
     const nextForm = { ...formData, [field]: value };
 
     setFormData(nextForm);
@@ -122,7 +130,7 @@ export function AgentCard({
     }
   }
 
-  function handleBlur(field: keyof AgentFormData) {
+  function handleBlur(field: AgentTextField) {
     setTouched((prev) => ({ ...prev, [field]: true }));
     setErrors((prev) => ({
       ...prev,
@@ -130,7 +138,11 @@ export function AgentCard({
     }));
   }
 
-  const fieldProps = (field: keyof AgentFormData) => ({
+  function handleAdminChange(checked: boolean) {
+    setFormData((prev) => ({ ...prev, isAdmin: checked }));
+  }
+
+  const fieldProps = (field: AgentTextField) => ({
     value: formData[field],
     onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
       handleChange(field, e.target.value),
@@ -214,6 +226,29 @@ export function AgentCard({
                 message={touched.phoneNumber ? errors.phoneNumber : undefined}
               />
             </div>
+          </div>
+
+          {/* Admin checkbox */}
+          <div className="flex items-center justify-center gap-1.5">
+            <label className="flex cursor-pointer items-center gap-3 text-sm text-foreground/80">
+              <Checkbox
+                checked={formData.isAdmin}
+                onCheckedChange={(checked) => handleAdminChange(checked === true)}
+              />
+              Make this user an admin
+            </label>
+            <Tooltip>
+              <TooltipTrigger
+                aria-label="What does admin access mean?"
+                className="text-foreground/60 transition-colors hover:text-foreground"
+              >
+                <Info className="size-[18px]" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[413px] text-left">
+                All agents can access client accounts. Admins can also add
+                agents and assign admin access to other agents.
+              </TooltipContent>
+            </Tooltip>
           </div>
 
           {/* Save Button */}

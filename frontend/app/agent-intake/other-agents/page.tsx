@@ -11,6 +11,7 @@ const EMPTY_AGENT: AgentFormData = {
   lastName: "",
   email: "",
   phoneNumber: "",
+  isAdmin: false,
 };
 
 export default function OtherAgentsStep() {
@@ -30,6 +31,7 @@ export default function OtherAgentsStep() {
     lastName: a.lastName,
     email: a.email,
     phoneNumber: a.phone,
+    isAdmin: a.isAdmin,
   }));
   const hasVisibleAgents = agents.length > 0 || draftAgent !== null;
 
@@ -52,6 +54,7 @@ export default function OtherAgentsStep() {
       lastName: data.lastName,
       email: data.email,
       phone: data.phoneNumber,
+      isAdmin: data.isAdmin,
     });
     setEditingIndex(null);
   }
@@ -62,6 +65,7 @@ export default function OtherAgentsStep() {
       lastName: data.lastName,
       email: data.email,
       phone: data.phoneNumber,
+      isAdmin: data.isAdmin,
     });
     setDraftAgent(null);
     setEditingIndex(null);

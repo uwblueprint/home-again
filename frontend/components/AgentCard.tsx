@@ -229,7 +229,7 @@ export function AgentCard({
           </div>
 
           {/* Admin checkbox */}
-          <div className="flex items-center justify-center gap-1.5">
+          <div className="flex items-center gap-1.5">
             <label className="flex cursor-pointer items-center gap-3 text-sm text-foreground/80">
               <Checkbox
                 checked={formData.isAdmin}

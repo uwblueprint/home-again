@@ -57,7 +57,6 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
     }
 
     if (isFirstStep) {
-      // TODO: Navigate to login page once it's implemented
       return;
     }
     const prevPath = INTAKE_STEPS[currentStep - 1]?.path;
@@ -79,10 +78,9 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
 
   return (
     <div className="bg-background min-h-screen flex flex-col">
-      {/* Header */}
       <header className="flex items-center justify-between px-10 py-5 bg-background">
         <Image
-          src="/logo192.png"
+          src="/hafb_logo.svg"
           alt="Home Again"
           width={91}
           height={55}
@@ -91,14 +89,11 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
 
         <StepIndicator steps={INTAKE_STEPS} currentStep={currentStep} />
 
-        {/* Spacer to balance the logo on the left */}
         <div className="w-[91px]" />
       </header>
 
-      {/* Step Content */}
       <main className="flex-1 px-16 py-8">{children}</main>
 
-      {/* Bottom Navigation */}
       <footer className="border-t border-border px-16 py-8 flex items-center justify-end">
         <div className="flex items-center gap-3">
           <Button

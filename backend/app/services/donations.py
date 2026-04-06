@@ -3,7 +3,7 @@
 Contains business logic for donation-related operations.
 """
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -77,9 +77,8 @@ async def update_donation(
 
 async def delete_donation(db: AsyncSession, donation: Donation) -> None:
     """Delete an existing donation."""
-    await db.delete(donation)
-
     try:
+        await db.execute(delete(Donation).where(Donation.id == donation.id))
         await db.commit()
     except IntegrityError as e:
         await db.rollback()

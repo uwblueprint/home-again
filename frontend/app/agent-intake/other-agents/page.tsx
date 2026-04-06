@@ -93,7 +93,6 @@ export default function OtherAgentsStep() {
       description="Add other agents from your agency who need access. You can add more later from your dashboard."
     >
       {!hasVisibleAgents ? (
-        /* Empty State */
         <div className="border border-border rounded-xl shadow-sm p-12 flex items-center justify-center min-h-[418px]">
           <div className="flex flex-col items-center gap-4">
             <div className="bg-secondary rounded-lg p-2">
@@ -106,7 +105,6 @@ export default function OtherAgentsStep() {
           </div>
         </div>
       ) : (
-        /* Agent Cards */
         <div className="flex flex-col gap-5">
           {agents.map((agent, index) => (
             <AgentCard
@@ -135,7 +133,6 @@ export default function OtherAgentsStep() {
             />
           ) : null}
 
-          {/* Add Agent Button */}
           <Button
             variant="outline"
             className="h-auto w-full rounded-[14px] border-dashed py-4 hover:bg-accent aria-expanded:bg-accent"

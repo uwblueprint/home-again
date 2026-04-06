@@ -1,12 +1,10 @@
 import React from "react";
-import { render, screen, fireEvent, within } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import FurnitureItemCard from "../FurnitureItemCard";
-import type { FurnitureItemData } from "../DonationFormContext";
+import FurnitureItemCard from "./FurnitureItemCard";
+import type { FurnitureItemData } from "./DonationFormContext";
 
-// ---------------------------------------------------------------------------
 // Helpers
-// ---------------------------------------------------------------------------
 
 function createMockItem(
   overrides: Partial<FurnitureItemData> = {},
@@ -34,9 +32,7 @@ function renderCard(props: Partial<React.ComponentProps<typeof FurnitureItemCard
   return { ...render(<FurnitureItemCard {...defaultProps} />), props: defaultProps };
 }
 
-// ---------------------------------------------------------------------------
 // Tests
-// ---------------------------------------------------------------------------
 
 describe("FurnitureItemCard", () => {
   describe("expand / collapse", () => {

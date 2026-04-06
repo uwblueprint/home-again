@@ -5,7 +5,7 @@ import { useDonationForm } from "@/components/donation-requests/DonationFormCont
 import FurnitureItemCard from "@/components/donation-requests/FurnitureItemCard";
 
 export default function StepFurnitureDetails() {
-  const { formState, addItem, deleteItem, updateItem } = useDonationForm();
+  const { formState, deleteItem, updateItem } = useDonationForm();
   const { items } = formState;
 
   // Track which item id is expanded; default to the first item

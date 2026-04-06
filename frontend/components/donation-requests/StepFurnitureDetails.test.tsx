@@ -4,9 +4,7 @@ import "@testing-library/jest-dom";
 import { DonationFormProvider } from "./DonationFormContext";
 import StepFurnitureDetails from "./StepFurnitureDetails";
 
-// ---------------------------------------------------------------------------
 // Helpers
-// ---------------------------------------------------------------------------
 
 function renderWithProvider() {
   return render(
@@ -16,7 +14,7 @@ function renderWithProvider() {
   );
 }
 
-// We need a wrapper that exposes the addItem function via a test button.
+// Need a wrapper that exposes the addItem function via a test button.
 function TestHarness() {
   return (
     <DonationFormProvider initialDonorId="test-donor-id">

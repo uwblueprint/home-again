@@ -10,15 +10,11 @@ import {
   type FurnitureItemData,
 } from "@/components/donation-requests/DonationFormContext";
 
-// ---------------------------------------------------------------------------
 // Constants
-// ---------------------------------------------------------------------------
 
 const MAX_PHOTOS = 5;
 
-// ---------------------------------------------------------------------------
 // Props
-// ---------------------------------------------------------------------------
 
 interface FurnitureItemCardProps {
   /** The item data to display / edit. */
@@ -37,9 +33,7 @@ interface FurnitureItemCardProps {
   isDeleteDisabled: boolean;
 }
 
-// ---------------------------------------------------------------------------
 // Component
-// ---------------------------------------------------------------------------
 
 export default function FurnitureItemCard({
   itemData,
@@ -52,7 +46,7 @@ export default function FurnitureItemCard({
 }: FurnitureItemCardProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // --- handlers -----------------------------------------------------------
+  //  handlers 
 
   const handleTypeSelect = useCallback(
     (type: FurnitureType) => {
@@ -83,13 +77,13 @@ export default function FurnitureItemCard({
     [itemData.photos, onUpdate],
   );
 
-  // --- derived ------------------------------------------------------------
+  //  derived 
 
   const displayLabel = itemData.furnitureType
     ? `Item ${index + 1} - ${itemData.furnitureType}`
     : `Item ${index + 1}`;
 
-  // --- render -------------------------------------------------------------
+  //  render 
 
   return (
     <div

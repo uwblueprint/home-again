@@ -49,13 +49,19 @@ interface DonationFormContextType {
 let itemCounter = 0;
 
 function createItem(): FurnitureItemData {
-  itemCounter += 1;
   return {
-    id: `item-${itemCounter}`,
+    id: crypto.randomUUID(),
     furnitureType: null,
     hasStains: null,
     photos: [],
   };
+}
+
+
+export function validateItems(items: FurnitureItemData[]): boolean {
+  return items.every(
+    (item) => item.furnitureType !== null && item.hasStains !== null,
+  );
 }
 
 // Context
@@ -74,7 +80,7 @@ export function DonationFormProvider({
   const [formState, setFormState] = useState<DonationFormState>(() => ({
     donorId: initialDonorId,
     pickupDate: null,
-    items: [createItem()],
+    items: [{ id: "item-initial", furnitureType: null, hasStains: null, photos: [] }],
   }));
 
   const addItem = useCallback(() => {

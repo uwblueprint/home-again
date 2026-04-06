@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
-import { DonationFormProvider, useDonationForm } from "@/components/donation-requests/DonationFormContext";
+import { DonationFormProvider, useDonationForm, validateItems } from "@/components/donation-requests/DonationFormContext";
 import DonationLayout from "@/components/donation-requests/DonationLayout";
 import StepFurnitureDetails from "@/components/donation-requests/StepFurnitureDetails";
 import StepSchedulePickup from "@/components/donation-requests/StepSchedulePickup";
@@ -17,10 +17,18 @@ const UUID_REGEX =
 
 function DonationFlowPageInner() {
   const router = useRouter();
-  const { addItem } = useDonationForm();
+  const { formState, addItem } = useDonationForm();
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   function handleNext() {
+    if (currentStep === 1) {
+      if (!validateItems(formState.items)) {
+        setValidationError("Please complete all item details before proceeding.");
+        return;
+      }
+      setValidationError(null);
+    }
     if (currentStep < 3) {
       setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
     } else {
@@ -40,7 +48,14 @@ function DonationFlowPageInner() {
         variant="outline"
         size="lg"
         className="gap-1.5 px-5 py-5"
-        onClick={addItem}
+        onClick={() => {
+          if (!validateItems(formState.items)) {
+            setValidationError("Please complete all item details before adding another.");
+            return;
+          }
+          setValidationError(null);
+          addItem();
+        }}
       >
         <Plus className="size-4" />
         Add Item
@@ -54,7 +69,14 @@ function DonationFlowPageInner() {
       onBack={handleBack}
       leftAction={leftAction}
     >
-      {currentStep === 1 && <StepFurnitureDetails />}
+      {currentStep === 1 && (
+        <>
+          <StepFurnitureDetails />
+          {validationError && (
+            <p className="text-sm text-destructive">{validationError}</p>
+          )}
+        </>
+      )}
       {currentStep === 2 && <StepSchedulePickup />}
       {currentStep === 3 && <StepDonationSummary />}
     </DonationLayout>

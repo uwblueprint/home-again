@@ -5,6 +5,7 @@ import { X, SquarePen, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Tooltip,
@@ -265,10 +266,17 @@ export function AgentCard({
   // Collapsed state
   return (
     <div className="flex w-full items-center justify-between rounded-[14px] border border-foreground/10 bg-card p-6 shadow-sm">
-      <p className="text-sm text-foreground">
-        <span className="font-semibold">Agent {index + 1}:</span>{" "}
-        {displayName}
-      </p>
+      <div className="flex items-center gap-1.5">
+        <p className="text-sm text-foreground">
+          <span className="font-semibold">Agent {index + 1}:</span>{" "}
+          {displayName}
+        </p>
+        {agent.isAdmin && isSaved ? (
+          <Badge variant="outline" className="font-semibold">
+            Admin User
+          </Badge>
+        ) : null}
+      </div>
       {isSaved ? (
         <button
           type="button"

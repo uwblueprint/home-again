@@ -30,9 +30,22 @@ export interface FurnitureItemData {
   photos: File[];
 }
 
+export interface PickupAddress {
+  streetAddress: string;
+  apartment: string;
+  city: string;
+  province: string;
+  country: string;
+  postalCode: string;
+}
+
 export interface DonationFormState {
   donorId: string | null;
   pickupDate: string | null;
+  pickupAddress: PickupAddress;
+  smokingInHousehold: boolean | null;
+  petsInHousehold: boolean | null;
+  feeAgreement: boolean;
   items: FurnitureItemData[];
 }
 
@@ -42,6 +55,8 @@ interface DonationFormContextType {
   addItem: () => void;
   deleteItem: (id: string) => void;
   updateItem: (id: string, patch: Partial<Omit<FurnitureItemData, "id">>) => void;
+  submitAttempted: boolean;
+  setSubmitAttempted: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // Helpers
@@ -54,7 +69,6 @@ function createItem(): FurnitureItemData {
     photos: [],
   };
 }
-
 
 export function validateItems(items: FurnitureItemData[]): boolean {
   return items.every(
@@ -75,10 +89,22 @@ export function DonationFormProvider({
   children,
   initialDonorId = null,
 }: DonationFormProviderProps) {
+  const [submitAttempted, setSubmitAttempted] = useState(false);
   const [formState, setFormState] = useState<DonationFormState>(() => ({
     donorId: initialDonorId,
     pickupDate: null,
-    items: [{ id: "item-initial", furnitureType: null, hasStains: null, photos: [] }],
+    pickupAddress: {
+      streetAddress: "",
+      apartment: "",
+      city: "",
+      province: "",
+      country: "",
+      postalCode: "",
+    },
+    smokingInHousehold: null,
+    petsInHousehold: null,
+    feeAgreement: false,
+    items: [createItem()],
   }));
 
   const addItem = useCallback(() => {
@@ -108,8 +134,8 @@ export function DonationFormProvider({
   );
 
   const contextValue = useMemo(
-    () => ({ formState, setFormState, addItem, deleteItem, updateItem }),
-    [formState, addItem, deleteItem, updateItem],
+    () => ({ formState, setFormState, addItem, deleteItem, updateItem, submitAttempted, setSubmitAttempted }),
+    [formState, addItem, deleteItem, updateItem, submitAttempted],
   );
 
   return (

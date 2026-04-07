@@ -164,7 +164,7 @@ export default function FurnitureItemCard({
                   aria-pressed={itemData.hasStains === true}
                   onClick={() => handleStainsChange(true)}
                   className={cn(
-                    "px-4 py-1.5 text-sm font-medium transition-colors",
+                    "cursor-pointer px-4 py-1.5 text-sm font-medium transition-colors",
                     itemData.hasStains === true
                       ? "bg-primary text-primary-foreground"
                       : "bg-background text-foreground hover:bg-muted",
@@ -177,7 +177,7 @@ export default function FurnitureItemCard({
                   aria-pressed={itemData.hasStains === false}
                   onClick={() => handleStainsChange(false)}
                   className={cn(
-                    "border-l border-border px-4 py-1.5 text-sm font-medium transition-colors",
+                    "cursor-pointer border-l border-border px-4 py-1.5 text-sm font-medium transition-colors",
                     itemData.hasStains === false
                       ? "bg-primary text-primary-foreground"
                       : "bg-background text-foreground hover:bg-muted",
@@ -220,13 +220,14 @@ export default function FurnitureItemCard({
                 <div className="mt-3 flex flex-wrap gap-2">
                   {itemData.photos.map((file, i) => (
                     <div
-                      key={`${file.name}-${i}`}
+                      key={`${file.name}-${file.lastModified}-${file.size}`}
                       className="relative size-16 overflow-hidden rounded-md border border-border"
                     >
                       <Image
                         src={photoUrls[i]}
                         alt={file.name}
-                        className="size-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                       <button
                         type="button"

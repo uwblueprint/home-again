@@ -1,9 +1,11 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { StepIndicator } from "@/components/ui/step-indicator";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useDonationForm } from "@/components/donation-requests/DonationFormContext";
 
 const STEPS = [
   { label: "Furniture Details" },
@@ -28,6 +30,7 @@ export default function DonationLayout({
   children,
 }: DonationLayoutProps) {
   const stepIndex = currentStep - 1;
+  const { formState, setSubmitAttempted } = useDonationForm();
 
   const nextLabel =
     currentStep === 1
@@ -36,10 +39,33 @@ export default function DonationLayout({
         ? "Continue to Summary"
         : "Submit Request";
 
+  function handleNextClick() {
+    if (currentStep === 3) {
+      setSubmitAttempted(true);
+      const isValid =
+        formState.feeAgreement &&
+        formState.smokingInHousehold !== null &&
+        formState.petsInHousehold !== null;
+      if (isValid) onNext();
+    } else {
+      onNext();
+    }
+  }
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-4 pb-28">
       {/* Header */}
-      <header className="flex justify-center pt-8">
+      <header className="flex items-center justify-center pt-8">
+        <div className="absolute left-4 top-4 md:left-8">
+          <Image 
+            src="/hafb_logo.svg" 
+            alt="Home Again Furniture Bank" 
+            width={68} 
+            height={41} 
+            className="h-auto w-auto" 
+            priority 
+          />
+        </div>
         <StepIndicator steps={STEPS} currentStep={stepIndex} />
       </header>
 
@@ -69,7 +95,11 @@ export default function DonationLayout({
                 Back
               </Button>
             )}
-            <Button size="lg" className="px-6 py-5" onClick={onNext}>
+            <Button
+              size="lg"
+              className="px-6 py-5"
+              onClick={handleNextClick}
+            >
               {nextLabel}
             </Button>
           </div>

@@ -210,7 +210,7 @@ describe("PhotoUpload", () => {
       ).toBeInTheDocument();
     });
 
-    it("applies destructive border to file input when overflow occurs", () => {
+    it("applies destructive border to file chooser button when overflow occurs", () => {
       renderDialog();
       const input = screen.getByLabelText("Choose files");
       const files = Array.from({ length: 6 }, (_, i) =>
@@ -218,7 +218,8 @@ describe("PhotoUpload", () => {
       );
       selectFiles(input, files);
 
-      expect(input.className).toContain("border-destructive");
+      const chooserButton = screen.getByRole("button", { name: /choose files/i });
+      expect(chooserButton.className).toContain("border-destructive");
     });
 
     it("only accepts photos up to MAX_PHOTOS limit", () => {

@@ -1,7 +1,7 @@
 import React from "react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 
-import DonationRequestContactForm from "../../donation-requests/DonationRequestContactForm";
+import DonationContactForm from "../../donation-requests/DonationContactForm";
 import { useCreateDonor } from "@/hooks/useApi";
 import { useRouter } from "next/navigation";
 
@@ -41,7 +41,7 @@ jest.mock("next/image", () => ({
 const mockMutate = jest.fn();
 const mockPush = jest.fn();
 
-describe("DonationRequestContactForm", () => {
+describe("DonationContactForm", () => {
   beforeEach(() => {
     mockMutate.mockReset();
     mockPush.mockReset();
@@ -55,7 +55,7 @@ describe("DonationRequestContactForm", () => {
   });
 
   it("renders all form fields and submit button", () => {
-    render(<DonationRequestContactForm />);
+    render(<DonationContactForm />);
 
     expect(screen.getByRole("heading", { name: "Welcome!" })).toBeInTheDocument();
     expect(screen.getByLabelText("First Name")).toBeInTheDocument();
@@ -68,7 +68,7 @@ describe("DonationRequestContactForm", () => {
   });
 
   it("shows required, email, and phone validation messages", () => {
-    render(<DonationRequestContactForm />);
+    render(<DonationContactForm />);
 
     fireEvent.click(
       screen.getByRole("button", { name: /submit a donation request/i })
@@ -101,7 +101,7 @@ describe("DonationRequestContactForm", () => {
   });
 
   it("submits expected payload through useCreateDonor", () => {
-    render(<DonationRequestContactForm />);
+    render(<DonationContactForm />);
 
     fireEvent.change(screen.getByLabelText("First Name"), {
       target: { value: "Jane" },
@@ -141,7 +141,7 @@ describe("DonationRequestContactForm", () => {
       isPending: true,
     });
 
-    render(<DonationRequestContactForm />);
+    render(<DonationContactForm />);
     const button = screen.getByRole("button", { name: /submitting/i });
 
     expect(button).toBeDisabled();
@@ -149,7 +149,7 @@ describe("DonationRequestContactForm", () => {
   });
 
   it("redirects to /donate/:id on successful submit and shows error on failure", () => {
-    render(<DonationRequestContactForm />);
+    render(<DonationContactForm />);
 
     fireEvent.change(screen.getByLabelText("First Name"), {
       target: { value: "Jane" },

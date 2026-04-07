@@ -1,5 +1,5 @@
-import DonationRequestSubmitted from "@/components/donation-requests/DonationRequestSubmitted";
+import DonationSubmitted from "@/components/donation-requests/DonationSubmitted";
 
-export default function DonationRequestSubmittedPage() {
-  return <DonationRequestSubmitted />;
+export default function DonationSubmittedPage() {
+  return <DonationSubmitted />;
 }

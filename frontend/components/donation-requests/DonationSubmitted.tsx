@@ -3,7 +3,7 @@ import Image from "next/image";
 import { HOME_PAGE } from "@/constants/Routes";
 import { Button } from "@/components/ui/button";
 
-export default function DonationRequestSubmitted() {
+export default function DonationSubmitted() {
   return (
     <div className="min-h-screen bg-background">
       <div className="flex min-h-screen flex-col md:flex-row">

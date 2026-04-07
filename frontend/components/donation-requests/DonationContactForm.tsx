@@ -56,7 +56,7 @@ function validateForm(
   return errors;
 }
 
-export default function DonationRequestContactForm() {
+export default function DonationContactForm() {
   const router = useRouter();
   const createDonor = useCreateDonor();
   const [values, setValues] = useState<DonationRequestContactFormValues>({

@@ -1,8 +1,8 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import FurnitureItemCard from "./FurnitureItemCard";
-import type { FurnitureItemData } from "./DonationFormContext";
+import FurnitureItemCard from "@/components/donation-requests/FurnitureItemCard";
+import type { FurnitureItemData } from "@/components/donation-requests/DonationFormContext";
 
 // Helpers
 
@@ -44,8 +44,7 @@ describe("FurnitureItemCard", () => {
 
     it("hides item details when collapsed", () => {
       renderCard({ isExpanded: false });
-      expect(screen.queryByText("Item Details")).not.toBeInTheDocument();
-    });
+      expect(screen.getByText("Item Details")).not.toBeVisible();    });
 
     it("calls onToggle when header is clicked", () => {
       const onToggle = jest.fn();

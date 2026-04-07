@@ -1,9 +1,9 @@
 import React from "react";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { DonationFormProvider } from "./DonationFormContext";
-import StepFurnitureDetails from "./StepFurnitureDetails";
-import { useDonationForm } from "./DonationFormContext";
+import { DonationFormProvider } from "@/components/donation-requests/DonationFormContext";
+import StepFurnitureDetails from "@/components/donation-requests/StepFurnitureDetails";
+import { useDonationForm } from "@/components/donation-requests/DonationFormContext";
 
 // Helpers
 

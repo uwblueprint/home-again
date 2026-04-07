@@ -220,7 +220,7 @@ export default function FurnitureItemCard({
                 <div className="mt-3 flex flex-wrap gap-2">
                   {itemData.photos.map((file, i) => (
                     <div
-                      key={i}
+                      key={`${file.name}-${file.lastModified}-${file.size}`}
                       className="relative size-16 overflow-hidden rounded-md border border-border"
                     >
                       <Image

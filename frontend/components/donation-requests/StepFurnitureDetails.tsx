@@ -22,7 +22,7 @@ export default function StepFurnitureDetails() {
       setExpandedId(newItem.id);
     }
     prevCountRef.current = items.length;
-  }, [items.length]);
+  }, [items]);
 
   const handleToggle = useCallback((id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));

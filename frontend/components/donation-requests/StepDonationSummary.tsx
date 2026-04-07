@@ -43,6 +43,7 @@ function YesNoToggle({
     <div className="inline-flex w-fit overflow-hidden rounded-md border border-border">
       <button
         type="button"
+        aria-pressed={value === true}
         onClick={() => onChange(true)}
         className={cn(
           "cursor-pointer px-4 py-1.5 text-sm font-medium transition-colors",
@@ -55,6 +56,7 @@ function YesNoToggle({
       </button>
       <button
         type="button"
+        aria-pressed={value === false}
         onClick={() => onChange(false)}
         className={cn(
           "cursor-pointer border-l border-border px-4 py-1.5 text-sm font-medium transition-colors",
@@ -80,6 +82,7 @@ function ItemRow({ item }: { item: FurnitureItemData }) {
     <div className="flex items-center gap-3">
       <div className="size-10 shrink-0 overflow-hidden rounded-lg bg-secondary">
         {thumbnailSrc && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={thumbnailSrc}
             alt={item.furnitureType ?? "Donation item"}
@@ -262,23 +265,27 @@ export default function StepDonationSummary() {
             </span>
           </div>
           <label className="flex cursor-pointer items-center gap-2">
-            <button
-              type="button"
-              role="checkbox"
-              aria-checked={feeAgreement}
-              onClick={handleFeeAgreementChange}
-              className={cn(
-                "flex size-3.5 shrink-0 cursor-pointer items-center justify-center rounded-sm border transition-colors",
-                feeAgreement
-                  ? "border-primary bg-primary"
-                  : showFeeError
-                    ? "border-destructive bg-background"
-                    : "border-border bg-background",
+            <span className="relative flex size-3.5 shrink-0 items-center justify-center">
+              <input
+                type="checkbox"
+                checked={feeAgreement}
+                onChange={handleFeeAgreementChange}
+                className={cn(
+                  "size-3.5 cursor-pointer appearance-none rounded-sm border transition-colors",
+                  feeAgreement
+                    ? "border-primary bg-primary"
+                    : showFeeError
+                      ? "border-destructive bg-background"
+                      : "border-border bg-background",
+                )}
+              />
+              {feeAgreement && (
+                <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <CheckIcon />
+                </span>
               )}
-            >
-              {feeAgreement && <CheckIcon />}
-            </button>
-            <span className="text-sm text-[#404040]">
+            </span>
+            <span className="text-xs text-[#404040]">
               I agree to a $35 fee, payable at time of pickup (tax receipt will
               be provided)
             </span>

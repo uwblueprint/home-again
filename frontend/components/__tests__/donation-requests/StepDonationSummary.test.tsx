@@ -2,7 +2,10 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 
 import StepDonationSummary from "../../donation-requests/StepDonationSummary";
-import { DonationFormProvider } from "../../donation-requests/DonationFormContext";
+import {
+  DonationFormProvider,
+  useDonationForm,
+} from "../../donation-requests/DonationFormContext";
 import { useDonor } from "@/hooks/useApi";
 
 jest.mock("@/hooks/useApi");
@@ -21,6 +24,29 @@ const mockDonor = {
   email: "katiesun@uwblueprint.org",
   phone: "(+1) 647-909-9581",
 };
+
+// Renders a button that fills the pickup address through context when clicked.
+function AddressSetterButton() {
+  const { setFormState } = useDonationForm();
+  return (
+    <button
+      data-testid="set-address"
+      onClick={() =>
+        setFormState((prev) => ({
+          ...prev,
+          pickupAddress: {
+            streetAddress: "210 Drake Ave",
+            apartment: "",
+            city: "St. John's",
+            province: "NL",
+            country: "CA",
+            postalCode: "A2V 1K5",
+          },
+        }))
+      }
+    />
+  );
+}
 
 function renderSummary() {
   return render(
@@ -93,23 +119,18 @@ describe("StepDonationSummary", () => {
   });
 
   it("renders a formatted pickup address when fields are filled", () => {
-    // Use a wrapper that pre-fills pickup address via context mutation
-    const { rerender } = render(
+    render(
       <DonationFormProvider initialDonorId="donor-123">
+        <AddressSetterButton />
         <StepDonationSummary />
       </DonationFormProvider>,
     );
 
-    // The address starts empty — verify default
-    expect(screen.getByText("No address provided")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("set-address"));
 
-    // Re-render is not needed here since we'd need to test via context mutation.
-    // This is covered by the integration of formatAddress() — tested separately below.
-    rerender(
-      <DonationFormProvider initialDonorId="donor-123">
-        <StepDonationSummary />
-      </DonationFormProvider>,
-    );
+    expect(
+      screen.getByText("210 Drake Ave, St. John's, NL, CA, A2V 1K5"),
+    ).toBeInTheDocument();
   });
 
   it("renders a default item row with 'Unknown item' and '-' stains label", () => {
@@ -167,8 +188,7 @@ describe("StepDonationSummary", () => {
     renderSummary();
 
     const checkbox = screen.getByRole("checkbox");
-    expect(checkbox).toHaveAttribute("aria-checked", "false");
-    // Only the plain "*" is shown — no error message yet
+    expect(checkbox).not.toBeChecked();
     expect(
       screen.queryByText(/agreement required to submit donation/i),
     ).not.toBeInTheDocument();
@@ -179,7 +199,7 @@ describe("StepDonationSummary", () => {
 
     const checkbox = screen.getByRole("checkbox");
     fireEvent.click(checkbox);
-    expect(checkbox).toHaveAttribute("aria-checked", "true");
+    expect(checkbox).toBeChecked();
   });
 
   it("unchecking the checkbox after it was checked shows the error message", () => {
@@ -189,11 +209,11 @@ describe("StepDonationSummary", () => {
 
     // Check
     fireEvent.click(checkbox);
-    expect(checkbox).toHaveAttribute("aria-checked", "true");
+    expect(checkbox).toBeChecked();
 
     // Uncheck — now dirty + unchecked → error message appears
     fireEvent.click(checkbox);
-    expect(checkbox).toHaveAttribute("aria-checked", "false");
+    expect(checkbox).not.toBeChecked();
     expect(
       screen.getByText(/agreement required to submit donation/i),
     ).toBeInTheDocument();

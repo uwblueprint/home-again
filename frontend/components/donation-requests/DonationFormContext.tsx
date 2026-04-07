@@ -30,10 +30,30 @@ export interface FurnitureItemData {
   photos: File[];
 }
 
+export interface PickupAddress {
+  streetAddress: string;
+  apartment: string;
+  city: string;
+  province: string;
+  country: string;
+  postalCode: string;
+}
+
+const DEFAULT_PICKUP_ADDRESS: PickupAddress = {
+  streetAddress: "",
+  apartment: "",
+  city: "",
+  province: "NL",
+  country: "Canada",
+  postalCode: "",
+};
+
 export interface DonationFormState {
   donorId: string | null;
   pickupDate: string | null;
   items: FurnitureItemData[];
+  pickupAddress: PickupAddress;
+  pickupSubmitAttempted: boolean;
 }
 
 interface DonationFormContextType {
@@ -76,10 +96,12 @@ export function DonationFormProvider({
   initialDonorId = null,
 }: DonationFormProviderProps) {
   const [formState, setFormState] = useState<DonationFormState>(() => ({
-    donorId: initialDonorId,
-    pickupDate: null,
-    items: [{ id: "item-initial", furnitureType: null, hasStains: null, photos: [] }],
-  }));
+  donorId: initialDonorId,
+  pickupDate: null,
+  items: [{ id: "item-initial", furnitureType: null, hasStains: null, photos: [] }],
+  pickupAddress: DEFAULT_PICKUP_ADDRESS,  
+  pickupSubmitAttempted: false,
+}));
 
   const addItem = useCallback(() => {
     setFormState((prev) => ({

@@ -9,6 +9,7 @@ import DonationLayout from "@/components/donation-requests/DonationLayout";
 import StepFurnitureDetails from "@/components/donation-requests/StepFurnitureDetails";
 import StepSchedulePickup from "@/components/donation-requests/StepSchedulePickup";
 import StepDonationSummary from "@/components/donation-requests/StepDonationSummary";
+import { validatePickupAddress } from "@/components/donation-requests/PickupAddressForm";
 import { Button } from "@/components/ui/button";
 
 // For UUID Validation: Enforces 36-character format: xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx
@@ -17,17 +18,17 @@ const UUID_REGEX =
 
 function DonationFlowPageInner() {
   const router = useRouter();
-  const { formState, addItem } = useDonationForm();
+  const { formState, addItem, setFormState } = useDonationForm();
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   function handleNext() {
-    if (currentStep === 1) {
-      if (!validateItems(formState.items)) {
-        setValidationError("Please complete all item details before proceeding.");
+    if (currentStep === 2) {
+      const errors = validatePickupAddress(formState.pickupAddress);
+      if (Object.keys(errors).length > 0) {
+        setFormState((prev) => ({ ...prev, pickupSubmitAttempted: true }));
         return;
       }
-      setValidationError(null);
     }
     if (currentStep < 3) {
       setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);

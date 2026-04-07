@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { IntakeProvider, useIntakeContext } from "@/context/IntakeContext";
 import { Button } from "@/components/ui/button";
 import { StepIndicator, type Step } from "@/components/ui/step-indicator";
 import {
@@ -26,16 +27,18 @@ interface IntakeLayoutProps {
   children: React.ReactNode;
 }
 
-export default function IntakeLayout({ children }: IntakeLayoutProps) {
+function IntakeLayoutInner({ children }: IntakeLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { runValidator } = useIntakeContext();
+  const [isNavigating, setIsNavigating] = useState(false);
   const otherAgents = useIntakeFormStore((state) => state.otherAgents);
   const otherAgentsStepLocked = useIntakeFormStore(
     (state) => state.otherAgentsStepLocked
   );
 
   const currentStepIndex = INTAKE_STEPS.findIndex(
-    (step) => pathname === step.path
+    (step) => step.path !== undefined && pathname.startsWith(step.path)
   );
   const currentStep = currentStepIndex === -1 ? 0 : currentStepIndex;
   const isOtherAgentsStep = currentStep === OTHER_AGENTS_STEP;
@@ -52,26 +55,38 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
   const isLastStep = currentStep === INTAKE_STEPS.length - 1;
 
   function handleBack() {
-    if (isNavigationLocked) {
+    if (isNavigationLocked || isFirstStep) {
       return;
     }
 
-    if (isFirstStep) {
-      return;
-    }
     const prevPath = INTAKE_STEPS[currentStep - 1]?.path;
     if (prevPath) {
       router.push(prevPath);
     }
   }
 
-  function handleNext() {
+  async function handleNext() {
     if (isNavigationLocked) {
       return;
     }
 
+    setIsNavigating(true);
+    let valid: boolean;
+    try {
+      valid = await runValidator();
+    } finally {
+      setIsNavigating(false);
+    }
+
+    if (!valid) return;
+
+    if (isLastStep) {
+      // TODO: Submit the full intake form to the backend
+      return;
+    }
+
     const nextPath = INTAKE_STEPS[currentStep + 1]?.path;
-    if (!isLastStep && nextPath) {
+    if (nextPath) {
       router.push(nextPath);
     }
   }
@@ -100,14 +115,14 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
             variant="secondary"
             className="h-10 px-6"
             onClick={handleBack}
-            disabled={isNavigationLocked}
+            disabled={isNavigating || isNavigationLocked}
           >
             Back
           </Button>
           <Button
             className="h-10 px-6"
             onClick={handleNext}
-            disabled={isNavigationLocked}
+            disabled={isNavigating || isNavigationLocked}
           >
             {isLastStep
               ? "Submit"
@@ -120,5 +135,13 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function IntakeLayout({ children }: IntakeLayoutProps) {
+  return (
+    <IntakeProvider>
+      <IntakeLayoutInner>{children}</IntakeLayoutInner>
+    </IntakeProvider>
   );
 }

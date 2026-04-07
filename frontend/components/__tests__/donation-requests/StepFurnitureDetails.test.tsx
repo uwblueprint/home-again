@@ -1,9 +1,8 @@
 import React from "react";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { DonationFormProvider } from "./DonationFormContext";
-import StepFurnitureDetails from "./StepFurnitureDetails";
-import { useDonationForm } from "./DonationFormContext";
+import { DonationFormProvider, useDonationForm } from "../../donation-requests/DonationFormContext";
+import StepFurnitureDetails from "../../donation-requests/StepFurnitureDetails";
 
 // Helpers
 
@@ -36,9 +35,7 @@ function StepFurnitureDetailsWithAddButton() {
   );
 }
 
-// ---------------------------------------------------------------------------
 // Tests
-// ---------------------------------------------------------------------------
 
 describe("StepFurnitureDetails", () => {
   it("renders page heading and one default item card", () => {
@@ -54,7 +51,7 @@ describe("StepFurnitureDetails", () => {
     render(<TestHarness />);
 
     // Initially one expanded card
-    expect(screen.getByText("Item Details")).toBeInTheDocument();
+    expect(screen.getByRole("button", { expanded: true })).toBeInTheDocument();
 
     // Add a second item
     act(() => {
@@ -65,10 +62,10 @@ describe("StepFurnitureDetails", () => {
     expect(screen.getByTestId("furniture-item-card-0")).toBeInTheDocument();
     expect(screen.getByTestId("furniture-item-card-1")).toBeInTheDocument();
 
-    // Only the newest card should show "Item Details" (the old one collapsed)
-    // Since both could show "Item Details", check that there's exactly one
-    const detailsHeadings = screen.getAllByText("Item Details");
-    expect(detailsHeadings).toHaveLength(1);
+    // The accordion uses CSS-only animation so both "Item Details" headings stay in the DOM.
+    // Verify collapse state via aria-expanded: only the newest card should be expanded.
+    expect(screen.getAllByRole("button", { expanded: true })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { expanded: false })).toHaveLength(1);
   });
 
   it("disables delete when only one item exists", () => {

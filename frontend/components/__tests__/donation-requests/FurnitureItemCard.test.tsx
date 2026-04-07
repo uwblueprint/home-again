@@ -1,8 +1,8 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import FurnitureItemCard from "./FurnitureItemCard";
-import type { FurnitureItemData } from "./DonationFormContext";
+import FurnitureItemCard from "../../donation-requests/FurnitureItemCard";
+import type { FurnitureItemData } from "../../donation-requests/DonationFormContext";
 
 // Helpers
 
@@ -42,9 +42,9 @@ describe("FurnitureItemCard", () => {
       expect(screen.getByText("Select Furniture Type")).toBeInTheDocument();
     });
 
-    it("hides item details when collapsed", () => {
+    it("sets aria-expanded false on header when collapsed", () => {
       renderCard({ isExpanded: false });
-      expect(screen.queryByText("Item Details")).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { expanded: false })).toBeInTheDocument();
     });
 
     it("calls onToggle when header is clicked", () => {

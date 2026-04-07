@@ -6,6 +6,8 @@ export interface AgencyFormData {
   addressLine2: string;
   city: string;
   province: string;
+  country: string;
+  postalCode: string;
   phone: string;
   phoneNotes: string;
 }
@@ -47,7 +49,9 @@ const initialAgency: AgencyFormData = {
   addressLine1: "",
   addressLine2: "",
   city: "",
-  province: "",
+  province: "Newfoundland & Labrador",
+  country: "Canada",
+  postalCode: "",
   phone: "",
   phoneNotes: "",
 };

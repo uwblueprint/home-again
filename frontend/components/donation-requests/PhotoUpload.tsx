@@ -38,6 +38,7 @@ export default function PhotoUpload({
 }: PhotoUploadProps) {
   const [pendingPhotos, setPendingPhotos] = useState<File[]>([]);
   const [overflowCount, setOverflowCount] = useState(0);
+  const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
@@ -89,15 +90,37 @@ export default function PhotoUpload({
     };
   }, [pendingPhotos]);
 
+  const addFiles = (files: File[]) => {
+    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+    setPendingPhotos((prev) => {
+      const totalRequested = prev.length + imageFiles.length;
+      const rejected = Math.max(0, totalRequested - MAX_PHOTOS);
+      const accepted = imageFiles.slice(0, imageFiles.length - rejected);
+      setOverflowCount(rejected > 0 ? rejected : 0);
+      return [...prev, ...accepted];
+    });
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    const totalRequested = pendingPhotos.length + files.length;
-    const rejected = Math.max(0, totalRequested - MAX_PHOTOS);
-    const acceptedCount = files.length - rejected;
-    const accepted = files.slice(0, acceptedCount);
-    setPendingPhotos((prev) => [...prev, ...accepted]);
-    setOverflowCount(rejected > 0 ? rejected : 0);
+    addFiles(Array.from(e.target.files ?? []));
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    addFiles(Array.from(e.dataTransfer.files));
   };
 
   const removePhoto = (index: number) => {
@@ -185,7 +208,15 @@ export default function PhotoUpload({
           <p className="mt-1 text-xs text-muted-foreground">Max 5 uploads</p>
 
           {/* Upload zone */}
-          <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-6 py-12">
+          <div
+            className={cn(
+              "mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 transition-colors",
+              isDragOver ? "border-primary bg-primary/5" : "border-border",
+            )}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
             <Upload className="size-6 text-muted-foreground" />
             <p className="text-xl font-semibold text-muted-foreground">
               Drop files to upload or browse

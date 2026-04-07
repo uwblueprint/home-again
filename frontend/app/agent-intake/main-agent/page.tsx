@@ -107,7 +107,7 @@ export default function MainAgentStep() {
   return (
     <div className="max-w-3xl mx-auto">
       <h2 className="text-2xl font-semibold text-foreground mb-1">
-        Main Agent Details
+        Your Details
       </h2>
       <p className="text-muted-foreground mb-8">
         Enter your details as the primary contact for your agency account.

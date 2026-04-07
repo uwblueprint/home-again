@@ -1,10 +1,15 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useDonationForm } from "./DonationFormContext";
 import type { FurnitureItemData } from "./DonationFormContext";
 import { useDonor } from "@/hooks/useApi";
+import {
+  getFilePreviewUrl,
+  refreshFilePreviewUrl,
+} from "@/components/donation-requests/filePreviewUrl";
 
 // --- Sub-components ---
 
@@ -73,20 +78,27 @@ function YesNoToggle({
 
 function ItemRow({ item }: { item: FurnitureItemData }) {
   const thumbnailSrc =
-    item.photos.length > 0 ? URL.createObjectURL(item.photos[0]) : null;
+    item.photos.length > 0 ? getFilePreviewUrl(item.photos[0]) : null;
 
   const stainsLabel =
     item.hasStains === null ? "-" : item.hasStains ? "Has Stains" : "No Stains";
 
   return (
     <div className="flex items-center gap-3">
-      <div className="size-10 shrink-0 overflow-hidden rounded-lg bg-secondary">
+      <div className="relative size-10 shrink-0 overflow-hidden rounded-lg bg-secondary">
         {thumbnailSrc && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={thumbnailSrc}
             alt={item.furnitureType ?? "Donation item"}
-            className="h-full w-full object-cover"
+            fill
+            unoptimized
+            className="object-cover"
+            onError={(e) => {
+              if (e.currentTarget.dataset.retry === "1") return;
+              if (item.photos.length === 0) return;
+              e.currentTarget.dataset.retry = "1";
+              e.currentTarget.src = refreshFilePreviewUrl(item.photos[0]);
+            }}
           />
         )}
       </div>

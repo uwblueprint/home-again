@@ -31,11 +31,10 @@ jest.mock("@/components/ui/label", () => ({
 jest.mock("next/image", () => ({
   __esModule: true,
   default: ({
-    priority: _priority,
-    ...props
-  }: React.ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean }) =>
-    // eslint-disable-next-line @next/next/no-img-element
-    <img {...props} alt={props.alt ?? ""} />,
+    alt,
+  }: {
+    alt?: string;
+  }) => <span role="img" aria-label={alt ?? ""} data-testid="next-image" />,
 }));
 
 const mockMutate = jest.fn();

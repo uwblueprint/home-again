@@ -107,10 +107,9 @@ export function DonationFormProvider({
     smokingInHousehold: null,
     petsInHousehold: null,
     feeAgreement: false,
-    items: [createItem()],
+    items: [{ id: "item-initial", furnitureType: null, hasStains: null, photos: [] }],
     pickupSubmitAttempted: false,
   }));
-
   const addItem = useCallback(() => {
     setFormState((prev) => ({
       ...prev,

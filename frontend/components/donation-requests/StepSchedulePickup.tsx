@@ -15,7 +15,7 @@ type TouchableField =
   | "postalCode"
   | "province"
   | "country";
-
+  
 export default function StepSchedulePickup() {
   const { formState, setFormState } = useDonationForm();
   const [touched, setTouched] = useState<Record<TouchableField, boolean>>({

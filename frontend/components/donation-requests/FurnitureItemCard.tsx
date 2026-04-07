@@ -164,7 +164,7 @@ export default function FurnitureItemCard({
                   aria-pressed={itemData.hasStains === true}
                   onClick={() => handleStainsChange(true)}
                   className={cn(
-                    "px-4 py-1.5 text-sm font-medium transition-colors",
+                    "cursor-pointer px-4 py-1.5 text-sm font-medium transition-colors",
                     itemData.hasStains === true
                       ? "bg-primary text-primary-foreground"
                       : "bg-background text-foreground hover:bg-muted",
@@ -177,7 +177,7 @@ export default function FurnitureItemCard({
                   aria-pressed={itemData.hasStains === false}
                   onClick={() => handleStainsChange(false)}
                   className={cn(
-                    "border-l border-border px-4 py-1.5 text-sm font-medium transition-colors",
+                    "cursor-pointer border-l border-border px-4 py-1.5 text-sm font-medium transition-colors",
                     itemData.hasStains === false
                       ? "bg-primary text-primary-foreground"
                       : "bg-background text-foreground hover:bg-muted",

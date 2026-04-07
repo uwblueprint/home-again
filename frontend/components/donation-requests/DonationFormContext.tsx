@@ -30,9 +30,22 @@ export interface FurnitureItemData {
   photos: File[];
 }
 
+export interface PickupAddress {
+  streetAddress: string;
+  apartment: string;
+  city: string;
+  province: string;
+  country: string;
+  postalCode: string;
+}
+
 export interface DonationFormState {
   donorId: string | null;
   pickupDate: string | null;
+  pickupAddress: PickupAddress;
+  smokingInHousehold: boolean | null;
+  petsInHousehold: boolean | null;
+  feeAgreement: boolean;
   items: FurnitureItemData[];
 }
 
@@ -54,7 +67,6 @@ function createItem(): FurnitureItemData {
     photos: [],
   };
 }
-
 
 export function validateItems(items: FurnitureItemData[]): boolean {
   return items.every(
@@ -78,6 +90,17 @@ export function DonationFormProvider({
   const [formState, setFormState] = useState<DonationFormState>(() => ({
     donorId: initialDonorId,
     pickupDate: null,
+    pickupAddress: {
+      streetAddress: "",
+      apartment: "",
+      city: "",
+      province: "",
+      country: "",
+      postalCode: "",
+    },
+    smokingInHousehold: null,
+    petsInHousehold: null,
+    feeAgreement: false,
     items: [createItem()],
   }));
 

@@ -4,6 +4,7 @@ import React from "react";
 import { StepIndicator } from "@/components/ui/step-indicator";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useDonationForm } from "@/components/donation-requests/DonationFormContext";
 
 const STEPS = [
   { label: "Furniture Details" },
@@ -28,6 +29,7 @@ export default function DonationLayout({
   children,
 }: DonationLayoutProps) {
   const stepIndex = currentStep - 1;
+  const { formState } = useDonationForm();
 
   const nextLabel =
     currentStep === 1
@@ -35,6 +37,8 @@ export default function DonationLayout({
       : currentStep === 2
         ? "Continue to Summary"
         : "Submit Request";
+
+  const isNextDisabled = currentStep === 3 && !formState.feeAgreement;
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-4 pb-28">
@@ -69,7 +73,12 @@ export default function DonationLayout({
                 Back
               </Button>
             )}
-            <Button size="lg" className="px-6 py-5" onClick={onNext}>
+            <Button
+              size="lg"
+              className="px-6 py-5"
+              onClick={onNext}
+              disabled={isNextDisabled}
+            >
               {nextLabel}
             </Button>
           </div>

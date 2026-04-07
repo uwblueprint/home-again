@@ -221,6 +221,21 @@ export default function PhotoUpload({
             <p className="text-xl font-semibold text-muted-foreground">
               Drop files to upload or browse
             </p>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className={cn(
+                "flex w-80 cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm hover:bg-muted/40",
+                overflowCount > 0 ? "border-destructive" : "border-border",
+              )}
+            >
+              <span className="font-bold text-foreground">Choose Files</span>
+              <span className="text-muted-foreground">
+                {pendingPhotos.length === 0
+                  ? "No files chosen"
+                  : `${pendingPhotos.length} ${pendingPhotos.length === 1 ? "photo" : "photos"} selected`}
+              </span>
+            </button>
             <input
               ref={fileInputRef}
               type="file"
@@ -228,13 +243,16 @@ export default function PhotoUpload({
               multiple
               onChange={handleFileChange}
               aria-label="Choose files"
-              className={cn(
-                "w-80 cursor-pointer rounded-lg border px-3 py-2 text-sm file:cursor-pointer",
-                overflowCount > 0 ? "border-destructive" : "border-border",
-              )}
+              aria-invalid={overflowCount > 0}
+              aria-describedby={overflowCount > 0 ? "photo-overflow-error" : undefined}
+              className="hidden"
             />
             {overflowCount > 0 && (
-              <p className="text-center text-xs text-destructive">
+              <p
+                id="photo-overflow-error"
+                role="alert"
+                className="text-center text-xs text-destructive"
+              >
                 Only {MAX_PHOTOS} photos allowed. {overflowCount}{" "}
                 {overflowCount === 1 ? "file was" : "files were"} discarded.
               </p>
@@ -273,7 +291,7 @@ export default function PhotoUpload({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 border-t px-12 py-6">
+        <div className="flex justify-end gap-2 px-12 py-6">
           <Button
             type="button"
             variant="outline"

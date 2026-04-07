@@ -172,15 +172,17 @@ export default function StepDonationSummary() {
   const showFeeError = submitAttempted && !feeAgreement;
 
   function formatAddress() {
-    const parts = [
+    if (!pickupAddress.streetAddress) return "No address provided";
+    return [
       pickupAddress.streetAddress,
       pickupAddress.apartment,
       pickupAddress.city,
       pickupAddress.province,
       pickupAddress.country,
       pickupAddress.postalCode,
-    ].filter(Boolean);
-    return parts.length > 0 ? parts.join(", ") : "No address provided";
+    ]
+      .filter(Boolean)
+      .join(", ");
   }
 
   function handleSmokingChange(value: boolean) {

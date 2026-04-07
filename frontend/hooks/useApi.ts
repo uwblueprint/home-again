@@ -74,6 +74,22 @@ export function useDonors() {
 }
 
 /**
+ * Fetch a single donor by ID
+ */
+export function useDonor(donorId?: string | null) {
+  return useQuery({
+    queryKey: ["donor", donorId],
+    queryFn: async () => {
+      if (!donorId) throw new Error("Donor ID is required");
+      const response = await apiClient.get<Donor>(`/donors/${donorId}`);
+      return response.data;
+    },
+    enabled: Boolean(donorId),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+/**
  * Create a new donor
  *
  * Automatically invalidates the donors query cache after success.

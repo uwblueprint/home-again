@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import {
   INTAKE_OTHER_AGENTS,
   INTAKE_REVIEW,
 } from "@/constants/Routes";
+import { IntakeProvider, useIntakeContext } from "@/context/IntakeContext";
 
 const INTAKE_STEPS: Step[] = [
   { label: "Agency", path: INTAKE_AGENCY },
@@ -23,12 +24,14 @@ interface IntakeLayoutProps {
   children: React.ReactNode;
 }
 
-export default function IntakeLayout({ children }: IntakeLayoutProps) {
+function IntakeLayoutInner({ children }: IntakeLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { runValidator } = useIntakeContext();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const currentStepIndex = INTAKE_STEPS.findIndex(
-    (step) => pathname === step.path
+    (step) => step.path !== undefined && pathname.startsWith(step.path)
   );
   const currentStep = currentStepIndex === -1 ? 0 : currentStepIndex;
 
@@ -46,9 +49,22 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
     }
   }
 
-  function handleNext() {
+  async function handleNext() {
+    setIsNavigating(true);
+    let valid: boolean;
+    try {
+      valid = await runValidator();
+    } finally {
+      setIsNavigating(false);
+    }
+    if (!valid) return;
+
+    if (isLastStep) {
+      // TODO: Submit the full intake form to the backend
+      return;
+    }
     const nextPath = INTAKE_STEPS[currentStep + 1]?.path;
-    if (!isLastStep && nextPath) {
+    if (nextPath) {
       router.push(nextPath);
     }
   }
@@ -81,14 +97,23 @@ export default function IntakeLayout({ children }: IntakeLayoutProps) {
             variant="secondary"
             className="h-10 px-6"
             onClick={handleBack}
+            disabled={isNavigating}
           >
             Back
           </Button>
-          <Button className="h-10 px-6" onClick={handleNext}>
+          <Button className="h-10 px-6" onClick={handleNext} disabled={isNavigating}>
             {isLastStep ? "Submit" : "Next"}
           </Button>
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function IntakeLayout({ children }: IntakeLayoutProps) {
+  return (
+    <IntakeProvider>
+      <IntakeLayoutInner>{children}</IntakeLayoutInner>
+    </IntakeProvider>
   );
 }

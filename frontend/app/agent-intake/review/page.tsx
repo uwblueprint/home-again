@@ -12,8 +12,6 @@ const AGENTS_PER_PAGE = 3;
 const EMPTY_VALUE = "—";
 const REVIEW_THREE_COLUMN_GRID = "grid gap-3 md:grid-cols-3";
 const SUCCESS_REDIRECT_DELAY_MS = 1200;
-const UNSUPPORTED_FIELDS_MESSAGE =
-  "Province, phone number notes, and role are shown for review only and are not saved yet.";
 
 function formatValue(value: string) {
   return value.trim() || EMPTY_VALUE;
@@ -43,9 +41,9 @@ function AgentCard({
       <p className="text-sm text-foreground">
         {formatName(agent.firstName, agent.lastName)}
       </p>
-      <div className="flex flex-col gap-1 text-sm text-muted-foreground sm:flex-row sm:gap-12">
-        <span>{formatValue(agent.email)}</span>
-        <span>{formatValue(agent.phone)}</span>
+      <div className="grid gap-1 text-sm text-muted-foreground sm:grid-cols-[minmax(0,1fr)_160px] sm:gap-12">
+        <span className="min-w-0 break-words">{formatValue(agent.email)}</span>
+        <span className="sm:text-left">{formatValue(agent.phone)}</span>
       </div>
     </div>
   );
@@ -147,98 +145,104 @@ export default function ReviewStep() {
         title="Review"
         description="Review your agency and contact details before submitting."
       >
-          <p className="text-sm text-muted-foreground">
-            {UNSUPPORTED_FIELDS_MESSAGE}
-          </p>
-
-        <div className="flex flex-col gap-5">
-          <h3 className="text-xl font-semibold text-foreground">
-            Agency information
-          </h3>
-          <ReviewCard>
-            <div className={REVIEW_THREE_COLUMN_GRID}>
-              <ReviewField label="Agency name" value={formatValue(agency.name)} />
-              <ReviewField
-                label="Address line 1"
-                value={formatValue(agency.addressLine1)}
-              />
-              <ReviewField
-                label="Address line 2"
-                value={formatValue(agency.addressLine2)}
-              />
-            </div>
-            <div className={REVIEW_THREE_COLUMN_GRID}>
-              <ReviewField label="City" value={formatValue(agency.city)} />
-              <ReviewField label="Province" value={formatValue(agency.province)} />
-              <ReviewField label="Phone number" value={formatValue(agency.phone)} />
-            </div>
-            <div className="flex">
-              <ReviewField
-                label="Phone Number Notes"
-                value={formatValue(agency.phoneNotes)}
-              />
-            </div>
-          </ReviewCard>
-        </div>
-
-        <div className="flex flex-col gap-5">
-          <h3 className="text-xl font-semibold text-foreground">
-            Main Agent Details
-          </h3>
-          <ReviewCard>
-            <div className={REVIEW_THREE_COLUMN_GRID}>
-              <div>
+        <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-5">
+            <h3 className="text-xl font-semibold text-foreground">
+              Agency information
+            </h3>
+            <ReviewCard>
+              <div className={REVIEW_THREE_COLUMN_GRID}>
+                <ReviewField label="Agency name" value={formatValue(agency.name)} />
                 <ReviewField
-                  label="First Name"
-                  value={formatValue(mainAgent.firstName)}
+                  label="Address line 1"
+                  value={formatValue(agency.addressLine1)}
+                />
+                <ReviewField
+                  label="Address line 2"
+                  value={formatValue(agency.addressLine2)}
                 />
               </div>
-              <div>
+              <div className={REVIEW_THREE_COLUMN_GRID}>
+                <ReviewField label="City" value={formatValue(agency.city)} />
                 <ReviewField
-                  label="Last Name"
-                  value={formatValue(mainAgent.lastName)}
+                  label="Province"
+                  value={formatValue(agency.province)}
                 />
-              </div>
-            </div>
-            <div className={REVIEW_THREE_COLUMN_GRID}>
-              <div>
-                <ReviewField label="Email" value={formatValue(mainAgent.email)} />
-              </div>
-              <div>
                 <ReviewField
                   label="Phone number"
-                  value={formatValue(mainAgent.phone)}
+                  value={formatValue(agency.phone)}
                 />
               </div>
-            </div>
-            <div className="flex">
-              <ReviewField label="Role" value={formatValue(mainAgent.role)} />
-            </div>
-          </ReviewCard>
-        </div>
-
-        <div className="flex flex-col gap-5">
-          <h3 className="text-xl font-semibold text-foreground">Other Agents</h3>
-          {visibleAgents.length > 0 ? (
-            visibleAgents.map((agent, index) => (
-              <AgentCard key={`${agent.email}-${index}`} agent={agent} />
-            ))
-          ) : (
-            <ReviewCard>
-              <p className="text-sm text-muted-foreground">
-                No additional agents have been added.
-              </p>
+              <div className="flex">
+                <ReviewField
+                  label="Phone Number Notes"
+                  value={formatValue(agency.phoneNotes)}
+                />
+              </div>
             </ReviewCard>
-          )}
-          {remaining > 0 ? (
-            <button
-              type="button"
-              className="text-left text-sm font-medium text-foreground"
-              onClick={() => setVisibleCount((prev) => prev + AGENTS_PER_PAGE)}
-            >
-              Load {Math.min(remaining, AGENTS_PER_PAGE)} more agents
-            </button>
-          ) : null}
+          </div>
+
+          <div className="flex flex-col gap-5">
+            <h3 className="text-xl font-semibold text-foreground">
+              Main Agent Details
+            </h3>
+            <ReviewCard>
+              <div className={REVIEW_THREE_COLUMN_GRID}>
+                <div>
+                  <ReviewField
+                    label="First Name"
+                    value={formatValue(mainAgent.firstName)}
+                  />
+                </div>
+                <div>
+                  <ReviewField
+                    label="Last Name"
+                    value={formatValue(mainAgent.lastName)}
+                  />
+                </div>
+              </div>
+              <div className={REVIEW_THREE_COLUMN_GRID}>
+                <div>
+                  <ReviewField label="Email" value={formatValue(mainAgent.email)} />
+                </div>
+                <div>
+                  <ReviewField
+                    label="Phone number"
+                    value={formatValue(mainAgent.phone)}
+                  />
+                </div>
+              </div>
+              <div className="flex">
+                <ReviewField label="Role" value={formatValue(mainAgent.role)} />
+              </div>
+            </ReviewCard>
+          </div>
+
+          <div className="flex flex-col gap-5">
+            <h3 className="text-xl font-semibold text-foreground">
+              Other Agents
+            </h3>
+            {visibleAgents.length > 0 ? (
+              visibleAgents.map((agent, index) => (
+                <AgentCard key={`${agent.email}-${index}`} agent={agent} />
+              ))
+            ) : (
+              <ReviewCard>
+                <p className="text-sm text-muted-foreground">
+                  No additional agents have been added.
+                </p>
+              </ReviewCard>
+            )}
+            {remaining > 0 ? (
+              <button
+                type="button"
+                className="text-left text-sm font-medium text-foreground"
+                onClick={() => setVisibleCount((prev) => prev + AGENTS_PER_PAGE)}
+              >
+                Load {Math.min(remaining, AGENTS_PER_PAGE)} more agents
+              </button>
+            ) : null}
+          </div>
         </div>
       </IntakeStepPage>
 

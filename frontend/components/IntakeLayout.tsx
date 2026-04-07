@@ -8,6 +8,7 @@ import {
   IntakeFooterProvider,
   useIntakeFooter,
 } from "@/components/intake/IntakeFooterContext";
+import IntakeDevelopmentSeed from "@/components/intake/IntakeDevelopmentSeed";
 import { Button } from "@/components/ui/button";
 import { StepIndicator, type Step } from "@/components/ui/step-indicator";
 import {
@@ -86,7 +87,10 @@ function IntakeLayoutContent({ children }: IntakeLayoutProps) {
         <div className="w-[91px]" />
       </header>
 
-      <main className="flex-1 px-16 py-8">{children}</main>
+      <main className="flex-1 px-16 py-8">
+        <IntakeDevelopmentSeed />
+        {children}
+      </main>
 
       <footer className="border-t border-border px-16 py-8 flex items-center justify-between gap-6">
         <div className="min-h-5 flex-1">

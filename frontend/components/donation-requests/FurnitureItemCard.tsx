@@ -220,13 +220,14 @@ export default function FurnitureItemCard({
                 <div className="mt-3 flex flex-wrap gap-2">
                   {itemData.photos.map((file, i) => (
                     <div
-                      key={`${file.name}-${i}`}
+                      key={i}
                       className="relative size-16 overflow-hidden rounded-md border border-border"
                     >
                       <Image
                         src={photoUrls[i]}
                         alt={file.name}
-                        className="size-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                       <button
                         type="button"

@@ -78,7 +78,7 @@ export function DonationFormProvider({
   const [formState, setFormState] = useState<DonationFormState>(() => ({
     donorId: initialDonorId,
     pickupDate: null,
-    items: [{ id: "item-initial", furnitureType: null, hasStains: null, photos: [] }],
+    items: [createItem()],
   }));
 
   const addItem = useCallback(() => {

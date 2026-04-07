@@ -42,6 +42,11 @@ function selectFiles(input: HTMLElement, files: File[]) {
 // Tests
 
 describe("PhotoUpload", () => {
+  beforeEach(() => {
+    (global.URL.createObjectURL as jest.Mock).mockClear();
+    (global.URL.revokeObjectURL as jest.Mock).mockClear();
+  });
+
   describe("rendering", () => {
     it("renders dialog content when open", () => {
       renderDialog({ open: true });
@@ -108,6 +113,18 @@ describe("PhotoUpload", () => {
 
       expect(onOpenChange).toHaveBeenCalledWith(false);
       expect(onSave).not.toHaveBeenCalled();
+    });
+
+    it("releases pending preview URLs when Cancel is clicked", () => {
+      const onOpenChange = jest.fn();
+      renderDialog({ onOpenChange });
+
+      const input = screen.getByLabelText("Choose files");
+      selectFiles(input, [createFile("cancel.png")]);
+      fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+      expect(global.URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
     });
 
     it("calls onOpenChange(false) without calling onSave when X is clicked", () => {

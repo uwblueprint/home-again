@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import {
   getFilePreviewUrl,
-  refreshFilePreviewUrl,
-} from "@/components/donation-requests/filePreviewUrl";
+  revokeFilePreviewUrls,
+} from "@/lib/filePreviewUrls";
 
 const MAX_PHOTOS = 5;
 
@@ -34,7 +34,10 @@ export default function PhotoUpload({
     if (open) {
       setPendingPhotos(currentPhotos);
       setOverflowCount(0);
+      return;
     }
+    setPendingPhotos([]);
+    setOverflowCount(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -42,6 +45,12 @@ export default function PhotoUpload({
     () => pendingPhotos.map((file) => getFilePreviewUrl(file)),
     [pendingPhotos],
   );
+
+  useEffect(() => {
+    return () => {
+      revokeFilePreviewUrls(pendingPhotos);
+    };
+  }, [pendingPhotos]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -61,6 +70,8 @@ export default function PhotoUpload({
 
   const handleSave = () => {
     onSave(pendingPhotos);
+    setPendingPhotos([]);
+    setOverflowCount(0);
     onOpenChange(false);
   };
 
@@ -81,7 +92,11 @@ export default function PhotoUpload({
         <button
           type="button"
           aria-label="Close dialog"
-          onClick={() => onOpenChange(false)}
+          onClick={() => {
+            setPendingPhotos([]);
+            setOverflowCount(0);
+            onOpenChange(false);
+          }}
           className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
         >
           <X className="size-4" />
@@ -138,11 +153,6 @@ export default function PhotoUpload({
                       fill
                       unoptimized
                       className="object-cover"
-                      onError={(e) => {
-                        if (e.currentTarget.dataset.retry === "1") return;
-                        e.currentTarget.dataset.retry = "1";
-                        e.currentTarget.src = refreshFilePreviewUrl(file);
-                      }}
                     />
                   </div>
                   <button
@@ -164,7 +174,11 @@ export default function PhotoUpload({
           <Button
             type="button"
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={() => {
+              setPendingPhotos([]);
+              setOverflowCount(0);
+              onOpenChange(false);
+            }}
           >
             Cancel
           </Button>
@@ -180,3 +194,4 @@ export default function PhotoUpload({
     </div>
   );
 }
+

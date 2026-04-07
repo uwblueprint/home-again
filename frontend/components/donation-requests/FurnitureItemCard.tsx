@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState, useMemo } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { ChevronUp, ChevronDown, Trash2, Upload, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,8 @@ import {
 import PhotoUpload from "@/components/donation-requests/PhotoUpload";
 import {
   getFilePreviewUrl,
-  refreshFilePreviewUrl,
-} from "@/components/donation-requests/filePreviewUrl";
+  revokeFilePreviewUrls,
+} from "@/lib/filePreviewUrls";
 
 // Constants
 
@@ -63,6 +63,12 @@ export default function FurnitureItemCard({
     () => itemData.photos.map((file) => getFilePreviewUrl(file)),
     [itemData.photos],
   );
+
+  useEffect(() => {
+    return () => {
+      revokeFilePreviewUrls(itemData.photos);
+    };
+  }, [itemData.photos]);
 
   const displayLabel = itemData.furnitureType
     ? `Item ${index + 1} - ${itemData.furnitureType}`
@@ -205,11 +211,6 @@ export default function FurnitureItemCard({
                             fill
                             unoptimized
                             className="object-cover"
-                            onError={(e) => {
-                              if (e.currentTarget.dataset.retry === "1") return;
-                              e.currentTarget.dataset.retry = "1";
-                              e.currentTarget.src = refreshFilePreviewUrl(file);
-                            }}
                           />
                         </div>
                         <button
@@ -262,3 +263,4 @@ export default function FurnitureItemCard({
     </>
   );
 }
+

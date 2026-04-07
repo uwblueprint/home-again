@@ -1,10 +1,10 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import DonationRequestSubmitted from "@/components/donation-requests/DonationRequestSubmitted";
+import DonationSubmitted from "@/components/donation-requests/DonationSubmitted";
 
-describe("DonationRequestSubmitted", () => {
+describe("DonationSubmitted", () => {
   it("renders heading, description, and back-to-home link", () => {
-    render(<DonationRequestSubmitted />);
+    render(<DonationSubmitted />);
 
     expect(
       screen.getByRole("heading", { name: "Donation Request Submitted!" })

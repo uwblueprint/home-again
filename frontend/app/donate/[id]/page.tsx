@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
@@ -21,8 +21,30 @@ function DonationFlowPageInner() {
   const { formState, addItem, setFormState } = useDonationForm();
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const errorRef = useRef<HTMLParagraphElement>(null);
+
+  // Clear error automatically once all items are valid
+  useEffect(() => {
+    if (validationError && validateItems(formState.items)) {
+      setValidationError(null);
+    }
+  }, [formState.items, validationError]);
+
+  // Scroll to error when it appears
+  useEffect(() => {
+    if (validationError) {
+      errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [validationError]);
 
   function handleNext() {
+    if (currentStep === 1) {
+      if (!validateItems(formState.items)) {
+        setValidationError("Please complete all item details before proceeding.");
+        return;
+      }
+      setValidationError(null);
+    }
     if (currentStep === 2) {
       const errors = validatePickupAddress(formState.pickupAddress);
       if (Object.keys(errors).length > 0) {
@@ -74,7 +96,7 @@ function DonationFlowPageInner() {
         <>
           <StepFurnitureDetails />
           {validationError && (
-            <p className="text-sm text-destructive">{validationError}</p>
+            <p ref={errorRef} className="text-sm text-destructive">{validationError}</p>
           )}
         </>
       )}

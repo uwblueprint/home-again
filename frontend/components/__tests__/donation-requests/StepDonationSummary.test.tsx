@@ -15,7 +15,10 @@ jest.mock("@/lib/utils", () => ({
 }));
 
 // jsdom does not implement URL.createObjectURL
-global.URL.createObjectURL = jest.fn(() => "blob:mock");
+global.URL.createObjectURL = jest.fn(
+  (file: File) => `blob:${file.name}`,
+);
+global.URL.revokeObjectURL = jest.fn();
 
 const mockDonor = {
   id: "donor-123",
@@ -59,6 +62,33 @@ function SubmitAttemptButton() {
   );
 }
 
+function ItemPhotosSetterButton({
+  photos,
+  testId,
+}: {
+  photos: File[];
+  testId: string;
+}) {
+  const { setFormState } = useDonationForm();
+  return (
+    <button
+      data-testid={testId}
+      onClick={() =>
+        setFormState((prev) => ({
+          ...prev,
+          items: prev.items.map((item, idx) =>
+            idx === 0 ? { ...item, photos } : item,
+          ),
+        }))
+      }
+    />
+  );
+}
+
+function createFile(name: string) {
+  return new File([""], name, { type: "image/png" });
+}
+
 function renderSummary() {
   return render(
     <DonationFormProvider initialDonorId="donor-123">
@@ -69,6 +99,8 @@ function renderSummary() {
 
 describe("StepDonationSummary", () => {
   beforeEach(() => {
+    (global.URL.createObjectURL as jest.Mock).mockClear();
+    (global.URL.revokeObjectURL as jest.Mock).mockClear();
     (useDonor as jest.Mock).mockReturnValue({
       data: mockDonor,
       isLoading: false,
@@ -292,5 +324,22 @@ describe("StepDonationSummary", () => {
     renderSummary();
 
     expect(screen.getByText("Pickup Address")).toBeInTheDocument();
+  });
+
+  it("releases thumbnail preview URL when item photo is cleared", () => {
+    const file = createFile("summary.png");
+
+    render(
+      <DonationFormProvider initialDonorId="donor-123">
+        <ItemPhotosSetterButton photos={[file]} testId="set-photos" />
+        <ItemPhotosSetterButton photos={[]} testId="clear-photos" />
+        <StepDonationSummary />
+      </DonationFormProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId("set-photos"));
+    fireEvent.click(screen.getByTestId("clear-photos"));
+
+    expect(global.URL.revokeObjectURL).toHaveBeenCalledWith("blob:summary.png");
   });
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { StepIndicator } from "@/components/ui/step-indicator";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -43,7 +44,17 @@ export default function DonationLayout({
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-4 pb-28">
       {/* Header */}
-      <header className="flex justify-center pt-8">
+      <header className="flex items-center justify-center pt-8">
+        <div className="absolute left-4 top-4 md:left-8">
+          <Image 
+            src="/hafb_logo.svg" 
+            alt="Home Again Furniture Bank" 
+            width={68} 
+            height={41} 
+            className="h-auto w-auto" 
+            priority 
+          />
+        </div>
         <StepIndicator steps={STEPS} currentStep={stepIndex} />
       </header>
 

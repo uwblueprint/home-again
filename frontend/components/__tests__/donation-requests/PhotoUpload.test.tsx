@@ -67,6 +67,25 @@ describe("PhotoUpload", () => {
       renderDialog({ currentPhotos: [file] });
       expect(screen.getByAltText("existing.png")).toBeInTheDocument();
     });
+
+    it("clamps currentPhotos to MAX_PHOTOS on open and shows overflow message", () => {
+      const files = Array.from({ length: 7 }, (_, i) =>
+        createFile(`existing-${i}.png`),
+      );
+      renderDialog({ currentPhotos: files });
+
+      expect(screen.getAllByRole("img")).toHaveLength(5);
+      expect(
+        screen.getByText(/Only 5 photos allowed\. 2 files were discarded\./),
+      ).toBeInTheDocument();
+      expect(screen.queryByAltText("existing-5.png")).not.toBeInTheDocument();
+      expect(screen.queryByAltText("existing-6.png")).not.toBeInTheDocument();
+    });
+
+    it("moves focus to the first focusable element when opened", () => {
+      renderDialog({ open: true });
+      expect(screen.getByRole("button", { name: "Close dialog" })).toHaveFocus();
+    });
   });
 
   describe("Save button", () => {
@@ -137,6 +156,14 @@ describe("PhotoUpload", () => {
       expect(onOpenChange).toHaveBeenCalledWith(false);
       expect(onSave).not.toHaveBeenCalled();
     });
+
+    it("closes when Escape is pressed", () => {
+      const onOpenChange = jest.fn();
+      renderDialog({ onOpenChange });
+
+      fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
   });
 
   describe("thumbnails", () => {
@@ -156,6 +183,16 @@ describe("PhotoUpload", () => {
       fireEvent.click(screen.getByRole("button", { name: "Remove a.png" }));
 
       expect(screen.queryByAltText("a.png")).not.toBeInTheDocument();
+    });
+
+    it("releases preview URL when a thumbnail is removed", () => {
+      renderDialog();
+      const input = screen.getByLabelText("Choose files");
+      selectFiles(input, [createFile("release.png")]);
+
+      fireEvent.click(screen.getByRole("button", { name: "Remove release.png" }));
+
+      expect(global.URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
     });
   });
 
@@ -251,6 +288,36 @@ describe("PhotoUpload", () => {
 
       // Pending photos should be reset — no thumbnails
       expect(screen.queryAllByRole("img")).toHaveLength(0);
+    });
+  });
+
+  describe("focus trap", () => {
+    it("wraps focus from last to first on Tab", () => {
+      renderDialog();
+
+      const dialog = screen.getByRole("dialog");
+      const closeBtn = screen.getByRole("button", { name: "Close dialog" });
+      const cancelBtn = screen.getByRole("button", { name: "Cancel" });
+
+      cancelBtn.focus();
+      expect(cancelBtn).toHaveFocus();
+
+      fireEvent.keyDown(dialog, { key: "Tab" });
+      expect(closeBtn).toHaveFocus();
+    });
+
+    it("wraps focus from first to last on Shift+Tab", () => {
+      renderDialog();
+
+      const dialog = screen.getByRole("dialog");
+      const closeBtn = screen.getByRole("button", { name: "Close dialog" });
+      const cancelBtn = screen.getByRole("button", { name: "Cancel" });
+
+      closeBtn.focus();
+      expect(closeBtn).toHaveFocus();
+
+      fireEvent.keyDown(dialog, { key: "Tab", shiftKey: true });
+      expect(cancelBtn).toHaveFocus();
     });
   });
 });

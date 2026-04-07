@@ -11,6 +11,17 @@ import {
 } from "@/lib/filePreviewUrls";
 
 const MAX_PHOTOS = 5;
+const FOCUSABLE_SELECTOR = "a[href], button, textarea, input, select, [tabindex]:not([tabindex='-1'])";
+
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+    (element) =>
+      !element.hasAttribute("disabled") &&
+      !element.hasAttribute("data-disabled") &&
+      element.getAttribute("aria-disabled") !== "true" &&
+      element.getAttribute("tabindex") !== "-1",
+  );
+}
 
 interface PhotoUploadProps {
   open: boolean;
@@ -28,16 +39,40 @@ export default function PhotoUpload({
   const [pendingPhotos, setPendingPhotos] = useState<File[]>([]);
   const [overflowCount, setOverflowCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
+
+  const closeDialog = () => {
+    setPendingPhotos([]);
+    setOverflowCount(0);
+    onOpenChange(false);
+  };
 
   // Reset to committed photos each time the dialog opens
   useEffect(() => {
     if (open) {
-      setPendingPhotos(currentPhotos);
-      setOverflowCount(0);
+      const clampedPhotos = currentPhotos.slice(0, MAX_PHOTOS);
+      const rejected = Math.max(0, currentPhotos.length - MAX_PHOTOS);
+      setPendingPhotos(clampedPhotos);
+      setOverflowCount(rejected);
+      previouslyFocusedElementRef.current = document.activeElement as HTMLElement | null;
+
+      const dialog = dialogRef.current;
+      if (dialog) {
+        const focusable = getFocusableElements(dialog);
+        const first = focusable[0] ?? dialog;
+        first.focus();
+      }
       return;
     }
     setPendingPhotos([]);
     setOverflowCount(0);
+
+    const previous = previouslyFocusedElementRef.current;
+    if (previous && typeof previous.focus === "function") {
+      previous.focus();
+    }
+    previouslyFocusedElementRef.current = null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -46,6 +81,8 @@ export default function PhotoUpload({
     [pendingPhotos],
   );
 
+  // Release refs from the previous pending photo set whenever it changes
+  // (including individual thumbnail removals), and on unmount.
   useEffect(() => {
     return () => {
       revokeFilePreviewUrls(pendingPhotos);
@@ -70,9 +107,45 @@ export default function PhotoUpload({
 
   const handleSave = () => {
     onSave(pendingPhotos);
-    setPendingPhotos([]);
-    setOverflowCount(0);
-    onOpenChange(false);
+    closeDialog();
+  };
+
+  const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeDialog();
+      return;
+    }
+
+    if (event.key !== "Tab") return;
+
+    const focusable = getFocusableElements(dialog);
+
+    if (focusable.length === 0) {
+      event.preventDefault();
+      dialog.focus();
+      return;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement as HTMLElement | null;
+
+    if (event.shiftKey) {
+      if (!active || !dialog.contains(active) || active === first) {
+        event.preventDefault();
+        last.focus();
+      }
+      return;
+    }
+
+    if (active === last) {
+      event.preventDefault();
+      first.focus();
+    }
   };
 
   if (!open) return null;
@@ -83,20 +156,19 @@ export default function PhotoUpload({
       data-testid="photo-upload-overlay"
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="photo-upload-title"
+        tabIndex={-1}
+        onKeyDown={handleDialogKeyDown}
         className="relative w-full max-w-[640px] rounded-[10px] bg-background shadow-lg ring-1 ring-foreground/10"
       >
         {/* Close button */}
         <button
           type="button"
           aria-label="Close dialog"
-          onClick={() => {
-            setPendingPhotos([]);
-            setOverflowCount(0);
-            onOpenChange(false);
-          }}
+          onClick={closeDialog}
           className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
         >
           <X className="size-4" />
@@ -115,7 +187,7 @@ export default function PhotoUpload({
           {/* Upload zone */}
           <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-6 py-12">
             <Upload className="size-6 text-muted-foreground" />
-            <p className="text-xl font-semibold text-[#757575]">
+            <p className="text-xl font-semibold text-muted-foreground">
               Drop files to upload or browse
             </p>
             <input
@@ -159,7 +231,7 @@ export default function PhotoUpload({
                     type="button"
                     onClick={() => removePhoto(i)}
                     aria-label={`Remove ${file.name}`}
-                    className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-[#a3a3a3]/70 bg-white shadow-sm hover:bg-muted"
+                    className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-border bg-background shadow-sm hover:bg-muted"
                   >
                     <X className="size-3" />
                   </button>
@@ -174,11 +246,7 @@ export default function PhotoUpload({
           <Button
             type="button"
             variant="outline"
-            onClick={() => {
-              setPendingPhotos([]);
-              setOverflowCount(0);
-              onOpenChange(false);
-            }}
+            onClick={closeDialog}
           >
             Cancel
           </Button>
@@ -194,4 +262,3 @@ export default function PhotoUpload({
     </div>
   );
 }
-

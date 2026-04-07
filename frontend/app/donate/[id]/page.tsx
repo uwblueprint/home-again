@@ -23,6 +23,13 @@ function DonationFlowPageInner() {
   const [validationError, setValidationError] = useState<string | null>(null);
 
   function handleNext() {
+    if (currentStep === 1) {
+      if (!validateItems(formState.items)) {
+        setValidationError("Please complete all item details before proceeding.");
+        return;
+      }
+      setValidationError(null);
+    }
     if (currentStep === 2) {
       const errors = validatePickupAddress(formState.pickupAddress);
       if (Object.keys(errors).length > 0) {

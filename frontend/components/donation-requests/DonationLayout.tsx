@@ -30,7 +30,7 @@ export default function DonationLayout({
   children,
 }: DonationLayoutProps) {
   const stepIndex = currentStep - 1;
-  const { formState } = useDonationForm();
+  const { formState, setSubmitAttempted } = useDonationForm();
 
   const nextLabel =
     currentStep === 1
@@ -39,7 +39,18 @@ export default function DonationLayout({
         ? "Continue to Summary"
         : "Submit Request";
 
-  const isNextDisabled = currentStep === 3 && !formState.feeAgreement;
+  function handleNextClick() {
+    if (currentStep === 3) {
+      setSubmitAttempted(true);
+      const isValid =
+        formState.feeAgreement &&
+        formState.smokingInHousehold !== null &&
+        formState.petsInHousehold !== null;
+      if (isValid) onNext();
+    } else {
+      onNext();
+    }
+  }
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-4 pb-28">
@@ -87,8 +98,7 @@ export default function DonationLayout({
             <Button
               size="lg"
               className="px-6 py-5"
-              onClick={onNext}
-              disabled={isNextDisabled}
+              onClick={handleNextClick}
             >
               {nextLabel}
             </Button>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 import { useDonationForm } from "./DonationFormContext";
 import type { FurnitureItemData } from "./DonationFormContext";
@@ -141,9 +141,8 @@ function CheckIcon() {
 // --- Main component ---
 
 export default function StepDonationSummary() {
-  const { formState, setFormState } = useDonationForm();
+  const { formState, setFormState, submitAttempted } = useDonationForm();
   const { data: donor, isLoading: donorLoading } = useDonor(formState.donorId);
-  const [feeAgreementDirty, setFeeAgreementDirty] = useState(false);
 
   const {
     pickupAddress,
@@ -153,7 +152,9 @@ export default function StepDonationSummary() {
     feeAgreement,
   } = formState;
 
-  const showFeeError = feeAgreementDirty && !feeAgreement;
+  const showSmokingError = submitAttempted && smokingInHousehold === null;
+  const showPetsError = submitAttempted && petsInHousehold === null;
+  const showFeeError = submitAttempted && !feeAgreement;
 
   function formatAddress() {
     const parts = [
@@ -176,7 +177,6 @@ export default function StepDonationSummary() {
   }
 
   function handleFeeAgreementChange() {
-    setFeeAgreementDirty(true);
     setFormState((prev) => ({ ...prev, feeAgreement: !prev.feeAgreement }));
   }
 
@@ -242,6 +242,9 @@ export default function StepDonationSummary() {
             Does anyone smoke in the household?
           </span>
           <YesNoToggle value={smokingInHousehold} onChange={handleSmokingChange} />
+          {showSmokingError && (
+            <span className="text-xs text-destructive">Please select an option</span>
+          )}
         </div>
 
         {/* Pets */}
@@ -250,6 +253,9 @@ export default function StepDonationSummary() {
             Are there any pets in the household?
           </span>
           <YesNoToggle value={petsInHousehold} onChange={handlePetsChange} />
+          {showPetsError && (
+            <span className="text-xs text-destructive">Please select an option</span>
+          )}
         </div>
 
         {/* Fee agreement */}
@@ -259,9 +265,7 @@ export default function StepDonationSummary() {
               Pickup fee agreement
             </span>
             <span className="text-xs text-destructive">
-              {feeAgreementDirty
-                ? "* (Agreement required to submit donation)"
-                : "*"}
+              {showFeeError ? "* (Agreement required to submit donation)" : "*"}
             </span>
           </div>
           <label className="flex cursor-pointer items-center gap-2">

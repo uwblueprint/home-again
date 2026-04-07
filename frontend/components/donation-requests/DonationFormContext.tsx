@@ -55,6 +55,8 @@ interface DonationFormContextType {
   addItem: () => void;
   deleteItem: (id: string) => void;
   updateItem: (id: string, patch: Partial<Omit<FurnitureItemData, "id">>) => void;
+  submitAttempted: boolean;
+  setSubmitAttempted: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // Helpers
@@ -87,6 +89,7 @@ export function DonationFormProvider({
   children,
   initialDonorId = null,
 }: DonationFormProviderProps) {
+  const [submitAttempted, setSubmitAttempted] = useState(false);
   const [formState, setFormState] = useState<DonationFormState>(() => ({
     donorId: initialDonorId,
     pickupDate: null,
@@ -131,8 +134,8 @@ export function DonationFormProvider({
   );
 
   const contextValue = useMemo(
-    () => ({ formState, setFormState, addItem, deleteItem, updateItem }),
-    [formState, addItem, deleteItem, updateItem],
+    () => ({ formState, setFormState, addItem, deleteItem, updateItem, submitAttempted, setSubmitAttempted }),
+    [formState, addItem, deleteItem, updateItem, submitAttempted],
   );
 
   return (

@@ -48,6 +48,17 @@ function AddressSetterButton() {
   );
 }
 
+// Renders a button that triggers submitAttempted through context when clicked.
+function SubmitAttemptButton() {
+  const { setSubmitAttempted } = useDonationForm();
+  return (
+    <button
+      data-testid="set-submit-attempted"
+      onClick={() => setSubmitAttempted(true)}
+    />
+  );
+}
+
 function renderSummary() {
   return render(
     <DonationFormProvider initialDonorId="donor-123">
@@ -202,21 +213,71 @@ describe("StepDonationSummary", () => {
     expect(checkbox).toBeChecked();
   });
 
-  it("unchecking the checkbox after it was checked shows the error message", () => {
+  it("does not show fee error when unchecking without a submit attempt", () => {
     renderSummary();
 
     const checkbox = screen.getByRole("checkbox");
-
-    // Check
-    fireEvent.click(checkbox);
-    expect(checkbox).toBeChecked();
-
-    // Uncheck — now dirty + unchecked → error message appears
-    fireEvent.click(checkbox);
+    fireEvent.click(checkbox); // check
+    fireEvent.click(checkbox); // uncheck
     expect(checkbox).not.toBeChecked();
+    expect(
+      screen.queryByText(/agreement required to submit donation/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows fee error when submit is attempted without checking the agreement", () => {
+    render(
+      <DonationFormProvider initialDonorId="donor-123">
+        <SubmitAttemptButton />
+        <StepDonationSummary />
+      </DonationFormProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId("set-submit-attempted"));
     expect(
       screen.getByText(/agreement required to submit donation/i),
     ).toBeInTheDocument();
+  });
+
+  it("hides fee error after checking the agreement following a submit attempt", () => {
+    render(
+      <DonationFormProvider initialDonorId="donor-123">
+        <SubmitAttemptButton />
+        <StepDonationSummary />
+      </DonationFormProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId("set-submit-attempted"));
+    fireEvent.click(screen.getByRole("checkbox"));
+    expect(
+      screen.queryByText(/agreement required to submit donation/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows smoking and pets errors when submit attempted without selections", () => {
+    render(
+      <DonationFormProvider initialDonorId="donor-123">
+        <SubmitAttemptButton />
+        <StepDonationSummary />
+      </DonationFormProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId("set-submit-attempted"));
+    expect(screen.getAllByText(/please select an option/i)).toHaveLength(2);
+  });
+
+  it("hides smoking error after selecting a value following a submit attempt", () => {
+    render(
+      <DonationFormProvider initialDonorId="donor-123">
+        <SubmitAttemptButton />
+        <StepDonationSummary />
+      </DonationFormProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId("set-submit-attempted"));
+    const [smokingYes] = screen.getAllByRole("button", { name: "Yes" });
+    fireEvent.click(smokingYes);
+    expect(screen.getAllByText(/please select an option/i)).toHaveLength(1);
   });
 
   it("renders the fee agreement label text", () => {

@@ -156,7 +156,7 @@ export function AgentCard({
 
   if (isEditing) {
     return (
-      <div className="w-full rounded-xl border border-border bg-card px-12 py-6 shadow-sm">
+      <div className="w-full rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="flex flex-col gap-6">
           {/* Header — click row to collapse, X to delete */}
           <div className="flex items-center justify-between">

@@ -46,7 +46,7 @@ const initialAgency: AgencyFormData = {
   addressLine1: "",
   addressLine2: "",
   city: "",
-  province: "Newfoundland & Labrador",
+  province: "Newfoundland and Labrador",
   country: "Canada",
   postalCode: "",
   phone: "",

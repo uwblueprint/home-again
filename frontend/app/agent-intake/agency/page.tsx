@@ -4,6 +4,13 @@ import React, { useEffect, useState } from "react";
 import IntakeStepPage from "@/components/intake/IntakeStepPage";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useIntakeContext } from "@/context/IntakeContext";
 import {
   useIntakeFormStore,
@@ -161,27 +168,41 @@ export default function AgencyStep() {
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="province">Province</Label>
-            <Input
-              id="province"
+            <Select
               value={form.province}
-              disabled
-              readOnly
-              className="h-11"
-            />
+              onValueChange={(val) => val && handleChange("province", val)}
+            >
+              <SelectTrigger id="province" className="!h-11 w-full py-0">
+                <SelectValue placeholder="Select a province" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Newfoundland and Labrador">
+                  Newfoundland and Labrador
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
+
+        <p className="text-sm text-muted-foreground -mt-2">
+          Home Again currently only services Newfoundland and Labrador, Canada.
+        </p>
 
         {/* Country + Postal code */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="country">Country</Label>
-            <Input
-              id="country"
+            <Select
               value={form.country}
-              disabled
-              readOnly
-              className="h-11"
-            />
+              onValueChange={(val) => val && handleChange("country", val)}
+            >
+              <SelectTrigger id="country" className="!h-11 w-full py-0">
+                <SelectValue placeholder="Select a country" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Canada">Canada</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="postalCode">Postal code</Label>

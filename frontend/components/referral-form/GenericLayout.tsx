@@ -20,35 +20,49 @@ type GenericLayoutProps = {
   onBack?: () => void
   isSubmitting?: boolean
   title: string
-  activeIndex: number
+  showTitle?: boolean
   breadcrumbs?: BreadcrumbStep[]
+  breadcrumbLabels?: string[]
+  activeBreadcrumbIndex?: number
   nextLabel?: string
   children: React.ReactNode
 }
 
 function GenericLayout({
   title,
+  showTitle = true,
   breadcrumbs,
-  activeIndex,
+  breadcrumbLabels,
+  activeBreadcrumbIndex = 0,
   onNext,
   onBack,
   isSubmitting = false,
   nextLabel = "Next",
   children,
 }: GenericLayoutProps) {
-
-  // Derive breadcrumbs from provided data and ensure exactly one is active.
   const resolvedBreadcrumbs: BreadcrumbStep[] = React.useMemo(() => {
-    if (!breadcrumbs?.length) return []
+    if (breadcrumbLabels?.length) {
+      return breadcrumbLabels.map((label, idx) => ({
+        label,
+        current: idx === activeBreadcrumbIndex,
+      }))
+    }
+    return breadcrumbs ?? []
+  }, [breadcrumbLabels, activeBreadcrumbIndex, breadcrumbs])
 
-    return breadcrumbs.map((crumb, idx) => ({
-      ...crumb,
-      current: idx === activeIndex,
-    }))
-  }, [breadcrumbs, activeIndex])
+  const activeIndex = React.useMemo(() => {
+    if (breadcrumbLabels?.length) {
+      return Math.min(
+        Math.max(activeBreadcrumbIndex, 0),
+        Math.max(resolvedBreadcrumbs.length - 1, 0)
+      )
+    }
+    const explicit = resolvedBreadcrumbs.findIndex((crumb) => crumb.current)
+    return explicit >= 0 ? explicit : 0
+  }, [activeBreadcrumbIndex, breadcrumbLabels, resolvedBreadcrumbs])
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center gap-6 px-4 pb-4 pt-12">
+    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center gap-6 px-4 pb-4 pt-12">
       <header
         className={cn(
           "w-screen max-w-none px-4",
@@ -56,15 +70,17 @@ function GenericLayout({
           "flex flex-col items-center gap-3"
         )}
       >
-          <BreadcrumbNav
-            className={cn(
-              "w-full",
-              "text-sm leading-5 tracking-normal",
-              "font-sans text-muted-foreground"
-            )}
-          >
+        <BreadcrumbNav
+          className={cn(
+            "w-full",
+            "text-sm leading-5 tracking-normal",
+            "font-sans text-muted-foreground"
+          )}
+        >
           <BreadcrumbList className="mx-auto flex flex-wrap items-center justify-center gap-3">
             {resolvedBreadcrumbs.map((crumb, index) => {
+              const isActive = index === activeIndex
+
               return (
                 <React.Fragment key={`${crumb.label}-${index}`}>
                   <BreadcrumbItem className="flex items-center gap-2">
@@ -73,30 +89,34 @@ function GenericLayout({
                         "flex size-6 items-center justify-center rounded-full bg-neutral-100",
                         "w-[26px] h-[26px] px-[10px] py-[5px] flex-col gap-[10px] aspect-square",
                         "text-[16px] leading-[150%] tracking-[-0.176px] font-medium text-muted-foreground",
-                        crumb.current && "text-foreground"
+                        isActive && "text-foreground"
                       )}
-                      aria-current={crumb.current ? "step" : undefined}
+                      aria-current={isActive ? "step" : undefined}
                     >
                       {index + 1}
                     </span>
                     <span
                       className={cn(
                         "text-muted-foreground",
-                        crumb.current && "text-foreground"
+                        isActive && "text-foreground"
                       )}
                     >
                       {crumb.label}
                     </span>
                   </BreadcrumbItem>
-                  {index < resolvedBreadcrumbs.length - 1 && <BreadcrumbSeparator />}
+                  {index < resolvedBreadcrumbs.length - 1 && (
+                    <BreadcrumbSeparator />
+                  )}
                 </React.Fragment>
               )
             })}
           </BreadcrumbList>
         </BreadcrumbNav>
       </header>
-      <div className="flex w-full flex-col gap-6 rounded-xl border border-border bg-background p-6 shadow-sm">
-        <h1 className="text-xl font-semibold text-foreground">{title}</h1>
+      <div className="flex w-full flex-col gap-6 bg-background">
+        {showTitle ? (
+          <h1 className="text-xl font-semibold text-foreground">{title}</h1>
+        ) : null}
 
         <div>{children}</div>
       </div>
@@ -108,7 +128,7 @@ function GenericLayout({
           "border-t border-border bg-background/90 px-4 py-3 pb-6"
         )}
       >
-        <div className="ml-auto mr-4 flex w-full max-w-3xl items-center justify-end gap-2">
+        <div className="ml-auto mr-4 flex w-full max-w-6xl items-center justify-end gap-2">
           {onBack ? (
             <Button
               type="button"

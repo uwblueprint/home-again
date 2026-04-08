@@ -13,8 +13,7 @@ type TouchableField =
   | "streetAddress"
   | "city"
   | "postalCode"
-  | "province"
-  | "country";
+  ;
   
 export default function StepSchedulePickup() {
   const { formState, setFormState } = useDonationForm();
@@ -22,8 +21,6 @@ export default function StepSchedulePickup() {
     streetAddress: false,
     city: false,
     postalCode: false,
-    province: false,
-    country: false,
   });
 
   const allErrors = validatePickupAddress(formState.pickupAddress);
@@ -35,16 +32,12 @@ export default function StepSchedulePickup() {
     city: touched.city || showAll ? allErrors.city : undefined,
     postalCode:
       touched.postalCode || showAll ? allErrors.postalCode : undefined,
-    province: touched.province || showAll ? allErrors.province : undefined,
-    country: touched.country || showAll ? allErrors.country : undefined,
   };
 
   const hasAnyVisibleError =
     Boolean(visibleErrors.streetAddress) ||
     Boolean(visibleErrors.city) ||
-    Boolean(visibleErrors.postalCode) ||
-    Boolean(visibleErrors.province) ||
-    Boolean(visibleErrors.country);
+    Boolean(visibleErrors.postalCode);
 
   function handleAddressChange(updated: PickupAddress) {
     setFormState((prev) => ({ ...prev, pickupAddress: updated }));
@@ -61,6 +54,24 @@ export default function StepSchedulePickup() {
         <p className="text-sm text-muted-foreground">
           Enter the address where you&apos;d like your donation picked up.
         </p>
+      </div>
+
+      <div className="space-y-1">
+        <h2 className="text-2xl font-bold text-foreground">Schedule a Pickup</h2>
+        <p className="text-sm text-muted-foreground">
+          Enter the address where you&apos;d like your donation picked up.
+        </p>
+      </div>
+
+      <div
+        className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-foreground"
+        role="note"
+      >
+        <span aria-hidden="true" className="text-muted-foreground">ⓘ</span>
+        <span>
+          Home Again Furniture Bank is currently only servicing Newfoundland
+          and Labrador, Canada.
+        </span>
       </div>
 
       {showAll && hasAnyVisibleError ? (

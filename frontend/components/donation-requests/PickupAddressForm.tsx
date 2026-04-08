@@ -4,10 +4,17 @@ import React, { type ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { PickupAddress } from "@/components/donation-requests/DonationFormContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export type PickupAddressErrors = Partial<
   Record<
-    "streetAddress" | "city" | "postalCode" | "province" | "country",
+    "streetAddress" | "city" | "postalCode",
     string
   >
 >;
@@ -25,12 +32,6 @@ export function validatePickupAddress(
   if (!address.postalCode.trim()) {
     errors.postalCode = "Postal code is required.";
   }
-  if (address.province !== "NL") {
-    errors.province = "Pickups are not supported in this region.";
-  }
-  if (address.country !== "Canada") {
-    errors.country = "Pickups are not supported in this region.";
-  }
   return errors;
 }
 
@@ -39,7 +40,7 @@ interface PickupAddressFormProps {
   onChange: (updated: PickupAddress) => void;
   errors?: PickupAddressErrors;
   onBlurField?: (
-    field: "streetAddress" | "city" | "postalCode" | "province" | "country"
+    field: "streetAddress" | "city" | "postalCode"
   ) => void;
 }
 
@@ -122,7 +123,7 @@ export default function PickupAddressForm({
             name="city"
             type="text"
             autoComplete="address-level2"
-            placeholder="St. John's"
+            placeholder="Enter city"
             value={addressData.city}
             onChange={handleChange("city")}
             onBlur={() => onBlurField?.("city")}
@@ -141,24 +142,21 @@ export default function PickupAddressForm({
           <Label htmlFor="province" className={labelClass}>
             Province/territory
           </Label>
-          <Input
-            id="province"
-            name="province"
-            type="text"
-            autoComplete="address-level1"
-            placeholder="NL"
+          <Select
             value={addressData.province}
-            onChange={handleChange("province")}
-            onBlur={() => onBlurField?.("province")}
-            aria-invalid={Boolean(errors.province)}
-            aria-describedby={errors.province ? "province-error" : undefined}
-            className={inputClass}
-          />
-          {errors.province ? (
-            <p id="province-error" className="text-destructive text-sm" role="alert">
-              {errors.province}
-            </p>
-          ) : null}
+            onValueChange={(value) =>
+              onChange({ ...addressData, province: value ?? "Newfoundland and Labrador" })
+            }
+          >
+            <SelectTrigger id="province" className={`${inputClass} w-full !h-10`}>
+              <SelectValue placeholder="Newfoundland and Labrador" />
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              <SelectItem value="Newfoundland and Labrador">
+                Newfoundland and Labrador
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -168,24 +166,19 @@ export default function PickupAddressForm({
           <Label htmlFor="country" className={labelClass}>
             Country
           </Label>
-          <Input
-            id="country"
-            name="country"
-            type="text"
-            autoComplete="country-name"
-            placeholder="Canada"
+          <Select
             value={addressData.country}
-            onChange={handleChange("country")}
-            onBlur={() => onBlurField?.("country")}
-            aria-invalid={Boolean(errors.country)}
-            aria-describedby={errors.country ? "country-error" : undefined}
-            className={inputClass}
-          />
-          {errors.country ? (
-            <p id="country-error" className="text-destructive text-sm" role="alert">
-              {errors.country}
-            </p>
-          ) : null}
+            onValueChange={(value) =>
+              onChange({ ...addressData, country: value ?? "Canada" })
+            }
+          >
+            <SelectTrigger id="country" className={`${inputClass} w-full !h-10`}>
+              <SelectValue placeholder="Canada" />
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              <SelectItem value="Canada">Canada</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-1">
@@ -197,7 +190,7 @@ export default function PickupAddressForm({
             name="postalCode"
             type="text"
             autoComplete="postal-code"
-            placeholder="A1B 2C3"
+            placeholder="Enter postal code"
             value={addressData.postalCode}
             onChange={handleChange("postalCode")}
             onBlur={() => onBlurField?.("postalCode")}

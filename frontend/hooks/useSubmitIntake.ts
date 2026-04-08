@@ -97,7 +97,7 @@ export function useSubmitIntake() {
           address_line_2: trimOrNull(agency.addressLine2),
           city: agency.city.trim(),
           phone: agency.phone.trim(),
-          postal_code: null,
+          postal_code: trimOrNull(agency.postalCode),
           main_agent_id: null,
         };
 

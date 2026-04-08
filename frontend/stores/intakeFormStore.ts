@@ -6,6 +6,7 @@ export interface AgencyFormData {
   addressLine2: string;
   city: string;
   province: string;
+  postalCode: string;
   phone: string;
   phoneNotes: string;
 }
@@ -57,6 +58,7 @@ const initialAgency: AgencyFormData = {
   addressLine2: "",
   city: "",
   province: "",
+  postalCode: "",
   phone: "",
   phoneNotes: "",
 };

@@ -165,18 +165,12 @@ export default function ReviewStep() {
               <div className={REVIEW_THREE_COLUMN_GRID}>
                 <ReviewField label="City" value={formatValue(agency.city)} />
                 <ReviewField
-                  label="Province"
-                  value={formatValue(agency.province)}
+                  label="Postal code"
+                  value={formatValue(agency.postalCode)}
                 />
                 <ReviewField
                   label="Phone number"
                   value={formatValue(agency.phone)}
-                />
-              </div>
-              <div className="flex">
-                <ReviewField
-                  label="Phone Number Notes"
-                  value={formatValue(agency.phoneNotes)}
                 />
               </div>
             </ReviewCard>
@@ -184,36 +178,22 @@ export default function ReviewStep() {
 
           <div className="flex flex-col gap-5">
             <h3 className="text-xl font-semibold text-foreground">
-              Main Agent Details
+              Your details
             </h3>
             <ReviewCard>
               <div className={REVIEW_THREE_COLUMN_GRID}>
-                <div>
-                  <ReviewField
-                    label="First Name"
-                    value={formatValue(mainAgent.firstName)}
-                  />
-                </div>
-                <div>
-                  <ReviewField
-                    label="Last Name"
-                    value={formatValue(mainAgent.lastName)}
-                  />
-                </div>
-              </div>
-              <div className={REVIEW_THREE_COLUMN_GRID}>
-                <div>
-                  <ReviewField label="Email" value={formatValue(mainAgent.email)} />
-                </div>
-                <div>
-                  <ReviewField
-                    label="Phone number"
-                    value={formatValue(mainAgent.phone)}
-                  />
-                </div>
-              </div>
-              <div className="flex">
-                <ReviewField label="Role" value={formatValue(mainAgent.role)} />
+                <ReviewField
+                  label="First Name"
+                  value={formatValue(mainAgent.firstName)}
+                />
+                <ReviewField
+                  label="Last Name"
+                  value={formatValue(mainAgent.lastName)}
+                />
+                <ReviewField
+                  label="Phone number"
+                  value={formatValue(mainAgent.phone)}
+                />
               </div>
             </ReviewCard>
           </div>

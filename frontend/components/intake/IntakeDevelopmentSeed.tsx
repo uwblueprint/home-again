@@ -39,6 +39,7 @@ function buildSampleIntake() {
       addressLine2: "Suite 400",
       city: "Toronto",
       province: "Ontario",
+      postalCode: "M5G 1C6",
       phone: "416-555-0184",
       phoneNotes: "Front desk weekdays, 9am to 5pm",
     },

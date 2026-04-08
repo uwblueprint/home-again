@@ -8,6 +8,15 @@ import {
   useIntakeFormStore,
   type MainAgentFormData,
 } from "@/stores/intakeFormStore";
+import { useAuthStore } from "@/stores/authStore";
+
+// TODO: Remove this stub once authentication is implemented.
+// Replace with real user data from useAuthStore once login is wired up.
+const AUTH_STUB = {
+  firstName: "",
+  lastName: "",
+  email: "",
+};
 
 type FormErrors = Partial<Record<keyof MainAgentFormData, string>>;
 
@@ -29,7 +38,6 @@ function validate(form: MainAgentFormData): FormErrors {
   } else if (!PHONE_RE.test(form.phone.trim())) {
     errors.phone = "Enter a valid phone number.";
   }
-  // role is optional — no required validation
 
   return errors;
 }
@@ -53,8 +61,19 @@ function FieldError({ message }: { message?: string }) {
 export default function MainAgentStep() {
   const { mainAgent, setMainAgent } = useIntakeFormStore();
   const { registerValidator } = useIntakeContext();
+  const user = useAuthStore((s) => s.user);
 
-  const [form, setForm] = useState<MainAgentFormData>(mainAgent);
+  // Pre-populate from auth user, falling back to stub until auth is wired up.
+  const prefill = {
+    firstName: user?.firstName ?? AUTH_STUB.firstName,
+    lastName: user?.lastName ?? AUTH_STUB.lastName,
+    email: user?.email ?? AUTH_STUB.email,
+  };
+
+  const [form, setForm] = useState<MainAgentFormData>({
+    ...mainAgent,
+    ...prefill,
+  });
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<
     Partial<Record<keyof MainAgentFormData, boolean>>
@@ -122,6 +141,8 @@ export default function MainAgentStep() {
               {...field("firstName")}
               placeholder="Enter first name"
               className="h-11"
+              readOnly
+              disabled
             />
             <FieldError
               message={touched.firstName ? errors.firstName : undefined}
@@ -133,6 +154,8 @@ export default function MainAgentStep() {
               {...field("lastName")}
               placeholder="Enter last name"
               className="h-11"
+              readOnly
+              disabled
             />
             <FieldError
               message={touched.lastName ? errors.lastName : undefined}
@@ -149,6 +172,8 @@ export default function MainAgentStep() {
               type="email"
               placeholder="name@agency.org"
               className="h-11"
+              readOnly
+              disabled
             />
             <FieldError message={touched.email ? errors.email : undefined} />
           </div>
@@ -162,16 +187,6 @@ export default function MainAgentStep() {
             />
             <FieldError message={touched.phone ? errors.phone : undefined} />
           </div>
-        </div>
-
-        {/* Role */}
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="role">Role</Label>
-          <Input
-            {...field("role")}
-            placeholder="e.g. Executive Directory, Program Manager, etc."
-            className="h-11"
-          />
         </div>
       </div>
     </div>

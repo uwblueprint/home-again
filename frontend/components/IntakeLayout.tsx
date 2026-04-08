@@ -74,7 +74,7 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
       {/* Header */}
       <header className="flex items-center justify-between px-10 py-5 bg-background">
         <Image
-          src="/logo192.png"
+          src="/hafb_logo.svg"
           alt="Home Again"
           width={91}
           height={55}

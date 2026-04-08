@@ -228,10 +228,7 @@ export default function ReferralLayoutDemoPage() {
     []
   )
 
-  const breadcrumbs = useMemo(
-    () => steps.map((step, idx) => ({ label: step.title, current: idx === stepIndex })),
-    [steps, stepIndex]
-  )
+  const breadcrumbLabels = useMemo(() => steps.map((step) => step.title), [steps])
 
   const currentStep = steps[stepIndex]
   const currentSubstep = currentStep.substeps[substepIndex]
@@ -274,17 +271,23 @@ export default function ReferralLayoutDemoPage() {
       : undefined
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4">
+    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4">
       <GenericLayout
         title={currentStep.title}
-        activeIndex={stepIndex}
-        breadcrumbs={breadcrumbs}
+        showTitle={false}
+        breadcrumbLabels={breadcrumbLabels}
+        activeBreadcrumbIndex={stepIndex}
         onNext={handleNext}
         onBack={handleBack}
         isSubmitting={isSubmitting}
         nextLabel={isLastStep && isLastSubstep ? "Submit" : "Next"}
       >
-        {currentSubstep.content}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-foreground">
+            {currentSubstep.title}
+          </h2>
+          {currentSubstep.content}
+        </div>
       </GenericLayout>
     </main>
   )

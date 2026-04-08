@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react"
 
 import GenericLayout from "@/components/referral-form/GenericLayout"
+import FurnitureForm from "@/components/referral-form/FurnitureForm"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -95,17 +96,7 @@ export default function ReferralLayoutDemoPage() {
       {
         title: "Furniture",
         content: (
-          <div className="space-y-3 text-sm">
-            <p className="text-muted-foreground">
-              This is a simple preview screen. In a real flow you would summarize what was entered
-              and maybe add a final acknowledgement checkbox.
-            </p>
-            <ul className="list-disc space-y-1 pl-5">
-              <li>Breadcrumbs highlight the current step.</li>
-              <li>Back button only appears when the handler is provided.</li>
-              <li>Primary action shows loading state via <code>isSubmitting</code>.</li>
-            </ul>
-          </div>
+          <FurnitureForm />
         ),
       },
       {
@@ -181,9 +172,10 @@ export default function ReferralLayoutDemoPage() {
   const handleBack = stepIndex > 0 ? () => setStepIndex((prev) => Math.max(prev - 1, 0)) : undefined
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4">
+    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4">
       <GenericLayout
         title={current.title}
+        showTitle={current.title !== "Furniture"}
         breadcrumbLabels={baseBreadcrumbs}
         activeBreadcrumbIndex={stepIndex}
         onNext={handleNext}

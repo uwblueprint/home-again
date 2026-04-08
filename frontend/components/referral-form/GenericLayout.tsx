@@ -20,6 +20,7 @@ type GenericLayoutProps = {
   onBack?: () => void
   isSubmitting?: boolean
   title: string
+  showTitle?: boolean
   breadcrumbs?: BreadcrumbStep[]
   breadcrumbLabels?: string[]
   activeBreadcrumbIndex?: number
@@ -29,6 +30,7 @@ type GenericLayoutProps = {
 
 function GenericLayout({
   title,
+  showTitle = true,
   breadcrumbs,
   breadcrumbLabels,
   activeBreadcrumbIndex = 0,
@@ -60,7 +62,7 @@ function GenericLayout({
   }, [activeBreadcrumbIndex, breadcrumbLabels, resolvedBreadcrumbs])
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center gap-6 px-4 pb-4 pt-12">
+    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center gap-6 px-4 pb-4 pt-12">
       <header
         className={cn(
           "w-screen max-w-none px-4",
@@ -109,8 +111,10 @@ function GenericLayout({
           </BreadcrumbList>
         </BreadcrumbNav>
       </header>
-      <div className="flex w-full flex-col gap-6 rounded-xl border border-border bg-background p-6 shadow-sm">
-        <h1 className="text-xl font-semibold text-foreground">{title}</h1>
+      <div className="flex w-full flex-col gap-6 bg-background">
+        {showTitle ? (
+          <h1 className="text-xl font-semibold text-foreground">{title}</h1>
+        ) : null}
 
         <div>{children}</div>
       </div>
@@ -122,7 +126,7 @@ function GenericLayout({
           "border-t border-border bg-background/90 px-4 py-3 pb-6"
         )}
       >
-        <div className="ml-auto mr-4 flex w-full max-w-3xl items-center justify-end gap-2">
+        <div className="ml-auto mr-4 flex w-full max-w-6xl items-center justify-end gap-2">
           {onBack ? (
             <Button
               type="button"

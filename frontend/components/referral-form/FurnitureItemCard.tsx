@@ -91,6 +91,8 @@ export function FurnitureItemCard({
       className={cn(
         "flex flex-col items-start rounded-lg border border-[#D4D4D4] bg-white p-3 shadow-sm",
         subOptions?.length ? "gap-1.5" : "gap-2",
+        selected && !subOptions?.length ? "min-h-[130px]" : "min-h-0",
+        !selected ? "min-h-[130px]" : "",
         "max-w-sm",
         className
       )}
@@ -98,7 +100,7 @@ export function FurnitureItemCard({
       {showMainStepper ? (
         <div className="flex w-full items-center gap-3">
           <label
-            className="relative inline-flex cursor-pointer items-center justify-center"
+            className="relative inline-flex shrink-0 cursor-pointer items-center justify-center"
             style={{ width: "18px", height: "18px" }}
           >
             <input
@@ -172,7 +174,7 @@ export function FurnitureItemCard({
         <div className="flex w-full flex-col gap-1">
           <div className="flex items-center gap-2">
             <label
-              className="relative inline-flex cursor-pointer items-center justify-center"
+              className="relative inline-flex shrink-0 cursor-pointer items-center justify-center"
               style={{ width: "18px", height: "18px" }}
             >
               <input
@@ -276,18 +278,6 @@ export function FurnitureItemCard({
                     Select a size
                   </span>
                 )}
-
-                {hasSubSelections ? (
-                  <button
-                    type="button"
-                    onClick={() => setIsEditingSubOptions(false)}
-                    className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-neutral-700 transition hover:bg-neutral-100"
-                    aria-label="Done"
-                  >
-                    <Check className="h-3.5 w-3.5" />
-                    Done
-                  </button>
-                ) : null}
               </div>
 
               <div className="space-y-2.5">
@@ -333,6 +323,20 @@ export function FurnitureItemCard({
                   )
                 })}
               </div>
+
+              {hasSubSelections ? (
+                <div className="mt-3 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingSubOptions(false)}
+                    className="flex items-center gap-1 rounded-lg bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-700 transition hover:bg-neutral-200"
+                    aria-label="Done"
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                    Done
+                  </button>
+                </div>
+              ) : null}
             </div>
           ) : null}
 

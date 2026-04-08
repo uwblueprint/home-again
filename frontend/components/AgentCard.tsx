@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, SquarePen, Info } from "lucide-react";
+import { Trash2, SquarePen, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,6 @@ interface AgentCardProps {
   isEditing: boolean;
   disabled?: boolean;
   onEdit: () => void;
-  onClose: () => void;
   onSave: (data: AgentFormData) => void;
   onRemove: () => void;
 }
@@ -80,7 +79,6 @@ export function AgentCard({
   isEditing,
   disabled = false,
   onEdit,
-  onClose,
   onSave,
   onRemove,
 }: AgentCardProps) {
@@ -118,6 +116,10 @@ export function AgentCard({
     }
 
     onSave(formData);
+  }
+
+  function handleCollapse() {
+    handleSave();
   }
 
   function handleChange(field: AgentTextField, value: string) {
@@ -163,8 +165,17 @@ export function AgentCard({
             <div
               role={isSaved ? "button" : undefined}
               tabIndex={isSaved ? 0 : undefined}
-              onClick={isSaved ? onClose : undefined}
-              onKeyDown={isSaved ? (e) => { if (e.key === "Enter" || e.key === " ") onClose(); } : undefined}
+              onClick={isSaved ? handleCollapse : undefined}
+              onKeyDown={
+                isSaved
+                  ? (e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleCollapse();
+                      }
+                    }
+                  : undefined
+              }
               className={`flex-1 py-1 text-sm text-foreground ${isSaved ? "cursor-pointer hover:opacity-70 transition-opacity" : ""}`}
             >
               <span className="font-semibold">Agent {index + 1}:</span>{" "}
@@ -175,7 +186,7 @@ export function AgentCard({
               onClick={onRemove}
               className="text-foreground/60 hover:text-foreground transition-colors"
             >
-              <X className="size-6" />
+              <Trash2 className="size-6" />
             </button>
           </div>
 
@@ -293,7 +304,7 @@ export function AgentCard({
           onClick={onRemove}
           className="text-foreground/60 hover:text-foreground transition-colors"
         >
-          <X className="size-6" />
+          <Trash2 className="size-6" />
         </button>
       )}
     </div>

@@ -114,7 +114,6 @@ export default function OtherAgentsStep() {
               isEditing={editingIndex === index}
               disabled={isEditingAgent && editingIndex !== index}
               onEdit={() => setEditingIndex(index)}
-              onClose={() => setEditingIndex(null)}
               onSave={(data) => handleSave(index, data)}
               onRemove={() => handleRemove(index)}
             />
@@ -127,7 +126,6 @@ export default function OtherAgentsStep() {
               agent={draftAgent}
               isEditing={editingIndex === "new"}
               onEdit={() => setEditingIndex("new")}
-              onClose={handleDiscardDraft}
               onSave={handleSaveDraft}
               onRemove={handleDiscardDraft}
             />

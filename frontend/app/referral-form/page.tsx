@@ -26,6 +26,27 @@ export default function ReferralLayoutDemoPage() {
   const steps: Step[] = useMemo(
     () => [
       {
+        title: "Search",
+        substeps: [
+          {
+            title: "Search Client",
+            content: (
+              <div className="space-y-3 text-sm">
+                <p className="text-muted-foreground">
+                  This is a simple preview screen. In a real flow you would summarize what was
+                  entered and maybe add a final acknowledgement checkbox.
+                </p>
+                <ul className="list-disc space-y-1 pl-5">
+                  <li>Breadcrumbs highlight the current step.</li>
+                  <li>Back button only appears when the handler is provided.</li>
+                  <li>Primary action shows loading state via <code>isSubmitting</code>.</li>
+                </ul>
+              </div>
+            ),
+          },
+        ],
+      },
+      {
         title: "Client",
         substeps: [
           {

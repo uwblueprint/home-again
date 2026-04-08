@@ -74,7 +74,7 @@ export default function PickupAddressForm({
           name="streetAddress"
           type="text"
           autoComplete="street-address"
-          placeholder="Street address"
+          placeholder="123 Main St"
           value={addressData.streetAddress}
           onChange={handleChange("streetAddress")}
           onBlur={() => onBlurField?.("streetAddress")}
@@ -105,7 +105,7 @@ export default function PickupAddressForm({
           name="apartment"
           type="text"
           autoComplete="address-line2"
-          placeholder="Suite, unit, floor, or building"
+          placeholder="Apt 4B"
           value={addressData.apartment}
           onChange={handleChange("apartment")}
           className={inputClass}
@@ -123,7 +123,7 @@ export default function PickupAddressForm({
             name="city"
             type="text"
             autoComplete="address-level2"
-            placeholder="Enter city"
+            placeholder="St. John's"
             value={addressData.city}
             onChange={handleChange("city")}
             onBlur={() => onBlurField?.("city")}
@@ -196,7 +196,7 @@ export default function PickupAddressForm({
             name="postalCode"
             type="text"
             autoComplete="postal-code"
-            placeholder="Enter postal code"
+            placeholder="A1B 2C3"
             value={addressData.postalCode}
             onChange={handleChange("postalCode")}
             onBlur={() => onBlurField?.("postalCode")}

@@ -167,7 +167,7 @@ export default function DonationContactForm() {
                   name="first_name"
                   type="text"
                   autoComplete="given-name"
-                  placeholder="Enter First Name"
+                  placeholder="Jane"
                   value={values.first_name}
                   onChange={handleChange("first_name")}
                   onBlur={() => handleBlur("first_name")}
@@ -198,7 +198,7 @@ export default function DonationContactForm() {
                   name="last_name"
                   type="text"
                   autoComplete="family-name"
-                  placeholder="Enter Last Name"
+                  placeholder="Doe"
                   value={values.last_name}
                   onChange={handleChange("last_name")}
                   onBlur={() => handleBlur("last_name")}

@@ -151,7 +151,10 @@ export default function PickupAddressForm({
             <SelectTrigger id="province" className={`${inputClass} w-full !h-10`}>
               <SelectValue placeholder="Newfoundland and Labrador" />
             </SelectTrigger>
-            <SelectContent alignItemWithTrigger={false}>
+            <SelectContent 
+              alignItemWithTrigger={false}
+              className="bg-background text-foreground p-2 shadow-lg"
+            >
               <SelectItem value="Newfoundland and Labrador">
                 Newfoundland and Labrador
               </SelectItem>
@@ -175,7 +178,10 @@ export default function PickupAddressForm({
             <SelectTrigger id="country" className={`${inputClass} w-full !h-10`}>
               <SelectValue placeholder="Canada" />
             </SelectTrigger>
-            <SelectContent alignItemWithTrigger={false}>
+            <SelectContent 
+              alignItemWithTrigger={false}
+              className="bg-background text-foreground p-2 shadow-lg"
+            >
               <SelectItem value="Canada">Canada</SelectItem>
             </SelectContent>
           </Select>

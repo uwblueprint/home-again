@@ -56,15 +56,8 @@ export default function StepSchedulePickup() {
         </p>
       </div>
 
-      <div className="space-y-1">
-        <h2 className="text-2xl font-bold text-foreground">Schedule a Pickup</h2>
-        <p className="text-sm text-muted-foreground">
-          Enter the address where you&apos;d like your donation picked up.
-        </p>
-      </div>
-
       <div
-        className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-foreground"
+        className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-4 py-3 text-sm text-muted-foreground"
         role="note"
       >
         <span aria-hidden="true" className="text-muted-foreground">ⓘ</span>

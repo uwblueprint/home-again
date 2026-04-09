@@ -39,9 +39,11 @@ interface IntakeFormStore {
   mainAgent: MainAgentFormData;
   otherAgents: OtherAgentFormData[];
   submissionCheckpoint: IntakeSubmissionCheckpoint;
+  otherAgentsStepLocked: boolean;
   setAgency: (data: Partial<AgencyFormData>) => void;
   setMainAgent: (data: Partial<MainAgentFormData>) => void;
   setOtherAgents: (agents: OtherAgentFormData[]) => void;
+  setOtherAgentsStepLocked: (locked: boolean) => void;
   addOtherAgent: (agent: OtherAgentFormData) => void;
   removeOtherAgent: (index: number) => void;
   updateOtherAgent: (index: number, data: Partial<OtherAgentFormData>) => void;
@@ -83,6 +85,7 @@ export const useIntakeFormStore = create<IntakeFormStore>((set) => ({
   mainAgent: initialMainAgent,
   otherAgents: [],
   submissionCheckpoint: initialSubmissionCheckpoint,
+  otherAgentsStepLocked: false,
 
   setAgency: (data) =>
     set((state) => ({
@@ -101,6 +104,8 @@ export const useIntakeFormStore = create<IntakeFormStore>((set) => ({
       otherAgents: agents,
       submissionCheckpoint: initialSubmissionCheckpoint,
     }),
+
+  setOtherAgentsStepLocked: (locked) => set({ otherAgentsStepLocked: locked }),
 
   addOtherAgent: (agent) =>
     set((state) => ({
@@ -136,5 +141,6 @@ export const useIntakeFormStore = create<IntakeFormStore>((set) => ({
       mainAgent: initialMainAgent,
       otherAgents: [],
       submissionCheckpoint: initialSubmissionCheckpoint,
+      otherAgentsStepLocked: false,
     }),
 }));

@@ -153,7 +153,7 @@ export default function PickupAddressForm({
             </SelectTrigger>
             <SelectContent 
               alignItemWithTrigger={false}
-              className="bg-background text-foreground p-2 shadow-lg"
+              className="bg-background text-foreground p-2 shadow-lg [&_[data-slot=select-item]]:cursor-pointer"
             >
               <SelectItem value="Newfoundland and Labrador">
                 Newfoundland and Labrador
@@ -180,7 +180,7 @@ export default function PickupAddressForm({
             </SelectTrigger>
             <SelectContent 
               alignItemWithTrigger={false}
-              className="bg-background text-foreground p-2 shadow-lg"
+              className="bg-background text-foreground p-2 shadow-lg [&_[data-slot=select-item]]:cursor-pointer"
             >
               <SelectItem value="Canada">Canada</SelectItem>
             </SelectContent>

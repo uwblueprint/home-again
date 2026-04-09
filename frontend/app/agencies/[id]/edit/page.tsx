@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAgency, useUpdateAgency } from "@/hooks/useApi";
-import type { Agency } from "@/types";
+import type { UpdateAgencyInput } from "@/types";
 import PageLayout from "@/components/PageLayout";
 
 export default function AgencyEditPage() {
@@ -11,7 +11,7 @@ export default function AgencyEditPage() {
   const router = useRouter();
   const agencyId = typeof params.id === "string" && params.id ? params.id : null;
 
-  const [formData, setFormData] = useState<Partial<Agency>>({});
+  const [formData, setFormData] = useState<UpdateAgencyInput>({});
 
   const { data: agency, isLoading } = useAgency(agencyId ?? "");
 
@@ -104,21 +104,6 @@ export default function AgencyEditPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email || ""}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
-                required
-              />
-            </div>
-
-            <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
                 Phone
               </label>
@@ -131,23 +116,59 @@ export default function AgencyEditPage() {
                 className="mt-1 block w-full rounded-md border-gray-300 border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
               />
             </div>
+            <div>
+              <label
+                htmlFor="postal_code"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Postal Code
+              </label>
+              <input
+                type="text"
+                id="postal_code"
+                name="postal_code"
+                value={formData.postal_code || ""}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border-gray-300 border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+              />
+            </div>
           </div>
 
           <div>
-            <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-              Address
+            <label
+              htmlFor="address_line_1"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Address line 1
             </label>
             <input
               type="text"
-              id="address"
-              name="address"
-              value={formData.address || ""}
+              id="address_line_1"
+              name="address_line_1"
+              value={formData.address_line_1 || ""}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              htmlFor="address_line_2"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Address line 2
+            </label>
+            <input
+              type="text"
+              id="address_line_2"
+              name="address_line_2"
+              value={formData.address_line_2 || ""}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-6">
             <div>
               <label htmlFor="city" className="block text-sm font-medium text-gray-700">
                 City
@@ -161,34 +182,6 @@ export default function AgencyEditPage() {
                 className="mt-1 block w-full rounded-md border-gray-300 border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
               />
             </div>
-
-            <div>
-              <label htmlFor="province" className="block text-sm font-medium text-gray-700">
-                Province
-              </label>
-              <input
-                type="text"
-                id="province"
-                name="province"
-                value={formData.province || ""}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-              Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description || ""}
-              onChange={handleChange}
-              rows={4}
-              className="mt-1 block w-full rounded-md border-gray-300 border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
-            />
           </div>
 
           <div className="flex gap-3 pt-6">

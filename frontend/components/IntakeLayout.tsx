@@ -3,6 +3,10 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  IntakeFooterProvider,
+  useIntakeFooter,
+} from "@/components/intake/IntakeFooterContext";
 import { IntakeProvider, useIntakeContext } from "@/context/IntakeContext";
 import { Button } from "@/components/ui/button";
 import { StepIndicator, type Step } from "@/components/ui/step-indicator";
@@ -31,6 +35,7 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { runValidator } = useIntakeContext();
+  const { footerState, runSubmitHandler, hasSubmitHandler } = useIntakeFooter();
   const [isNavigating, setIsNavigating] = useState(false);
   const otherAgents = useIntakeFormStore((state) => state.otherAgents);
   const otherAgentsStepLocked = useIntakeFormStore(
@@ -66,6 +71,11 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
   }
 
   async function handleNext() {
+    if (isLastStep) {
+      await runSubmitHandler();
+      return;
+    }
+
     if (isNavigationLocked) {
       return;
     }
@@ -78,10 +88,7 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
       setIsNavigating(false);
     }
 
-    if (!valid) return;
-
-    if (isLastStep) {
-      // TODO: Submit the full intake form to the backend
+    if (!valid) {
       return;
     }
 
@@ -90,6 +97,12 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
       router.push(nextPath);
     }
   }
+
+  const isSubmitDisabled =
+    isLastStep &&
+    (!hasSubmitHandler ||
+      footerState.isSubmitting ||
+      footerState.isSubmitDisabled);
 
   return (
     <div className="bg-background min-h-screen flex flex-col">
@@ -109,24 +122,33 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
 
       <main className="flex-1 px-16 py-8">{children}</main>
 
-      <footer className="border-t border-border px-16 py-8 flex items-center justify-end">
+      <footer className="border-t border-border flex items-center justify-between gap-6 px-16 py-8">
+        <div className="min-h-5 flex-1">
+          {isLastStep && footerState.submitError ? (
+            <p className="text-sm text-destructive">{footerState.submitError}</p>
+          ) : null}
+        </div>
         <div className="flex items-center gap-3">
           <Button
             variant="secondary"
             className="h-10 px-6"
             onClick={handleBack}
-            disabled={isNavigating || isNavigationLocked}
+            disabled={
+              isNavigating || footerState.isSubmitting || isNavigationLocked
+            }
           >
             Back
           </Button>
           <Button
             className="h-10 px-6"
             onClick={handleNext}
-            disabled={isNavigating || isNavigationLocked}
+            disabled={isLastStep ? isSubmitDisabled : isNavigating || isNavigationLocked}
           >
-            {isLastStep
-              ? "Submit"
-              : currentStep === OTHER_AGENTS_STEP
+            {isLastStep && footerState.isSubmitting
+              ? "Submitting..."
+              : isLastStep
+                ? "Submit"
+                : currentStep === OTHER_AGENTS_STEP
                 ? hasSavedOtherAgent
                   ? "Next"
                   : "Maybe later"
@@ -141,7 +163,9 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
 export default function IntakeLayout({ children }: IntakeLayoutProps) {
   return (
     <IntakeProvider>
-      <IntakeLayoutInner>{children}</IntakeLayoutInner>
+      <IntakeFooterProvider>
+        <IntakeLayoutInner>{children}</IntakeLayoutInner>
+      </IntakeFooterProvider>
     </IntakeProvider>
   );
 }

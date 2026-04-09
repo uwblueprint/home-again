@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+
+import IntakeStepPage from "@/components/intake/IntakeStepPage";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useIntakeContext } from "@/context/IntakeContext";
@@ -10,8 +12,6 @@ import {
 } from "@/stores/intakeFormStore";
 import { useAuthStore } from "@/stores/authStore";
 
-// TODO: Remove this stub once authentication is implemented.
-// Replace with real user data from useAuthStore once login is wired up.
 const AUTH_STUB = {
   firstName: "",
   lastName: "",
@@ -51,8 +51,9 @@ const TOUCHED_ON_SUBMIT: (keyof MainAgentFormData)[] = [
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
+
   return (
-    <p role="alert" className="text-sm text-destructive mt-1">
+    <p role="alert" className="mt-1 text-sm text-destructive">
       {message}
     </p>
   );
@@ -61,41 +62,51 @@ function FieldError({ message }: { message?: string }) {
 export default function MainAgentStep() {
   const { mainAgent, setMainAgent } = useIntakeFormStore();
   const { registerValidator } = useIntakeContext();
-  const user = useAuthStore((s) => s.user);
+  const user = useAuthStore((state) => state.user);
+  const hasLockedIdentity = Boolean(
+    user?.firstName || user?.lastName || user?.email
+  );
 
-  // Pre-populate from auth user, falling back to stub until auth is wired up.
-  const prefill = {
-    firstName: user?.firstName ?? AUTH_STUB.firstName,
-    lastName: user?.lastName ?? AUTH_STUB.lastName,
-    email: user?.email ?? AUTH_STUB.email,
-  };
-
-  const [form, setForm] = useState<MainAgentFormData>({
+  const [form, setForm] = useState<MainAgentFormData>(() => ({
     ...mainAgent,
-    ...prefill,
-  });
+    firstName: user?.firstName || mainAgent.firstName || AUTH_STUB.firstName,
+    lastName: user?.lastName || mainAgent.lastName || AUTH_STUB.lastName,
+    email: user?.email || mainAgent.email || AUTH_STUB.email,
+  }));
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<
     Partial<Record<keyof MainAgentFormData, boolean>>
   >({});
 
-  // Sync local form to store on change
+  useEffect(() => {
+    if (!hasLockedIdentity) {
+      return;
+    }
+
+    setForm((current) => ({
+      ...current,
+      firstName: user?.firstName || current.firstName,
+      lastName: user?.lastName || current.lastName,
+      email: user?.email || current.email,
+    }));
+  }, [hasLockedIdentity, user?.email, user?.firstName, user?.lastName]);
+
   useEffect(() => {
     setMainAgent(form);
   }, [form, setMainAgent]);
 
-  // Register validator with layout — runs when Next is clicked
   useEffect(() => {
     registerValidator(() => {
-      const errs = validate(form);
-      setErrors(errs);
+      const nextErrors = validate(form);
+      setErrors(nextErrors);
       const allTouched = TOUCHED_ON_SUBMIT.reduce(
-        (acc, f) => ({ ...acc, [f]: true }),
+        (acc, field) => ({ ...acc, [field]: true }),
         {} as Partial<Record<keyof MainAgentFormData, boolean>>
       );
       setTouched(allTouched);
-      return Object.keys(errs).length === 0;
+      return Object.keys(nextErrors).length === 0;
     });
+
     return () => registerValidator(null);
   }, [form, registerValidator]);
 
@@ -117,23 +128,18 @@ export default function MainAgentStep() {
   const field = (id: keyof MainAgentFormData) => ({
     id,
     value: form[id],
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-      handleChange(id, e.target.value),
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
+      handleChange(id, event.target.value),
     onBlur: () => handleBlur(id),
     "aria-invalid": touched[id] && !!errors[id] ? (true as const) : undefined,
   });
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <h2 className="text-2xl font-semibold text-foreground mb-1">
-        Your Details
-      </h2>
-      <p className="text-muted-foreground mb-8">
-        Enter your details as the primary contact for your agency account.
-      </p>
-
+    <IntakeStepPage
+      title="Your Details"
+      description="Enter your details as the primary contact for your agency account."
+    >
       <div className="flex flex-col gap-6">
-        {/* First name + Last name */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="firstName">First name</Label>
@@ -141,8 +147,8 @@ export default function MainAgentStep() {
               {...field("firstName")}
               placeholder="Enter first name"
               className="h-11"
-              readOnly
-              disabled
+              readOnly={hasLockedIdentity}
+              disabled={hasLockedIdentity}
             />
             <FieldError
               message={touched.firstName ? errors.firstName : undefined}
@@ -154,8 +160,8 @@ export default function MainAgentStep() {
               {...field("lastName")}
               placeholder="Enter last name"
               className="h-11"
-              readOnly
-              disabled
+              readOnly={hasLockedIdentity}
+              disabled={hasLockedIdentity}
             />
             <FieldError
               message={touched.lastName ? errors.lastName : undefined}
@@ -163,7 +169,6 @@ export default function MainAgentStep() {
           </div>
         </div>
 
-        {/* Email + Phone number */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">Email</Label>
@@ -172,8 +177,8 @@ export default function MainAgentStep() {
               type="email"
               placeholder="name@agency.org"
               className="h-11"
-              readOnly
-              disabled
+              readOnly={hasLockedIdentity}
+              disabled={hasLockedIdentity}
             />
             <FieldError message={touched.email ? errors.email : undefined} />
           </div>
@@ -189,6 +194,6 @@ export default function MainAgentStep() {
           </div>
         </div>
       </div>
-    </div>
+    </IntakeStepPage>
   );
 }

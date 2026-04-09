@@ -15,12 +15,16 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/apiClient";
 import type {
-  Agency,
+  AgencyRecord,
+  AgentRecord,
   Client,
+  CreateAgencyInput,
+  CreateAgentInput,
   CreateDonorInput,
   Donor,
   Furniture,
   Referral,
+  UpdateAgencyInput,
 } from "@/types";
 
 /**
@@ -33,7 +37,7 @@ export function useAgencies() {
   return useQuery({
     queryKey: ["agencies"],
     queryFn: async () => {
-      const response = await apiClient.get<Agency[]>("/agencies");
+      const response = await apiClient.get<AgencyRecord[]>("/agencies");
       return response.data;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -51,7 +55,7 @@ export function useAgency(agencyId?: string) {
       if (!agencyId) {
         throw new Error("Agency ID is required");
       }
-      const response = await apiClient.get<Agency>(`/agencies/${agencyId}`);
+      const response = await apiClient.get<AgencyRecord>(`/agencies/${agencyId}`);
       return response.data;
     },
     enabled: Boolean(agencyId),
@@ -117,13 +121,26 @@ export function useCreateAgency() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (
-      agency: Omit<Agency, "id" | "created_at" | "updated_at">
-    ) => {
-      const response = await apiClient.post<Agency>("/agencies", agency);
+    mutationFn: async (agency: CreateAgencyInput) => {
+      const response = await apiClient.post<AgencyRecord>("/agencies", agency);
       return response.data;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["agencies"] });
+    },
+  });
+}
+
+export function useCreateAgent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (agent: CreateAgentInput) => {
+      const response = await apiClient.post<AgentRecord>("/agents", agent);
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["agency", variables.agency_id] });
       queryClient.invalidateQueries({ queryKey: ["agencies"] });
     },
   });
@@ -185,8 +202,8 @@ export function useUpdateAgency(agencyId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: Partial<Agency>) => {
-      const response = await apiClient.put<Agency>(`/agencies/${agencyId}`, data);
+    mutationFn: async (data: UpdateAgencyInput) => {
+      const response = await apiClient.put<AgencyRecord>(`/agencies/${agencyId}`, data);
       return response.data;
     },
     onSuccess: () => {

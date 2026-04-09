@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAgencies, useDeleteAgency } from "@/hooks/useApi";
 import ResourceList from "@/components/ResourceList";
-import type { Agency, ColumnConfig, RowActionConfig } from "@/types";
+import type { AgencyRecord, ColumnConfig, RowActionConfig } from "@/types";
 
-const agencyColumns: ColumnConfig<Agency>[] = [
+const agencyColumns: ColumnConfig<AgencyRecord>[] = [
   {
     key: "name",
     label: "Name",
@@ -14,9 +14,9 @@ const agencyColumns: ColumnConfig<Agency>[] = [
     width: "25%",
   },
   {
-    key: "email",
-    label: "Email",
-    type: "email",
+    key: "address_line_1",
+    label: "Address",
+    type: "text",
     width: "25%",
   },
   {
@@ -30,13 +30,13 @@ const agencyColumns: ColumnConfig<Agency>[] = [
     label: "City",
     type: "text",
     width: "15%",
-    render: (value, row: Agency) => `${row.city}, ${row.province}`,
   },
   {
-    key: "status",
-    label: "Status",
-    type: "status",
+    key: "postal_code",
+    label: "Postal Code",
+    type: "text",
     width: "15%",
+    render: (value) => (value ? String(value) : "—"),
   },
 ];
 
@@ -45,7 +45,7 @@ export default function AgenciesPage() {
   const { data: agencies, isLoading, error } = useAgencies();
   const { mutate: deleteAgency } = useDeleteAgency();
 
-  const rowActions: RowActionConfig<Agency>[] = [
+  const rowActions: RowActionConfig<AgencyRecord>[] = [
     {
       id: "view",
       label: "View",
@@ -91,7 +91,7 @@ export default function AgenciesPage() {
       </header>
 
       <main className="flex-1 max-w-6xl mx-auto px-6 py-8 w-full">
-        <ResourceList<Agency>
+        <ResourceList<AgencyRecord>
           columns={agencyColumns}
           data={agencies || []}
           loading={isLoading}

@@ -17,7 +17,6 @@ export interface MainAgentFormData {
   lastName: string;
   email: string;
   phone: string;
-  role: string;
 }
 
 export interface OtherAgentFormData {
@@ -28,12 +27,19 @@ export interface OtherAgentFormData {
   isAdmin: boolean;
 }
 
+export interface IntakeSubmissionCheckpoint {
+  agencyId: string | null;
+  mainAgentId: string | null;
+  mainAgentLinked: boolean;
+  otherAgentsCreated: number;
+}
+
 interface IntakeFormStore {
   agency: AgencyFormData;
   mainAgent: MainAgentFormData;
   otherAgents: OtherAgentFormData[];
+  submissionCheckpoint: IntakeSubmissionCheckpoint;
   otherAgentsStepLocked: boolean;
-
   setAgency: (data: Partial<AgencyFormData>) => void;
   setMainAgent: (data: Partial<MainAgentFormData>) => void;
   setOtherAgents: (agents: OtherAgentFormData[]) => void;
@@ -41,6 +47,10 @@ interface IntakeFormStore {
   addOtherAgent: (agent: OtherAgentFormData) => void;
   removeOtherAgent: (index: number) => void;
   updateOtherAgent: (index: number, data: Partial<OtherAgentFormData>) => void;
+  updateSubmissionCheckpoint: (
+    data: Partial<IntakeSubmissionCheckpoint>
+  ) => void;
+  resetSubmissionCheckpoint: () => void;
   reset: () => void;
 }
 
@@ -61,31 +71,52 @@ const initialMainAgent: MainAgentFormData = {
   lastName: "",
   email: "",
   phone: "",
-  role: "",
+};
+
+const initialSubmissionCheckpoint: IntakeSubmissionCheckpoint = {
+  agencyId: null,
+  mainAgentId: null,
+  mainAgentLinked: false,
+  otherAgentsCreated: 0,
 };
 
 export const useIntakeFormStore = create<IntakeFormStore>((set) => ({
   agency: initialAgency,
   mainAgent: initialMainAgent,
   otherAgents: [],
+  submissionCheckpoint: initialSubmissionCheckpoint,
   otherAgentsStepLocked: false,
 
   setAgency: (data) =>
-    set((state) => ({ agency: { ...state.agency, ...data } })),
+    set((state) => ({
+      agency: { ...state.agency, ...data },
+      submissionCheckpoint: initialSubmissionCheckpoint,
+    })),
 
   setMainAgent: (data) =>
-    set((state) => ({ mainAgent: { ...state.mainAgent, ...data } })),
+    set((state) => ({
+      mainAgent: { ...state.mainAgent, ...data },
+      submissionCheckpoint: initialSubmissionCheckpoint,
+    })),
 
-  setOtherAgents: (agents) => set({ otherAgents: agents }),
+  setOtherAgents: (agents) =>
+    set({
+      otherAgents: agents,
+      submissionCheckpoint: initialSubmissionCheckpoint,
+    }),
 
   setOtherAgentsStepLocked: (locked) => set({ otherAgentsStepLocked: locked }),
 
   addOtherAgent: (agent) =>
-    set((state) => ({ otherAgents: [...state.otherAgents, agent] })),
+    set((state) => ({
+      otherAgents: [...state.otherAgents, agent],
+      submissionCheckpoint: initialSubmissionCheckpoint,
+    })),
 
   removeOtherAgent: (index) =>
     set((state) => ({
       otherAgents: state.otherAgents.filter((_, i) => i !== index),
+      submissionCheckpoint: initialSubmissionCheckpoint,
     })),
 
   updateOtherAgent: (index, data) =>
@@ -93,13 +124,23 @@ export const useIntakeFormStore = create<IntakeFormStore>((set) => ({
       otherAgents: state.otherAgents.map((agent, i) =>
         i === index ? { ...agent, ...data } : agent
       ),
+      submissionCheckpoint: initialSubmissionCheckpoint,
     })),
+
+  updateSubmissionCheckpoint: (data) =>
+    set((state) => ({
+      submissionCheckpoint: { ...state.submissionCheckpoint, ...data },
+    })),
+
+  resetSubmissionCheckpoint: () =>
+    set({ submissionCheckpoint: initialSubmissionCheckpoint }),
 
   reset: () =>
     set({
       agency: initialAgency,
       mainAgent: initialMainAgent,
       otherAgents: [],
+      submissionCheckpoint: initialSubmissionCheckpoint,
       otherAgentsStepLocked: false,
     }),
 }));

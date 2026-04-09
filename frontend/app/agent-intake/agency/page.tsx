@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+
 import IntakeStepPage from "@/components/intake/IntakeStepPage";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,8 +45,9 @@ function validate(form: AgencyFormData): FormErrors {
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
+
   return (
-    <p role="alert" className="text-sm text-destructive mt-1">
+    <p role="alert" className="mt-1 text-sm text-destructive">
       {message}
     </p>
   );
@@ -69,23 +71,22 @@ export default function AgencyStep() {
     Partial<Record<keyof AgencyFormData, boolean>>
   >({});
 
-  // Sync local form to store on change
   useEffect(() => {
     setAgency(form);
   }, [form, setAgency]);
 
-  // Register validator with layout — runs when Next is clicked
   useEffect(() => {
     registerValidator(() => {
-      const errs = validate(form);
-      setErrors(errs);
+      const nextErrors = validate(form);
+      setErrors(nextErrors);
       const allTouched = TOUCHED_ON_SUBMIT.reduce(
-        (acc, f) => ({ ...acc, [f]: true }),
+        (acc, field) => ({ ...acc, [field]: true }),
         {} as Partial<Record<keyof AgencyFormData, boolean>>
       );
       setTouched(allTouched);
-      return Object.keys(errs).length === 0;
+      return Object.keys(nextErrors).length === 0;
     });
+
     return () => registerValidator(null);
   }, [form, registerValidator]);
 
@@ -107,8 +108,8 @@ export default function AgencyStep() {
   const field = (id: keyof AgencyFormData) => ({
     id,
     value: form[id],
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-      handleChange(id, e.target.value),
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
+      handleChange(id, event.target.value),
     onBlur: () => handleBlur(id),
     "aria-invalid": touched[id] && !!errors[id] ? (true as const) : undefined,
   });
@@ -119,7 +120,6 @@ export default function AgencyStep() {
       description="Provide some basic information about your partner agency."
     >
       <div className="flex flex-col gap-6">
-        {/* Agency name */}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="name">Agency name</Label>
           <Input
@@ -130,7 +130,6 @@ export default function AgencyStep() {
           <FieldError message={touched.name ? errors.name : undefined} />
         </div>
 
-        {/* Address line 1 + 2 */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="addressLine1">Address line 1</Label>
@@ -148,14 +147,15 @@ export default function AgencyStep() {
             <Input
               id="addressLine2"
               value={form.addressLine2}
-              onChange={(e) => handleChange("addressLine2", e.target.value)}
+              onChange={(event) =>
+                handleChange("addressLine2", event.target.value)
+              }
               placeholder="Suite, unit, floor, or building"
               className="h-11"
             />
           </div>
         </div>
 
-        {/* City + Province */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="city">City</Label>
@@ -170,7 +170,7 @@ export default function AgencyStep() {
             <Label htmlFor="province">Province</Label>
             <Select
               value={form.province}
-              onValueChange={(val) => val && handleChange("province", val)}
+              onValueChange={(value) => value && handleChange("province", value)}
             >
               <SelectTrigger id="province" className="!h-11 w-full py-0">
                 <SelectValue placeholder="Select a province" />
@@ -184,17 +184,16 @@ export default function AgencyStep() {
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground -mt-2">
+        <p className="-mt-2 text-sm text-muted-foreground">
           Home Again currently only services Newfoundland and Labrador, Canada.
         </p>
 
-        {/* Country + Postal code */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="country">Country</Label>
             <Select
               value={form.country}
-              onValueChange={(val) => val && handleChange("country", val)}
+              onValueChange={(value) => value && handleChange("country", value)}
             >
               <SelectTrigger id="country" className="!h-11 w-full py-0">
                 <SelectValue placeholder="Select a country" />
@@ -217,7 +216,6 @@ export default function AgencyStep() {
           </div>
         </div>
 
-        {/* Phone number */}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="phone">Phone number</Label>
           <Input

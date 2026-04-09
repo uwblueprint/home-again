@@ -55,7 +55,7 @@ export default function DonationLayout({
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-4 pb-28">
       {/* Header */}
-      <header className="flex items-center justify-center py-10">
+      <header className="flex items-center justify-center py-12">
         <div className="absolute left-4 top-4 md:left-8">
           <Image 
             src="/hafb_logo.svg" 
@@ -76,7 +76,7 @@ export default function DonationLayout({
       <nav
         className={cn(
           "fixed bottom-0 left-0 right-0 z-10",
-          "border-t border-border bg-background px-4 py-4",
+          "border-t border-border bg-background px-4 py-8",
         )}
       >
         <div className="mx-auto flex w-full max-w-3xl items-center justify-between">

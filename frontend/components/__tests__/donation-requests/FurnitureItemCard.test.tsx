@@ -4,6 +4,11 @@ import "@testing-library/jest-dom";
 import FurnitureItemCard from "../../donation-requests/FurnitureItemCard";
 import type { FurnitureItemData } from "../../donation-requests/DonationFormContext";
 
+global.URL.createObjectURL = jest.fn(
+  (file: File) => `blob:${file.name}`,
+);
+global.URL.revokeObjectURL = jest.fn();
+
 // Helpers
 
 function createMockItem(
@@ -16,6 +21,10 @@ function createMockItem(
     photos: [],
     ...overrides,
   };
+}
+
+function createFile(name: string) {
+  return new File([""], name, { type: "image/png" });
 }
 
 function renderCard(props: Partial<React.ComponentProps<typeof FurnitureItemCard>> = {}) {
@@ -35,6 +44,11 @@ function renderCard(props: Partial<React.ComponentProps<typeof FurnitureItemCard
 // Tests
 
 describe("FurnitureItemCard", () => {
+  beforeEach(() => {
+    (global.URL.createObjectURL as jest.Mock).mockClear();
+    (global.URL.revokeObjectURL as jest.Mock).mockClear();
+  });
+
   describe("expand / collapse", () => {
     it("shows item details when expanded", () => {
       renderCard({ isExpanded: true });
@@ -141,6 +155,28 @@ describe("FurnitureItemCard", () => {
       expect(
         screen.getByRole("button", { name: /upload photos/i }),
       ).toBeInTheDocument();
+    });
+
+    it("releases preview URL after committed photo removal", () => {
+      const file = createFile("remove.png");
+      const onUpdate = jest.fn();
+      const { rerender, props } = renderCard({
+        itemData: createMockItem({ photos: [file] }),
+        onUpdate,
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: "Remove remove.png" }));
+
+      expect(onUpdate).toHaveBeenCalledWith({ photos: [] });
+
+      rerender(
+        <FurnitureItemCard
+          {...props}
+          itemData={{ ...props.itemData, photos: [] }}
+        />,
+      );
+
+      expect(global.URL.revokeObjectURL).toHaveBeenCalledWith("blob:remove.png");
     });
   });
 });

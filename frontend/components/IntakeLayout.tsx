@@ -18,7 +18,7 @@ const OTHER_AGENTS_STEP = 2;
 
 const INTAKE_STEPS: Step[] = [
   { label: "Agency", path: INTAKE_AGENCY },
-  { label: "Main Agent", path: INTAKE_MAIN_AGENT },
+  { label: "Your Details", path: INTAKE_MAIN_AGENT },
   { label: "Other Agents", path: INTAKE_OTHER_AGENTS },
   { label: "Review", path: INTAKE_REVIEW },
 ];

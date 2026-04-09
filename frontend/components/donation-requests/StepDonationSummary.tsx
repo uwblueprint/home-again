@@ -1,10 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useDonationForm } from "./DonationFormContext";
 import type { FurnitureItemData } from "./DonationFormContext";
 import { useDonor } from "@/hooks/useApi";
+import {
+  getFilePreviewUrl,
+  revokeFilePreviewUrl,
+} from "@/lib/filePreviewUrls";
 
 // --- Sub-components ---
 
@@ -72,21 +77,31 @@ function YesNoToggle({
 }
 
 function ItemRow({ item }: { item: FurnitureItemData }) {
-  const thumbnailSrc =
-    item.photos.length > 0 ? URL.createObjectURL(item.photos[0]) : null;
+  const thumbnailFile = item.photos[0] ?? null;
+  const thumbnailSrc = useMemo(
+    () => (thumbnailFile ? getFilePreviewUrl(thumbnailFile) : null),
+    [thumbnailFile],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (thumbnailFile) revokeFilePreviewUrl(thumbnailFile);
+    };
+  }, [thumbnailFile]);
 
   const stainsLabel =
     item.hasStains === null ? "-" : item.hasStains ? "Has Stains" : "No Stains";
 
   return (
     <div className="flex items-center gap-3">
-      <div className="size-10 shrink-0 overflow-hidden rounded-lg bg-secondary">
+      <div className="relative size-10 shrink-0 overflow-hidden rounded-lg bg-secondary">
         {thumbnailSrc && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={thumbnailSrc}
             alt={item.furnitureType ?? "Donation item"}
-            className="h-full w-full object-cover"
+            fill
+            unoptimized
+            className="object-cover"
           />
         )}
       </div>
@@ -157,15 +172,17 @@ export default function StepDonationSummary() {
   const showFeeError = submitAttempted && !feeAgreement;
 
   function formatAddress() {
-    const parts = [
+    if (!pickupAddress.streetAddress) return "No address provided";
+    return [
       pickupAddress.streetAddress,
       pickupAddress.apartment,
       pickupAddress.city,
       pickupAddress.province,
       pickupAddress.country,
       pickupAddress.postalCode,
-    ].filter(Boolean);
-    return parts.length > 0 ? parts.join(", ") : "No address provided";
+    ]
+      .filter(Boolean)
+      .join(", ");
   }
 
   function handleSmokingChange(value: boolean) {
@@ -299,3 +316,4 @@ export default function StepDonationSummary() {
     </div>
   );
 }
+

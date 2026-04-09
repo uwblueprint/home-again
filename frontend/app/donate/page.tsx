@@ -1,5 +1,5 @@
-import DonationRequestContactForm from "@/components/donation-requests/DonationRequestContactForm";
+import DonationContactForm from "@/components/donation-requests/DonationContactForm";
 
 export default function DonationRequestPage() {
-  return <DonationRequestContactForm />;
+  return <DonationContactForm />;
 }

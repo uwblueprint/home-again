@@ -201,7 +201,7 @@ export default function ReviewStep() {
         <div className="flex flex-col gap-8">
           <div className="flex flex-col gap-5">
             <h3 className="text-xl font-semibold text-foreground">
-              Agency information
+              Partner Agency Details
             </h3>
             <ReviewCard>
               <div className={REVIEW_THREE_COLUMN_GRID}>
@@ -231,7 +231,7 @@ export default function ReviewStep() {
 
           <div className="flex flex-col gap-5">
             <h3 className="text-xl font-semibold text-foreground">
-              Your details
+              Your Details
             </h3>
             <ReviewCard>
               <div className={REVIEW_THREE_COLUMN_GRID}>

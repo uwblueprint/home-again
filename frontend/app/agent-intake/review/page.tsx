@@ -19,8 +19,11 @@ function formatValue(value: string) {
 }
 
 function formatName(firstName: string, lastName: string) {
-  const fullName = `${firstName} ${lastName}`.trim();
-  return fullName || EMPTY_VALUE;
+  return `${firstName} ${lastName}`.trim();
+}
+
+function sortName(firstName: string, lastName: string) {
+  return formatName(firstName, lastName).toLocaleLowerCase();
 }
 
 function sortOtherAgents<
@@ -36,8 +39,8 @@ function sortOtherAgents<
       return left.isAdmin ? -1 : 1;
     }
 
-    const leftName = formatName(left.firstName, left.lastName);
-    const rightName = formatName(right.firstName, right.lastName);
+    const leftName = sortName(left.firstName, left.lastName);
+    const rightName = sortName(right.firstName, right.lastName);
     const byName = leftName.localeCompare(rightName, undefined, {
       sensitivity: "base",
     });
@@ -76,7 +79,7 @@ function AgentCard({
     <div className="flex flex-col gap-3 rounded-lg border border-border p-3 shadow-sm">
       <div className="flex flex-wrap items-center gap-1.5">
         <p className="text-sm text-foreground">
-          {formatName(agent.firstName, agent.lastName)}
+          {formatValue(formatName(agent.firstName, agent.lastName))}
         </p>
         {agent.isAdmin ? (
           <span className="inline-flex items-center justify-center rounded-full border border-border px-2 py-0.5 text-center text-xs font-semibold leading-4 text-foreground whitespace-nowrap">

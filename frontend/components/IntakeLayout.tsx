@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { IntakeProvider, useIntakeContext } from "@/context/IntakeContext";
 import { Button } from "@/components/ui/button";
 import { StepIndicator, type Step } from "@/components/ui/step-indicator";
 import {
@@ -11,7 +12,9 @@ import {
   INTAKE_OTHER_AGENTS,
   INTAKE_REVIEW,
 } from "@/constants/Routes";
-import { IntakeProvider, useIntakeContext } from "@/context/IntakeContext";
+import { useIntakeFormStore } from "@/stores/intakeFormStore";
+
+const OTHER_AGENTS_STEP = 2;
 
 const INTAKE_STEPS: Step[] = [
   { label: "Agency", path: INTAKE_AGENCY },
@@ -29,20 +32,33 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
   const router = useRouter();
   const { runValidator } = useIntakeContext();
   const [isNavigating, setIsNavigating] = useState(false);
+  const otherAgents = useIntakeFormStore((state) => state.otherAgents);
+  const otherAgentsStepLocked = useIntakeFormStore(
+    (state) => state.otherAgentsStepLocked
+  );
 
   const currentStepIndex = INTAKE_STEPS.findIndex(
     (step) => step.path !== undefined && pathname.startsWith(step.path)
   );
   const currentStep = currentStepIndex === -1 ? 0 : currentStepIndex;
+  const isOtherAgentsStep = currentStep === OTHER_AGENTS_STEP;
+  const isNavigationLocked = isOtherAgentsStep && otherAgentsStepLocked;
+  const hasSavedOtherAgent = otherAgents.some(
+    (agent) =>
+      agent.firstName.trim() !== "" &&
+      agent.lastName.trim() !== "" &&
+      agent.email.trim() !== "" &&
+      agent.phone.trim() !== ""
+  );
 
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === INTAKE_STEPS.length - 1;
 
   function handleBack() {
-    if (isFirstStep) {
-      // TODO: Navigate to login page once it's implemented
+    if (isNavigationLocked || isFirstStep) {
       return;
     }
+
     const prevPath = INTAKE_STEPS[currentStep - 1]?.path;
     if (prevPath) {
       router.push(prevPath);
@@ -50,6 +66,10 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
   }
 
   async function handleNext() {
+    if (isNavigationLocked) {
+      return;
+    }
+
     setIsNavigating(true);
     let valid: boolean;
     try {
@@ -57,12 +77,14 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
     } finally {
       setIsNavigating(false);
     }
+
     if (!valid) return;
 
     if (isLastStep) {
       // TODO: Submit the full intake form to the backend
       return;
     }
+
     const nextPath = INTAKE_STEPS[currentStep + 1]?.path;
     if (nextPath) {
       router.push(nextPath);
@@ -82,26 +104,33 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
 
         <StepIndicator steps={INTAKE_STEPS} currentStep={currentStep} />
 
-        {/* Spacer to balance the logo on the left */}
         <div className="w-[91px]" />
       </header>
 
-      {/* Step Content */}
       <main className="flex-1 px-16 py-8">{children}</main>
 
-      {/* Bottom Navigation */}
       <footer className="border-t border-border px-16 py-8 flex items-center justify-end">
         <div className="flex items-center gap-3">
           <Button
             variant="secondary"
             className="h-10 px-6"
             onClick={handleBack}
-            disabled={isNavigating}
+            disabled={isNavigating || isNavigationLocked}
           >
             Back
           </Button>
-          <Button className="h-10 px-6" onClick={handleNext} disabled={isNavigating}>
-            {isLastStep ? "Submit" : "Next"}
+          <Button
+            className="h-10 px-6"
+            onClick={handleNext}
+            disabled={isNavigating || isNavigationLocked}
+          >
+            {isLastStep
+              ? "Submit"
+              : currentStep === OTHER_AGENTS_STEP
+                ? hasSavedOtherAgent
+                  ? "Next"
+                  : "Maybe later"
+                : "Next"}
           </Button>
         </div>
       </footer>

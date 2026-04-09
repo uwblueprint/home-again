@@ -196,7 +196,7 @@ export function AgentCard({
               <Label htmlFor={`firstName-${index}`}>First Name</Label>
               <Input
                 id={`firstName-${index}`}
-                placeholder="John"
+                placeholder="Enter first name"
                 className="h-11"
                 {...fieldProps("firstName")}
               />
@@ -208,7 +208,7 @@ export function AgentCard({
               <Label htmlFor={`lastName-${index}`}>Last Name</Label>
               <Input
                 id={`lastName-${index}`}
-                placeholder="Doe"
+                placeholder="Enter last name"
                 className="h-11"
                 {...fieldProps("lastName")}
               />
@@ -236,7 +236,7 @@ export function AgentCard({
               <Input
                 id={`phone-${index}`}
                 type="tel"
-                placeholder="22901220132"
+                placeholder="Enter phone number"
                 className="h-11"
                 {...fieldProps("phoneNumber")}
               />

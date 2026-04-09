@@ -23,6 +23,35 @@ function formatName(firstName: string, lastName: string) {
   return fullName || EMPTY_VALUE;
 }
 
+function sortOtherAgents<
+  T extends {
+    firstName: string;
+    lastName: string;
+    email: string;
+    isAdmin: boolean;
+  },
+>(agents: T[]) {
+  return [...agents].sort((left, right) => {
+    if (left.isAdmin !== right.isAdmin) {
+      return left.isAdmin ? -1 : 1;
+    }
+
+    const leftName = formatName(left.firstName, left.lastName);
+    const rightName = formatName(right.firstName, right.lastName);
+    const byName = leftName.localeCompare(rightName, undefined, {
+      sensitivity: "base",
+    });
+
+    if (byName !== 0) {
+      return byName;
+    }
+
+    return left.email.localeCompare(right.email, undefined, {
+      sensitivity: "base",
+    });
+  });
+}
+
 function ReviewField({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -35,16 +64,31 @@ function ReviewField({ label, value }: { label: string; value: string }) {
 function AgentCard({
   agent,
 }: {
-  agent: { firstName: string; lastName: string; email: string; phone: string };
+  agent: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    isAdmin: boolean;
+  };
 }) {
   return (
     <div className="flex flex-col gap-3 rounded-lg border border-border p-3 shadow-sm">
-      <p className="text-sm text-foreground">
-        {formatName(agent.firstName, agent.lastName)}
-      </p>
-      <div className="grid gap-1 text-sm text-muted-foreground sm:grid-cols-[minmax(0,1fr)_160px] sm:gap-12">
-        <span className="min-w-0 break-words">{formatValue(agent.email)}</span>
-        <span className="sm:text-left">{formatValue(agent.phone)}</span>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <p className="text-sm text-foreground">
+          {formatName(agent.firstName, agent.lastName)}
+        </p>
+        {agent.isAdmin ? (
+          <span className="inline-flex items-center justify-center rounded-full border border-border px-2 py-0.5 text-center text-xs font-semibold leading-4 text-foreground whitespace-nowrap">
+            Admin User
+          </span>
+        ) : null}
+      </div>
+      <div className={`${REVIEW_THREE_COLUMN_GRID} text-sm text-muted-foreground`}>
+        <span className="min-w-0 break-words md:col-span-2">
+          {formatValue(agent.email)}
+        </span>
+        <span>{formatValue(agent.phone)}</span>
       </div>
     </div>
   );
@@ -141,8 +185,9 @@ export default function ReviewStep() {
     return () => window.clearTimeout(timeoutId);
   }, [resetAfterSuccess, router, submittedAgencyId]);
 
-  const visibleAgents = otherAgents.slice(0, visibleCount);
-  const remaining = Math.max(0, otherAgents.length - visibleCount);
+  const sortedOtherAgents = sortOtherAgents(otherAgents);
+  const visibleAgents = sortedOtherAgents.slice(0, visibleCount);
+  const remaining = Math.max(0, sortedOtherAgents.length - visibleCount);
 
   return (
     <>
@@ -169,10 +214,6 @@ export default function ReviewStep() {
               </div>
               <div className={REVIEW_THREE_COLUMN_GRID}>
                 <ReviewField label="City" value={formatValue(agency.city)} />
-                <ReviewField label="Province" value={formatValue(agency.province)} />
-                <ReviewField label="Country" value={formatValue(agency.country)} />
-              </div>
-              <div className={REVIEW_THREE_COLUMN_GRID}>
                 <ReviewField
                   label="Postal code"
                   value={formatValue(agency.postalCode)}
@@ -181,7 +222,6 @@ export default function ReviewStep() {
                   label="Phone number"
                   value={formatValue(agency.phone)}
                 />
-                <div />
               </div>
             </ReviewCard>
           </div>
@@ -204,11 +244,6 @@ export default function ReviewStep() {
                   label="Phone number"
                   value={formatValue(mainAgent.phone)}
                 />
-              </div>
-              <div className={REVIEW_THREE_COLUMN_GRID}>
-                <ReviewField label="Email" value={formatValue(mainAgent.email)} />
-                <ReviewField label="Role" value={formatValue(mainAgent.role)} />
-                <div />
               </div>
             </ReviewCard>
           </div>

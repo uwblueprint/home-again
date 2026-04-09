@@ -17,7 +17,6 @@ export interface MainAgentFormData {
   lastName: string;
   email: string;
   phone: string;
-  role: string;
 }
 
 export interface OtherAgentFormData {
@@ -25,6 +24,7 @@ export interface OtherAgentFormData {
   lastName: string;
   email: string;
   phone: string;
+  isAdmin: boolean;
 }
 
 export interface IntakeSubmissionCheckpoint {
@@ -69,7 +69,6 @@ const initialMainAgent: MainAgentFormData = {
   lastName: "",
   email: "",
   phone: "",
-  role: "",
 };
 
 const initialSubmissionCheckpoint: IntakeSubmissionCheckpoint = {

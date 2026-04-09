@@ -8,12 +8,22 @@ function hasExistingIntakeInput() {
   const { agency, mainAgent, otherAgents, submissionCheckpoint } =
     useIntakeFormStore.getState();
 
-  const agencyHasInput = Object.values(agency).some((value) => value.trim());
+  const agencyHasInput = [
+    agency.name,
+    agency.addressLine1,
+    agency.addressLine2,
+    agency.city,
+    agency.postalCode,
+    agency.phone,
+    agency.phoneNotes,
+  ].some((value) => value.trim());
   const mainAgentHasInput = Object.values(mainAgent).some((value) =>
     value.trim()
   );
   const otherAgentsHaveInput = otherAgents.some((agent) =>
-    Object.values(agent).some((value) => value.trim())
+    [agent.firstName, agent.lastName, agent.email, agent.phone].some((value) =>
+      value.trim()
+    )
   );
   const hasSubmissionProgress =
     submissionCheckpoint.agencyId !== null ||
@@ -49,7 +59,6 @@ function buildSampleIntake() {
       lastName: "Lee",
       email: `agent-intake-${uniqueSuffix}@example.com`,
       phone: "709-555-0133",
-      role: "Program Coordinator",
     },
     otherAgents: [
       {
@@ -57,12 +66,14 @@ function buildSampleIntake() {
         lastName: "Patel",
         email: `agent-intake-avery-${uniqueSuffix}@example.com`,
         phone: "709-555-0111",
+        isAdmin: true,
       },
       {
         firstName: "Morgan",
         lastName: "Chen",
         email: `agent-intake-morgan-${uniqueSuffix}@example.com`,
         phone: "709-555-0172",
+        isAdmin: false,
       },
     ],
   };

@@ -67,7 +67,7 @@ export default function PickupAddressForm({
       {/* Street Address */}
       <div className="space-y-1">
         <Label htmlFor="streetAddress" className={labelClass}>
-          Street Address
+          Street address
         </Label>
         <Input
           id="streetAddress"

@@ -7,7 +7,7 @@ import React, { createContext, useContext, useState, useCallback, useMemo } from
 export const FURNITURE_TYPES = [
   "Dining table & chairs /sets",
   "Dresser",
-  "Coffee Table",
+  "Coffee table",
   "Side/end table",
   "Desk",
   "Lamp",

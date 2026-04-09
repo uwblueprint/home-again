@@ -160,7 +160,7 @@ export default function DonationContactForm() {
                   htmlFor="first_name"
                   className="font-medium text-foreground text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5"
                 >
-                  First Name
+                  First name
                 </Label>
                 <Input
                   id="first_name"
@@ -191,7 +191,7 @@ export default function DonationContactForm() {
                   htmlFor="last_name"
                   className="font-medium text-foreground text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5"
                 >
-                  Last Name
+                  Last name
                 </Label>
                 <Input
                   id="last_name"
@@ -218,7 +218,7 @@ export default function DonationContactForm() {
                   htmlFor="email"
                   className="font-medium text-foreground text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5"
                 >
-                  Email Address
+                  Email address
                 </Label>
                 <Input
                   id="email"
@@ -245,7 +245,7 @@ export default function DonationContactForm() {
                   htmlFor="phone"
                   className="font-medium text-foreground text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5"
                 >
-                  Phone Number
+                  Phone number
                 </Label>
                 <Input
                   id="phone"

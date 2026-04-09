@@ -93,7 +93,7 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
 
   return (
     <div className="bg-background min-h-screen flex flex-col">
-      <header className="flex items-center justify-between px-10 py-5 bg-background">
+      <header className="flex min-h-[151px] items-center justify-between bg-background px-10 py-5">
         <Image
           src="/hafb_logo.svg"
           alt="Home Again"

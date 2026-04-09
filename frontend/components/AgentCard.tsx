@@ -197,6 +197,7 @@ export function AgentCard({
               <Input
                 id={`firstName-${index}`}
                 placeholder="John"
+                className="h-11"
                 {...fieldProps("firstName")}
               />
               <FieldError
@@ -208,6 +209,7 @@ export function AgentCard({
               <Input
                 id={`lastName-${index}`}
                 placeholder="Doe"
+                className="h-11"
                 {...fieldProps("lastName")}
               />
               <FieldError
@@ -224,6 +226,7 @@ export function AgentCard({
                 id={`email-${index}`}
                 type="email"
                 placeholder="name@agency.org"
+                className="h-11"
                 {...fieldProps("email")}
               />
               <FieldError message={touched.email ? errors.email : undefined} />
@@ -234,6 +237,7 @@ export function AgentCard({
                 id={`phone-${index}`}
                 type="tel"
                 placeholder="22901220132"
+                className="h-11"
                 {...fieldProps("phoneNumber")}
               />
               <FieldError

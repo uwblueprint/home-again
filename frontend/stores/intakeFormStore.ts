@@ -6,6 +6,7 @@ export interface AgencyFormData {
   addressLine2: string;
   city: string;
   province: string;
+  country: string;
   postalCode: string;
   phone: string;
   phoneNotes: string;
@@ -38,7 +39,6 @@ interface IntakeFormStore {
   mainAgent: MainAgentFormData;
   otherAgents: OtherAgentFormData[];
   submissionCheckpoint: IntakeSubmissionCheckpoint;
-
   setAgency: (data: Partial<AgencyFormData>) => void;
   setMainAgent: (data: Partial<MainAgentFormData>) => void;
   setOtherAgents: (agents: OtherAgentFormData[]) => void;
@@ -57,7 +57,8 @@ const initialAgency: AgencyFormData = {
   addressLine1: "",
   addressLine2: "",
   city: "",
-  province: "",
+  province: "Newfoundland and Labrador",
+  country: "Canada",
   postalCode: "",
   phone: "",
   phoneNotes: "",

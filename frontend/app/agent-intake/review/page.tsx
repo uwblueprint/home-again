@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
 import IntakeStepPage from "@/components/intake/IntakeStepPage";
@@ -49,7 +50,7 @@ function AgentCard({
   );
 }
 
-function ReviewCard({ children }: { children: React.ReactNode }) {
+function ReviewCard({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-col gap-4 rounded-lg border border-border p-3 shadow-sm">
       {children}
@@ -121,7 +122,11 @@ export default function ReviewStep() {
     });
   }, [isSubmitting, isSuccess, setFooterState, submitError]);
 
-  useEffect(() => resetFooterState, [resetFooterState]);
+  useEffect(() => {
+    return () => {
+      resetFooterState();
+    };
+  }, [resetFooterState]);
 
   useEffect(() => {
     if (!submittedAgencyId) {
@@ -164,6 +169,10 @@ export default function ReviewStep() {
               </div>
               <div className={REVIEW_THREE_COLUMN_GRID}>
                 <ReviewField label="City" value={formatValue(agency.city)} />
+                <ReviewField label="Province" value={formatValue(agency.province)} />
+                <ReviewField label="Country" value={formatValue(agency.country)} />
+              </div>
+              <div className={REVIEW_THREE_COLUMN_GRID}>
                 <ReviewField
                   label="Postal code"
                   value={formatValue(agency.postalCode)}
@@ -172,6 +181,7 @@ export default function ReviewStep() {
                   label="Phone number"
                   value={formatValue(agency.phone)}
                 />
+                <div />
               </div>
             </ReviewCard>
           </div>
@@ -183,17 +193,22 @@ export default function ReviewStep() {
             <ReviewCard>
               <div className={REVIEW_THREE_COLUMN_GRID}>
                 <ReviewField
-                  label="First Name"
+                  label="First name"
                   value={formatValue(mainAgent.firstName)}
                 />
                 <ReviewField
-                  label="Last Name"
+                  label="Last name"
                   value={formatValue(mainAgent.lastName)}
                 />
                 <ReviewField
                   label="Phone number"
                   value={formatValue(mainAgent.phone)}
                 />
+              </div>
+              <div className={REVIEW_THREE_COLUMN_GRID}>
+                <ReviewField label="Email" value={formatValue(mainAgent.email)} />
+                <ReviewField label="Role" value={formatValue(mainAgent.role)} />
+                <div />
               </div>
             </ReviewCard>
           </div>

@@ -35,19 +35,20 @@ function buildSampleIntake() {
   return {
     agency: {
       name: "Maple Outreach Collective",
-      addressLine1: "125 Dundas Street West",
+      addressLine1: "125 Water Street",
       addressLine2: "Suite 400",
-      city: "Toronto",
-      province: "Ontario",
-      postalCode: "M5G 1C6",
-      phone: "416-555-0184",
+      city: "St. John's",
+      province: "Newfoundland and Labrador",
+      country: "Canada",
+      postalCode: "A1C 1A1",
+      phone: "709-555-0184",
       phoneNotes: "Front desk weekdays, 9am to 5pm",
     },
     mainAgent: {
       firstName: "Jordan",
       lastName: "Lee",
       email: `agent-intake-${uniqueSuffix}@example.com`,
-      phone: "416-555-0133",
+      phone: "709-555-0133",
       role: "Program Coordinator",
     },
     otherAgents: [
@@ -55,13 +56,13 @@ function buildSampleIntake() {
         firstName: "Avery",
         lastName: "Patel",
         email: `agent-intake-avery-${uniqueSuffix}@example.com`,
-        phone: "416-555-0111",
+        phone: "709-555-0111",
       },
       {
         firstName: "Morgan",
         lastName: "Chen",
         email: `agent-intake-morgan-${uniqueSuffix}@example.com`,
-        phone: "416-555-0172",
+        phone: "709-555-0172",
       },
     ],
   };

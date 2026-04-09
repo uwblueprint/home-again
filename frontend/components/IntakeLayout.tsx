@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -17,10 +17,11 @@ import {
   INTAKE_OTHER_AGENTS,
   INTAKE_REVIEW,
 } from "@/constants/Routes";
+import { IntakeProvider, useIntakeContext } from "@/context/IntakeContext";
 
 const INTAKE_STEPS: Step[] = [
   { label: "Agency", path: INTAKE_AGENCY },
-  { label: "Main Agent", path: INTAKE_MAIN_AGENT },
+  { label: "Your Details", path: INTAKE_MAIN_AGENT },
   { label: "Other Agents", path: INTAKE_OTHER_AGENTS },
   { label: "Review", path: INTAKE_REVIEW },
 ];
@@ -29,13 +30,15 @@ interface IntakeLayoutProps {
   children: React.ReactNode;
 }
 
-function IntakeLayoutContent({ children }: IntakeLayoutProps) {
+function IntakeLayoutInner({ children }: IntakeLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { runValidator } = useIntakeContext();
   const { footerState, runSubmitHandler, hasSubmitHandler } = useIntakeFooter();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const currentStepIndex = INTAKE_STEPS.findIndex(
-    (step) => pathname === step.path
+    (step) => step.path !== undefined && pathname.startsWith(step.path)
   );
   const currentStep = currentStepIndex === -1 ? 0 : currentStepIndex;
 
@@ -59,6 +62,18 @@ function IntakeLayoutContent({ children }: IntakeLayoutProps) {
       return;
     }
 
+    setIsNavigating(true);
+    let valid: boolean;
+    try {
+      valid = await runValidator();
+    } finally {
+      setIsNavigating(false);
+    }
+
+    if (!valid) {
+      return;
+    }
+
     const nextPath = INTAKE_STEPS[currentStep + 1]?.path;
     if (nextPath) {
       router.push(nextPath);
@@ -73,9 +88,9 @@ function IntakeLayoutContent({ children }: IntakeLayoutProps) {
 
   return (
     <div className="bg-background min-h-screen flex flex-col">
-      <header className="flex items-center justify-between px-10 py-5 bg-background">
+      <header className="flex items-center justify-between bg-background px-10 py-5">
         <Image
-          src="/logo192.png"
+          src="/hafb_logo.svg"
           alt="Home Again"
           width={91}
           height={55}
@@ -92,25 +107,26 @@ function IntakeLayoutContent({ children }: IntakeLayoutProps) {
         {children}
       </main>
 
-      <footer className="border-t border-border px-16 py-8 flex items-center justify-between gap-6">
+      <footer className="border-t border-border flex items-center justify-between gap-6 px-16 py-8">
         <div className="min-h-5 flex-1">
           {isLastStep && footerState.submitError ? (
             <p className="text-sm text-destructive">{footerState.submitError}</p>
           ) : null}
         </div>
+
         <div className="flex items-center gap-3">
           <Button
             variant="secondary"
             className="h-10 px-6"
             onClick={handleBack}
-            disabled={footerState.isSubmitting}
+            disabled={isNavigating || footerState.isSubmitting}
           >
             Back
           </Button>
           <Button
             className="h-10 px-6"
             onClick={handleNext}
-            disabled={isSubmitDisabled}
+            disabled={isLastStep ? isSubmitDisabled : isNavigating}
           >
             {isLastStep && footerState.isSubmitting
               ? "Submitting..."
@@ -126,8 +142,10 @@ function IntakeLayoutContent({ children }: IntakeLayoutProps) {
 
 export default function IntakeLayout({ children }: IntakeLayoutProps) {
   return (
-    <IntakeFooterProvider>
-      <IntakeLayoutContent>{children}</IntakeLayoutContent>
-    </IntakeFooterProvider>
+    <IntakeProvider>
+      <IntakeFooterProvider>
+        <IntakeLayoutInner>{children}</IntakeLayoutInner>
+      </IntakeFooterProvider>
+    </IntakeProvider>
   );
 }

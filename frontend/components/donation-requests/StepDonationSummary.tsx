@@ -16,22 +16,15 @@ import {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <span className="text-sm font-medium text-muted-foreground">{label}</span>
       <span className="text-sm text-foreground">{value}</span>
     </div>
   );
 }
 
-function SummaryCard({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function SummaryCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-border bg-background px-6 py-5 shadow-sm">
-      <h3 className="mb-3 text-sm font-semibold text-foreground">{title}</h3>
+    <div className="rounded-xl border border-border bg-background px-6 py-8 shadow-sm">
       {children}
     </div>
   );
@@ -203,56 +196,61 @@ export default function StepDonationSummary() {
   const donorPhone = donorLoading ? "…" : (donor?.phone ?? "-");
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-9">
       {/* Page title */}
-      <div>
-        <h2 className="text-2xl font-bold text-foreground">
+      <div className="flex flex-col gap-3">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground">
           Donation Summary
         </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-sm text-[#6c6c6c]">
           Review your donation details before submitting. You&apos;ll receive a
           confirmation and next steps by email.
         </p>
       </div>
 
-      {/* Two-column cards */}
-      <div className="grid grid-cols-2 gap-4 border-b border-border pb-4">
-        {/* Left column */}
-        <div className="flex flex-col gap-4">
-          <SummaryCard title="Contact Information">
-            <div className="flex flex-col gap-2">
-              <InfoRow label="First Name" value={donorFirstName} />
-              <InfoRow label="Last Name" value={donorLastName} />
-              <InfoRow label="Email Address" value={donorEmail} />
-              <InfoRow label="Phone Number" value={donorPhone} />
-            </div>
-          </SummaryCard>
+      {/* Stacked sections */}
+      <div className="flex flex-col gap-6">
+        {/* Contact Information */}
+        <h3 className="text-xl font-semibold text-foreground">
+          Contact Information
+        </h3>
+        <SummaryCard>
+          <div className="flex flex-col gap-4">
+            <InfoRow label="First Name" value={donorFirstName} />
+            <InfoRow label="Last Name" value={donorLastName} />
+            <InfoRow label="Email Address" value={donorEmail} />
+            <InfoRow label="Phone Number" value={donorPhone} />
+          </div>
+        </SummaryCard>
 
-          <SummaryCard title="Pickup Details">
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-1.5">
-                <MapPinIcon />
-                <span className="text-xs font-medium text-muted-foreground">
-                  Pickup Address
-                </span>
-              </div>
-              <span className="text-sm text-foreground">{formatAddress()}</span>
+        {/* Pickup Details */}
+        <h3 className="text-xl font-semibold text-foreground">
+          Pickup Details
+        </h3>
+        <SummaryCard>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-1.5">
+              <MapPinIcon />
+              <span className="text-sm font-medium text-muted-foreground">
+                Pickup Address
+              </span>
             </div>
-          </SummaryCard>
-        </div>
+            <span className="text-sm text-foreground">{formatAddress()}</span>
+          </div>
+        </SummaryCard>
 
-        {/* Right column */}
-        <SummaryCard title="Donation Items">
+        {/* Donation Items */}
+        <h3 className="text-xl font-semibold text-foreground">
+          Donation Items
+        </h3>
+        <SummaryCard>
           <div className="flex flex-col gap-3">
             {items.map((item) => (
               <ItemRow key={item.id} item={item} />
             ))}
           </div>
         </SummaryCard>
-      </div>
 
-      {/* Bottom questions */}
-      <div className="flex flex-col gap-4">
         {/* Smoking */}
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium text-foreground">

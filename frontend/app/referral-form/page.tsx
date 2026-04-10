@@ -1,8 +1,9 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import GenericLayout from "@/components/referral-form/GenericLayout"
+import DeliveryForm from "@/components/referral-form/DeliveryForm"
 import FurnitureForm from "@/components/referral-form/FurnitureForm"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -17,6 +18,9 @@ type Step = {
 export default function ReferralLayoutDemoPage() {
   const [stepIndex, setStepIndex] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [deliveryShowErrors, setDeliveryShowErrors] = useState(false)
+  const [deliveryIsValid, setDeliveryIsValid] = useState(false)
+  const [furnitureIsValid, setFurnitureIsValid] = useState(true)
 
   const steps: Step[] = useMemo(
     () => [
@@ -96,23 +100,16 @@ export default function ReferralLayoutDemoPage() {
       {
         title: "Furniture",
         content: (
-          <FurnitureForm />
+          <FurnitureForm onValidityChange={setFurnitureIsValid} />
         ),
       },
       {
         title: "Delivery",
         content: (
-          <div className="space-y-3 text-sm">
-            <p className="text-muted-foreground">
-              This is a simple preview screen. In a real flow you would summarize what was entered
-              and maybe add a final acknowledgement checkbox.
-            </p>
-            <ul className="list-disc space-y-1 pl-5">
-              <li>Breadcrumbs highlight the current step.</li>
-              <li>Back button only appears when the handler is provided.</li>
-              <li>Primary action shows loading state via <code>isSubmitting</code>.</li>
-            </ul>
-          </div>
+          <DeliveryForm
+            showErrors={deliveryShowErrors}
+            onValidityChange={setDeliveryIsValid}
+          />
         ),
       },
       {
@@ -155,8 +152,22 @@ export default function ReferralLayoutDemoPage() {
 
   const current = steps[stepIndex]
 
+  useEffect(() => {
+    if (current?.title !== "Delivery") {
+      setDeliveryShowErrors(false)
+    }
+  }, [current?.title])
+
   const handleNext = () => {
     if (isSubmitting) return
+
+    if (current.title === "Delivery" && !deliveryIsValid) {
+      setDeliveryShowErrors(true)
+      return
+    }
+    if (current.title === "Furniture" && !furnitureIsValid) {
+      return
+    }
 
     if (stepIndex === steps.length - 1) {
       setIsSubmitting(true)
@@ -165,6 +176,9 @@ export default function ReferralLayoutDemoPage() {
         setIsSubmitting(false)
       }, 2000)
       return
+    }
+    if (current.title === "Delivery") {
+      setDeliveryShowErrors(false)
     }
     setStepIndex((prev) => Math.min(prev + 1, steps.length - 1))
   }
@@ -175,12 +189,18 @@ export default function ReferralLayoutDemoPage() {
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4">
       <GenericLayout
         title={current.title}
-        showTitle={current.title !== "Furniture"}
+        showTitle={current.title !== "Furniture" && current.title !== "Delivery"}
         breadcrumbLabels={baseBreadcrumbs}
         activeBreadcrumbIndex={stepIndex}
         onNext={handleNext}
         onBack={handleBack}
         isSubmitting={isSubmitting}
+        isNextDisabled={current.title === "Furniture" && !furnitureIsValid}
+        footerAlert={
+          current.title === "Furniture" && !furnitureIsValid
+            ? "Select a size to continue"
+            : undefined
+        }
         nextLabel={stepIndex === steps.length - 1 ? "Submit" : "Next"}
       >
         {current.content}

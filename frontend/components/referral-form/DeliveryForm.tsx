@@ -1,0 +1,317 @@
+"use client"
+
+import { Info } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
+
+type DeliveryFormProps = {
+  className?: string
+  showErrors?: boolean
+  onValidityChange?: (isValid: boolean) => void
+}
+
+const PROVINCES = [
+  "Alberta",
+  "British Columbia",
+  "Manitoba",
+  "New Brunswick",
+  "Newfoundland and Labrador",
+  "Nova Scotia",
+  "Ontario",
+  "Prince Edward Island",
+  "Quebec",
+  "Saskatchewan",
+  "Northwest Territories",
+  "Nunavut",
+  "Yukon",
+]
+
+const COUNTRIES = ["Canada", "United States"]
+
+const MOVE_OPTIONS = [
+  { id: "staircases", label: "Staircases" },
+  { id: "narrow-passageways", label: "Narrow passageways" },
+  { id: "adequate-parking", label: "Adequate parking" },
+  { id: "other", label: "Other" },
+]
+
+const ALLOWED_PROVINCE = "newfoundland and labrador"
+const ALLOWED_COUNTRY = "canada"
+
+export default function DeliveryForm({
+  className,
+  showErrors = false,
+  onValidityChange,
+}: DeliveryFormProps) {
+  const [address1, setAddress1] = useState("")
+  const [address2, setAddress2] = useState("")
+  const [city, setCity] = useState("")
+  const [province, setProvince] = useState("")
+  const [country, setCountry] = useState("")
+  const [postalCode, setPostalCode] = useState("")
+  const [dateNeeded, setDateNeeded] = useState("")
+  const [notes, setNotes] = useState("")
+  const [otherDetails, setOtherDetails] = useState("")
+  const [selectedMoves, setSelectedMoves] = useState<Record<string, boolean>>(
+    () => Object.fromEntries(MOVE_OPTIONS.map((option) => [option.id, false]))
+  )
+
+  const errors = useMemo(() => {
+    const address1Error = address1.trim()
+      ? ""
+      : "Address line 1"
+    const cityError = city.trim() ? "" : "Enter the city."
+    const provinceError = province
+      ? province === ALLOWED_PROVINCE
+        ? ""
+        : "Deliveries are not supported in this region."
+      : "Select your agency's province/territory"
+    const countryError = country
+      ? country === ALLOWED_COUNTRY
+        ? ""
+        : "Deliveries are not supported in this region."
+      : "Select your agency's country."
+    const otherError = selectedMoves.other && !otherDetails.trim()
+      ? "Enter additional details."
+      : ""
+
+    return {
+      address1: address1Error,
+      city: cityError,
+      province: provinceError,
+      country: countryError,
+      other: otherError,
+    }
+  }, [address1, city, country, otherDetails, province, selectedMoves.other])
+
+  const isValid = useMemo(
+    () => Object.values(errors).every((error) => !error),
+    [errors]
+  )
+
+  const showError = (field: keyof typeof errors) =>
+    Boolean(showErrors && errors[field])
+
+  useEffect(() => {
+    onValidityChange?.(isValid)
+  }, [isValid, onValidityChange])
+
+  return (
+    <section className={cn("space-y-6", className)}>
+      <header className="space-y-2">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Delivery Details
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Describe the client&apos;s delivery needs and any access details.
+        </p>
+      </header>
+
+      <div className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-foreground">
+        <Info className="h-4 w-4 text-neutral-500" aria-hidden="true" />
+        <span>
+          Home Again Furniture Bank is currently only servicing Newfoundland and
+          Labrador, Canada
+        </span>
+      </div>
+
+      <div className="grid gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="delivery-address-1">Address line 1</Label>
+          <Input
+            id="delivery-address-1"
+            placeholder="Street address"
+            autoComplete="address-line1"
+            value={address1}
+            onChange={(event) => setAddress1(event.target.value)}
+            aria-invalid={showError("address1")}
+            className={cn(
+              showError("address1") && "border-destructive"
+            )}
+          />
+          {showError("address1") ? (
+            <p className="text-xs text-destructive">{errors.address1}</p>
+          ) : null}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="delivery-address-2">Address line 2</Label>
+          <Input
+            id="delivery-address-2"
+            placeholder="Suite, unit, floor, or building"
+            autoComplete="address-line2"
+            value={address2}
+            onChange={(event) => setAddress2(event.target.value)}
+          />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="delivery-city">City</Label>
+            <Input
+              id="delivery-city"
+              placeholder="Enter city"
+              autoComplete="address-level2"
+              value={city}
+              onChange={(event) => setCity(event.target.value)}
+              aria-invalid={showError("city")}
+              className={cn(showError("city") && "border-destructive")}
+            />
+            {showError("city") ? (
+              <p className="text-xs text-destructive">{errors.city}</p>
+            ) : null}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="delivery-province">Province/territory</Label>
+            <Select
+              value={province}
+              onValueChange={(value) => {
+                setProvince(value ?? "")
+              }}
+            >
+              <SelectTrigger
+                id="delivery-province"
+                aria-invalid={showError("province")}
+                className={cn(showError("province") && "border-destructive")}
+              >
+                <SelectValue placeholder="Select a province/territory" />
+              </SelectTrigger>
+              <SelectContent>
+                {PROVINCES.map((provinceOption) => (
+                  <SelectItem
+                    key={provinceOption}
+                    value={provinceOption.toLowerCase()}
+                  >
+                    {provinceOption}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {showError("province") ? (
+              <p className="text-xs text-destructive">{errors.province}</p>
+            ) : null}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="delivery-country">Country</Label>
+            <Select
+              value={country}
+              onValueChange={(value) => {
+                setCountry(value ?? "")
+              }}
+            >
+              <SelectTrigger
+                id="delivery-country"
+                aria-invalid={showError("country")}
+                className={cn(showError("country") && "border-destructive")}
+              >
+                <SelectValue placeholder="Select a country" />
+              </SelectTrigger>
+              <SelectContent>
+                {COUNTRIES.map((countryOption) => (
+                  <SelectItem
+                    key={countryOption}
+                    value={countryOption.toLowerCase()}
+                  >
+                    {countryOption}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {showError("country") ? (
+              <p className="text-xs text-destructive">{errors.country}</p>
+            ) : null}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="delivery-postal">Postal code</Label>
+            <Input
+              id="delivery-postal"
+              placeholder="Enter postal code"
+              autoComplete="postal-code"
+              value={postalCode}
+              onChange={(event) => setPostalCode(event.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <Label className="text-sm font-medium text-foreground">
+          Information related to the move
+        </Label>
+        <div className="grid gap-2 text-sm">
+          {MOVE_OPTIONS.map((option) => (
+            <label
+              key={option.id}
+              htmlFor={option.id}
+              className="flex items-center gap-2 text-foreground"
+            >
+              <input
+                id={option.id}
+                type="checkbox"
+                className="h-4 w-4 rounded border-neutral-300 text-[#9E4876] accent-[#9E4876] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9E4876]/40"
+                checked={selectedMoves[option.id] ?? false}
+                onChange={(event) => {
+                  const isChecked = event.target.checked
+                  setSelectedMoves((prev) => ({
+                    ...prev,
+                    [option.id]: isChecked,
+                  }))
+                  if (option.id === "other" && !isChecked) {
+                    setOtherDetails("")
+                  }
+                }}
+              />
+              {option.label}
+            </label>
+          ))}
+          {selectedMoves.other ? (
+            <div className="space-y-2">
+              <Input
+                id="delivery-other-details"
+                placeholder="e.g. Dog on premises"
+                value={otherDetails}
+                onChange={(event) => setOtherDetails(event.target.value)}
+                aria-invalid={showError("other")}
+                className={cn(showError("other") && "border-destructive")}
+              />
+              {showError("other") ? (
+                <p className="text-xs text-destructive">{errors.other}</p>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="delivery-date">Date items needed by</Label>
+        <Input
+          id="delivery-date"
+          type="date"
+          placeholder="MM/DD/YYYY"
+          value={dateNeeded}
+          onChange={(event) => setDateNeeded(event.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="delivery-notes">Notes and instructions</Label>
+        <Textarea
+          id="delivery-notes"
+          placeholder="Add delivery notes or instructions"
+          className="min-h-30"
+          value={notes}
+          onChange={(event) => setNotes(event.target.value)}
+        />
+      </div>
+    </section>
+  )
+}

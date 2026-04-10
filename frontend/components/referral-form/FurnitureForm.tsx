@@ -1,14 +1,14 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
-  Armchair,
-  Archive,
-  BedDouble,
-  Home,
-  Plug,
+  Bed,
+  LampDesk,
+  Package,
+  PlugZap,
   Search,
-  Table2,
+  Sofa,
+  Utensils,
 } from "lucide-react"
 
 import FurnitureItemCard from "@/components/referral-form/FurnitureItemCard"
@@ -25,6 +25,7 @@ type FurnitureFormProps = {
   className?: string
   showHeader?: boolean
   showSummary?: boolean
+  onValidityChange?: (isValid: boolean) => void
 }
 
 const CATEGORIES = [
@@ -178,19 +179,20 @@ const SUB_OPTIONS: Record<
 const buildDefaults = (value: number) =>
   Object.fromEntries(ITEMS.map((item) => [item.id, value]))
 
-const CATEGORY_ICONS: Record<string, typeof Armchair> = {
-  Seating: Armchair,
-  "Storage and Shelving": Archive,
-  Bed: BedDouble,
-  Household: Home,
-  Electronics: Plug,
-  Tables: Table2,
+const CATEGORY_ICONS: Record<string, typeof Sofa> = {
+  Seating: Sofa,
+  "Storage and Shelving": Package,
+  Bed: Bed,
+  Household: Utensils,
+  Electronics: PlugZap,
+  Tables: LampDesk,
 }
 
 export default function FurnitureForm({
   className,
   showHeader = true,
   showSummary = true,
+  onValidityChange,
 }: FurnitureFormProps) {
   const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [subOptions, setSubOptions] = useState(SUB_OPTIONS)
@@ -203,6 +205,8 @@ export default function FurnitureForm({
 
   const [activeCategory, setActiveCategory] = useState<string>(CATEGORIES[0])
   const [search, setSearch] = useState("")
+
+  const isSearchActive = search.trim().length > 0
 
   const filteredItems = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase()
@@ -217,40 +221,82 @@ export default function FurnitureForm({
     })
   }, [activeCategory, search])
 
+  const hasSizeError = useMemo(() => {
+    return ITEMS.some((item) => {
+      if (!selected[item.id]) return false
+      const subs = subOptions[item.id]
+      if (!subs?.length) return false
+      const total = subs.reduce((sum, sub) => sum + (sub.quantity ?? 0), 0)
+      return total === 0
+    })
+  }, [selected, subOptions])
+
+  useEffect(() => {
+    onValidityChange?.(!hasSizeError)
+  }, [hasSizeError, onValidityChange])
+
+  const handleSummaryQuantityChange = (itemId: string, nextQuantity: number) => {
+    setQuantities((prev) => ({ ...prev, [itemId]: nextQuantity }))
+    setSelected((prev) => ({ ...prev, [itemId]: nextQuantity > 0 }))
+  }
+
+  const handleSummarySubQuantityChange = (
+    itemId: string,
+    subId: string,
+    nextQuantity: number
+  ) => {
+    setSubOptions((prev) => {
+      const list = prev[itemId]
+      if (!list) return prev
+      const nextList = list.map((sub) =>
+        sub.id === subId ? { ...sub, quantity: nextQuantity } : sub
+      )
+      const total = nextList.reduce((sum, sub) => sum + (sub.quantity ?? 0), 0)
+      setSelected((prevSelected) => ({
+        ...prevSelected,
+        [itemId]: total > 0,
+      }))
+      return {
+        ...prev,
+        [itemId]: nextList,
+      }
+    })
+  }
+
   return (
     <section className={cn("space-y-5", className)}>
       {showHeader ? (
         <header className="space-y-2">
-          <h2 className="text-2xl font-semibold text-foreground">
-            Furniture Selection
-          </h2>
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-muted-foreground">
-              Add one or more requested furniture or household items.
-            </p>
-            <div className="flex items-center gap-2 rounded-full border border-neutral-200 px-3 py-1">
+            <h2 className="text-[30px] font-semibold tracking-[-1px] text-foreground">
+              Furniture Selection
+            </h2>
+            <div className="flex h-10 items-center gap-2 rounded-md border border-neutral-200 px-3">
               <Search className="h-4 w-4 text-neutral-400" aria-hidden="true" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search for furniture"
-                className="w-48 bg-transparent text-sm outline-none"
+                className="w-56 bg-transparent text-sm outline-none"
               />
             </div>
           </div>
+          <p className="text-[18px] font-normal text-muted-foreground">
+            Add one or more requested furniture or household items.
+          </p>
         </header>
       ) : null}
 
       <div className="space-y-3">
         {!showHeader ? (
           <div className="flex justify-end">
-            <div className="flex items-center gap-2 rounded-full border border-neutral-200 px-3 py-1">
+            <div className="flex h-10 items-center gap-2 rounded-md border border-neutral-200 px-3">
               <Search className="h-4 w-4 text-neutral-400" aria-hidden="true" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search for furniture"
-                className="w-48 bg-transparent text-sm outline-none"
+                className="w-56 bg-transparent text-sm outline-none"
               />
             </div>
           </div>
@@ -259,6 +305,7 @@ export default function FurnitureForm({
           {CATEGORIES.map((cat) => {
             const Icon = CATEGORY_ICONS[cat]
             const isActive = activeCategory === cat
+            const isActiveCategory = isActive && !isSearchActive
             return (
               <button
                 key={cat}
@@ -267,8 +314,8 @@ export default function FurnitureForm({
                   setSearch("")
                 }}
                 className={cn(
-                  "flex flex-1 items-center justify-center gap-2 border-b-2 px-1 pb-2 text-sm font-medium transition",
-                  isActive
+                  "flex flex-1 items-center justify-center gap-2 border-b-2 px-1 pb-2 text-sm font-normal transition",
+                  isActiveCategory
                     ? "border-[#9E4876] text-[#1F1F1F]"
                     : "border-transparent text-neutral-500 hover:text-neutral-700"
                 )}
@@ -322,15 +369,20 @@ export default function FurnitureForm({
         })}
       </div>
 
+
       {showSummary ? (
         <section className="mt-8 space-y-4">
-          <h3 className="text-xl font-semibold text-foreground">Summary</h3>
+          <h3 className="text-[24px] font-semibold tracking-[-1px] text-foreground">
+            Summary
+          </h3>
           <SummaryList
             items={ITEMS}
             selected={selected}
             quantities={quantities}
             notes={notes}
             subOptions={subOptions}
+            onQuantityChange={handleSummaryQuantityChange}
+            onSubQuantityChange={handleSummarySubQuantityChange}
           />
         </section>
       ) : null}

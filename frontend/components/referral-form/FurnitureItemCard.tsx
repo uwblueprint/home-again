@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Check, Minus, PencilLine, Plus } from "lucide-react"
+import { Check, Minus, Plus, SquarePen } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 
@@ -42,6 +42,14 @@ export function FurnitureItemCard({
   const [isEditingSubOptions, setIsEditingSubOptions] = useState(
     () => !!subOptions?.length
   )
+
+  const sizeHint = (() => {
+    if (!subOptions?.length) return ""
+    const labels = subOptions.map((sub) => sub.label)
+    if (labels.length === 1) return `Available in ${labels[0]}.`
+    if (labels.length === 2) return `Available in ${labels[0]} and ${labels[1]}.`
+    return `Available in ${labels.slice(0, -1).join(", ")} and ${labels.at(-1)}.`
+  })()
 
   const subQuantitiesSignature =
     subOptions?.map((sub) => `${sub.id}:${sub.quantity}`).join("|") ?? ""
@@ -134,7 +142,7 @@ export function FurnitureItemCard({
             </span>
           </label>
 
-          <h3 className="text-base font-medium leading-6 text-[#171717]">
+          <h3 className="text-[16px] font-medium leading-6 text-[#171717]">
             {label}
           </h3>
 
@@ -208,10 +216,16 @@ export function FurnitureItemCard({
               </span>
             </label>
 
-            <h3 className="text-base font-medium leading-6 text-[#171717]">
+            <h3 className="text-[16px] font-medium leading-6 text-[#171717]">
               {label}
             </h3>
           </div>
+
+          {!selected && sizeHint ? (
+            <p className="pl-7 text-sm font-normal text-neutral-500">
+              {sizeHint}
+            </p>
+          ) : null}
 
           <div
             className={cn(
@@ -247,7 +261,7 @@ export function FurnitureItemCard({
                 onClick={() => setIsEditingSubOptions(true)}
                 aria-label="Edit sizes"
               >
-                <PencilLine className="h-4 w-4" />
+                <SquarePen className="h-4 w-4" />
               </button>
             ) : null}
           </div>
@@ -333,7 +347,7 @@ export function FurnitureItemCard({
                     aria-label="Done"
                   >
                     <Check className="h-3.5 w-3.5" />
-                    Done
+                    Add
                   </button>
                 </div>
               ) : null}
@@ -344,7 +358,7 @@ export function FurnitureItemCard({
             value={notes}
             onChange={(e) => onNotesChange?.(e.target.value)}
             placeholder="Add item details or specifications"
-            className="h-12 rounded-lg border-neutral-300 text-base placeholder:text-neutral-500"
+            className="h-12 rounded-lg border-neutral-300 text-base font-normal placeholder:text-neutral-500"
           />
         </div>
       ) : null}

@@ -1,3 +1,4 @@
+import { Minus, Plus, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 type SummaryItem = {
@@ -14,6 +15,8 @@ type SummaryListProps = {
     string,
     { id: string; label: string; quantity: number }[] | undefined
   >
+  onQuantityChange?: (itemId: string, nextQuantity: number) => void
+  onSubQuantityChange?: (itemId: string, subId: string, nextQuantity: number) => void
   className?: string
 }
 
@@ -23,6 +26,8 @@ export default function SummaryList({
   quantities,
   notes,
   subOptions,
+  onQuantityChange,
+  onSubQuantityChange,
   className,
 }: SummaryListProps) {
   const chosen = items.filter((item) => {
@@ -43,26 +48,98 @@ export default function SummaryList({
     )
   }
 
+  const summaryEntries = chosen.flatMap((item) => {
+    const subList = subOptions[item.id]
+    const activeSubs = subList?.filter((s) => (s.quantity ?? 0) > 0) ?? []
+    if (activeSubs.length > 0) {
+      return activeSubs.map((sub) => ({
+        key: `${item.id}-${sub.id}`,
+        itemId: item.id,
+        label: item.label,
+        subId: sub.id,
+        subLabel: sub.label,
+        quantity: sub.quantity ?? 0,
+      }))
+    }
+
+    return [
+      {
+        key: item.id,
+        itemId: item.id,
+        label: item.label,
+        quantity: quantities[item.id] ?? 0,
+      },
+    ]
+  })
+
   return (
     <div className={cn("space-y-3", className)}>
-      {chosen.map((item) => {
-        const subList = subOptions[item.id]
-        const activeSubs = subList?.filter((s) => (s.quantity ?? 0) > 0) ?? []
-        const displayQuantity = subList
-          ? activeSubs.reduce((sum, s) => sum + (s.quantity ?? 0), 0)
-          : quantities[item.id] ?? 0
-        const note = notes[item.id] ?? ""
+      {summaryEntries.map((entry) => {
+        const note = notes[entry.itemId] ?? ""
 
         return (
-          <div
-            key={`summary-${item.id}`}
-            className="rounded-xl border border-muted-foreground/20 bg-white p-4 shadow-sm"
-          >
-            <div className="flex items-start justify-between gap-3">
+            <div
+              key={`summary-${entry.key}`}
+              className="rounded-xl border border-muted-foreground/20 bg-white p-4 shadow-sm"
+            >
               <div className="space-y-2">
-                <p className="text-lg font-semibold text-foreground">
-                  {item.label}
-                </p>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-lg font-semibold text-foreground">
+                    {entry.label}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 rounded-2xl border border-neutral-300 px-3 py-1.5 text-base text-foreground">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextQty = Math.max((entry.quantity ?? 1) - 1, 1)
+                          if (entry.subId) {
+                            onSubQuantityChange?.(entry.itemId, entry.subId, nextQty)
+                          } else {
+                            onQuantityChange?.(entry.itemId, nextQty)
+                          }
+                        }}
+                        disabled={entry.quantity <= 1}
+                        className="text-2xl text-neutral-500 disabled:opacity-40"
+                        aria-label={`Decrease ${entry.label}`}
+                      >
+                        <Minus className="h-4 w-4" strokeWidth={2.5} />
+                      </button>
+                      <span className="min-w-[1.5ch] text-center">
+                        {entry.quantity}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextQty = (entry.quantity ?? 0) + 1
+                          if (entry.subId) {
+                            onSubQuantityChange?.(entry.itemId, entry.subId, nextQty)
+                          } else {
+                            onQuantityChange?.(entry.itemId, nextQty)
+                          }
+                        }}
+                        className="text-2xl text-neutral-700"
+                        aria-label={`Increase ${entry.label}`}
+                      >
+                        <Plus className="h-4 w-4" strokeWidth={2.5} />
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (entry.subId) {
+                          onSubQuantityChange?.(entry.itemId, entry.subId, 0)
+                        } else {
+                          onQuantityChange?.(entry.itemId, 0)
+                        }
+                      }}
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 hover:text-neutral-700"
+                      aria-label={`Delete ${entry.label}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
 
                 {note ? (
                   <p className="text-sm text-foreground/80">{note}</p>
@@ -72,22 +149,14 @@ export default function SummaryList({
                   </p>
                 )}
 
-                {activeSubs.length > 0 ? (
+                {entry.subLabel ? (
                   <div className="flex flex-wrap items-center gap-2">
-                    {activeSubs.map((sub) => (
-                      <span
-                        key={sub.id}
-                        className="rounded-full bg-[#B5BD7E] px-2.5 py-1 text-xs font-semibold text-[#2f3121]"
-                      >
-                        ({sub.quantity}) {sub.label}
-                      </span>
-                    ))}
+                    <span className="rounded-full bg-[#B5BD7E] px-2.5 py-1 text-xs font-semibold text-[#2f3121]">
+                      {entry.subLabel}
+                    </span>
                   </div>
                 ) : null}
               </div>
-
-              <p className="text-sm text-foreground">Quantity: {displayQuantity}</p>
-            </div>
           </div>
         )
       })}

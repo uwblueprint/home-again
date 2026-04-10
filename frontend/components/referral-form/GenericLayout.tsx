@@ -7,6 +7,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -19,6 +20,8 @@ type GenericLayoutProps = {
   onNext: () => void
   onBack?: () => void
   isSubmitting?: boolean
+  isNextDisabled?: boolean
+  footerAlert?: string
   title: string
   showTitle?: boolean
   breadcrumbs?: BreadcrumbStep[]
@@ -37,6 +40,8 @@ function GenericLayout({
   onNext,
   onBack,
   isSubmitting = false,
+  isNextDisabled = false,
+  footerAlert,
   nextLabel = "Next",
   children,
 }: GenericLayoutProps) {
@@ -111,7 +116,7 @@ function GenericLayout({
           </BreadcrumbList>
         </BreadcrumbNav>
       </header>
-      <div className="flex w-full flex-col gap-6 bg-background">
+      <div className="mt-4 flex w-full flex-col gap-6 bg-background">
         {showTitle ? (
           <h1 className="text-xl font-semibold text-foreground">{title}</h1>
         ) : null}
@@ -121,44 +126,54 @@ function GenericLayout({
 
       <nav
         className={cn(
-          "mt-auto w-screen max-w-none",
-          "-mx-[calc((100vw-100%)/2)]",
-          "border-t border-border bg-background/90 px-4 py-3 pb-6"
+          "mt-auto w-full max-w-6xl",
+          "mx-auto",
+          "border-t border-border bg-background/90 py-3 pb-6"
         )}
       >
-        <div className="ml-auto mr-4 flex w-full max-w-6xl items-center justify-end gap-2">
-          {onBack ? (
+        <div className="grid w-full grid-cols-[1fr_auto] items-center gap-2">
+          {footerAlert ? (
+            <div className="flex items-center gap-2 justify-self-start text-left text-sm text-destructive">
+              <AlertCircle className="h-4 w-4" aria-hidden="true" />
+              <span>{footerAlert}</span>
+            </div>
+          ) : (
+            <span />
+          )}
+          <div className="flex items-center justify-end gap-2">
+            {onBack ? (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onBack}
+                data-testid="back-button"
+                className={cn(
+                  "flex min-h-[40px] items-center justify-center gap-2",
+                  "px-6 py-2.5",
+                  "rounded-lg bg-neutral-100",
+                  "text-sm text-muted-foreground hover:bg-neutral-200 hover:text-foreground"
+                )}
+              >
+                Back
+              </Button>
+            ) : null}
+
             <Button
               type="button"
-              variant="ghost"
-              onClick={onBack}
-              data-testid="back-button"
+              onClick={onNext}
+              disabled={isSubmitting || isNextDisabled}
+              data-testid="next-button"
+              aria-busy={isSubmitting}
               className={cn(
                 "flex min-h-[40px] items-center justify-center gap-2",
                 "px-6 py-2.5",
-                "rounded-lg bg-neutral-100",
-                "text-sm text-muted-foreground hover:bg-neutral-200 hover:text-foreground"
+                "rounded-lg bg-[#9E4876] text-primary-foreground",
+                "hover:bg-[#9E4876]/90"
               )}
             >
-              Back
+              {isSubmitting ? "Loading..." : nextLabel}
             </Button>
-          ) : null}
-
-          <Button
-            type="button"
-            onClick={onNext}
-            disabled={isSubmitting}
-            data-testid="next-button"
-            aria-busy={isSubmitting}
-            className={cn(
-              "flex min-h-[40px] items-center justify-center gap-2",
-              "px-6 py-2.5",
-              "rounded-lg bg-[#9E4876] text-primary-foreground",
-              "hover:bg-[#9E4876]/90"
-            )}
-          >
-            {isSubmitting ? "Loading..." : nextLabel}
-          </Button>
+          </div>
         </div>
       </nav>
     </div>

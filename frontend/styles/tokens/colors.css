@@ -1,8 +1,8 @@
 :root {
   /* Collection: alpha */
   --alpha-black-alpha-100: oklch(0 0 0);
-  --alpha-black-alpha-333: oklch(0 0 0);
-  --alpha-black-alpha-5: oklch(0 0 0);
+  --alpha-black-alpha-333: oklch(0 0 0 / 0.03);
+  --alpha-black-alpha-5: oklch(0 0 0 / 0.05);
   --alpha-black-alpha-60: oklch(0 0 0);
   --alpha-white-alpha-001: oklch(1 0 0);
   --alpha-white-alpha-10: oklch(1 0 0);

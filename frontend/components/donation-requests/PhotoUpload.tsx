@@ -225,7 +225,7 @@ export default function PhotoUpload({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               className={cn(
-                "flex w-80 cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm hover:bg-muted/40",
+                "flex w-80 cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm hover:bg-[var(--unofficial-outline-hover)]",
                 overflowCount > 0 ? "border-destructive" : "border-border",
               )}
             >

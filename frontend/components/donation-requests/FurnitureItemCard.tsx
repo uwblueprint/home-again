@@ -158,8 +158,8 @@ export default function FurnitureItemCard({
                     className={cn(
                       "cursor-pointer px-4 py-1.5 text-sm font-medium transition-colors",
                       itemData.hasStains === true
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-background text-foreground hover:bg-muted",
+                        ? "bg-[var(--unofficial-outline-active)] text-foreground"
+                        : "bg-background text-foreground hover:bg-[var(--unofficial-outline-hover)]",
                     )}
                   >
                     Yes
@@ -171,8 +171,8 @@ export default function FurnitureItemCard({
                     className={cn(
                       "cursor-pointer border-l border-border px-4 py-1.5 text-sm font-medium transition-colors",
                       itemData.hasStains === false
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-background text-foreground hover:bg-muted",
+                        ? "bg-[var(--unofficial-outline-active)] text-foreground"
+                        : "bg-background text-foreground hover:bg-[var(--unofficial-outline-hover)]",
                     )}
                   >
                     No
@@ -191,7 +191,7 @@ export default function FurnitureItemCard({
                   variant="outline"
                   size="sm"
                   onClick={() => setDialogOpen(true)}
-                  className="gap-2"
+                  className="gap-2 hover:bg-[var(--unofficial-outline-hover)]"
                 >
                   <Upload className="size-4" />
                   Upload Photos

@@ -46,8 +46,8 @@ function YesNoToggle({
         className={cn(
           "cursor-pointer px-4 py-1.5 text-sm font-medium transition-colors",
           value === true
-            ? "bg-primary text-primary-foreground"
-            : "bg-background text-foreground hover:bg-muted",
+            ? "bg-[var(--unofficial-outline-active)] text-foreground"
+            : "bg-background text-foreground hover:bg-[var(--unofficial-outline-hover)]",
         )}
       >
         Yes
@@ -59,8 +59,8 @@ function YesNoToggle({
         className={cn(
           "cursor-pointer border-l border-border px-4 py-1.5 text-sm font-medium transition-colors",
           value === false
-            ? "bg-primary text-primary-foreground"
-            : "bg-background text-foreground hover:bg-muted",
+            ? "bg-[var(--unofficial-outline-active)] text-foreground"
+            : "bg-background text-foreground hover:bg-[var(--unofficial-outline-hover)]",
         )}
       >
         No
@@ -274,7 +274,7 @@ export default function StepDonationSummary() {
         </div>
 
         {/* Fee agreement */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5 pb-8">
           <div>
             <span className="text-sm font-medium text-foreground">
               Pickup fee agreement

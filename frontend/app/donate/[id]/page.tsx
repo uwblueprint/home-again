@@ -68,9 +68,9 @@ function DonationFlowPageInner() {
     currentStep === 1 ? (
       <Button
         type="button"
-        variant="outline"
+        variant="secondary"
         size="lg"
-        className="gap-1.5 px-5 py-5"
+        className="gap-1.5 px-5 py-5 hover:bg-[var(--unofficial-outline-hover)]"
         onClick={() => {
           if (!validateItems(formState.items)) {
             setValidationError("Please complete all item details before adding another.");

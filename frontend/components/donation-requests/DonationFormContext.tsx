@@ -43,7 +43,7 @@ const DEFAULT_PICKUP_ADDRESS: PickupAddress = {
   streetAddress: "",
   apartment: "",
   city: "",
-  province: "NL",
+  province: "Newfoundland and Labrador",
   country: "Canada",
   postalCode: "",
 };
@@ -82,7 +82,10 @@ function createItem(): FurnitureItemData {
 
 export function validateItems(items: FurnitureItemData[]): boolean {
   return items.every(
-    (item) => item.furnitureType !== null && item.hasStains !== null,
+    (item) => 
+      item.furnitureType !== null && 
+      item.hasStains !== null &&
+      item.photos.length > 0,
   );
 }
 

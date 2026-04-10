@@ -220,7 +220,7 @@ export default function FurnitureItemCard({
                               photos: itemData.photos.filter((_, idx) => idx !== i),
                             })
                           }
-                          className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-[#a3a3a3]/70 bg-white text-foreground shadow-sm hover:bg-muted"
+                          className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-[#a3a3a3]/70 bg-white text-foreground shadow-sm hover:bg-[linear-gradient(var(--alpha-black-alpha-333),var(--alpha-black-alpha-333)),linear-gradient(#fff,#fff)]"
                           aria-label={`Remove ${file.name}`}
                         >
                           <X className="size-3" />

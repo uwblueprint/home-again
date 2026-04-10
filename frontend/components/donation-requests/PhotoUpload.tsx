@@ -280,7 +280,7 @@ export default function PhotoUpload({
                     type="button"
                     onClick={() => removePhoto(i)}
                     aria-label={`Remove ${file.name}`}
-                    className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-border bg-background shadow-sm hover:bg-muted"
+                    className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-border bg-background shadow-sm hover:bg-[linear-gradient(var(--alpha-black-alpha-333),var(--alpha-black-alpha-333)),linear-gradient(#fff,#fff)]"
                   >
                     <X className="size-3" />
                   </button>

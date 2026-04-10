@@ -202,7 +202,7 @@ export default function StepDonationSummary() {
         <h2 className="text-2xl font-bold tracking-tight text-foreground">
           Donation Summary
         </h2>
-        <p className="text-sm text-[#6c6c6c]">
+        <p className="text-sm text-muted-foreground">
           Review your donation details before submitting. You&apos;ll receive a
           confirmation and next steps by email.
         </p>

@@ -229,7 +229,7 @@ export default function PhotoUpload({
                 overflowCount > 0 ? "border-destructive" : "border-border",
               )}
             >
-              <span className="font-bold text-foreground">Choose Files</span>
+              <span className="font-semibold text-foreground">Choose Files</span>
               <span className="text-muted-foreground">
                 {pendingPhotos.length === 0
                   ? "No files chosen"
@@ -295,14 +295,18 @@ export default function PhotoUpload({
           <Button
             type="button"
             variant="outline"
+            size="lg"
             onClick={closeDialog}
+            className="px-4 hover:bg-[var(--alpha-black-alpha-333)]"
           >
             Cancel
           </Button>
           <Button
             type="button"
+            size="lg"
             onClick={handleSave}
             disabled={pendingPhotos.length === 0}
+            className="px-4"
           >
             Save
           </Button>

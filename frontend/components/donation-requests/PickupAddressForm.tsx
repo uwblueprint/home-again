@@ -148,7 +148,7 @@ export default function PickupAddressForm({
               onChange({ ...addressData, province: value ?? "Newfoundland and Labrador" })
             }
           >
-            <SelectTrigger id="province" className={`${inputClass} w-full !h-10`}>
+            <SelectTrigger id="province" className={`${inputClass} w-full !h-10 cursor-pointer`}>
               <SelectValue placeholder="Newfoundland and Labrador" />
             </SelectTrigger>
             <SelectContent 
@@ -175,7 +175,7 @@ export default function PickupAddressForm({
               onChange({ ...addressData, country: value ?? "Canada" })
             }
           >
-            <SelectTrigger id="country" className={`${inputClass} w-full !h-10`}>
+            <SelectTrigger id="country" className={`${inputClass} w-full !h-10 cursor-pointer`}>
               <SelectValue placeholder="Canada" />
             </SelectTrigger>
             <SelectContent 

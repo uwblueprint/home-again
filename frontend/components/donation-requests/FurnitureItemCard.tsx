@@ -158,8 +158,8 @@ export default function FurnitureItemCard({
                     className={cn(
                       "cursor-pointer px-4 py-1.5 text-sm font-medium transition-colors",
                       itemData.hasStains === true
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-background text-foreground hover:bg-muted",
+                        ? "bg-[var(--unofficial-outline-active)] text-foreground"
+                        : "bg-background text-foreground hover:bg-[var(--unofficial-outline-hover)]",
                     )}
                   >
                     Yes
@@ -171,8 +171,8 @@ export default function FurnitureItemCard({
                     className={cn(
                       "cursor-pointer border-l border-border px-4 py-1.5 text-sm font-medium transition-colors",
                       itemData.hasStains === false
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-background text-foreground hover:bg-muted",
+                        ? "bg-[var(--unofficial-outline-active)] text-foreground"
+                        : "bg-background text-foreground hover:bg-[var(--unofficial-outline-hover)]",
                     )}
                   >
                     No
@@ -191,7 +191,7 @@ export default function FurnitureItemCard({
                   variant="outline"
                   size="sm"
                   onClick={() => setDialogOpen(true)}
-                  className="gap-2"
+                  className="gap-2 hover:bg-[var(--unofficial-outline-hover)]"
                 >
                   <Upload className="size-4" />
                   Upload Photos
@@ -220,7 +220,7 @@ export default function FurnitureItemCard({
                               photos: itemData.photos.filter((_, idx) => idx !== i),
                             })
                           }
-                          className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-[#a3a3a3]/70 bg-white text-foreground shadow-sm hover:bg-muted"
+                          className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-[#a3a3a3]/70 bg-white text-foreground shadow-sm hover:bg-[linear-gradient(var(--alpha-black-alpha-333),var(--alpha-black-alpha-333)),linear-gradient(#fff,#fff)]"
                           aria-label={`Remove ${file.name}`}
                         >
                           <X className="size-3" />

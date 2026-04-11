@@ -160,14 +160,14 @@ export default function DonationContactForm() {
                   htmlFor="first_name"
                   className="font-medium text-foreground text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5"
                 >
-                  First Name
+                  First name
                 </Label>
                 <Input
                   id="first_name"
                   name="first_name"
                   type="text"
                   autoComplete="given-name"
-                  placeholder="Jane"
+                  placeholder="Enter first name"
                   value={values.first_name}
                   onChange={handleChange("first_name")}
                   onBlur={() => handleBlur("first_name")}
@@ -191,14 +191,14 @@ export default function DonationContactForm() {
                   htmlFor="last_name"
                   className="font-medium text-foreground text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5"
                 >
-                  Last Name
+                  Last name
                 </Label>
                 <Input
                   id="last_name"
                   name="last_name"
                   type="text"
                   autoComplete="family-name"
-                  placeholder="Doe"
+                  placeholder="Enter last name"
                   value={values.last_name}
                   onChange={handleChange("last_name")}
                   onBlur={() => handleBlur("last_name")}
@@ -218,14 +218,14 @@ export default function DonationContactForm() {
                   htmlFor="email"
                   className="font-medium text-foreground text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5"
                 >
-                  Email Address
+                  Email address
                 </Label>
                 <Input
                   id="email"
                   name="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="Enter Email Address"
+                  placeholder="Enter email address"
                   value={values.email}
                   onChange={handleChange("email")}
                   onBlur={() => handleBlur("email")}
@@ -245,7 +245,7 @@ export default function DonationContactForm() {
                   htmlFor="phone"
                   className="font-medium text-foreground text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5"
                 >
-                  Phone Number
+                  Phone number
                 </Label>
                 <Input
                   id="phone"

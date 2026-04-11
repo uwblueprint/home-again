@@ -55,7 +55,7 @@ export default function DonationLayout({
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-4 pb-28">
       {/* Header */}
-      <header className="flex items-center justify-center pt-8">
+      <header className="flex items-center justify-center py-12">
         <div className="absolute left-4 top-4 md:left-8">
           <Image 
             src="/hafb_logo.svg" 
@@ -76,33 +76,33 @@ export default function DonationLayout({
       <nav
         className={cn(
           "fixed bottom-0 left-0 right-0 z-10",
-          "border-t border-border bg-background px-4 py-4",
+          "border-t border-border bg-background px-10 py-8",
         )}
       >
-        <div className="mx-auto flex w-full max-w-3xl items-center justify-between">
-          {/* Left side (e.g. + Add Item) */}
-          <div>{leftAction}</div>
-
-          {/* Right side (Back + Next) */}
+        <div className="flex w-full items-center justify-between">
+          {/* Left side (Back or e.g. + Add Item) */}
           <div className="flex items-center gap-2">
             {onBack && (
               <Button
                 size="lg"
                 variant="secondary"
-                className="px-6 py-5"
+                className="px-6 py-5 hover:bg-[var(--unofficial-outline-hover)]"
                 onClick={onBack}
               >
                 Back
               </Button>
             )}
-            <Button
-              size="lg"
-              className="px-6 py-5"
-              onClick={handleNextClick}
-            >
-              {nextLabel}
-            </Button>
+            {leftAction}
           </div>
+
+          {/* Right side (Next / Submit) */}
+          <Button
+            size="lg"
+            className="px-6 py-5"
+            onClick={handleNextClick}
+          >
+            {nextLabel}
+          </Button>
         </div>
       </nav>
     </div>

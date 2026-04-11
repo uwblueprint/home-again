@@ -225,11 +225,11 @@ export default function PhotoUpload({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               className={cn(
-                "flex w-80 cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm hover:bg-muted/40",
+                "flex w-80 cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm hover:bg-[var(--unofficial-outline-hover)]",
                 overflowCount > 0 ? "border-destructive" : "border-border",
               )}
             >
-              <span className="font-bold text-foreground">Choose Files</span>
+              <span className="font-semibold text-foreground">Choose Files</span>
               <span className="text-muted-foreground">
                 {pendingPhotos.length === 0
                   ? "No files chosen"
@@ -280,7 +280,7 @@ export default function PhotoUpload({
                     type="button"
                     onClick={() => removePhoto(i)}
                     aria-label={`Remove ${file.name}`}
-                    className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-border bg-background shadow-sm hover:bg-muted"
+                    className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-border bg-background shadow-sm hover:bg-[linear-gradient(var(--alpha-black-alpha-333),var(--alpha-black-alpha-333)),linear-gradient(#fff,#fff)]"
                   >
                     <X className="size-3" />
                   </button>
@@ -295,14 +295,18 @@ export default function PhotoUpload({
           <Button
             type="button"
             variant="outline"
+            size="lg"
             onClick={closeDialog}
+            className="px-4 hover:bg-[var(--alpha-black-alpha-333)]"
           >
             Cancel
           </Button>
           <Button
             type="button"
+            size="lg"
             onClick={handleSave}
             disabled={pendingPhotos.length === 0}
+            className="px-4"
           >
             Save
           </Button>

@@ -67,14 +67,14 @@ export default function PickupAddressForm({
       {/* Street Address */}
       <div className="space-y-1">
         <Label htmlFor="streetAddress" className={labelClass}>
-          Street Address
+          Street address
         </Label>
         <Input
           id="streetAddress"
           name="streetAddress"
           type="text"
           autoComplete="street-address"
-          placeholder="123 Main St"
+          placeholder="Street address"
           value={addressData.streetAddress}
           onChange={handleChange("streetAddress")}
           onBlur={() => onBlurField?.("streetAddress")}
@@ -105,7 +105,7 @@ export default function PickupAddressForm({
           name="apartment"
           type="text"
           autoComplete="address-line2"
-          placeholder="Apt 4B"
+          placeholder="Suite, unit, floor, or building"
           value={addressData.apartment}
           onChange={handleChange("apartment")}
           className={inputClass}

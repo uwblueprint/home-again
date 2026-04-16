@@ -82,7 +82,7 @@ cd backend
 alembic upgrade head
 ```
 
-The Agencies resource is fully implemented (backend + frontend). Other resources (Donors, Clients, Furniture, Referrals, Routes, Admins, Agents) have routers registered but return 501 until you implement them. See [STARTER_BACKEND_GUIDE.md](./STARTER_BACKEND_GUIDE.md).
+All backend resources are fully implemented (Admin, Agency, Agent, Donor, Donation, Client, Furniture, Referral, Route, Pickup, Dropoff). See [SCHEMA.md](./SCHEMA.md) for entity reference and [BACKEND_GUIDE.md](./BACKEND_GUIDE.md) for implementation patterns.
 
 ## Environment Variables
 
@@ -106,7 +106,7 @@ Once the backend is running:
 
 1. **Visit the app**: http://localhost:3000
 2. **Explore the API**: http://localhost:8000/docs — try endpoints interactively
-3. **Read the docs**: [ARCHITECTURE.md](./ARCHITECTURE.md) for system design, [API_GUIDE.md](./API_GUIDE.md) for backend patterns
+3. **Read the docs**: [ARCHITECTURE.md](./ARCHITECTURE.md) for system design, [BACKEND_GUIDE.md](./BACKEND_GUIDE.md) for backend patterns, [SCHEMA.md](./SCHEMA.md) for entity reference
 
 For the repository layout (frontend, backend, docs, etc.), see [Project structure](../README.md#project-structure) in the main [README](../README.md).
 
@@ -161,13 +161,18 @@ export default function Home() {
 
 ### Add a Backend Endpoint
 
-1. Add model in `backend/app/models/base.py`
-2. Add schema in `backend/app/schemas.py`
-3. Create router in `backend/app/api/my_resource.py`
-4. Register in `backend/app/api/__init__.py`
-5. Test at http://localhost:8000/docs
+1. Add ORM model in `backend/app/models/base.py`
+2. Add enums to `backend/app/enums.py` if needed
+3. Add schemas to `backend/app/schemas.py`
+4. Write an Alembic migration
+5. Create `backend/app/services/my_resource.py` following the canonical pattern
+6. Update `backend/app/services/__init__.py`
+7. Create `backend/app/api/my_resource.py` following the canonical pattern
+8. Register in `backend/app/api/__init__.py`
+9. Write `backend/tests/test_my_resource.py`
+10. Update `docs/SCHEMA.md`
 
-See [API_GUIDE.md](./API_GUIDE.md) for a detailed walkthrough.
+See [BACKEND_GUIDE.md](./BACKEND_GUIDE.md) for annotated examples and the full checklist.
 
 ### Running Tests
 
@@ -388,8 +393,8 @@ function AgencyCard({ a }: { a: any }) {
 - **[README.md](../README.md)** — Project overview
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** — Complete system design
 - **[DOCKER.md](./DOCKER.md)** — Docker setup and configuration
-- **[API_GUIDE.md](./API_GUIDE.md)** — Backend development patterns
-- **[STARTER_BACKEND_GUIDE.md](./STARTER_BACKEND_GUIDE.md)** — Implementing remaining resources
+- **[SCHEMA.md](./SCHEMA.md)** — Entity reference (fields, types, relationships)
+- **[BACKEND_GUIDE.md](./BACKEND_GUIDE.md)** — Backend patterns, how to add a resource, testing
 - **[GIT.md](./GIT.md)** — Git workflow and Jira integration
 
 ## Next Steps
@@ -397,9 +402,11 @@ function AgencyCard({ a }: { a: any }) {
 1. ✅ Get the local environment running
 2. ✅ Browse http://localhost:3000 and http://localhost:8000/docs
 3. ✅ Read [ARCHITECTURE.md](./ARCHITECTURE.md)
-4. ✅ Trace one feature end-to-end (Agencies: model → schema → endpoint → hook → page)
-5. ✅ Implement a new resource following the Agencies pattern
-6. ✅ Write a test
+4. ✅ Read [SCHEMA.md](./SCHEMA.md) for entity relationships
+5. ✅ Read [BACKEND_GUIDE.md](./BACKEND_GUIDE.md) for implementation patterns
+6. ✅ Trace one feature end-to-end (Agencies: model → schema → service → router → hook → page)
+7. ✅ Add a new resource following the step-by-step checklist in BACKEND_GUIDE.md
+8. ✅ Write a test
 
 ## Welcome! 🎉
 

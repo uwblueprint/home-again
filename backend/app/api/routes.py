@@ -12,9 +12,7 @@ from ..services import route_service
 router = APIRouter()
 
 
-async def get_route_or_404(
-    route_id: str, db: AsyncSession = Depends(get_db)
-) -> Route:
+async def get_route_or_404(route_id: str, db: AsyncSession = Depends(get_db)) -> Route:
     route = await route_service.get_route(db, route_id)
     if not route:
         raise HTTPException(

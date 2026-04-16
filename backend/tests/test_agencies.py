@@ -34,7 +34,9 @@ async def test_create_agency_no_main_agent_id(client):
 
 
 async def test_agency_has_program_field(client):
-    data = await create_agency(client, name="Program Agency", program="Housing Assistance")
+    data = await create_agency(
+        client, name="Program Agency", program="Housing Assistance"
+    )
     assert data["program"] == "Housing Assistance"
 
 
@@ -52,7 +54,9 @@ async def test_get_agency_not_found(client):
 
 async def test_update_agency(client):
     created = await create_agency(client, name="Update Agency")
-    resp = await client.put(f"/api/agencies/{created['id']}", json={"name": "Updated Agency"})
+    resp = await client.put(
+        f"/api/agencies/{created['id']}", json={"name": "Updated Agency"}
+    )
     assert resp.status_code == 200
     assert resp.json()["name"] == "Updated Agency"
 

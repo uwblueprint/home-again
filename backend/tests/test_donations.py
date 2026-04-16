@@ -82,7 +82,9 @@ async def test_get_donation_not_found(client):
 async def test_update_donation(client):
     donor = await create_donor(client, email="upddon_donor@example.com")
     created = await create_donation(client, donor["id"])
-    resp = await client.put(f"/api/donations/{created['id']}", json={"status": "completed"})
+    resp = await client.put(
+        f"/api/donations/{created['id']}", json={"status": "completed"}
+    )
     assert resp.status_code == 200
     assert resp.json()["status"] == "completed"
 

@@ -81,4 +81,6 @@ async def _validate_fks(db: AsyncSession, data: dict[str, Any]) -> None:
             select(Donation.id).where(Donation.id == data["donation_id"])
         )
         if not result.scalar_one_or_none():
-            raise ValueError(f"Donation with ID '{data['donation_id']}' does not exist.")
+            raise ValueError(
+                f"Donation with ID '{data['donation_id']}' does not exist."
+            )

@@ -83,7 +83,9 @@ def _prepare_payload(data: dict[str, Any]) -> dict[str, Any]:
 async def _validate_fks(db: AsyncSession, data: dict[str, Any]) -> None:
     """Raise ValueError if any provided FK references a non-existent record."""
     if "client_id" in data and data["client_id"]:
-        result = await db.execute(select(Client.id).where(Client.id == data["client_id"]))
+        result = await db.execute(
+            select(Client.id).where(Client.id == data["client_id"])
+        )
         if not result.scalar_one_or_none():
             raise ValueError(f"Client with ID '{data['client_id']}' does not exist.")
 

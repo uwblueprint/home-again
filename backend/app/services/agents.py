@@ -44,7 +44,9 @@ async def update_agent(db: AsyncSession, agent: Agent, payload: AgentUpdate) -> 
     if not data:
         raise ValueError("No update fields were provided.")
     if "agency_id" in data and data["agency_id"]:
-        result = await db.execute(select(Agency.id).where(Agency.id == data["agency_id"]))
+        result = await db.execute(
+            select(Agency.id).where(Agency.id == data["agency_id"])
+        )
         if not result.scalar_one_or_none():
             raise ValueError(f"Agency with ID '{data['agency_id']}' does not exist.")
     for key, value in data.items():

@@ -2,8 +2,12 @@
 
 import pytest
 
-
-ADMIN_BASE = {"first_name": "Alice", "last_name": "Smith", "email": "alice@example.com", "phone_number": "555-0001"}
+ADMIN_BASE = {
+    "first_name": "Alice",
+    "last_name": "Smith",
+    "email": "alice@example.com",
+    "phone_number": "555-0001",
+}
 
 
 async def create_admin(client, **overrides):

@@ -15,7 +15,9 @@ router = APIRouter()
 async def get_admin_or_404(admin_id: str, db: AsyncSession = Depends(get_db)) -> Admin:
     admin = await admin_service.get_admin(db, admin_id)
     if not admin:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Admin not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Admin not found"
+        )
     return admin
 
 

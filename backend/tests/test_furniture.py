@@ -83,12 +83,16 @@ async def test_has_pets_defaults_false(client):
 async def test_furniture_with_valid_donation(client):
     donor = await create_donor(client, email="furn_donor@example.com")
     donation = await create_donation(client, donor["id"])
-    data = await create_furniture(client, name="Linked Sofa", donation_id=donation["id"])
+    data = await create_furniture(
+        client, name="Linked Sofa", donation_id=donation["id"]
+    )
     assert data["donation_id"] == donation["id"]
 
 
 async def test_furniture_invalid_donation_id(client):
-    resp = await client.post("/api/furniture", json={**FURNITURE_BASE, "donation_id": "nonexistent"})
+    resp = await client.post(
+        "/api/furniture", json={**FURNITURE_BASE, "donation_id": "nonexistent"}
+    )
     assert resp.status_code == 400
 
 
@@ -105,7 +109,9 @@ async def test_get_furniture_not_found(client):
 
 async def test_update_furniture_partial(client):
     created = await create_furniture(client, name="Update Sofa")
-    resp = await client.put(f"/api/furniture/{created['id']}", json={"name": "Updated Sofa"})
+    resp = await client.put(
+        f"/api/furniture/{created['id']}", json={"name": "Updated Sofa"}
+    )
     assert resp.status_code == 200
     assert resp.json()["name"] == "Updated Sofa"
 
@@ -117,7 +123,9 @@ async def test_update_furniture_empty_body(client):
 
 
 async def test_furniture_status_enum_invalid(client):
-    resp = await client.post("/api/furniture", json={**FURNITURE_BASE, "status": "INVALID"})
+    resp = await client.post(
+        "/api/furniture", json={**FURNITURE_BASE, "status": "INVALID"}
+    )
     assert resp.status_code == 422
 
 

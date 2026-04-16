@@ -29,22 +29,44 @@ def upgrade():
     # Admin — tighten nullability
     # ------------------------------------------------------------------ #
     op.alter_column("admins", "email", existing_type=sa.String(255), nullable=False)
-    op.alter_column("admins", "phone_number", existing_type=sa.String(20), nullable=False)
+    op.alter_column(
+        "admins", "phone_number", existing_type=sa.String(20), nullable=False
+    )
 
     # ------------------------------------------------------------------ #
     # Agency — add new columns, remove main_agent_id, rename phone
     # ------------------------------------------------------------------ #
-    op.add_column("agencies", sa.Column("main_contact_first_name", sa.String(100), nullable=True))
-    op.add_column("agencies", sa.Column("main_contact_last_name", sa.String(100), nullable=True))
+    op.add_column(
+        "agencies", sa.Column("main_contact_first_name", sa.String(100), nullable=True)
+    )
+    op.add_column(
+        "agencies", sa.Column("main_contact_last_name", sa.String(100), nullable=True)
+    )
     op.add_column("agencies", sa.Column("program", sa.String(255), nullable=True))
 
     # Populate main_contact fields from existing data (set to placeholder so NOT NULL works)
-    op.execute("UPDATE agencies SET main_contact_first_name = 'Unknown' WHERE main_contact_first_name IS NULL")
-    op.execute("UPDATE agencies SET main_contact_last_name = 'Unknown' WHERE main_contact_last_name IS NULL")
+    op.execute(
+        "UPDATE agencies SET main_contact_first_name = 'Unknown' WHERE main_contact_first_name IS NULL"
+    )
+    op.execute(
+        "UPDATE agencies SET main_contact_last_name = 'Unknown' WHERE main_contact_last_name IS NULL"
+    )
 
-    op.alter_column("agencies", "main_contact_first_name", existing_type=sa.String(100), nullable=False)
-    op.alter_column("agencies", "main_contact_last_name", existing_type=sa.String(100), nullable=False)
-    op.alter_column("agencies", "postal_code", existing_type=sa.String(10), nullable=False)
+    op.alter_column(
+        "agencies",
+        "main_contact_first_name",
+        existing_type=sa.String(100),
+        nullable=False,
+    )
+    op.alter_column(
+        "agencies",
+        "main_contact_last_name",
+        existing_type=sa.String(100),
+        nullable=False,
+    )
+    op.alter_column(
+        "agencies", "postal_code", existing_type=sa.String(10), nullable=False
+    )
 
     # Rename phone → phone_number if phone still exists; otherwise phone_number is already correct
     op.execute("""
@@ -57,14 +79,18 @@ def upgrade():
     """)
 
     # Drop main_agent_id FK and column (IF EXISTS — may not exist in all envs)
-    op.execute("ALTER TABLE agencies DROP CONSTRAINT IF EXISTS agencies_main_agent_id_fkey")
+    op.execute(
+        "ALTER TABLE agencies DROP CONSTRAINT IF EXISTS agencies_main_agent_id_fkey"
+    )
     op.execute("ALTER TABLE agencies DROP COLUMN IF EXISTS main_agent_id")
 
     # ------------------------------------------------------------------ #
     # Agent — tighten nullability, add is_admin
     # ------------------------------------------------------------------ #
     op.alter_column("agents", "email", existing_type=sa.String(255), nullable=False)
-    op.alter_column("agents", "phone_number", existing_type=sa.String(20), nullable=False)
+    op.alter_column(
+        "agents", "phone_number", existing_type=sa.String(20), nullable=False
+    )
     op.add_column("agents", sa.Column("is_admin", sa.Boolean(), nullable=True))
     op.execute("UPDATE agents SET is_admin = FALSE WHERE is_admin IS NULL")
     op.alter_column("agents", "is_admin", existing_type=sa.Boolean(), nullable=False)
@@ -76,7 +102,9 @@ def upgrade():
     op.execute("UPDATE donors SET last_name = '' WHERE last_name IS NULL")
     op.execute("UPDATE donors SET email = '' WHERE email IS NULL")
     op.execute("UPDATE donors SET phone = '' WHERE phone IS NULL")
-    op.alter_column("donors", "first_name", existing_type=sa.String(100), nullable=False)
+    op.alter_column(
+        "donors", "first_name", existing_type=sa.String(100), nullable=False
+    )
     op.alter_column("donors", "last_name", existing_type=sa.String(100), nullable=False)
     op.alter_column("donors", "email", existing_type=sa.String(255), nullable=False)
     op.alter_column("donors", "phone", existing_type=sa.String(20), nullable=False)
@@ -88,7 +116,9 @@ def upgrade():
     op.alter_column("clients", "birthday", existing_type=sa.Date(), nullable=False)
     op.add_column("clients", sa.Column("speaks_english", sa.Boolean(), nullable=True))
     op.execute("UPDATE clients SET speaks_english = TRUE WHERE speaks_english IS NULL")
-    op.alter_column("clients", "speaks_english", existing_type=sa.Boolean(), nullable=False)
+    op.alter_column(
+        "clients", "speaks_english", existing_type=sa.Boolean(), nullable=False
+    )
     op.add_column("clients", sa.Column("language", sa.String(100), nullable=True))
 
     # ------------------------------------------------------------------ #
@@ -98,21 +128,36 @@ def upgrade():
     op.execute("UPDATE furniture SET description = '' WHERE description IS NULL")
     op.execute("UPDATE furniture SET colour = '' WHERE colour IS NULL")
     op.execute("UPDATE furniture SET category = '' WHERE category IS NULL")
-    op.execute("UPDATE furniture SET smoking_household = FALSE WHERE smoking_household IS NULL")
+    op.execute(
+        "UPDATE furniture SET smoking_household = FALSE WHERE smoking_household IS NULL"
+    )
 
-    op.alter_column("furniture", "image_url", existing_type=sa.String(500), nullable=False)
+    op.alter_column(
+        "furniture", "image_url", existing_type=sa.String(500), nullable=False
+    )
     op.alter_column("furniture", "description", existing_type=sa.Text(), nullable=False)
     op.alter_column("furniture", "colour", existing_type=sa.String(50), nullable=False)
-    op.alter_column("furniture", "category", existing_type=sa.String(100), nullable=False)
-    op.alter_column("furniture", "smoking_household", existing_type=sa.Boolean(), nullable=False)
+    op.alter_column(
+        "furniture", "category", existing_type=sa.String(100), nullable=False
+    )
+    op.alter_column(
+        "furniture", "smoking_household", existing_type=sa.Boolean(), nullable=False
+    )
 
     op.add_column("furniture", sa.Column("has_pets", sa.Boolean(), nullable=True))
     op.execute("UPDATE furniture SET has_pets = FALSE WHERE has_pets IS NULL")
     op.alter_column("furniture", "has_pets", existing_type=sa.Boolean(), nullable=False)
 
     # Drop deprecated columns from furniture (IF EXISTS — some were already removed by earlier migrations)
-    for col in ("client_id", "route_id", "change_log", "date_donated",
-                "date_received", "address_pickup", "address_dropoff"):
+    for col in (
+        "client_id",
+        "route_id",
+        "change_log",
+        "date_donated",
+        "date_received",
+        "address_pickup",
+        "address_dropoff",
+    ):
         op.execute(f"ALTER TABLE furniture DROP COLUMN IF EXISTS {col}")
 
     # ------------------------------------------------------------------ #
@@ -184,17 +229,27 @@ def downgrade():
     op.drop_table("dropoffs")
 
     op.add_column("routes", sa.Column("pickup_furniture_ids", sa.Text(), nullable=True))
-    op.add_column("routes", sa.Column("dropoff_furniture_ids", sa.Text(), nullable=True))
+    op.add_column(
+        "routes", sa.Column("dropoff_furniture_ids", sa.Text(), nullable=True)
+    )
 
     op.drop_column("referrals", "program")
     op.drop_column("clients", "language")
-    op.alter_column("clients", "speaks_english", existing_type=sa.Boolean(), nullable=True)
+    op.alter_column(
+        "clients", "speaks_english", existing_type=sa.Boolean(), nullable=True
+    )
     op.drop_column("clients", "speaks_english")
     op.alter_column("clients", "birthday", existing_type=sa.Date(), nullable=True)
 
     op.drop_column("agents", "is_admin")
 
-    op.alter_column("agencies", "phone_number", new_column_name="phone", existing_type=sa.String(20), nullable=True)
+    op.alter_column(
+        "agencies",
+        "phone_number",
+        new_column_name="phone",
+        existing_type=sa.String(20),
+        nullable=True,
+    )
     op.add_column("agencies", sa.Column("main_agent_id", sa.String(36), nullable=True))
     op.drop_column("agencies", "program")
     op.drop_column("agencies", "main_contact_last_name")

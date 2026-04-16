@@ -32,7 +32,6 @@ from .enums import (
     RouteStatus,
 )
 
-
 # ============ Admin Schemas ============
 
 

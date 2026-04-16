@@ -78,7 +78,9 @@ async def test_get_client_not_found(client):
 
 async def test_update_client_partial(client):
     created = await create_client(client, first_name="UpdClient")
-    resp = await client.put(f"/api/clients/{created['id']}", json={"first_name": "Updated"})
+    resp = await client.put(
+        f"/api/clients/{created['id']}", json={"first_name": "Updated"}
+    )
     assert resp.status_code == 200
     assert resp.json()["first_name"] == "Updated"
 

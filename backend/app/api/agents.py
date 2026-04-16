@@ -12,9 +12,7 @@ from ..services import agents_service
 router = APIRouter()
 
 
-async def get_agent_or_404(
-    agent_id: str, db: AsyncSession = Depends(get_db)
-) -> Agent:
+async def get_agent_or_404(agent_id: str, db: AsyncSession = Depends(get_db)) -> Agent:
     agent = await agents_service.get_agent(db, agent_id)
     if not agent:
         raise HTTPException(

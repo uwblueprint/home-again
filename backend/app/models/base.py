@@ -10,7 +10,17 @@ Authentication is handled by Supabase; Admin/Agent link via supabase_user_id.
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, Date, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.orm import relationship
 
 from ..database import Base
@@ -65,8 +75,12 @@ class Agency(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    agents = relationship("Agent", back_populates="agency", foreign_keys="Agent.agency_id")
-    clients = relationship("Client", back_populates="agency", foreign_keys="Client.agency_id")
+    agents = relationship(
+        "Agent", back_populates="agency", foreign_keys="Agent.agency_id"
+    )
+    clients = relationship(
+        "Client", back_populates="agency", foreign_keys="Client.agency_id"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -162,7 +176,9 @@ class Client(Base):
     phone = Column(String(20), nullable=True)
     phone_notes = Column(Text, nullable=True)
     speaks_english = Column(Boolean, nullable=False, default=True)
-    language = Column(String(100), nullable=True)  # Primary language if speaks_english=False
+    language = Column(
+        String(100), nullable=True
+    )  # Primary language if speaks_english=False
     family_type = Column(String(20), nullable=False)  # See FamilyTypeEnum
     num_children = Column(Integer, nullable=False, default=0)
     num_adults = Column(Integer, nullable=False, default=1)

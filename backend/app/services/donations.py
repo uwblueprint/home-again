@@ -24,7 +24,9 @@ async def get_donation(db: AsyncSession, donation_id: str) -> Donation | None:
 
 async def create_donation(db: AsyncSession, payload: DonationCreate) -> Donation:
     # Validate donor exists before attempting insert
-    donor_result = await db.execute(select(Donor.id).where(Donor.id == payload.donor_id))
+    donor_result = await db.execute(
+        select(Donor.id).where(Donor.id == payload.donor_id)
+    )
     if not donor_result.scalar_one_or_none():
         raise ValueError(f"Donor with ID '{payload.donor_id}' does not exist.")
 
@@ -51,7 +53,9 @@ async def update_donation(
     if "donor_id" in data:
         if not data["donor_id"]:
             raise ValueError("donor_id cannot be null.")
-        donor_result = await db.execute(select(Donor.id).where(Donor.id == data["donor_id"]))
+        donor_result = await db.execute(
+            select(Donor.id).where(Donor.id == data["donor_id"])
+        )
         if not donor_result.scalar_one_or_none():
             raise ValueError(f"Donor with ID '{data['donor_id']}' does not exist.")
 

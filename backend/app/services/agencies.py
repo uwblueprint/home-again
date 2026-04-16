@@ -35,7 +35,9 @@ async def create_agency(db: AsyncSession, payload: AgencyCreate) -> Agency:
     return db_agency
 
 
-async def update_agency(db: AsyncSession, agency: Agency, payload: AgencyUpdate) -> Agency:
+async def update_agency(
+    db: AsyncSession, agency: Agency, payload: AgencyUpdate
+) -> Agency:
     data = payload.model_dump(exclude_unset=True)
     if not data:
         raise ValueError("No update fields were provided.")

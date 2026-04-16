@@ -32,7 +32,9 @@ async def test_route_has_no_furniture_id_fields(client):
 
 
 async def test_route_status_enum_invalid(client):
-    resp = await client.post("/api/routes", json={**ROUTE_BASE, "status": "invalid_status"})
+    resp = await client.post(
+        "/api/routes", json={**ROUTE_BASE, "status": "invalid_status"}
+    )
     assert resp.status_code == 422
 
 
@@ -50,7 +52,9 @@ async def test_get_route_not_found(client):
 
 async def test_update_route_partial(client):
     created = await create_route(client)
-    resp = await client.put(f"/api/routes/{created['id']}", json={"status": "in_progress"})
+    resp = await client.put(
+        f"/api/routes/{created['id']}", json={"status": "in_progress"}
+    )
     assert resp.status_code == 200
     assert resp.json()["status"] == "in_progress"
 

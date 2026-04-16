@@ -50,7 +50,9 @@ async def update_furniture(
         await db.commit()
     except IntegrityError as e:
         await db.rollback()
-        logger.exception("IntegrityError updating furniture %s: %s", furniture.id, e.orig)
+        logger.exception(
+            "IntegrityError updating furniture %s: %s", furniture.id, e.orig
+        )
         raise ValueError(f"Update failed: {str(e.orig)}") from e
     await db.refresh(furniture)
     return furniture
@@ -62,18 +64,28 @@ async def delete_furniture(db: AsyncSession, furniture: Furniture) -> None:
         await db.commit()
     except IntegrityError as e:
         await db.rollback()
-        logger.exception("IntegrityError deleting furniture %s: %s", furniture.id, e.orig)
+        logger.exception(
+            "IntegrityError deleting furniture %s: %s", furniture.id, e.orig
+        )
         raise ValueError(f"Unable to delete furniture: {str(e.orig)}") from e
 
 
 async def _validate_fks(db: AsyncSession, data: dict) -> None:
     """Raise ValueError if any provided FK references a non-existent record."""
     if "donation_id" in data and data["donation_id"]:
-        result = await db.execute(select(Donation.id).where(Donation.id == data["donation_id"]))
+        result = await db.execute(
+            select(Donation.id).where(Donation.id == data["donation_id"])
+        )
         if not result.scalar_one_or_none():
-            raise ValueError(f"Donation with ID '{data['donation_id']}' does not exist.")
+            raise ValueError(
+                f"Donation with ID '{data['donation_id']}' does not exist."
+            )
 
     if "referral_id" in data and data["referral_id"]:
-        result = await db.execute(select(Referral.id).where(Referral.id == data["referral_id"]))
+        result = await db.execute(
+            select(Referral.id).where(Referral.id == data["referral_id"])
+        )
         if not result.scalar_one_or_none():
-            raise ValueError(f"Referral with ID '{data['referral_id']}' does not exist.")
+            raise ValueError(
+                f"Referral with ID '{data['referral_id']}' does not exist."
+            )

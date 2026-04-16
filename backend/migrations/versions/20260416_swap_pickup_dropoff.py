@@ -98,14 +98,10 @@ def upgrade():
 
 def downgrade():
     # Reverse step 5
-    op.execute(
-        "ALTER TABLE furniture DROP CONSTRAINT IF EXISTS fk_furniture_pickup_id"
-    )
+    op.execute("ALTER TABLE furniture DROP CONSTRAINT IF EXISTS fk_furniture_pickup_id")
 
     # Reverse step 4
-    op.execute(
-        "ALTER TABLE pickups DROP CONSTRAINT IF EXISTS fk_pickups_donation_id"
-    )
+    op.execute("ALTER TABLE pickups DROP CONSTRAINT IF EXISTS fk_pickups_donation_id")
     op.execute("""
         DO $$ BEGIN
             IF EXISTS (

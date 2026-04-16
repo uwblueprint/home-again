@@ -24,5 +24,9 @@ def upgrade():
 
 
 def downgrade():
-    op.add_column("agencies", sa.Column("main_contact_first_name", sa.String(100), nullable=True))
-    op.add_column("agencies", sa.Column("main_contact_last_name", sa.String(100), nullable=True))
+    op.add_column(
+        "agencies", sa.Column("main_contact_first_name", sa.String(100), nullable=True)
+    )
+    op.add_column(
+        "agencies", sa.Column("main_contact_last_name", sa.String(100), nullable=True)
+    )

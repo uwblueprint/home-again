@@ -92,7 +92,9 @@ async def test_update_agent_partial(client):
     agency = await create_agency(client, name="PartialUpdate Agency")
     payload = await make_agent_payload(agency["id"], email="partial@example.com")
     created = (await client.post("/api/agents", json=payload)).json()
-    resp = await client.put(f"/api/agents/{created['id']}", json={"first_name": "Updated"})
+    resp = await client.put(
+        f"/api/agents/{created['id']}", json={"first_name": "Updated"}
+    )
     assert resp.status_code == 200
     assert resp.json()["first_name"] == "Updated"
 

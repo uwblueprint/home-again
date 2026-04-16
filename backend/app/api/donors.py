@@ -12,9 +12,7 @@ from ..services import donor_service
 router = APIRouter()
 
 
-async def get_donor_or_404(
-    donor_id: str, db: AsyncSession = Depends(get_db)
-) -> Donor:
+async def get_donor_or_404(donor_id: str, db: AsyncSession = Depends(get_db)) -> Donor:
     donor = await donor_service.get_donor(db, donor_id)
     if not donor:
         raise HTTPException(

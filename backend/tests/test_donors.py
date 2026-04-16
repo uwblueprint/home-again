@@ -54,7 +54,9 @@ async def test_get_donor_not_found(client):
 
 async def test_update_donor_partial(client):
     created = await create_donor(client, email="upddonor@example.com")
-    resp = await client.put(f"/api/donors/{created['id']}", json={"first_name": "Updated"})
+    resp = await client.put(
+        f"/api/donors/{created['id']}", json={"first_name": "Updated"}
+    )
     assert resp.status_code == 200
     assert resp.json()["first_name"] == "Updated"
 

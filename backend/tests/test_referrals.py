@@ -116,7 +116,9 @@ async def test_get_referral_not_found(client):
 async def test_update_referral_partial(client):
     c = await create_client(client, first_name="UpdRef")
     created = await create_referral(client, c["id"])
-    resp = await client.put(f"/api/referrals/{created['id']}", json={"status": "approved"})
+    resp = await client.put(
+        f"/api/referrals/{created['id']}", json={"status": "approved"}
+    )
     assert resp.status_code == 200
     assert resp.json()["status"] == "approved"
 

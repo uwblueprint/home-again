@@ -81,11 +81,15 @@ async def _validate_fks(db: AsyncSession, data: dict[str, Any]) -> None:
             select(Furniture.id).where(Furniture.id == data["furniture_id"])
         )
         if not result.scalar_one_or_none():
-            raise ValueError(f"Furniture with ID '{data['furniture_id']}' does not exist.")
+            raise ValueError(
+                f"Furniture with ID '{data['furniture_id']}' does not exist."
+            )
 
     if "referral_id" in data and data["referral_id"]:
         result = await db.execute(
             select(Referral.id).where(Referral.id == data["referral_id"])
         )
         if not result.scalar_one_or_none():
-            raise ValueError(f"Referral with ID '{data['referral_id']}' does not exist.")
+            raise ValueError(
+                f"Referral with ID '{data['referral_id']}' does not exist."
+            )

@@ -1,54 +1,29 @@
 """
 SQLAlchemy ORM models.
 
-These models define the database schema and relationships.
-Using SQLAlchemy 2.0 async patterns for non-blocking operations.
+Defines the database schema and relationships using SQLAlchemy 2.0 async patterns.
 Authentication is handled by Supabase; Admin/Agent link via supabase_user_id.
 
 @see https://docs.sqlalchemy.org/en/20/orm/
 """
 
-import enum
 import uuid
-from datetime import date, datetime
+from datetime import datetime
 
-from sqlalchemy import (
-    Boolean,
-    Column,
-    Date,
-    DateTime,
-    Float,
-    ForeignKey,
-    Integer,
-    String,
-    Text,
-)
+from sqlalchemy import Boolean, Column, Date, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from ..database import Base
+from ..enums import FurnitureStatus  # noqa: F401 — re-exported for backward compat
 
 
 def generate_uuid() -> str:
-    """Generate a UUID for IDs."""
+    """Generate a new UUID string."""
     return str(uuid.uuid4())
 
 
 # ---------------------------------------------------------------------------
-# Enums
-# ---------------------------------------------------------------------------
-
-
-class FurnitureStatusEnum(str, enum.Enum):
-    PICKUP_PENDING = "PICKUP_PENDING"
-    APPROVED = "APPROVED"
-    OFFERED = "OFFERED"
-    SCHEDULED = "SCHEDULED"
-    DELIVERED = "DELIVERED"
-    CLOSED = "CLOSED"
-
-
-# ---------------------------------------------------------------------------
-# Admin (Supabase Auth; link via supabase_user_id)
+# Admin
 # ---------------------------------------------------------------------------
 
 
@@ -59,10 +34,10 @@ class Admin(Base):
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     supabase_user_id = Column(String(255), unique=True, nullable=True)
-    phone_number = Column(String(20), nullable=True)
-    email = Column(String(255), unique=True, nullable=True)
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
+    email = Column(String(255), unique=True, nullable=False)
+    phone_number = Column(String(20), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -73,7 +48,8 @@ class Admin(Base):
 
 
 class Agency(Base):
-    """Agency model for partner organizations."""
+    """Partner organization. Main contact stored as name fields directly on the record.
+    Agents can have is_admin=True to designate admin-level access within the agency."""
 
     __tablename__ = "agencies"
 
@@ -82,50 +58,40 @@ class Agency(Base):
     address_line_1 = Column(String(255), nullable=False)
     address_line_2 = Column(String(255), nullable=True)
     city = Column(String(100), nullable=False)
-    postal_code = Column(String(10), nullable=True)
-    phone = Column(String(20), nullable=False)
-    main_agent_id = Column(String(36), ForeignKey("agents.id"), nullable=True)
+    postal_code = Column(String(10), nullable=False)
+    phone_number = Column(String(20), nullable=False)
+    program = Column(String(255), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    # Two FK paths between Agency and Agent: Agent.agency_id and Agency.main_agent_id
-    main_agent = relationship("Agent", foreign_keys=[main_agent_id])
-    agents = relationship(
-        "Agent", back_populates="agency", primaryjoin="Agent.agency_id == Agency.id"
-    )
-    clients = relationship(
-        "Client", back_populates="agency", foreign_keys="Client.agency_id"
-    )
+    agents = relationship("Agent", back_populates="agency", foreign_keys="Agent.agency_id")
+    clients = relationship("Client", back_populates="agency", foreign_keys="Client.agency_id")
 
 
 # ---------------------------------------------------------------------------
-# Agent (belongs to Agency; Supabase Auth via supabase_user_id)
+# Agent
 # ---------------------------------------------------------------------------
 
 
 class Agent(Base):
-    """Agency agent. Auth via Supabase; supabase_user_id links to Supabase Auth."""
+    """Agency agent/worker. is_admin=True grants admin-level permissions."""
 
     __tablename__ = "agents"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     agency_id = Column(String(36), ForeignKey("agencies.id"), nullable=False)
     supabase_user_id = Column(String(255), unique=True, nullable=True)
-    phone_number = Column(String(20), nullable=True)
-    email = Column(String(255), nullable=True)
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
+    email = Column(String(255), nullable=False)
+    phone_number = Column(String(20), nullable=False)
+    is_admin = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    # Disambiguate: Agent.agency uses Agent.agency_id -> Agency.id
-    agency = relationship(
-        "Agency",
-        back_populates="agents",
-        foreign_keys=[agency_id],
-    )
+    agency = relationship("Agency", back_populates="agents", foreign_keys=[agency_id])
 
 
 # ---------------------------------------------------------------------------
@@ -134,15 +100,15 @@ class Agent(Base):
 
 
 class Donor(Base):
-    """Donor model."""
+    """Donor who provides furniture."""
 
     __tablename__ = "donors"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
-    first_name = Column(String(100), nullable=True)
-    last_name = Column(String(100), nullable=True)
-    email = Column(String(255), nullable=True)
-    phone = Column(String(20), nullable=True)
+    first_name = Column(String(100), nullable=False)
+    last_name = Column(String(100), nullable=False)
+    email = Column(String(255), nullable=False)
+    phone = Column(String(20), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -150,28 +116,32 @@ class Donor(Base):
     donations = relationship("Donation", back_populates="donor")
 
 
+# ---------------------------------------------------------------------------
+# Donation
+# ---------------------------------------------------------------------------
+
+
 class Donation(Base):
-    """Donation event (source for furniture items)."""
+    """Donation event — the source for one or more furniture items."""
 
     __tablename__ = "donations"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     donor_id = Column(String(36), ForeignKey("donors.id"), nullable=False)
-    donation_type = Column(
-        String(50), nullable=True
-    )  # person, charity, business, community_drive
+    donation_type = Column(String(50), nullable=True)  # See DonationTypeEnum
     charitable_receipt_estimate = Column(Float, nullable=True)
     address_line_1 = Column(String(255), nullable=True)
     address_line_2 = Column(String(255), nullable=True)
     city = Column(String(100), nullable=True)
     postal_code = Column(String(10), nullable=True)
-    status = Column(String(50), nullable=True)
+    status = Column(String(50), nullable=True)  # See DonationStatus
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     donor = relationship("Donor", back_populates="donations")
     furniture_items = relationship("Furniture", back_populates="donation")
+    pickups = relationship("Pickup", back_populates="donation")
 
 
 # ---------------------------------------------------------------------------
@@ -180,56 +150,74 @@ class Donation(Base):
 
 
 class Client(Base):
-    """Client model."""
+    """Client who receives furniture."""
 
     __tablename__ = "clients"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
+    birthday = Column(Date, nullable=False)
+    gender = Column(String(20), nullable=True)  # See GenderEnum
     phone = Column(String(20), nullable=True)
-    agency_id = Column(String(36), ForeignKey("agencies.id"), nullable=True)
-    birthday = Column(Date, nullable=True)
-    gender = Column(String(20), nullable=True)  # female, male, other, prefer_not_to_say
     phone_notes = Column(Text, nullable=True)
-    family_type = Column(String(20), nullable=False)  # single, family
+    speaks_english = Column(Boolean, nullable=False, default=True)
+    language = Column(String(100), nullable=True)  # Primary language if speaks_english=False
+    family_type = Column(String(20), nullable=False)  # See FamilyTypeEnum
     num_children = Column(Integer, nullable=False, default=0)
     num_adults = Column(Integer, nullable=False, default=1)
     coordinated_access_required = Column(Boolean, nullable=False, default=False)
-    immigration_status = Column(String(50), nullable=True)
+    agency_id = Column(String(36), ForeignKey("agencies.id"), nullable=True)
+    immigration_status = Column(String(50), nullable=True)  # See ImmigrationStatusEnum
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     agency = relationship("Agency", back_populates="clients", foreign_keys=[agency_id])
-    furniture_received = relationship("Furniture", back_populates="client")
     referrals = relationship("Referral", back_populates="client")
 
 
 # ---------------------------------------------------------------------------
-# Route (dispatch: pickup/dropoff lists of furniture)
+# Route
 # ---------------------------------------------------------------------------
 
 
 class Route(Base):
-    """Route for a dispatch run: date and lists of furniture for pickup/dropoff."""
+    """Dispatch run for a given date. Contains Pickup and Dropoff stops."""
 
     __tablename__ = "routes"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     date = Column(DateTime, nullable=False)
-    status = Column(String(50), nullable=True)
-    pickup_furniture_ids = Column(Text, nullable=True)  # JSON array of furniture UUIDs
-    dropoff_furniture_ids = Column(Text, nullable=True)  # JSON array of furniture UUIDs
+    status = Column(String(50), nullable=True)  # See RouteStatus
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    furniture = relationship(
-        "Furniture",
-        foreign_keys="Furniture.route_id",
-        back_populates="route",
-    )
+    pickups = relationship("Pickup", back_populates="route")
+    dropoffs = relationship("Dropoff", back_populates="route")
+
+
+# ---------------------------------------------------------------------------
+# Pickup
+# ---------------------------------------------------------------------------
+
+
+class Pickup(Base):
+    """A pickup stop on a route where furniture is collected from a donor."""
+
+    __tablename__ = "pickups"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    route_id = Column(String(36), ForeignKey("routes.id"), nullable=False)
+    donation_id = Column(String(36), ForeignKey("donations.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    route = relationship("Route", back_populates="pickups")
+    donation = relationship("Donation", back_populates="pickups")
+    furniture_items = relationship("Furniture", back_populates="pickup")
 
 
 # ---------------------------------------------------------------------------
@@ -238,38 +226,31 @@ class Route(Base):
 
 
 class Furniture(Base):
-    """Furniture item."""
+    """Individual furniture item."""
 
     __tablename__ = "furniture"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     name = Column(String(255), nullable=False)
-    status = Column(
-        String(50), nullable=False
-    )  # PICKUP_PENDING, APPROVED, OFFERED, SCHEDULED, DELIVERED, CLOSED
-    image_url = Column(String(500), nullable=True)
-    description = Column(Text, nullable=True)
-    date_donated = Column(DateTime, nullable=True)
-    date_received = Column(DateTime, nullable=True)
-    address_pickup = Column(String(255), nullable=True)
-    address_dropoff = Column(String(255), nullable=True)
-    client_id = Column(String(36), ForeignKey("clients.id"), nullable=True)
-    change_log = Column(Text, nullable=True)  # JSON array of strings
-    route_id = Column(String(36), ForeignKey("routes.id"), nullable=True)
-    condition = Column(String(50), nullable=True)  # excellent, good, fair, poor
-    colour = Column(String(50), nullable=True)
-    category = Column(String(100), nullable=True)
-    smoking_household = Column(Boolean, nullable=True)
+    image_url = Column(String(500), nullable=False)
+    description = Column(Text, nullable=False)
+    condition = Column(String(50), nullable=True)  # See FurnitureConditionEnum
+    colour = Column(String(50), nullable=False)
+    category = Column(String(100), nullable=False)
+    smoking_household = Column(Boolean, nullable=False, default=False)
+    has_pets = Column(Boolean, nullable=False, default=False)
+    status = Column(String(50), nullable=False)  # See FurnitureStatus
     donation_id = Column(String(36), ForeignKey("donations.id"), nullable=True)
     referral_id = Column(String(36), ForeignKey("referrals.id"), nullable=True)
+    pickup_id = Column(String(36), ForeignKey("pickups.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    client = relationship("Client", back_populates="furniture_received")
-    route = relationship("Route", back_populates="furniture", foreign_keys=[route_id])
     donation = relationship("Donation", back_populates="furniture_items")
     referral = relationship("Referral", back_populates="furniture_items")
+    pickup = relationship("Pickup", back_populates="furniture_items")
+    dropoff = relationship("Dropoff", back_populates="furniture", uselist=False)
 
 
 # ---------------------------------------------------------------------------
@@ -278,22 +259,20 @@ class Furniture(Base):
 
 
 class Referral(Base):
-    """Referral model for client requests."""
+    """Client referral for furniture delivery."""
 
     __tablename__ = "referrals"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
+    # Client
     client_id = Column(String(36), ForeignKey("clients.id"), nullable=False)
-    status = Column(
-        String(50), nullable=False
-    )  # pending, approved, completed, declined
-    requested_items = Column(
-        Text, nullable=False
-    )  # JSON array of furniture item requests (furniture selected)
+    # Furniture selected (JSON array of item descriptors)
+    requested_items = Column(Text, nullable=False)
     # Agent information
     agent_id = Column(String(36), ForeignKey("agents.id"), nullable=True)
     secondary_agent_id = Column(String(36), ForeignKey("agents.id"), nullable=True)
     agents_present_during_delivery = Column(Boolean, nullable=True)
+    program = Column(String(255), nullable=True)
     # Referral details
     is_priority = Column(Boolean, default=False)
     priority_description = Column(Text, nullable=True)
@@ -318,8 +297,9 @@ class Referral(Base):
     staircases = Column(Boolean, nullable=True)
     narrow_passageways = Column(Boolean, nullable=True)
     adequate_parking = Column(Boolean, nullable=True)
-    move_other_info = Column(Text, nullable=True)  # "Other" text field
+    move_other_info = Column(Text, nullable=True)
     notes_and_instructions = Column(Text, nullable=True)
+    status = Column(String(50), nullable=False)  # See ReferralStatus
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -328,3 +308,30 @@ class Referral(Base):
     agent = relationship("Agent", foreign_keys=[agent_id])
     secondary_agent = relationship("Agent", foreign_keys=[secondary_agent_id])
     furniture_items = relationship("Furniture", back_populates="referral")
+    dropoffs = relationship("Dropoff", back_populates="referral")
+
+
+# ---------------------------------------------------------------------------
+# Dropoff
+# ---------------------------------------------------------------------------
+
+
+class Dropoff(Base):
+    """A dropoff stop on a route where furniture is delivered to a client."""
+
+    __tablename__ = "dropoffs"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    route_id = Column(String(36), ForeignKey("routes.id"), nullable=False)
+    furniture_id = Column(String(36), ForeignKey("furniture.id"), nullable=False)
+    referral_id = Column(String(36), ForeignKey("referrals.id"), nullable=True)
+    high_priority = Column(Boolean, nullable=False, default=False)
+    contact_in_case_of_cancellation = Column(Boolean, nullable=False, default=False)
+    dispatch_required = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    route = relationship("Route", back_populates="dropoffs")
+    furniture = relationship("Furniture", back_populates="dropoff")
+    referral = relationship("Referral", back_populates="dropoffs")

@@ -1,7 +1,6 @@
-"""Donor services module.
+"""Donor service layer."""
 
-Contains business logic for donor-related operations.
-"""
+import logging
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -10,62 +9,53 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..models import Donor
 from ..schemas import DonorCreate, DonorUpdate
 
+logger = logging.getLogger(__name__)
+
 
 async def list_donors(db: AsyncSession) -> list[Donor]:
-    """List all donors."""
     result = await db.execute(select(Donor).order_by(Donor.last_name, Donor.first_name))
     return result.scalars().all()
 
 
-async def create_donor(db: AsyncSession, donor: DonorCreate) -> Donor:
-    """Create a new donor."""
-    try:
-        db_donor = Donor(**donor.model_dump())
-        db.add(db_donor)
-        await db.commit()
-        await db.refresh(db_donor)
-        return db_donor
-    except IntegrityError as e:
-        await db.rollback()
-        raise ValueError(f"Unable to create donor: {str(e.orig)}") from e
-    except Exception:
-        await db.rollback()
-        raise
-
-
 async def get_donor(db: AsyncSession, donor_id: str) -> Donor | None:
-    """Get a single donor by ID."""
     result = await db.execute(select(Donor).where(Donor.id == donor_id))
     return result.scalar_one_or_none()
 
 
-async def update_donor(db: AsyncSession, donor: Donor, payload: DonorUpdate) -> Donor:
-    """Update a donor."""
+async def create_donor(db: AsyncSession, payload: DonorCreate) -> Donor:
+    db_donor = Donor(**payload.model_dump())
+    db.add(db_donor)
     try:
-        # Only update fields that were actually provided in the request
-        update_data = payload.model_dump(exclude_unset=True)
-        for key, value in update_data.items():
-            setattr(donor, key, value)
-
         await db.commit()
-        await db.refresh(donor)
-        return donor
     except IntegrityError as e:
         await db.rollback()
-        raise ValueError(f"Unable to update donor: {str(e.orig)}") from e
-    except Exception:
+        logger.exception("IntegrityError creating donor: %s", e.orig)
+        raise ValueError(f"Unable to create donor: {str(e.orig)}") from e
+    await db.refresh(db_donor)
+    return db_donor
+
+
+async def update_donor(db: AsyncSession, donor: Donor, payload: DonorUpdate) -> Donor:
+    data = payload.model_dump(exclude_unset=True)
+    if not data:
+        raise ValueError("No update fields were provided.")
+    for key, value in data.items():
+        setattr(donor, key, value)
+    try:
+        await db.commit()
+    except IntegrityError as e:
         await db.rollback()
-        raise
+        logger.exception("IntegrityError updating donor %s: %s", donor.id, e.orig)
+        raise ValueError(f"Unable to update donor: {str(e.orig)}") from e
+    await db.refresh(donor)
+    return donor
 
 
 async def delete_donor(db: AsyncSession, donor: Donor) -> None:
-    """Delete a donor."""
+    await db.delete(donor)
     try:
-        await db.delete(donor)
         await db.commit()
     except IntegrityError as e:
         await db.rollback()
+        logger.exception("IntegrityError deleting donor %s: %s", donor.id, e.orig)
         raise ValueError(f"Unable to delete donor: {str(e.orig)}") from e
-    except Exception:
-        await db.rollback()
-        raise

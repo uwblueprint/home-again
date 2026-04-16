@@ -92,7 +92,7 @@ The application follows a client-server architecture with clear separation of co
 | Validation | Pydantic 2.0 | Type safety, automatic OpenAPI schema |
 | Database | PostgreSQL | Relational, strong, 7+ year data retention support |
 | Platform | Supabase | Managed PostgreSQL, auth, RLS, row-level security |
-| Testing | pytest | Industry standard, great async support |
+| Testing | pytest + httpx + aiosqlite | In-memory SQLite integration tests, no real DB needed |
 
 For the repository layout (frontend, backend, docs, etc.), see [Project structure](../README.md#project-structure) in the main [README](../README.md).
 
@@ -306,50 +306,45 @@ All API calls go through `lib/apiClient.ts` — an axios instance that automatic
 
 ## Backend Guide
 
-See [API_GUIDE.md](./API_GUIDE.md) for detailed backend documentation including async patterns, endpoint examples, error handling, and testing.
+See [BACKEND_GUIDE.md](./BACKEND_GUIDE.md) for canonical service and router patterns, how to add a new resource, the testing guide, and common pitfalls. See [SCHEMA.md](./SCHEMA.md) for the full entity reference.
 
 ## Database
 
 ### Schema
 
 ```
-Admins (standalone; link to Supabase Auth via supabase_user_id)
-
-Agencies (partner organizations)
-  ├─ Agents (one-to-many)
-  ├─ Clients (one-to-many)
-  └─ Referrals (one-to-many)
-
-Clients
-  ├─ Referrals (one-to-many)
-  └─ Furniture received (one-to-many, via client_id)
-
-Donors
-  └─ Furniture (one-to-many)
-
-Furniture
-  ├─ Donor (many-to-one)
-  ├─ Client (many-to-one, nullable)
-  └─ Route (many-to-one, nullable, via route_id)
-
-Referrals
-  ├─ Client (many-to-one)
-  └─ Agency (many-to-one)
-
-Routes
-  └─ Furniture (via pickup_furniture_ids / dropoff_furniture_ids and route_id)
+Admin          — standalone; no FK relationships
+Agency         — no FKs; referenced by Agent, Client
+Agent          — agency_id → Agency; is_admin flag for admin-level access
+Donor          — no FKs; referenced by Donation
+Donation       — donor_id → Donor; referenced by Furniture, Pickup
+Client         — agency_id → Agency (optional); referenced by Referral
+Furniture      — donation_id → Donation (opt), referral_id → Referral (opt),
+                 pickup_id → Pickup (opt); one-to-one back-ref to Dropoff
+Referral       — client_id → Client, agent_id → Agent (opt),
+                 secondary_agent_id → Agent (opt)
+Route          — no FKs; referenced by Pickup, Dropoff
+Pickup         — route_id → Route, donation_id → Donation (opt);
+                 referenced by Furniture (via furniture.pickup_id)
+Dropoff        — route_id → Route, furniture_id → Furniture,
+                 referral_id → Referral (opt)
 ```
+
+For complete field-level reference see [SCHEMA.md](./SCHEMA.md).
 
 ### Data model relationships
 
 - **Admin** — Standalone; links to Supabase Auth via `supabase_user_id`.
-- **Agent** → **Agency** (many-to-one).
-- **Agency** → **Agents**, **Clients**, **Referrals** (one-to-many).
-- **Client** → **Agency** (many-to-one, via `agency_id`); **Referrals**, **Furniture** (one-to-many).
-- **Donor** → **Furniture** (one-to-many).
-- **Furniture** → **Donor** (many-to-one); **Client** (many-to-one, nullable); **Route** (many-to-one, nullable, via `route_id`).
-- **Referral** → **Client**, **Agency** (many-to-one).
-- **Route** → **Furniture** (one-to-many, via `pickup_furniture_ids`, `dropoff_furniture_ids`, and `route_id`).
+- **Agent** → **Agency** (many-to-one). `is_admin=True` grants admin-level access within the agency.
+- **Agency** → **Agents**, **Clients** (one-to-many). Admin-level agents are identified by `Agent.is_admin=True`; there is no dedicated main-contact field on Agency.
+- **Client** → **Agency** (many-to-one, optional via `agency_id`); **Referrals** (one-to-many).
+- **Donor** → **Donations** (one-to-many).
+- **Donation** → **Donor** (many-to-one); **Furniture** (one-to-many).
+- **Furniture** → **Donation**, **Referral**, **Pickup** (many-to-one, all optional); **Dropoff** (one-to-one back-ref via `dropoff.furniture_id`).
+- **Referral** → **Client** (many-to-one); **Agent**, **SecondaryAgent** (many-to-one, optional). Agency reachable via `referral.client.agency_id` — no direct `agency_id` FK.
+- **Route** → **Pickups**, **Dropoffs** (one-to-many). Replaces former JSON `pickup_furniture_ids`/`dropoff_furniture_ids` columns.
+- **Pickup** — a collection stop on a Route. Linked to an optional Donation. Furniture items reference it via `furniture.pickup_id`.
+- **Dropoff** — a delivery stop on a Route. Carries one Furniture item (`furniture_id`) and an optional Referral, plus dispatch flags (`high_priority`, `contact_in_case_of_cancellation`, `dispatch_required`).
 
 ### Migrations
 

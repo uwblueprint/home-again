@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAgencies, useDeleteAgency } from "@/hooks/useApi";
-import ResourceList from "@/components/ResourceList";
-import type { AgencyRecord, ColumnConfig, RowActionConfig } from "@/types";
+import { useAgencies, useDeleteAgency } from "@/common/hooks/useApi";
+import ResourceList from "@/common/components/data-display/ResourceList";
+import type { AgencyRecord, ColumnConfig, RowActionConfig } from "@/common/types";
 
 const agencyColumns: ColumnConfig<AgencyRecord>[] = [
   {

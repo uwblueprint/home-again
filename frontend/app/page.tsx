@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { ShadcnShowcase } from "@/components/ShadcnShowcase";
+import { ShadcnShowcase } from "@/app/ShadcnShowcase";
 
 export default function HomePage() {
   return (

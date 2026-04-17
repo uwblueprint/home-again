@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import ResourceDetail from "@/components/ResourceDetail";
-import { useAgency, useDeleteAgency } from "@/hooks/useApi";
-import type { AgencyRecord, ResourceDetailField } from "@/types";
+import ResourceDetail from "@/common/components/data-display/ResourceDetail";
+import { useAgency, useDeleteAgency } from "@/common/hooks/useApi";
+import type { AgencyRecord, ResourceDetailField } from "@/common/types";
 
 const agencyFields: ResourceDetailField<AgencyRecord>[] = [
   { key: "id", label: "ID" },

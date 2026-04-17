@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useAgency, useUpdateAgency } from "@/hooks/useApi";
-import type { UpdateAgencyInput } from "@/types";
-import PageLayout from "@/components/PageLayout";
+import { useAgency, useUpdateAgency } from "@/common/hooks/useApi";
+import type { UpdateAgencyInput } from "@/common/types";
+import PageLayout from "@/common/components/layout/PageLayout";
 
 export default function AgencyEditPage() {
   const params = useParams();

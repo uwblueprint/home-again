@@ -4,13 +4,13 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
-import { DonationFormProvider, useDonationForm, validateItems } from "@/components/donation-requests/DonationFormContext";
-import DonationLayout from "@/components/donation-requests/DonationLayout";
-import StepFurnitureDetails from "@/components/donation-requests/StepFurnitureDetails";
-import StepSchedulePickup from "@/components/donation-requests/StepSchedulePickup";
-import StepDonationSummary from "@/components/donation-requests/StepDonationSummary";
-import { validatePickupAddress } from "@/components/donation-requests/PickupAddressForm";
-import { Button } from "@/components/ui/button";
+import { DonationFormProvider, useDonationForm, validateItems } from "@/app/donate/context/DonationFormContext";
+import DonationLayout from "@/app/donate/DonationLayout";
+import StepFurnitureDetails from "@/app/donate/components/StepFurnitureDetails";
+import StepSchedulePickup from "@/app/donate/components/StepSchedulePickup";
+import StepDonationSummary from "@/app/donate/components/StepDonationSummary";
+import { validatePickupAddress } from "@/app/donate/components/PickupAddressForm";
+import { Button } from "@/common/components/ui/button";
 
 // For UUID Validation: Enforces 36-character format: xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx
 const UUID_REGEX =

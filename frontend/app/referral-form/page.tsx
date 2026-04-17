@@ -2,11 +2,11 @@
 
 import { useMemo, useState } from "react"
 
-import GenericLayout from "@/components/referral-form/GenericLayout"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
+import GenericLayout from "@/app/referral-form/ReferralLayout"
+import { Input } from "@/common/components/ui/input"
+import { Label } from "@/common/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/common/components/ui/select"
+import { Textarea } from "@/common/components/ui/textarea"
 
 type Step = {
   title: string

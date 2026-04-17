@@ -6,16 +6,16 @@ import {
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+} from "@/common/components/ui/breadcrumb"
+import { Button } from "@/common/components/ui/button"
+import { cn } from "@/common/lib/utils"
 
 export type BreadcrumbStep = {
   label: string
   current?: boolean
 }
 
-type GenericLayoutProps = {
+type ReferralLayoutProps = {
   onNext: () => void
   onBack?: () => void
   isSubmitting?: boolean
@@ -26,7 +26,7 @@ type GenericLayoutProps = {
   children: React.ReactNode
 }
 
-function GenericLayout({
+function ReferralLayout({
   title,
   breadcrumbs,
   activeIndex,
@@ -35,7 +35,7 @@ function GenericLayout({
   isSubmitting = false,
   nextLabel = "Next",
   children,
-}: GenericLayoutProps) {
+}: ReferralLayoutProps) {
 
   // Derive breadcrumbs from provided data and ensure exactly one is active.
   const resolvedBreadcrumbs: BreadcrumbStep[] = React.useMemo(() => {
@@ -147,4 +147,4 @@ function GenericLayout({
   )
 }
 
-export default GenericLayout
+export default ReferralLayout

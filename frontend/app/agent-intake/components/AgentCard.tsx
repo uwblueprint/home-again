@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { Trash2, SquarePen, Info } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/common/components/ui/input";
+import { Label } from "@/common/components/ui/label";
+import { Button } from "@/common/components/ui/button";
+import { Badge } from "@/common/components/ui/badge";
+import { Checkbox } from "@/common/components/ui/checkbox";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/common/components/ui/tooltip";
 
 export interface AgentFormData {
   firstName: string;
@@ -34,8 +34,10 @@ interface AgentCardProps {
 type AgentTextField = "firstName" | "lastName" | "email" | "phoneNumber";
 type FormErrors = Partial<Record<AgentTextField, string>>;
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_RE = /^[\d\s()+\-]{7,20}$/;
+import { EMAIL_REGEX, PHONE_REGEX } from "@/common/constants/validators";
+
+const EMAIL_RE = EMAIL_REGEX;
+const PHONE_RE = PHONE_REGEX;
 const TOUCHED_ON_SAVE: AgentTextField[] = [
   "firstName",
   "lastName",

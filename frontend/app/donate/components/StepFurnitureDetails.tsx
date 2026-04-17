@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import { useDonationForm } from "@/components/donation-requests/DonationFormContext";
-import FurnitureItemCard from "@/components/donation-requests/FurnitureItemCard";
+import { useDonationForm } from "@/app/donate/context/DonationFormContext";
+import FurnitureItemCard from "@/app/donate/components/FurnitureItemCard";
 
 export default function StepFurnitureDetails() {
   const { formState, deleteItem, updateItem } = useDonationForm();

@@ -2,19 +2,19 @@
 
 import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { ChevronUp, ChevronDown, Trash2, Upload, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/common/lib/utils";
+import { Button } from "@/common/components/ui/button";
 import Image from "next/image";
 import {
   FURNITURE_TYPES,
   type FurnitureType,
   type FurnitureItemData,
-} from "@/components/donation-requests/DonationFormContext";
-import PhotoUpload from "@/components/donation-requests/PhotoUpload";
+} from "@/app/donate/context/DonationFormContext";
+import PhotoUpload from "@/app/donate/components/PhotoUpload";
 import {
   getFilePreviewUrl,
   revokeFilePreviewUrls,
-} from "@/lib/filePreviewUrls";
+} from "@/common/lib/filePreviewUrls";
 
 // Constants
 

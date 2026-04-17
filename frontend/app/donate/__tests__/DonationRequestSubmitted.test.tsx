@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import DonationSubmitted from "@/components/donation-requests/DonationSubmitted";
+import DonationSubmitted from "@/app/donate/components/DonationSubmitted";
 
 describe("DonationSubmitted", () => {
   it("renders heading, description, and back-to-home link", () => {

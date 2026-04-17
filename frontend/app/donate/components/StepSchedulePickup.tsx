@@ -4,10 +4,10 @@ import React, { useState } from "react";
 import {
   useDonationForm,
   type PickupAddress,
-} from "@/components/donation-requests/DonationFormContext";
+} from "@/app/donate/context/DonationFormContext";
 import PickupAddressForm, {
   validatePickupAddress,
-} from "@/components/donation-requests/PickupAddressForm";
+} from "@/app/donate/components/PickupAddressForm";
 
 type TouchableField =
   | "streetAddress"

@@ -2,26 +2,28 @@
 
 import React, { useEffect, useState } from "react";
 
-import IntakeStepPage from "@/components/intake/IntakeStepPage";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import IntakeStepPage from "@/app/agent-intake/components/IntakeStepPage";
+import { Input } from "@/common/components/ui/input";
+import { Label } from "@/common/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { useIntakeContext } from "@/context/IntakeContext";
+} from "@/common/components/ui/select";
+import { useIntakeContext } from "@/app/agent-intake/context/IntakeContext";
 import {
   useIntakeFormStore,
   type AgencyFormData,
-} from "@/stores/intakeFormStore";
+} from "@/app/agent-intake/stores/intakeFormStore";
+
+import { PHONE_REGEX, POSTAL_CODE_REGEX } from "@/common/constants/validators";
 
 type FormErrors = Partial<Record<keyof AgencyFormData, string>>;
 
-const POSTAL_CODE_RE = /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/;
-const PHONE_RE = /^[\d\s()+\-]{7,20}$/;
+const POSTAL_CODE_RE = POSTAL_CODE_REGEX;
+const PHONE_RE = PHONE_REGEX;
 
 function validate(form: AgencyFormData): FormErrors {
   const errors: FormErrors = {};

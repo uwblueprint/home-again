@@ -1,8 +1,8 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import FurnitureItemCard from "../../donation-requests/FurnitureItemCard";
-import type { FurnitureItemData } from "../../donation-requests/DonationFormContext";
+import FurnitureItemCard from "../components/FurnitureItemCard";
+import type { FurnitureItemData } from "../context/DonationFormContext";
 
 global.URL.createObjectURL = jest.fn(
   (file: File) => `blob:${file.name}`,

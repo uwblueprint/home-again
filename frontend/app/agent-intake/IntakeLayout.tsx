@@ -6,17 +6,17 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   IntakeFooterProvider,
   useIntakeFooter,
-} from "@/components/intake/IntakeFooterContext";
-import { IntakeProvider, useIntakeContext } from "@/context/IntakeContext";
-import { Button } from "@/components/ui/button";
-import { StepIndicator, type Step } from "@/components/ui/step-indicator";
+} from "@/app/agent-intake/context/IntakeFooterContext";
+import { IntakeProvider, useIntakeContext } from "@/app/agent-intake/context/IntakeContext";
+import { Button } from "@/common/components/ui/button";
+import { StepIndicator, type Step } from "@/common/components/ui/step-indicator";
 import {
   INTAKE_AGENCY,
   INTAKE_MAIN_AGENT,
   INTAKE_OTHER_AGENTS,
   INTAKE_REVIEW,
-} from "@/constants/Routes";
-import { useIntakeFormStore } from "@/stores/intakeFormStore";
+} from "@/common/constants/Routes";
+import { useIntakeFormStore } from "@/app/agent-intake/stores/intakeFormStore";
 
 const OTHER_AGENTS_STEP = 2;
 

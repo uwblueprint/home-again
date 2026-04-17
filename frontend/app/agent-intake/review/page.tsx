@@ -4,10 +4,10 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
-import IntakeStepPage from "@/components/intake/IntakeStepPage";
-import { useIntakeFooter } from "@/components/intake/IntakeFooterContext";
-import { useSubmitIntake } from "@/hooks/useSubmitIntake";
-import { useIntakeFormStore } from "@/stores/intakeFormStore";
+import IntakeStepPage from "@/app/agent-intake/components/IntakeStepPage";
+import { useIntakeFooter } from "@/app/agent-intake/context/IntakeFooterContext";
+import { useSubmitIntake } from "@/app/agent-intake/hooks/useSubmitIntake";
+import { useIntakeFormStore } from "@/app/agent-intake/stores/intakeFormStore";
 
 const AGENTS_PER_PAGE = 3;
 const EMPTY_VALUE = "—";

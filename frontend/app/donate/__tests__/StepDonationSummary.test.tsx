@@ -1,15 +1,15 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 
-import StepDonationSummary from "../../donation-requests/StepDonationSummary";
+import StepDonationSummary from "../components/StepDonationSummary";
 import {
   DonationFormProvider,
   useDonationForm,
-} from "../../donation-requests/DonationFormContext";
-import { useDonor } from "@/hooks/useApi";
+} from "../context/DonationFormContext";
+import { useDonor } from "@/common/hooks/useApi";
 
-jest.mock("@/hooks/useApi");
-jest.mock("@/lib/utils", () => ({
+jest.mock("@/common/hooks/useApi");
+jest.mock("@/common/lib/utils", () => ({
   cn: (...inputs: Array<string | undefined | null | false>) =>
     inputs.filter(Boolean).join(" "),
 }));

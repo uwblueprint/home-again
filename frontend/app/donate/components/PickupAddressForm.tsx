@@ -1,16 +1,16 @@
 "use client";
 
 import React, { type ChangeEvent } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import type { PickupAddress } from "@/components/donation-requests/DonationFormContext";
+import { Input } from "@/common/components/ui/input";
+import { Label } from "@/common/components/ui/label";
+import type { PickupAddress } from "@/app/donate/context/DonationFormContext";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/common/components/ui/select";
 
 export type PickupAddressErrors = Partial<
   Record<

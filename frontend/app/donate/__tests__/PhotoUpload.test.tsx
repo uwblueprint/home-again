@@ -1,9 +1,9 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import PhotoUpload from "../../donation-requests/PhotoUpload";
+import PhotoUpload from "../components/PhotoUpload";
 
-jest.mock("@/lib/utils", () => ({
+jest.mock("@/common/lib/utils", () => ({
   cn: (...inputs: (string | undefined | null | false)[]) =>
     inputs.filter(Boolean).join(" "),
 }));

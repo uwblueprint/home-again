@@ -2,15 +2,17 @@
 
 import React, { useEffect, useState } from "react";
 
-import IntakeStepPage from "@/components/intake/IntakeStepPage";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useIntakeContext } from "@/context/IntakeContext";
+import IntakeStepPage from "@/app/agent-intake/components/IntakeStepPage";
+import { Input } from "@/common/components/ui/input";
+import { Label } from "@/common/components/ui/label";
+import { useIntakeContext } from "@/app/agent-intake/context/IntakeContext";
 import {
   useIntakeFormStore,
   type MainAgentFormData,
-} from "@/stores/intakeFormStore";
-import { useAuthStore } from "@/stores/authStore";
+} from "@/app/agent-intake/stores/intakeFormStore";
+import { useAuthStore } from "@/common/stores/authStore";
+
+import { EMAIL_REGEX, PHONE_REGEX } from "@/common/constants/validators";
 
 const AUTH_STUB = {
   firstName: "",
@@ -20,8 +22,8 @@ const AUTH_STUB = {
 
 type FormErrors = Partial<Record<keyof MainAgentFormData, string>>;
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_RE = /^[\d\s()+\-]{7,20}$/;
+const EMAIL_RE = EMAIL_REGEX;
+const PHONE_RE = PHONE_REGEX;
 
 function validate(form: MainAgentFormData): FormErrors {
   const errors: FormErrors = {};

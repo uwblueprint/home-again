@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Upload, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/common/lib/utils";
+import { Button } from "@/common/components/ui/button";
 import Image from "next/image";
 import {
   getFilePreviewUrl,
   revokeFilePreviewUrls,
-} from "@/lib/filePreviewUrls";
+} from "@/common/lib/filePreviewUrls";
 
 const MAX_PHOTOS = 5;
 const FOCUSABLE_SELECTOR = "a[href], button, textarea, input, select, [tabindex]:not([tabindex='-1'])";

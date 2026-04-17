@@ -2,14 +2,14 @@
 
 import React, { useEffect, useMemo } from "react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { useDonationForm } from "./DonationFormContext";
-import type { FurnitureItemData } from "./DonationFormContext";
-import { useDonor } from "@/hooks/useApi";
+import { cn } from "@/common/lib/utils";
+import { useDonationForm } from "../context/DonationFormContext";
+import type { FurnitureItemData } from "../context/DonationFormContext";
+import { useDonor } from "@/common/hooks/useApi";
 import {
   getFilePreviewUrl,
   revokeFilePreviewUrl,
-} from "@/lib/filePreviewUrls";
+} from "@/common/lib/filePreviewUrls";
 
 // --- Sub-components ---
 

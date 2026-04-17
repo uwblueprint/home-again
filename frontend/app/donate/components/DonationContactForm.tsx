@@ -4,19 +4,31 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useState } from "react";
 
-import { useCreateDonor } from "@/hooks/useApi";
-import { cn } from "@/lib/utils";
-import type {
-  CreateDonorInput,
-  DonationRequestContactFormErrors,
-  DonationRequestContactFormSubmitStatus,
-  DonationRequestContactFormValues,
-} from "@/types";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useCreateDonor } from "@/common/hooks/useApi";
+import { cn } from "@/common/lib/utils";
+import type { CreateDonorInput } from "@/common/types";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export interface DonationRequestContactFormValues {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+}
+
+export type DonationRequestContactFormErrors = Partial<
+  Record<keyof DonationRequestContactFormValues, string>
+>;
+
+export type DonationRequestContactFormSubmitStatus = {
+  type: "success" | "error";
+  text: string;
+} | null;
+import { Button } from "@/common/components/ui/button";
+import { Input } from "@/common/components/ui/input";
+import { Label } from "@/common/components/ui/label";
+
+import { EMAIL_REGEX } from "@/common/constants/validators";
+
 const PHONE_ALLOWED_CHARACTERS_REGEX = /^[+\d\s().-]+$/;
 
 function isValidPhoneNumber(phone: string): boolean {

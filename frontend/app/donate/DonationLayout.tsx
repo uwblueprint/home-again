@@ -2,10 +2,10 @@
 
 import React from "react";
 import Image from "next/image";
-import { StepIndicator } from "@/components/ui/step-indicator";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { useDonationForm } from "@/components/donation-requests/DonationFormContext";
+import { StepIndicator } from "@/common/components/ui/step-indicator";
+import { cn } from "@/common/lib/utils";
+import { Button } from "@/common/components/ui/button";
+import { useDonationForm } from "@/app/donate/context/DonationFormContext";
 
 const STEPS = [
   { label: "Furniture Details" },

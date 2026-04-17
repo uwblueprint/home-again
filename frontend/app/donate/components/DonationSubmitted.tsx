@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { HOME_PAGE } from "@/constants/Routes";
-import { Button } from "@/components/ui/button";
+import { HOME_PAGE } from "@/common/constants/Routes";
+import { Button } from "@/common/components/ui/button";
 
 export default function DonationSubmitted() {
   return (

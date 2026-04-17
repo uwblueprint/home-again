@@ -3,10 +3,10 @@
 import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
-import apiClient from "@/lib/apiClient";
-import { useCreateAgency, useCreateAgent } from "@/hooks/useApi";
-import { useIntakeFormStore } from "@/stores/intakeFormStore";
-import type { CreateAgencyInput, UpdateAgencyInput } from "@/types";
+import apiClient from "@/common/lib/apiClient";
+import { useCreateAgency, useCreateAgent } from "@/common/hooks/useApi";
+import { useIntakeFormStore } from "@/app/agent-intake/stores/intakeFormStore";
+import type { CreateAgencyInput, UpdateAgencyInput } from "@/common/types";
 
 function trimOrNull(value: string) {
   const trimmed = value.trim();

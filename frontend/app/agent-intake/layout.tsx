@@ -1,4 +1,4 @@
-import IntakeLayout from "@/components/IntakeLayout";
+import IntakeLayout from "@/app/agent-intake/IntakeLayout";
 
 export default function IntakeRouteLayout({
   children,

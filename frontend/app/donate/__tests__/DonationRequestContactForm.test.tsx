@@ -1,29 +1,29 @@
 import React from "react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 
-import DonationContactForm from "../../donation-requests/DonationContactForm";
-import { useCreateDonor } from "@/hooks/useApi";
+import DonationContactForm from "../components/DonationContactForm";
+import { useCreateDonor } from "@/common/hooks/useApi";
 import { useRouter } from "next/navigation";
 
-jest.mock("@/hooks/useApi");
+jest.mock("@/common/hooks/useApi");
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
 }));
-jest.mock("@/lib/utils", () => ({
+jest.mock("@/common/lib/utils", () => ({
   cn: (...inputs: Array<string | undefined | null | false>) =>
     inputs.filter(Boolean).join(" "),
 }));
-jest.mock("@/components/ui/button", () => ({
+jest.mock("@/common/components/ui/button", () => ({
   Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
     <button {...props}>{children}</button>
   ),
 }));
-jest.mock("@/components/ui/input", () => ({
+jest.mock("@/common/components/ui/input", () => ({
   Input: (props: React.InputHTMLAttributes<HTMLInputElement>) => (
     <input {...props} />
   ),
 }));
-jest.mock("@/components/ui/label", () => ({
+jest.mock("@/common/components/ui/label", () => ({
   Label: ({ children, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) => (
     <label {...props}>{children}</label>
   ),

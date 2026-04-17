@@ -1,7 +1,7 @@
 import React from "react"
 import { render, screen, fireEvent } from "@testing-library/react"
 
-jest.mock("@/components/ui/button", () => ({
+jest.mock("@/common/components/ui/button", () => ({
   Button: ({
     children,
     ...props
@@ -19,9 +19,9 @@ jest.mock(
   { virtual: true }
 )
 
-import GenericLayout, { type BreadcrumbStep } from "../GenericLayout"
+import ReferralLayout, { type BreadcrumbStep } from "../ReferralLayout"
 
-describe("GenericLayout", () => {
+describe("ReferralLayout", () => {
   const breadcrumbs: BreadcrumbStep[] = [
     { label: "Step 1" },
     { label: "Step 2" },
@@ -31,9 +31,9 @@ describe("GenericLayout", () => {
     const onNext = jest.fn()
 
     render(
-      <GenericLayout title="My Step" breadcrumbs={breadcrumbs} onNext={onNext}>
+      <ReferralLayout title="My Step" breadcrumbs={breadcrumbs} onNext={onNext}>
         <p>Form fields</p>
-      </GenericLayout>
+      </ReferralLayout>
     )
 
     expect(screen.getByText("My Step")).toBeInTheDocument()
@@ -47,9 +47,9 @@ describe("GenericLayout", () => {
     const onNext = jest.fn()
 
     render(
-      <GenericLayout title="Next Step" breadcrumbs={breadcrumbs} onNext={onNext}>
+      <ReferralLayout title="Next Step" breadcrumbs={breadcrumbs} onNext={onNext}>
         <p>Form fields</p>
-      </GenericLayout>
+      </ReferralLayout>
     )
 
     fireEvent.click(screen.getByTestId("next-button"))
@@ -60,14 +60,14 @@ describe("GenericLayout", () => {
     const onBack = jest.fn()
 
     render(
-      <GenericLayout
+      <ReferralLayout
         title="With Back"
         breadcrumbs={breadcrumbs}
         onNext={jest.fn()}
         onBack={onBack}
       >
         <p>Form fields</p>
-      </GenericLayout>
+      </ReferralLayout>
     )
 
     const backButton = screen.getByTestId("back-button")
@@ -78,9 +78,9 @@ describe("GenericLayout", () => {
 
   it("does not render back button when onBack is not provided", () => {
     render(
-      <GenericLayout title="No Back" breadcrumbs={breadcrumbs} onNext={jest.fn()}>
+      <ReferralLayout title="No Back" breadcrumbs={breadcrumbs} onNext={jest.fn()}>
         <p>Form fields</p>
-      </GenericLayout>
+      </ReferralLayout>
     )
 
     expect(screen.queryByTestId("back-button")).toBeNull()
@@ -88,7 +88,7 @@ describe("GenericLayout", () => {
 
   it("disables next button and shows loading text when submitting", () => {
     render(
-      <GenericLayout
+      <ReferralLayout
         title="Submitting"
         breadcrumbs={breadcrumbs}
         onNext={jest.fn()}
@@ -96,7 +96,7 @@ describe("GenericLayout", () => {
         nextLabel="Next"
       >
         <p>Form fields</p>
-      </GenericLayout>
+      </ReferralLayout>
     )
 
     const nextButton = screen.getByTestId("next-button")
@@ -106,14 +106,14 @@ describe("GenericLayout", () => {
 
   it("uses custom next button label when provided", () => {
     render(
-      <GenericLayout
+      <ReferralLayout
         title="Custom Label"
         breadcrumbs={breadcrumbs}
         onNext={jest.fn()}
         nextLabel="Continue"
       >
         <p>Form fields</p>
-      </GenericLayout>
+      </ReferralLayout>
     )
 
     expect(screen.getByTestId("next-button")).toHaveTextContent("Continue")

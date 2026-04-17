@@ -2,9 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@import "../styles/tokens/colors.css";
-@import "../styles/tokens/typography.css";
-@import "../styles/tokens/radii-spacing.css";
+@import "../common/styles/colors.css";
+@import "../common/styles/typography.css";
+@import "../common/styles/spacing.css";
 
 @custom-variant dark (&:is(.dark *));
 

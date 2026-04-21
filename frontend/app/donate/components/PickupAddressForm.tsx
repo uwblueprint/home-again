@@ -45,7 +45,7 @@ interface PickupAddressFormProps {
 }
 
 const inputClass =
-  "h-10 rounded-lg border-input bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)] focus-visible:ring-0 aria-invalid:ring-0";
+  "h-10 rounded-lg border-border bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)] focus-visible:ring-0 aria-invalid:ring-0";
   
 const labelClass =
   "font-medium text-foreground text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 aria-invalid:ring-0";

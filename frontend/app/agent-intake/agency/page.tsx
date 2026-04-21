@@ -127,7 +127,7 @@ export default function AgencyStep() {
           <Input
             {...field("name")}
             placeholder="Enter your agency name"
-            className="h-11"
+            className="h-11 border-border bg-background"
           />
           <FieldError message={touched.name ? errors.name : undefined} />
         </div>
@@ -138,7 +138,7 @@ export default function AgencyStep() {
             <Input
               {...field("addressLine1")}
               placeholder="Street address"
-              className="h-11"
+              className="h-11 border-border bg-background"
             />
             <FieldError
               message={touched.addressLine1 ? errors.addressLine1 : undefined}
@@ -153,7 +153,7 @@ export default function AgencyStep() {
                 handleChange("addressLine2", event.target.value)
               }
               placeholder="Suite, unit, floor, or building"
-              className="h-11"
+              className="h-11 border-border bg-background"
             />
           </div>
         </div>
@@ -164,7 +164,7 @@ export default function AgencyStep() {
             <Input
               {...field("city")}
               placeholder="Enter city"
-              className="h-11"
+              className="h-11 border-border bg-background"
             />
             <FieldError message={touched.city ? errors.city : undefined} />
           </div>
@@ -210,7 +210,7 @@ export default function AgencyStep() {
             <Input
               {...field("postalCode")}
               placeholder="Enter postal code"
-              className="h-11"
+              className="h-11 border-border bg-background"
             />
             <FieldError
               message={touched.postalCode ? errors.postalCode : undefined}
@@ -224,7 +224,7 @@ export default function AgencyStep() {
             {...field("phone")}
             type="tel"
             placeholder="Enter phone number"
-            className="h-11"
+            className="h-11 border-border bg-background"
           />
           <FieldError message={touched.phone ? errors.phone : undefined} />
         </div>

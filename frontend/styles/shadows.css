@@ -1,0 +1,67 @@
+:root {
+    /* Collection: shadows */
+    --2xl-blur: 3.125rem;
+    --2xl-color: var(--black-alpha-10);
+    --2xl-spread: -0.75rem;
+    --2xl-x: 0rem;
+    --2xl-y: 1.5625rem;
+    --2xs-blur: 0rem;
+    --2xs-color: var(--black-alpha-0);
+    --2xs-spread: 0rem;
+    --2xs-x: 0rem;
+    --2xs-y: 0.0625rem;
+
+    --lg-color: var(--black-alpha-10);
+    --lg-shadow-1-blur: 0.9375rem;
+    --lg-shadow-1-spread: -0.1875rem;
+    --lg-shadow-1-x: 0rem;
+    --lg-shadow-1-y: 0.625rem;
+    --lg-shadow-2-blur: 0.375rem;
+    --lg-shadow-2-spread: -0.25rem;
+    --lg-shadow-2-x: 0rem;
+    --lg-shadow-2-y: 0.25rem;
+
+    --md-color: var(--black-alpha-10);
+    --md-shadow-1-blur: 0.375rem;
+    --md-shadow-1-spread: -0.0625rem;
+    --md-shadow-1-x: 0rem;
+    --md-shadow-1-y: 0.25rem;
+    --md-shadow-2-blur: 0.25rem;
+    --md-shadow-2-spread: -0.125rem;
+    --md-shadow-2-x: 0rem;
+    --md-shadow-2-y: 0.125rem;
+
+    --sm-color: var(--black-alpha-10);
+    --sm-shadow-1-blur: 0.1875rem;
+    --sm-shadow-1-spread: 0rem;
+    --sm-shadow-1-x: 0rem;
+    --sm-shadow-1-y: 0.0625rem;
+    --sm-shadow-2-blur: 0.125rem;
+    --sm-shadow-2-spread: -0.0625rem;
+    --sm-shadow-2-x2: 0rem;
+    --sm-shadow-2-y: 0.0625rem;
+
+    --xl-color: var(--black-alpha-10);
+    --xl-shadow-1-blur: 1.5625rem;
+    --xl-shadow-1-spread: -0.3125rem;
+    --xl-shadow-1-x: 0rem;
+    --xl-shadow-1-y: 1.25rem;
+    --xl-shadow-2-blur: 0.625rem;
+    --xl-shadow-2-spread: -0.375rem;
+    --xl-shadow-2-x: 0rem;
+    --xl-shadow-2-y: 0.5rem;
+    --xs-blur: 0.125rem;
+    --xs-color: var(--black-alpha-0);
+    --xs-spread: 0rem;
+    --xs-x: 0rem;
+    --xs-y: 0.0625rem;
+
+    /* Composed values */
+    --shadow-xs:  var(--xs-x, 0px) var(--xs-y) var(--xs-blur) var(--xs-spread) var(--xs-color);
+    --shadow-2xs: var(--2xs-x, 0px) var(--2xs-y) var(--2xs-blur) var(--2xs-spread) var(--2xs-color);
+    --shadow-sm:  var(--sm-shadow-1-x, 0px) var(--sm-shadow-1-y) var(--sm-shadow-1-blur) var(--sm-shadow-1-spread) var(--sm-color), var(--sm-shadow-2-x, 0px) var(--sm-shadow-2-y) var(--sm-shadow-2-blur) var(--sm-shadow-2-spread) var(--sm-color);
+    --shadow-md:  var(--md-shadow-1-x, 0px) var(--md-shadow-1-y) var(--md-shadow-1-blur) var(--md-shadow-1-spread) var(--md-color), var(--md-shadow-2-x, 0px) var(--md-shadow-2-y) var(--md-shadow-2-blur) var(--md-shadow-2-spread) var(--md-color);
+    --shadow-lg:  var(--lg-shadow-1-x, 0px) var(--lg-shadow-1-y) var(--lg-shadow-1-blur) var(--lg-shadow-1-spread) var(--lg-color), var(--lg-shadow-2-x, 0px) var(--lg-shadow-2-y) var(--lg-shadow-2-blur) var(--lg-shadow-2-spread) var(--lg-color);
+    --shadow-xl:  var(--xl-shadow-1-x, 0px) var(--xl-shadow-1-y) var(--xl-shadow-1-blur) var(--xl-shadow-1-spread) var(--xl-color), var(--xl-shadow-2-x, 0px) var(--xl-shadow-2-y) var(--xl-shadow-2-blur) var(--xl-shadow-2-spread) var(--xl-color);
+    --shadow-2xl: var(--2xl-x, 0px) var(--2xl-y) var(--2xl-blur) var(--2xl-spread) var(--2xl-color);
+}

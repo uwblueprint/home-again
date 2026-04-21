@@ -185,7 +185,7 @@ export default function DonationContactForm() {
                   onBlur={() => handleBlur("first_name")}
                   aria-invalid={Boolean(errors.first_name)}
                   aria-describedby={errors.first_name ? "first_name-error" : undefined}
-                  className="h-10 rounded-lg border-input bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
+                  className="h-10 rounded-lg bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
                 />
                 {errors.first_name ? (
                   <p
@@ -216,7 +216,7 @@ export default function DonationContactForm() {
                   onBlur={() => handleBlur("last_name")}
                   aria-invalid={Boolean(errors.last_name)}
                   aria-describedby={errors.last_name ? "last_name-error" : undefined}
-                  className="h-10 rounded-lg border-input bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
+                  className="h-10 rounded-lg bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
                 />
                 {errors.last_name ? (
                   <p id="last_name-error" className="text-destructive text-sm" role="alert">
@@ -243,7 +243,7 @@ export default function DonationContactForm() {
                   onBlur={() => handleBlur("email")}
                   aria-invalid={Boolean(errors.email)}
                   aria-describedby={errors.email ? "email-error" : undefined}
-                  className="h-10 rounded-lg border-input bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
+                  className="h-10 rounded-lg bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
                 />
                 {errors.email ? (
                   <p id="email-error" className="text-destructive text-sm" role="alert">
@@ -270,7 +270,7 @@ export default function DonationContactForm() {
                   onBlur={() => handleBlur("phone")}
                   aria-invalid={Boolean(errors.phone)}
                   aria-describedby={errors.phone ? "phone-error" : undefined}
-                  className="h-10 rounded-lg border-input bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
+                  className="h-10 rounded-lg bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
                 />
                 {errors.phone ? (
                   <p id="phone-error" className="text-destructive text-sm" role="alert">

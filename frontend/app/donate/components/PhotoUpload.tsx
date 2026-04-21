@@ -280,7 +280,7 @@ export default function PhotoUpload({
                     type="button"
                     onClick={() => removePhoto(i)}
                     aria-label={`Remove ${file.name}`}
-                    className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-border bg-background shadow-sm hover:bg-[linear-gradient(var(--alpha-black-alpha-333),var(--alpha-black-alpha-333)),linear-gradient(#fff,#fff)]"
+                    className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-border bg-background shadow-sm hover:bg-[linear-gradient(var(--black-alpha-333),var(--black-alpha-333)),linear-gradient(#fff,#fff)]"
                   >
                     <X className="size-3" />
                   </button>
@@ -297,7 +297,7 @@ export default function PhotoUpload({
             variant="outline"
             size="lg"
             onClick={closeDialog}
-            className="px-4 hover:bg-[var(--alpha-black-alpha-333)]"
+            className="px-4 hover:bg-[var(--black-alpha-333)]"
           >
             Cancel
           </Button>

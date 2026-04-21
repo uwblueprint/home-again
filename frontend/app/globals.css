@@ -2,54 +2,127 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@import "../common/styles/colors.css";
-@import "../common/styles/typography.css";
-@import "../common/styles/spacing.css";
+@import "../styles/alpha.css";
+@import "../styles/colors.css";
+@import "../styles/typography.css";
+@import "../styles/border-radii.css";
+@import "../styles/spacing.css";
+@import "../styles/shadows.css";
 
 @custom-variant dark (&:is(.dark *));
 
+/* Ensure all named token utilities are always generated.
+ * Tailwind only includes utilities it finds as complete strings in source files.
+ * Dynamic class names and infrequently-used tokens would otherwise be silently
+ * dropped — this acts as a safelist for the full spacing and typography scales. */
+@source inline("{p,px,py,pt,pb,pl,pr,m,mx,my,mt,mb,ml,mr,gap,space-x,space-y}-{xs,sm,md,lg,xl,2xl,3xl,4xl}");
+@source inline("text-{heading-1,heading-2,heading-3,heading-4,paragraph-large,paragraph-regular,paragraph-small,paragraph-mini,caption}");
+
 @theme inline {
+  /* Semantic colors — bg-primary, text-foreground, border-border, etc. */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Sidebar colors — used by sidebar component */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Chart colors — bg-chart-1 through bg-chart-5 */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Fonts — font-sans, font-mono */
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: var(--radius-sm);
-  --radius-md: var(--radius-md);
-  --radius-lg: var(--radius-lg);
-  --radius-xl: var(--radius-xl);
-  --radius-xs: var(--radius-xs);
-  --radius-2xl: var(--radius-2xl);
-  --radius-3xl: var(--radius-3xl);
-  --radius-4xl: var(--radius-4xl);
+
+  /* Border radius — rounded-xs through rounded-full */
+  --radius-xs: var(--rounded-xs);
+  --radius-sm: var(--rounded-sm);
+  --radius-md: var(--rounded-md);
+  --radius-lg: var(--rounded-lg);
+  --radius-xl: var(--rounded-xl);
+  --radius-2xl: var(--rounded-2xl);
+  --radius-3xl: var(--rounded-3xl);
+  --radius-4xl: var(--rounded-4xl);
+  --radius-full: var(--rounded-full);
+
+  /* Typography — text-heading-1, text-paragraph-small, etc.
+   * Using --text-{name} + --text-{name}--line-height companion variables because
+   * the slash shorthand (size / line-height) only works with literal values in
+   * @theme inline, not with var() references. */
+  --text-heading-1: var(--heading-1-font-size);
+  --text-heading-1--line-height: var(--heading-1-line-height);
+  --text-heading-2: var(--heading-2-font-size);
+  --text-heading-2--line-height: var(--heading-2-line-height);
+  --text-heading-3: var(--heading-3-font-size);
+  --text-heading-3--line-height: var(--heading-3-line-height);
+  --text-heading-4: var(--heading-4-font-size);
+  --text-heading-4--line-height: var(--heading-4-line-height);
+  --text-paragraph-large: var(--paragraph-large-font-size);
+  --text-paragraph-large--line-height: var(--paragraph-large-line-height);
+  --text-paragraph-regular: var(--paragraph-regular-font-size);
+  --text-paragraph-regular--line-height: var(--paragraph-regular-line-height);
+  --text-paragraph-small: var(--paragraph-small-font-size);
+  --text-paragraph-small--line-height: var(--paragraph-small-line-height);
+  --text-paragraph-mini: var(--paragraph-mini-font-size);
+  --text-paragraph-mini--line-height: var(--paragraph-mini-line-height);
+  --text-caption: var(--caption-font-size);
+  --text-caption--line-height: var(--caption-line-height);
+
+  /* Spacing — p-xs, m-sm, gap-md, mt-lg, etc. */
+  --spacing-xs: var(--xs);
+  --spacing-sm: var(--sm);
+  --spacing-md: var(--md);
+  --spacing-lg: var(--lg);
+  --spacing-xl: var(--xl);
+  --spacing-2xl: var(--2xl);
+  --spacing-3xl: var(--3xl);
+  --spacing-4xl: var(--4xl);
+
+}
+
+/* max-w-{name} fix: our --spacing-{name} tokens override Tailwind's spacing scale
+ * for all size utilities. Pinning --max-width-{name} to container values takes
+ * precedence (max-w-* reads --max-width-* before --spacing-*), so Tailwind
+ * generates correct values for max-w-xs/sm/... and all responsive variants. */
+@theme inline {
+  --max-width-xs:  var(--container-xs);
+  --max-width-sm:  var(--container-sm);
+  --max-width-md:  var(--container-md);
+  --max-width-lg:  var(--container-lg);
+  --max-width-xl:  var(--container-xl);
+  --max-width-2xl: var(--container-2xl);
+  --max-width-3xl: var(--container-3xl);
+  --max-width-4xl: var(--container-4xl);
+  --max-width-5xl: var(--container-5xl);
+  --max-width-6xl: var(--container-6xl);
+  --max-width-7xl: var(--container-7xl);
 }
 
 @layer base {

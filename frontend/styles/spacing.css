@@ -1,0 +1,60 @@
+:root {
+    /* Collection: spacing (absolute) */
+    --spacing-absolute-0-5: 0.125rem;
+    --spacing-absolute-1: 0.25rem;
+    --spacing-absolute-10: 2.5rem;
+    --spacing-absolute-12: 3rem;
+    --spacing-absolute-16: 4rem;
+    --spacing-absolute-2: 0.5rem;
+    --spacing-absolute-20: 5rem;
+    --spacing-absolute-24: 6rem;
+    --spacing-absolute-28: 7rem;
+    --spacing-absolute-3: 0.75rem;
+    --spacing-absolute-32: 8rem;
+    --spacing-absolute-36: 9rem;
+    --spacing-absolute-4: 1rem;
+    --spacing-absolute-5: 1.25rem;
+    --spacing-absolute-6: 1.5rem;
+    --spacing-absolute-8: 2rem;
+
+    /* Collection: spacing */
+    --10xl: var(--spacing-absolute-36);
+
+    --2xl: var(--spacing-absolute-8);
+    --2xs: var(--spacing-absolute-1);
+
+    --3xl: var(--spacing-absolute-10);
+    --3xs: var(--spacing-absolute-0-5);
+
+    --4xl: var(--spacing-absolute-12);
+
+    --5xl: var(--spacing-absolute-16);
+
+    --6xl: var(--spacing-absolute-20);
+
+    --7xl: var(--spacing-absolute-24);
+
+    --8xl: var(--spacing-absolute-28);
+
+    --9xl: var(--spacing-absolute-32);
+
+    --lg: var(--spacing-absolute-5);
+
+    --md: var(--spacing-absolute-4);
+
+    --scale-hacks-10: 0.625rem;
+    --scale-hacks-14: 0.875rem;
+    --scale-hacks-15p5: 0.96875rem;
+    --scale-hacks-3: 0.1875rem;
+    --scale-hacks-5p5: 0.34375rem;
+    --scale-hacks-6: 0.375rem;
+    --scale-hacks-7: 0.4375rem;
+    --scale-hacks-7p5: 0.46875rem;
+    --scale-hacks-8p5: 0.53125rem;
+    --scale-hacks-9: 0.5625rem;
+    --scale-hacks-9p5: 0.59375rem;
+    --sm: var(--spacing-absolute-3);
+
+    --xl: var(--spacing-absolute-6);
+    --xs: var(--spacing-absolute-2);
+}

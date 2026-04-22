@@ -1,9 +1,9 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import AgenciesPage from "../page";
-import { useAgencies, useDeleteAgency } from "@/hooks/useApi";
+import { useAgencies, useDeleteAgency } from "@/common/hooks/useApi";
 
-jest.mock("@/hooks/useApi");
+jest.mock("@/common/hooks/useApi");
 
 const mockPush = jest.fn();
 jest.mock("next/navigation", () => ({

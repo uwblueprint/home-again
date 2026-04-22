@@ -4,13 +4,17 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
-import { DonationFormProvider, useDonationForm, validateItems } from "@/components/donation-requests/DonationFormContext";
-import DonationLayout from "@/components/donation-requests/DonationLayout";
-import StepFurnitureDetails from "@/components/donation-requests/StepFurnitureDetails";
-import StepSchedulePickup from "@/components/donation-requests/StepSchedulePickup";
-import StepDonationSummary from "@/components/donation-requests/StepDonationSummary";
-import { validatePickupAddress } from "@/components/donation-requests/PickupAddressForm";
-import { Button } from "@/components/ui/button";
+import {
+  DonationFormProvider,
+  useDonationForm,
+  validateItems,
+} from "@/app/donate/context/DonationFormContext";
+import DonationLayout from "@/app/donate/DonationLayout";
+import StepFurnitureDetails from "@/app/donate/components/StepFurnitureDetails";
+import StepSchedulePickup from "@/app/donate/components/StepSchedulePickup";
+import StepDonationSummary from "@/app/donate/components/StepDonationSummary";
+import { validatePickupAddress } from "@/app/donate/components/PickupAddressForm";
+import { Button } from "@/common/components/ui/button";
 
 // For UUID Validation: Enforces 36-character format: xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx
 const UUID_REGEX =
@@ -40,7 +44,9 @@ function DonationFlowPageInner() {
   function handleNext() {
     if (currentStep === 1) {
       if (!validateItems(formState.items)) {
-        setValidationError("Please complete all item details before proceeding.");
+        setValidationError(
+          "Please complete all item details before proceeding."
+        );
         return;
       }
       setValidationError(null);
@@ -73,7 +79,9 @@ function DonationFlowPageInner() {
         className="gap-1.5 px-5 py-5 hover:bg-[var(--unofficial-outline-hover)]"
         onClick={() => {
           if (!validateItems(formState.items)) {
-            setValidationError("Please complete all item details before adding another.");
+            setValidationError(
+              "Please complete all item details before adding another."
+            );
             return;
           }
           setValidationError(null);
@@ -96,7 +104,9 @@ function DonationFlowPageInner() {
         <>
           <StepFurnitureDetails />
           {validationError && (
-            <p ref={errorRef} className="text-sm text-destructive">{validationError}</p>
+            <p ref={errorRef} className="text-sm text-destructive">
+              {validationError}
+            </p>
           )}
         </>
       )}
@@ -115,9 +125,13 @@ export default function DonationRequestFlowPage() {
       <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col items-center justify-center gap-4 px-6 text-center">
         <h1 className="text-2xl font-semibold">Invalid donation link</h1>
         <p className="text-muted-foreground">
-          This donation request URL is not valid. Start again from the donation form.
+          This donation request URL is not valid. Start again from the donation
+          form.
         </p>
-        <Link href="/donate" className="font-medium text-primary underline underline-offset-4">
+        <Link
+          href="/donate"
+          className="font-medium text-primary underline underline-offset-4"
+        >
           Go to donation form
         </Link>
       </main>

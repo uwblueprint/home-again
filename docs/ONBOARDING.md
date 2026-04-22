@@ -127,12 +127,12 @@ For the repository layout (frontend, backend, docs, etc.), see [Project structur
 
 ### Add a Frontend Component
 
-Create `frontend/components/MyComponent.tsx`:
+Create `frontend/common/components/MyComponent.tsx`:
 
 ```typescript
 "use client";
 
-import { useAgencies } from "@/hooks/useApi";
+import { useAgencies } from "@/common/hooks/useApi";
 
 export function MyComponent() {
   const { data: agencies, isLoading } = useAgencies();
@@ -152,7 +152,7 @@ export function MyComponent() {
 Use it in a page (`frontend/app/page.tsx`):
 
 ```typescript
-import { MyComponent } from "@/components/MyComponent";
+import { MyComponent } from "@/common/components/MyComponent";
 
 export default function Home() {
   return <MyComponent />;
@@ -232,7 +232,7 @@ function AgenciesList() {
 
 ## API Integration Pattern
 
-All API calls go through typed hooks in `frontend/hooks/useApi.ts`:
+All API calls go through typed hooks in `frontend/common/hooks/useApi.ts`:
 
 ```typescript
 export function useAgencies() {

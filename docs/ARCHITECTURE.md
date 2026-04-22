@@ -78,7 +78,7 @@ The application follows a client-server architecture with clear separation of co
 | Language | TypeScript | Type safety catches errors during development, not production |
 | State (Client) | Zustand | Minimal boilerplate, perfect for UI state |
 | State (Server) | TanStack Query | Auto-caching, refetch, race condition protection |
-| UI Components | shadcn/ui | Source-owned components, customizable, built on Radix UI |
+| UI Components | shadcn/ui | Source-owned components, customizable, built on Base UI primitives |
 | Styling | Tailwind CSS | Utility-first, consistent design system |
 | Build Tool | Turbopack | Fast incremental builds, zero config |
 
@@ -189,7 +189,7 @@ from .trucks import router as trucks_router
 router.include_router(trucks_router, prefix="/trucks", tags=["trucks"])
 ```
 
-**Step 5: Frontend Types** (`frontend/types/index.ts`)
+**Step 5: Frontend Types** (`frontend/common/types/domain.ts`)
 
 ```typescript
 export interface Truck {
@@ -203,7 +203,7 @@ export interface Truck {
 }
 ```
 
-**Step 6: Frontend Hooks** (`frontend/hooks/useApi.ts`)
+**Step 6: Frontend Hooks** (`frontend/common/hooks/useApi.ts`)
 
 ```typescript
 export function useTrucks() {
@@ -233,7 +233,7 @@ export function useCreateTruck() {
 ```typescript
 "use client";
 
-import { useTrucks } from "@/hooks/useApi";
+import { useTrucks } from "@/common/hooks/useApi";
 
 export default function TrucksPage() {
   const { data: trucks, isLoading, error } = useTrucks();
@@ -405,5 +405,5 @@ See [ONBOARDING.md](./ONBOARDING.md) for the full developer onboarding guide.
 
 - **Python**: PEP 8, type hints on all functions, docstrings on public methods
 - **TypeScript**: strict mode, explicit types, no `any`
-- **Components**: small and focused, under 100 lines
+  - **Components**: small and focused where practical
 - **Comments**: explain *why*, not *what*

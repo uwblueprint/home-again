@@ -1,0 +1,28 @@
+:root {
+    /* Collection: border radii (absolute) */
+    --radius-2: 0.125rem;
+    --radius-4: 0.25rem;
+    --radius-6: 0.375rem;
+    --radius-8: 0.5rem;
+    --radius-10: 0.625rem;
+    --radius-12: 0.75rem;
+    --radius-16: 1rem;
+    --radius-24: 1.5rem;
+    --radius-32: 2rem;
+    --radius-infinite: 624.9375rem;
+
+    /* Collection: border radii */
+    --rounded-none: 0rem;
+    --rounded-xs: var(--radius-2);
+    --rounded-sm: var(--radius-4);
+    --rounded-md: var(--radius-6);
+    --rounded-lg: var(--radius-8);
+    --rounded-xl: var(--radius-12);
+    --rounded-2xl: var(--radius-16);
+    --rounded-3xl: var(--radius-24);
+    --rounded-4xl: var(--radius-32);
+    --rounded-full: var(--radius-infinite);
+
+    /* shadcn/ui Theme */
+    --radius: var(--radius-10);
+}

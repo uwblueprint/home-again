@@ -1,21 +1,27 @@
-"use client"
+"use client";
 
-import { useMemo, useState } from "react"
+import { useMemo, useState } from "react";
 
-import GenericLayout from "@/components/referral-form/GenericLayout"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
+import GenericLayout from "@/app/referral-form/ReferralLayout";
+import { Input } from "@/common/components/ui/input";
+import { Label } from "@/common/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/common/components/ui/select";
+import { Textarea } from "@/common/components/ui/textarea";
 
 type Step = {
-  title: string
-  content: JSX.Element
-}
+  title: string;
+  content: JSX.Element;
+};
 
 export default function ReferralLayoutDemoPage() {
-  const [stepIndex, setStepIndex] = useState(0)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [stepIndex, setStepIndex] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const steps: Step[] = useMemo(
     () => [
@@ -52,7 +58,9 @@ export default function ReferralLayoutDemoPage() {
                   <SelectContent>
                     <SelectItem value="case-worker">Case worker</SelectItem>
                     <SelectItem value="nurse">Nurse</SelectItem>
-                    <SelectItem value="coordinator">Program coordinator</SelectItem>
+                    <SelectItem value="coordinator">
+                      Program coordinator
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -81,13 +89,17 @@ export default function ReferralLayoutDemoPage() {
         content: (
           <div className="space-y-3 text-sm">
             <p className="text-muted-foreground">
-              This is a simple preview screen. In a real flow you would summarize what was entered
-              and maybe add a final acknowledgement checkbox.
+              This is a simple preview screen. In a real flow you would
+              summarize what was entered and maybe add a final acknowledgement
+              checkbox.
             </p>
             <ul className="list-disc space-y-1 pl-5">
               <li>Breadcrumbs highlight the current step.</li>
               <li>Back button only appears when the handler is provided.</li>
-              <li>Primary action shows loading state via <code>isSubmitting</code>.</li>
+              <li>
+                Primary action shows loading state via <code>isSubmitting</code>
+                .
+              </li>
             </ul>
           </div>
         ),
@@ -97,13 +109,17 @@ export default function ReferralLayoutDemoPage() {
         content: (
           <div className="space-y-3 text-sm">
             <p className="text-muted-foreground">
-              This is a simple preview screen. In a real flow you would summarize what was entered
-              and maybe add a final acknowledgement checkbox.
+              This is a simple preview screen. In a real flow you would
+              summarize what was entered and maybe add a final acknowledgement
+              checkbox.
             </p>
             <ul className="list-disc space-y-1 pl-5">
               <li>Breadcrumbs highlight the current step.</li>
               <li>Back button only appears when the handler is provided.</li>
-              <li>Primary action shows loading state via <code>isSubmitting</code>.</li>
+              <li>
+                Primary action shows loading state via <code>isSubmitting</code>
+                .
+              </li>
             </ul>
           </div>
         ),
@@ -113,13 +129,17 @@ export default function ReferralLayoutDemoPage() {
         content: (
           <div className="space-y-3 text-sm">
             <p className="text-muted-foreground">
-              This is a simple preview screen. In a real flow you would summarize what was entered
-              and maybe add a final acknowledgement checkbox.
+              This is a simple preview screen. In a real flow you would
+              summarize what was entered and maybe add a final acknowledgement
+              checkbox.
             </p>
             <ul className="list-disc space-y-1 pl-5">
               <li>Breadcrumbs highlight the current step.</li>
               <li>Back button only appears when the handler is provided.</li>
-              <li>Primary action shows loading state via <code>isSubmitting</code>.</li>
+              <li>
+                Primary action shows loading state via <code>isSubmitting</code>
+                .
+              </li>
             </ul>
           </div>
         ),
@@ -129,13 +149,17 @@ export default function ReferralLayoutDemoPage() {
         content: (
           <div className="space-y-3 text-sm">
             <p className="text-muted-foreground">
-              This is a simple preview screen. In a real flow you would summarize what was entered
-              and maybe add a final acknowledgement checkbox.
+              This is a simple preview screen. In a real flow you would
+              summarize what was entered and maybe add a final acknowledgement
+              checkbox.
             </p>
             <ul className="list-disc space-y-1 pl-5">
               <li>Breadcrumbs highlight the current step.</li>
               <li>Back button only appears when the handler is provided.</li>
-              <li>Primary action shows loading state via <code>isSubmitting</code>.</li>
+              <li>
+                Primary action shows loading state via <code>isSubmitting</code>
+                .
+              </li>
             </ul>
           </div>
         ),
@@ -145,43 +169,54 @@ export default function ReferralLayoutDemoPage() {
         content: (
           <div className="space-y-3 text-sm">
             <p className="text-muted-foreground">
-              This is a simple preview screen. In a real flow you would summarize what was entered
-              and maybe add a final acknowledgement checkbox.
+              This is a simple preview screen. In a real flow you would
+              summarize what was entered and maybe add a final acknowledgement
+              checkbox.
             </p>
             <ul className="list-disc space-y-1 pl-5">
               <li>Breadcrumbs highlight the current step.</li>
               <li>Back button only appears when the handler is provided.</li>
-              <li>Primary action shows loading state via <code>isSubmitting</code>.</li>
+              <li>
+                Primary action shows loading state via <code>isSubmitting</code>
+                .
+              </li>
             </ul>
           </div>
         ),
       },
     ],
     []
-  )
+  );
 
   const breadcrumbs = useMemo(
-    () => steps.map((step, idx) => ({ label: step.title, current: idx === stepIndex })),
+    () =>
+      steps.map((step, idx) => ({
+        label: step.title,
+        current: idx === stepIndex,
+      })),
     [steps, stepIndex]
-  )
+  );
 
-  const current = steps[stepIndex]
+  const current = steps[stepIndex];
 
   const handleNext = () => {
-    if (isSubmitting) return
+    if (isSubmitting) return;
 
     if (stepIndex === steps.length - 1) {
-      setIsSubmitting(true)
+      setIsSubmitting(true);
       // TODO: submit the form, replace delay
       setTimeout(() => {
-        setIsSubmitting(false)
-      }, 2000)
-      return
+        setIsSubmitting(false);
+      }, 2000);
+      return;
     }
-    setStepIndex((prev) => Math.min(prev + 1, steps.length - 1))
-  }
+    setStepIndex((prev) => Math.min(prev + 1, steps.length - 1));
+  };
 
-  const handleBack = stepIndex > 0 ? () => setStepIndex((prev) => Math.max(prev - 1, 0)) : undefined
+  const handleBack =
+    stepIndex > 0
+      ? () => setStepIndex((prev) => Math.max(prev - 1, 0))
+      : undefined;
 
   return (
     <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4">
@@ -197,5 +232,5 @@ export default function ReferralLayoutDemoPage() {
         {current.content}
       </GenericLayout>
     </main>
-  )
+  );
 }

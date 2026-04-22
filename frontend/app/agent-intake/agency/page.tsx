@@ -2,32 +2,35 @@
 
 import React, { useEffect, useState } from "react";
 
-import IntakeStepPage from "@/components/intake/IntakeStepPage";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import IntakeStepPage from "@/app/agent-intake/components/IntakeStepPage";
+import { Input } from "@/common/components/ui/input";
+import { Label } from "@/common/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { useIntakeContext } from "@/context/IntakeContext";
+} from "@/common/components/ui/select";
+import { useIntakeContext } from "@/app/agent-intake/context/IntakeContext";
 import {
   useIntakeFormStore,
   type AgencyFormData,
-} from "@/stores/intakeFormStore";
+} from "@/app/agent-intake/stores/intakeFormStore";
+
+import { PHONE_REGEX, POSTAL_CODE_REGEX } from "@/common/constants/validators";
 
 type FormErrors = Partial<Record<keyof AgencyFormData, string>>;
 
-const POSTAL_CODE_RE = /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/;
-const PHONE_RE = /^[\d\s()+\-]{7,20}$/;
+const POSTAL_CODE_RE = POSTAL_CODE_REGEX;
+const PHONE_RE = PHONE_REGEX;
 
 function validate(form: AgencyFormData): FormErrors {
   const errors: FormErrors = {};
 
   if (!form.name.trim()) errors.name = "Enter your agency name.";
-  if (!form.addressLine1.trim()) errors.addressLine1 = "Enter a street address.";
+  if (!form.addressLine1.trim())
+    errors.addressLine1 = "Enter a street address.";
   if (!form.city.trim()) errors.city = "Enter your city.";
   if (!form.postalCode.trim()) errors.postalCode = "Enter your postal code.";
   if (!form.phone.trim()) errors.phone = "Enter your phone number.";
@@ -125,7 +128,7 @@ export default function AgencyStep() {
           <Input
             {...field("name")}
             placeholder="Enter your agency name"
-            className="h-11"
+            className="h-11 border-border bg-background"
           />
           <FieldError message={touched.name ? errors.name : undefined} />
         </div>
@@ -136,7 +139,7 @@ export default function AgencyStep() {
             <Input
               {...field("addressLine1")}
               placeholder="Street address"
-              className="h-11"
+              className="h-11 border-border bg-background"
             />
             <FieldError
               message={touched.addressLine1 ? errors.addressLine1 : undefined}
@@ -151,7 +154,7 @@ export default function AgencyStep() {
                 handleChange("addressLine2", event.target.value)
               }
               placeholder="Suite, unit, floor, or building"
-              className="h-11"
+              className="h-11 border-border bg-background"
             />
           </div>
         </div>
@@ -162,7 +165,7 @@ export default function AgencyStep() {
             <Input
               {...field("city")}
               placeholder="Enter city"
-              className="h-11"
+              className="h-11 border-border bg-background"
             />
             <FieldError message={touched.city ? errors.city : undefined} />
           </div>
@@ -170,7 +173,9 @@ export default function AgencyStep() {
             <Label htmlFor="province">Province</Label>
             <Select
               value={form.province}
-              onValueChange={(value) => value && handleChange("province", value)}
+              onValueChange={(value) =>
+                value && handleChange("province", value)
+              }
             >
               <SelectTrigger id="province" className="!h-11 w-full py-0">
                 <SelectValue placeholder="Select a province" />
@@ -208,7 +213,7 @@ export default function AgencyStep() {
             <Input
               {...field("postalCode")}
               placeholder="Enter postal code"
-              className="h-11"
+              className="h-11 border-border bg-background"
             />
             <FieldError
               message={touched.postalCode ? errors.postalCode : undefined}
@@ -222,7 +227,7 @@ export default function AgencyStep() {
             {...field("phone")}
             type="tel"
             placeholder="Enter phone number"
-            className="h-11"
+            className="h-11 border-border bg-background"
           />
           <FieldError message={touched.phone ? errors.phone : undefined} />
         </div>

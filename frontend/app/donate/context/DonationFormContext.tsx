@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 
 // Types
 
@@ -64,7 +70,10 @@ interface DonationFormContextType {
   setFormState: React.Dispatch<React.SetStateAction<DonationFormState>>;
   addItem: () => void;
   deleteItem: (id: string) => void;
-  updateItem: (id: string, patch: Partial<Omit<FurnitureItemData, "id">>) => void;
+  updateItem: (
+    id: string,
+    patch: Partial<Omit<FurnitureItemData, "id">>
+  ) => void;
   submitAttempted: boolean;
   setSubmitAttempted: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -82,10 +91,10 @@ function createItem(): FurnitureItemData {
 
 export function validateItems(items: FurnitureItemData[]): boolean {
   return items.every(
-    (item) => 
-      item.furnitureType !== null && 
+    (item) =>
+      item.furnitureType !== null &&
       item.hasStains !== null &&
-      item.photos.length > 0,
+      item.photos.length > 0
   );
 }
 
@@ -110,7 +119,9 @@ export function DonationFormProvider({
     smokingInHousehold: null,
     petsInHousehold: null,
     feeAgreement: false,
-    items: [{ id: "item-initial", furnitureType: null, hasStains: null, photos: [] }],
+    items: [
+      { id: "item-initial", furnitureType: null, hasStains: null, photos: [] },
+    ],
     pickupSubmitAttempted: false,
   }));
   const addItem = useCallback(() => {
@@ -132,16 +143,24 @@ export function DonationFormProvider({
       setFormState((prev) => ({
         ...prev,
         items: prev.items.map((item) =>
-          item.id === id ? { ...item, ...patch } : item,
+          item.id === id ? { ...item, ...patch } : item
         ),
       }));
     },
-    [],
+    []
   );
 
   const contextValue = useMemo(
-    () => ({ formState, setFormState, addItem, deleteItem, updateItem, submitAttempted, setSubmitAttempted }),
-    [formState, addItem, deleteItem, updateItem, submitAttempted],
+    () => ({
+      formState,
+      setFormState,
+      addItem,
+      deleteItem,
+      updateItem,
+      submitAttempted,
+      setSubmitAttempted,
+    }),
+    [formState, addItem, deleteItem, updateItem, submitAttempted]
   );
 
   return (

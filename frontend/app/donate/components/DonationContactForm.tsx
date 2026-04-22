@@ -184,7 +184,9 @@ export default function DonationContactForm() {
                   onChange={handleChange("first_name")}
                   onBlur={() => handleBlur("first_name")}
                   aria-invalid={Boolean(errors.first_name)}
-                  aria-describedby={errors.first_name ? "first_name-error" : undefined}
+                  aria-describedby={
+                    errors.first_name ? "first_name-error" : undefined
+                  }
                   className="h-10 rounded-lg bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
                 />
                 {errors.first_name ? (
@@ -215,11 +217,17 @@ export default function DonationContactForm() {
                   onChange={handleChange("last_name")}
                   onBlur={() => handleBlur("last_name")}
                   aria-invalid={Boolean(errors.last_name)}
-                  aria-describedby={errors.last_name ? "last_name-error" : undefined}
+                  aria-describedby={
+                    errors.last_name ? "last_name-error" : undefined
+                  }
                   className="h-10 rounded-lg bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
                 />
                 {errors.last_name ? (
-                  <p id="last_name-error" className="text-destructive text-sm" role="alert">
+                  <p
+                    id="last_name-error"
+                    className="text-destructive text-sm"
+                    role="alert"
+                  >
                     {errors.last_name}
                   </p>
                 ) : null}
@@ -246,7 +254,11 @@ export default function DonationContactForm() {
                   className="h-10 rounded-lg bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
                 />
                 {errors.email ? (
-                  <p id="email-error" className="text-destructive text-sm" role="alert">
+                  <p
+                    id="email-error"
+                    className="text-destructive text-sm"
+                    role="alert"
+                  >
                     {errors.email}
                   </p>
                 ) : null}
@@ -273,7 +285,11 @@ export default function DonationContactForm() {
                   className="h-10 rounded-lg bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
                 />
                 {errors.phone ? (
-                  <p id="phone-error" className="text-destructive text-sm" role="alert">
+                  <p
+                    id="phone-error"
+                    className="text-destructive text-sm"
+                    role="alert"
+                  >
                     {errors.phone}
                   </p>
                 ) : null}
@@ -284,7 +300,9 @@ export default function DonationContactForm() {
                 disabled={createDonor.isPending}
                 className="h-10 w-full rounded-full bg-primary px-6 py-2.5 text-primary-foreground text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 font-medium hover:cursor-pointer disabled:cursor-not-allowed"
               >
-                {createDonor.isPending ? "Submitting..." : "Submit a Donation Request"}
+                {createDonor.isPending
+                  ? "Submitting..."
+                  : "Submit a Donation Request"}
                 <span aria-hidden="true">{"->"}</span>
               </Button>
 
@@ -292,7 +310,9 @@ export default function DonationContactForm() {
                 aria-live="polite"
                 className={cn(
                   "min-h-5 text-sm",
-                  submitStatus?.type === "error" ? "text-destructive" : "text-foreground"
+                  submitStatus?.type === "error"
+                    ? "text-destructive"
+                    : "text-foreground"
                 )}
               >
                 {submitStatus?.text}

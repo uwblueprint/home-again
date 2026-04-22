@@ -23,7 +23,9 @@ Without shared form components, every form field looks like this (repeated acros
     aria-invalid={Boolean(errors.email)}
   />
   {errors.email ? (
-    <p role="alert" className="text-sm text-destructive">{errors.email}</p>
+    <p role="alert" className="text-sm text-destructive">
+      {errors.email}
+    </p>
   ) : null}
 </div>
 ```
@@ -32,7 +34,12 @@ With `FormField` + `FieldError`, that becomes:
 
 ```tsx
 <FormField label="Email address" htmlFor="email" error={errors.email}>
-  <Input id="email" type="email" value={values.email} onChange={handleChange("email")} />
+  <Input
+    id="email"
+    type="email"
+    value={values.email}
+    onChange={handleChange("email")}
+  />
 </FormField>
 ```
 
@@ -79,18 +86,28 @@ import { FieldError } from "./FieldError";
 
 interface FormFieldProps {
   label: string;
-  htmlFor: string;       // must match the id on the input inside children
-  error?: string;        // validation error to display; omit or pass undefined when valid
-  required?: boolean;    // shows a red asterisk next to the label
+  htmlFor: string; // must match the id on the input inside children
+  error?: string; // validation error to display; omit or pass undefined when valid
+  required?: boolean; // shows a red asterisk next to the label
   children: React.ReactNode;
 }
 
-export function FormField({ label, htmlFor, error, required, children }: FormFieldProps) {
+export function FormField({
+  label,
+  htmlFor,
+  error,
+  required,
+  children,
+}: FormFieldProps) {
   return (
     <div className="space-y-1">
       <Label htmlFor={htmlFor}>
         {label}
-        {required && <span className="ml-1 text-destructive" aria-hidden>*</span>}
+        {required && (
+          <span className="ml-1 text-destructive" aria-hidden>
+            *
+          </span>
+        )}
       </Label>
       {children}
       <FieldError message={error} />
@@ -106,7 +123,12 @@ import { FormField } from "@/common/components/forms/FormField";
 import { Input } from "@/common/components/ui/input";
 
 // Inside your form JSX:
-<FormField label="First name" htmlFor="first_name" error={errors.first_name} required>
+<FormField
+  label="First name"
+  htmlFor="first_name"
+  error={errors.first_name}
+  required
+>
   <Input
     id="first_name"
     value={values.first_name}
@@ -114,7 +136,7 @@ import { Input } from "@/common/components/ui/input";
     onBlur={() => handleBlur("first_name")}
     aria-invalid={Boolean(errors.first_name)}
   />
-</FormField>
+</FormField>;
 ```
 
 The `htmlFor` on `FormField` and the `id` on `Input` must match — this is what connects the label to the input for accessibility (clicking the label focuses the input).
@@ -145,14 +167,26 @@ interface AddressFormProps {
   values: AddressFormValues;
   // errors is a partial object — only fields with errors need an entry
   errors: Partial<Record<keyof AddressFormValues, string>>;
-  onChange: (field: keyof AddressFormValues) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (
+    field: keyof AddressFormValues
+  ) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur: (field: keyof AddressFormValues) => void;
 }
 
-export function AddressForm({ values, errors, onChange, onBlur }: AddressFormProps) {
+export function AddressForm({
+  values,
+  errors,
+  onChange,
+  onBlur,
+}: AddressFormProps) {
   return (
     <div className="space-y-4">
-      <FormField label="Street address" htmlFor="address_line_1" error={errors.address_line_1} required>
+      <FormField
+        label="Street address"
+        htmlFor="address_line_1"
+        error={errors.address_line_1}
+        required
+      >
         <Input
           id="address_line_1"
           value={values.address_line_1}
@@ -162,7 +196,11 @@ export function AddressForm({ values, errors, onChange, onBlur }: AddressFormPro
         />
       </FormField>
 
-      <FormField label="Apartment / unit" htmlFor="address_line_2" error={errors.address_line_2}>
+      <FormField
+        label="Apartment / unit"
+        htmlFor="address_line_2"
+        error={errors.address_line_2}
+      >
         <Input
           id="address_line_2"
           value={values.address_line_2 ?? ""}
@@ -181,7 +219,12 @@ export function AddressForm({ values, errors, onChange, onBlur }: AddressFormPro
           />
         </FormField>
 
-        <FormField label="Postal code" htmlFor="postal_code" error={errors.postal_code} required>
+        <FormField
+          label="Postal code"
+          htmlFor="postal_code"
+          error={errors.postal_code}
+          required
+        >
           <Input
             id="postal_code"
             value={values.postal_code}
@@ -200,12 +243,17 @@ export function AddressForm({ values, errors, onChange, onBlur }: AddressFormPro
 
 ```tsx
 // app/donate/components/DonationAddressForm.tsx
-import { AddressForm, type AddressFormValues } from "@/common/components/forms/AddressForm";
+import {
+  AddressForm,
+  type AddressFormValues,
+} from "@/common/components/forms/AddressForm";
 
 interface DonationAddressFormProps {
   values: AddressFormValues;
   errors: Partial<Record<keyof AddressFormValues, string>>;
-  onChange: (field: keyof AddressFormValues) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (
+    field: keyof AddressFormValues
+  ) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur: (field: keyof AddressFormValues) => void;
 }
 
@@ -213,7 +261,9 @@ export function DonationAddressForm(props: DonationAddressFormProps) {
   return (
     <section className="space-y-2">
       <h2 className="text-lg font-semibold">Pickup address</h2>
-      <p className="text-sm text-muted-foreground">Where should we pick up the furniture?</p>
+      <p className="text-sm text-muted-foreground">
+        Where should we pick up the furniture?
+      </p>
       <AddressForm {...props} />
     </section>
   );
@@ -246,8 +296,10 @@ import { EMAIL_REGEX, POSTAL_CODE_REGEX } from "@/common/constants/validators";
 
 function validate(values) {
   const errors = {};
-  if (!EMAIL_REGEX.test(values.email)) errors.email = "Enter a valid email address.";
-  if (!POSTAL_CODE_REGEX.test(values.postal_code)) errors.postal_code = "Enter a valid postal code.";
+  if (!EMAIL_REGEX.test(values.email))
+    errors.email = "Enter a valid email address.";
+  if (!POSTAL_CODE_REGEX.test(values.postal_code))
+    errors.postal_code = "Enter a valid postal code.";
   return errors;
 }
 ```
@@ -264,9 +316,9 @@ Until these components are built, implement form fields inline in your flow foll
 
 ```ts
 // common/components/forms/index.ts
-export { FormField }         from "./FormField";
-export { FieldError }        from "./FieldError";
-export { AddressForm }       from "./AddressForm";
-export { PhotoUpload }       from "./PhotoUpload";
+export { FormField } from "./FormField";
+export { FieldError } from "./FieldError";
+export { AddressForm } from "./AddressForm";
+export { PhotoUpload } from "./PhotoUpload";
 export type { AddressFormValues } from "./AddressForm";
 ```

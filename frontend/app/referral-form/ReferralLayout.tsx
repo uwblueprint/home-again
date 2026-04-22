@@ -1,30 +1,30 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   Breadcrumb as BreadcrumbNav,
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "@/common/components/ui/breadcrumb"
-import { Button } from "@/common/components/ui/button"
-import { cn } from "@/common/lib/utils"
+} from "@/common/components/ui/breadcrumb";
+import { Button } from "@/common/components/ui/button";
+import { cn } from "@/common/lib/utils";
 
 export type BreadcrumbStep = {
-  label: string
-  current?: boolean
-}
+  label: string;
+  current?: boolean;
+};
 
 type ReferralLayoutProps = {
-  onNext: () => void
-  onBack?: () => void
-  isSubmitting?: boolean
-  title: string
-  activeIndex: number
-  breadcrumbs?: BreadcrumbStep[]
-  nextLabel?: string
-  children: React.ReactNode
-}
+  onNext: () => void;
+  onBack?: () => void;
+  isSubmitting?: boolean;
+  title: string;
+  activeIndex: number;
+  breadcrumbs?: BreadcrumbStep[];
+  nextLabel?: string;
+  children: React.ReactNode;
+};
 
 function ReferralLayout({
   title,
@@ -36,16 +36,15 @@ function ReferralLayout({
   nextLabel = "Next",
   children,
 }: ReferralLayoutProps) {
-
   // Derive breadcrumbs from provided data and ensure exactly one is active.
   const resolvedBreadcrumbs: BreadcrumbStep[] = React.useMemo(() => {
-    if (!breadcrumbs?.length) return []
+    if (!breadcrumbs?.length) return [];
 
     return breadcrumbs.map((crumb, idx) => ({
       ...crumb,
       current: idx === activeIndex,
-    }))
-  }, [breadcrumbs, activeIndex])
+    }));
+  }, [breadcrumbs, activeIndex]);
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center gap-6 px-4 pb-4 pt-12">
@@ -56,13 +55,13 @@ function ReferralLayout({
           "flex flex-col items-center gap-3"
         )}
       >
-          <BreadcrumbNav
-            className={cn(
-              "w-full",
-              "text-sm leading-5 tracking-normal",
-              "font-sans text-muted-foreground"
-            )}
-          >
+        <BreadcrumbNav
+          className={cn(
+            "w-full",
+            "text-sm leading-5 tracking-normal",
+            "font-sans text-muted-foreground"
+          )}
+        >
           <BreadcrumbList className="mx-auto flex flex-wrap items-center justify-center gap-3">
             {resolvedBreadcrumbs.map((crumb, index) => {
               return (
@@ -88,9 +87,11 @@ function ReferralLayout({
                       {crumb.label}
                     </span>
                   </BreadcrumbItem>
-                  {index < resolvedBreadcrumbs.length - 1 && <BreadcrumbSeparator />}
+                  {index < resolvedBreadcrumbs.length - 1 && (
+                    <BreadcrumbSeparator />
+                  )}
                 </React.Fragment>
-              )
+              );
             })}
           </BreadcrumbList>
         </BreadcrumbNav>
@@ -144,7 +145,7 @@ function ReferralLayout({
         </div>
       </nav>
     </div>
-  )
+  );
 }
 
-export default ReferralLayout
+export default ReferralLayout;

@@ -1,7 +1,11 @@
 "use client";
 
 import React from "react";
-import type { ResourceListProps, CellRendererProps, ResourceListSkeletonProps } from "@/common/types";
+import type {
+  ResourceListProps,
+  CellRendererProps,
+  ResourceListSkeletonProps,
+} from "@/common/types";
 import { formatDate } from "@/common/utils/DateUtils";
 
 /**
@@ -44,7 +48,12 @@ export default function ResourceList<T extends { id: string }>({
       )}
 
       {/* Loading State */}
-      {loading && <ResourceListSkeleton columns={columns} hasActions={rowActions.length > 0} />}
+      {loading && (
+        <ResourceListSkeleton
+          columns={columns}
+          hasActions={rowActions.length > 0}
+        />
+      )}
 
       {/* Empty State */}
       {!loading && !error && data.length === 0 && (
@@ -170,10 +179,7 @@ function CellRenderer<T>({ column, row, value }: CellRendererProps<T>) {
   switch (column.type) {
     case "email":
       return (
-        <a
-          href={`mailto:${value}`}
-          className="text-blue-600 hover:underline"
-        >
+        <a href={`mailto:${value}`} className="text-blue-600 hover:underline">
           {String(value)}
         </a>
       );

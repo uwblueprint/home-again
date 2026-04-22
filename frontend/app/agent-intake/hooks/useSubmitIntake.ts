@@ -15,9 +15,8 @@ function trimOrNull(value: string) {
 
 function extractErrorMessage(error: unknown) {
   if (typeof error === "object" && error !== null) {
-    const detail = (
-      error as { response?: { data?: { detail?: unknown } } }
-    ).response?.data?.detail;
+    const detail = (error as { response?: { data?: { detail?: unknown } } })
+      .response?.data?.detail;
     if (typeof detail === "string" && detail.trim()) {
       return detail;
     }
@@ -31,10 +30,7 @@ function extractErrorMessage(error: unknown) {
 }
 
 function buildValidationErrorMessage() {
-  const {
-    agency,
-    mainAgent,
-  } = useIntakeFormStore.getState();
+  const { agency, mainAgent } = useIntakeFormStore.getState();
 
   const missingFields: string[] = [];
 
@@ -60,7 +56,9 @@ export function useSubmitIntake() {
   const reset = useIntakeFormStore((state) => state.reset);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [submittedAgencyId, setSubmittedAgencyId] = useState<string | null>(null);
+  const [submittedAgencyId, setSubmittedAgencyId] = useState<string | null>(
+    null
+  );
 
   const isSuccess = submittedAgencyId !== null;
 

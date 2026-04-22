@@ -6,7 +6,11 @@ interface PageLayoutProps {
   children: React.ReactNode;
 }
 
-export default function PageLayout({ title, actions, children }: PageLayoutProps) {
+export default function PageLayout({
+  title,
+  actions,
+  children,
+}: PageLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">

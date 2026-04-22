@@ -23,7 +23,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable, geistMono.variable)}>
+    <html
+      lang="en"
+      className={cn("font-sans", geist.variable, geistMono.variable)}
+    >
       <body>
         <Providers>{children}</Providers>
       </body>

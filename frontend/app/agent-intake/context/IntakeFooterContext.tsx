@@ -32,7 +32,9 @@ const defaultFooterState: IntakeFooterState = {
   isSubmitDisabled: false,
 };
 
-const IntakeFooterContext = createContext<IntakeFooterContextValue | null>(null);
+const IntakeFooterContext = createContext<IntakeFooterContextValue | null>(
+  null
+);
 
 export function IntakeFooterProvider({
   children,
@@ -44,21 +46,24 @@ export function IntakeFooterProvider({
   const [footerState, setFooterStateValue] =
     useState<IntakeFooterState>(defaultFooterState);
 
-  const setFooterState = useCallback((nextState: Partial<IntakeFooterState>) => {
-    setFooterStateValue((current) => {
-      const nextValue = { ...current, ...nextState };
+  const setFooterState = useCallback(
+    (nextState: Partial<IntakeFooterState>) => {
+      setFooterStateValue((current) => {
+        const nextValue = { ...current, ...nextState };
 
-      if (
-        current.isSubmitting === nextValue.isSubmitting &&
-        current.submitError === nextValue.submitError &&
-        current.isSubmitDisabled === nextValue.isSubmitDisabled
-      ) {
-        return current;
-      }
+        if (
+          current.isSubmitting === nextValue.isSubmitting &&
+          current.submitError === nextValue.submitError &&
+          current.isSubmitDisabled === nextValue.isSubmitDisabled
+        ) {
+          return current;
+        }
 
-      return nextValue;
-    });
-  }, []);
+        return nextValue;
+      });
+    },
+    []
+  );
 
   const setSubmitHandler = useCallback((handler: SubmitHandler | null) => {
     submitHandlerRef.current = handler;

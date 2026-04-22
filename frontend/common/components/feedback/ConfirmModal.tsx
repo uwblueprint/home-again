@@ -24,7 +24,7 @@ export default function ConfirmModal({
     }
 
     const focusable = modal.querySelectorAll<HTMLElement>(
-      "a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])",
+      "a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])"
     );
     const first = focusable[0] ?? modal;
     first.focus();
@@ -41,7 +41,7 @@ export default function ConfirmModal({
     }
 
     const focusable = modal.querySelectorAll<HTMLElement>(
-      "a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])",
+      "a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])"
     );
 
     if (focusable.length === 0) {
@@ -87,7 +87,10 @@ export default function ConfirmModal({
         onClick={(event) => event.stopPropagation()}
         onKeyDown={handleKeyDown}
       >
-        <h2 id="confirm-modal-title" className="text-xl font-semibold text-gray-900">
+        <h2
+          id="confirm-modal-title"
+          className="text-xl font-semibold text-gray-900"
+        >
           {title}
         </h2>
         <p className="mt-2 text-sm text-gray-600">{message}</p>

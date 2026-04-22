@@ -11,15 +11,18 @@ import {
 } from "@/common/lib/filePreviewUrls";
 
 const MAX_PHOTOS = 5;
-const FOCUSABLE_SELECTOR = "a[href], button, textarea, input, select, [tabindex]:not([tabindex='-1'])";
+const FOCUSABLE_SELECTOR =
+  "a[href], button, textarea, input, select, [tabindex]:not([tabindex='-1'])";
 
 function getFocusableElements(container: HTMLElement): HTMLElement[] {
-  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+  return Array.from(
+    container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+  ).filter(
     (element) =>
       !element.hasAttribute("disabled") &&
       !element.hasAttribute("data-disabled") &&
       element.getAttribute("aria-disabled") !== "true" &&
-      element.getAttribute("tabindex") !== "-1",
+      element.getAttribute("tabindex") !== "-1"
   );
 }
 
@@ -56,7 +59,8 @@ export default function PhotoUpload({
       const rejected = Math.max(0, currentPhotos.length - MAX_PHOTOS);
       setPendingPhotos(clampedPhotos);
       setOverflowCount(rejected);
-      previouslyFocusedElementRef.current = document.activeElement as HTMLElement | null;
+      previouslyFocusedElementRef.current =
+        document.activeElement as HTMLElement | null;
 
       const dialog = dialogRef.current;
       if (dialog) {
@@ -79,7 +83,7 @@ export default function PhotoUpload({
 
   const photoUrls = useMemo(
     () => pendingPhotos.map((file) => getFilePreviewUrl(file)),
-    [pendingPhotos],
+    [pendingPhotos]
   );
 
   // Release refs from the previous pending photo set whenever it changes
@@ -211,7 +215,7 @@ export default function PhotoUpload({
           <div
             className={cn(
               "mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 transition-colors",
-              isDragOver ? "border-primary bg-primary/5" : "border-border",
+              isDragOver ? "border-primary bg-primary/5" : "border-border"
             )}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -226,10 +230,12 @@ export default function PhotoUpload({
               onClick={() => fileInputRef.current?.click()}
               className={cn(
                 "flex w-80 cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm hover:bg-[var(--unofficial-outline-hover)]",
-                overflowCount > 0 ? "border-destructive" : "border-border",
+                overflowCount > 0 ? "border-destructive" : "border-border"
               )}
             >
-              <span className="font-semibold text-foreground">Choose Files</span>
+              <span className="font-semibold text-foreground">
+                Choose Files
+              </span>
               <span className="text-muted-foreground">
                 {pendingPhotos.length === 0
                   ? "No files chosen"
@@ -244,7 +250,9 @@ export default function PhotoUpload({
               onChange={handleFileChange}
               aria-label="Choose files"
               aria-invalid={overflowCount > 0}
-              aria-describedby={overflowCount > 0 ? "photo-overflow-error" : undefined}
+              aria-describedby={
+                overflowCount > 0 ? "photo-overflow-error" : undefined
+              }
               className="hidden"
             />
             {overflowCount > 0 && (

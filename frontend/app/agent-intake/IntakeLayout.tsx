@@ -7,9 +7,15 @@ import {
   IntakeFooterProvider,
   useIntakeFooter,
 } from "@/app/agent-intake/context/IntakeFooterContext";
-import { IntakeProvider, useIntakeContext } from "@/app/agent-intake/context/IntakeContext";
+import {
+  IntakeProvider,
+  useIntakeContext,
+} from "@/app/agent-intake/context/IntakeContext";
 import { Button } from "@/common/components/ui/button";
-import { StepIndicator, type Step } from "@/common/components/ui/step-indicator";
+import {
+  StepIndicator,
+  type Step,
+} from "@/common/components/ui/step-indicator";
 import {
   INTAKE_AGENCY,
   INTAKE_MAIN_AGENT,
@@ -125,7 +131,9 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
       <footer className="border-t border-border flex items-center justify-between gap-6 px-16 py-8">
         <div className="min-h-5 flex-1">
           {isLastStep && footerState.submitError ? (
-            <p className="text-sm text-destructive">{footerState.submitError}</p>
+            <p className="text-sm text-destructive">
+              {footerState.submitError}
+            </p>
           ) : null}
         </div>
         <div className="flex items-center gap-3">
@@ -142,17 +150,19 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
           <Button
             className="h-10 px-6"
             onClick={handleNext}
-            disabled={isLastStep ? isSubmitDisabled : isNavigating || isNavigationLocked}
+            disabled={
+              isLastStep ? isSubmitDisabled : isNavigating || isNavigationLocked
+            }
           >
             {isLastStep && footerState.isSubmitting
               ? "Submitting..."
               : isLastStep
                 ? "Submit"
                 : currentStep === OTHER_AGENTS_STEP
-                ? hasSavedOtherAgent
-                  ? "Next"
-                  : "Maybe later"
-                : "Next"}
+                  ? hasSavedOtherAgent
+                    ? "Next"
+                    : "Maybe later"
+                  : "Next"}
           </Button>
         </div>
       </footer>

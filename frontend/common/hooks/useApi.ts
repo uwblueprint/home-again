@@ -55,7 +55,9 @@ export function useAgency(agencyId?: string) {
       if (!agencyId) {
         throw new Error("Agency ID is required");
       }
-      const response = await apiClient.get<AgencyRecord>(`/agencies/${agencyId}`);
+      const response = await apiClient.get<AgencyRecord>(
+        `/agencies/${agencyId}`
+      );
       return response.data;
     },
     enabled: Boolean(agencyId),
@@ -140,7 +142,9 @@ export function useCreateAgent() {
       return response.data;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["agency", variables.agency_id] });
+      queryClient.invalidateQueries({
+        queryKey: ["agency", variables.agency_id],
+      });
       queryClient.invalidateQueries({ queryKey: ["agencies"] });
     },
   });
@@ -203,7 +207,10 @@ export function useUpdateAgency(agencyId: string) {
 
   return useMutation({
     mutationFn: async (data: UpdateAgencyInput) => {
-      const response = await apiClient.put<AgencyRecord>(`/agencies/${agencyId}`, data);
+      const response = await apiClient.put<AgencyRecord>(
+        `/agencies/${agencyId}`,
+        data
+      );
       return response.data;
     },
     onSuccess: () => {
@@ -218,7 +225,6 @@ export function useUpdateAgency(agencyId: string) {
  *
  * Automatically invalidates the agencies query cache after success.
  */
-
 
 /**
  * Fetch referrals

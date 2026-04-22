@@ -47,13 +47,21 @@ import {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="space-y-md">
-      <h2 className="text-heading-4 font-semibold border-b border-border pb-sm">{title}</h2>
+      <h2 className="text-heading-4 font-semibold border-b border-border pb-sm">
+        {title}
+      </h2>
       {children}
     </section>
   );
 }
 
-function ComponentRow({ name, children }: { name: string; children: ReactNode }) {
+function ComponentRow({
+  name,
+  children,
+}: {
+  name: string;
+  children: ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-sm rounded-md border border-border bg-card p-md md:flex-row md:items-center md:justify-between md:gap-md">
       <div className="w-full md:w-auto">{children}</div>
@@ -97,7 +105,9 @@ function CardDemo() {
         <CardTitle>Card title</CardTitle>
         <CardDescription>Card description</CardDescription>
       </CardHeader>
-      <CardContent className="text-sm text-muted-foreground">Card content</CardContent>
+      <CardContent className="text-sm text-muted-foreground">
+        Card content
+      </CardContent>
     </Card>
   );
 }
@@ -189,19 +199,19 @@ function TooltipDemo() {
 // To add a composed component: add an entry to COMPOSED_COMPONENTS.
 
 const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
-  { name: "Badge",         Demo: BadgeDemo },
-  { name: "Breadcrumb",    Demo: BreadcrumbDemo },
-  { name: "Button",        Demo: ButtonDemo },
-  { name: "Card",          Demo: CardDemo },
-  { name: "Checkbox",      Demo: CheckboxDemo },
-  { name: "Dialog",        Demo: DialogDemo },
-  { name: "DropdownMenu",  Demo: DropdownMenuDemo },
-  { name: "Input",         Demo: InputDemo },
-  { name: "Label",         Demo: LabelDemo },
-  { name: "Select",        Demo: SelectDemo },
+  { name: "Badge", Demo: BadgeDemo },
+  { name: "Breadcrumb", Demo: BreadcrumbDemo },
+  { name: "Button", Demo: ButtonDemo },
+  { name: "Card", Demo: CardDemo },
+  { name: "Checkbox", Demo: CheckboxDemo },
+  { name: "Dialog", Demo: DialogDemo },
+  { name: "DropdownMenu", Demo: DropdownMenuDemo },
+  { name: "Input", Demo: InputDemo },
+  { name: "Label", Demo: LabelDemo },
+  { name: "Select", Demo: SelectDemo },
   { name: "StepIndicator", Demo: StepIndicatorDemo },
-  { name: "Textarea",      Demo: TextareaDemo },
-  { name: "Tooltip",       Demo: TooltipDemo },
+  { name: "Textarea", Demo: TextareaDemo },
+  { name: "Tooltip", Demo: TooltipDemo },
 ];
 
 const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
@@ -217,7 +227,9 @@ export default function ComponentsPage() {
         <div className="max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
           <h1 className="text-heading-3 font-semibold">Component Gallery</h1>
           <Link href="/">
-            <Button variant="secondary" size="sm">Home</Button>
+            <Button variant="secondary" size="sm">
+              Home
+            </Button>
           </Link>
         </div>
       </header>
@@ -236,7 +248,8 @@ export default function ComponentsPage() {
         <Section title="Composed components">
           {COMPOSED_COMPONENTS.length === 0 ? (
             <p className="text-paragraph-small text-muted-foreground">
-              No composed components yet. Add entries to <code>COMPOSED_COMPONENTS</code> in this file.
+              No composed components yet. Add entries to{" "}
+              <code>COMPOSED_COMPONENTS</code> in this file.
             </p>
           ) : (
             <div className="space-y-sm">

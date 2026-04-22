@@ -8,12 +8,7 @@
  * If the callback returns false, navigation is blocked.
  */
 
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useRef,
-} from "react";
+import React, { createContext, useCallback, useContext, useRef } from "react";
 
 type ValidateFn = () => boolean | Promise<boolean>;
 

@@ -29,7 +29,8 @@ function validate(form: AgencyFormData): FormErrors {
   const errors: FormErrors = {};
 
   if (!form.name.trim()) errors.name = "Enter your agency name.";
-  if (!form.addressLine1.trim()) errors.addressLine1 = "Enter a street address.";
+  if (!form.addressLine1.trim())
+    errors.addressLine1 = "Enter a street address.";
   if (!form.city.trim()) errors.city = "Enter your city.";
   if (!form.postalCode.trim()) errors.postalCode = "Enter your postal code.";
   if (!form.phone.trim()) errors.phone = "Enter your phone number.";
@@ -172,7 +173,9 @@ export default function AgencyStep() {
             <Label htmlFor="province">Province</Label>
             <Select
               value={form.province}
-              onValueChange={(value) => value && handleChange("province", value)}
+              onValueChange={(value) =>
+                value && handleChange("province", value)
+              }
             >
               <SelectTrigger id="province" className="!h-11 w-full py-0">
                 <SelectValue placeholder="Select a province" />

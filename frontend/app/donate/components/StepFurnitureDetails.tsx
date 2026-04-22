@@ -10,7 +10,7 @@ export default function StepFurnitureDetails() {
 
   // Track which item id is expanded; default to the first item
   const [expandedId, setExpandedId] = useState<string | null>(
-    items[0]?.id ?? null,
+    items[0]?.id ?? null
   );
 
   // Auto-collapse previous item and expand new one when an item is added

@@ -33,6 +33,7 @@ The header shows the logo and a step indicator. The footer has Back and Next/Sub
 `MultiStepLayout` should be a **display-only component**. It renders the header, footer, and step indicator — nothing more. It should have no idea what "Next" means for a given flow.
 
 Each flow's own layout wrapper handles:
+
 - What happens when the user clicks Next (validate the form, push to next route, increment a counter, etc.)
 - Whether the Next button should be disabled
 - What the Next button label says ("Next", "Submit", "Continue to Summary", etc.)
@@ -56,20 +57,20 @@ interface Step {
 interface MultiStepLayoutProps {
   // Step indicator
   steps: Step[];
-  currentStep: number;         // 0-indexed (step 1 = 0, step 2 = 1, ...)
+  currentStep: number; // 0-indexed (step 1 = 0, step 2 = 1, ...)
 
   // Footer buttons
   onNext: () => void | Promise<void>;
-  onBack?: () => void;         // omit to hide the Back button on the first step
-  nextLabel?: string;          // e.g. "Continue to Summary", "Submit" — defaults to "Next"
-  isNextDisabled?: boolean;    // use to block Next while async work is in progress
-  isSubmitting?: boolean;      // shows a loading state on the Next button
+  onBack?: () => void; // omit to hide the Back button on the first step
+  nextLabel?: string; // e.g. "Continue to Summary", "Submit" — defaults to "Next"
+  isNextDisabled?: boolean; // use to block Next while async work is in progress
+  isSubmitting?: boolean; // shows a loading state on the Next button
 
   // Footer extras
   submitError?: string | null; // error message shown above the footer buttons
   leftAction?: React.ReactNode; // e.g. an "+ Add item" button next to Back
 
-  children: React.ReactNode;   // the step's content
+  children: React.ReactNode; // the step's content
 }
 ```
 
@@ -95,11 +96,16 @@ const NEXT_LABELS: Record<number, string> = {
   2: "Submit Request",
 };
 
-export default function DonationLayout({ currentStep, onNext, onBack, children }) {
+export default function DonationLayout({
+  currentStep,
+  onNext,
+  onBack,
+  children,
+}) {
   return (
     <MultiStepLayout
       steps={STEPS}
-      currentStep={currentStep - 1}  // DonationLayout uses 1-indexed steps internally
+      currentStep={currentStep - 1} // DonationLayout uses 1-indexed steps internally
       onNext={onNext}
       onBack={onBack}
       nextLabel={NEXT_LABELS[currentStep - 1]}
@@ -130,10 +136,10 @@ The flow's navigation logic, context providers, and validation stay exactly wher
 
 ## Reference: the three existing layouts
 
-| File | How navigation works | Steps |
-|---|---|---|
-| `app/agent-intake/IntakeLayout.tsx` | Router-based — reads `usePathname()` to find the current step, calls `router.push()` to advance | Agency → Your Details → Other Agents → Review |
-| `app/donate/DonationLayout.tsx` | In-memory — `currentStep` is a prop passed from the parent page component | Furniture Details → Schedule a Pickup → Donation Summary |
-| `app/referral-form/ReferralLayout.tsx` | Router-based with breadcrumbs | Variable |
+| File                                   | How navigation works                                                                            | Steps                                                    |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `app/agent-intake/IntakeLayout.tsx`    | Router-based — reads `usePathname()` to find the current step, calls `router.push()` to advance | Agency → Your Details → Other Agents → Review            |
+| `app/donate/DonationLayout.tsx`        | In-memory — `currentStep` is a prop passed from the parent page component                       | Furniture Details → Schedule a Pickup → Donation Summary |
+| `app/referral-form/ReferralLayout.tsx` | Router-based with breadcrumbs                                                                   | Variable                                                 |
 
 Look at these files for reference when building `MultiStepLayout`. The `IntakeLayout` version is the most feature-complete (it handles disabled states, async submission, and a custom "Maybe later" label on one step).

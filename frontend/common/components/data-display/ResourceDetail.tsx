@@ -34,8 +34,9 @@ function extractErrorMessage(error: unknown): string | null {
   }
 
   if (typeof error === "object") {
-    const maybeAxiosDetail = (error as { response?: { data?: { detail?: unknown } } })
-      ?.response?.data?.detail;
+    const maybeAxiosDetail = (
+      error as { response?: { data?: { detail?: unknown } } }
+    )?.response?.data?.detail;
     if (typeof maybeAxiosDetail === "string" && maybeAxiosDetail.trim()) {
       return maybeAxiosDetail;
     }
@@ -114,7 +115,9 @@ export default function ResourceDetail<T extends object>({
                 <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">
                   {field.label}
                 </dt>
-                <dd className="mt-1 break-words text-sm text-gray-900">{renderedValue}</dd>
+                <dd className="mt-1 break-words text-sm text-gray-900">
+                  {renderedValue}
+                </dd>
               </div>
             );
           })}

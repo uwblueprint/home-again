@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAgencies, useDeleteAgency } from "@/common/hooks/useApi";
 import ResourceList from "@/common/components/data-display/ResourceList";
-import type { AgencyRecord, ColumnConfig, RowActionConfig } from "@/common/types";
+import type {
+  AgencyRecord,
+  ColumnConfig,
+  RowActionConfig,
+} from "@/common/types";
 import { Button } from "@/common/components/ui/button";
 
 const agencyColumns: ColumnConfig<AgencyRecord>[] = [
@@ -50,8 +54,7 @@ export default function AgenciesPage() {
     {
       id: "view",
       label: "View",
-      className:
-        "text-blue-600 hover:text-blue-800 hover:underline transition",
+      className: "text-blue-600 hover:text-blue-800 hover:underline transition",
       onClick: (agency) => {
         router.push(`/agencies/${agency.id}`);
       },
@@ -83,7 +86,9 @@ export default function AgenciesPage() {
         <div className="max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
           <h1 className="text-heading-3 font-semibold">Agencies</h1>
           <Link href="/">
-            <Button variant="secondary" size="sm">Home</Button>
+            <Button variant="secondary" size="sm">
+              Home
+            </Button>
           </Link>
         </div>
       </header>

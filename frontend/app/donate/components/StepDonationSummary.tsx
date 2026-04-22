@@ -47,7 +47,7 @@ function YesNoToggle({
           "cursor-pointer px-4 py-1.5 text-sm font-medium transition-colors",
           value === true
             ? "bg-[var(--unofficial-outline-active)] text-foreground"
-            : "bg-background text-foreground hover:bg-[var(--unofficial-outline-hover)]",
+            : "bg-background text-foreground hover:bg-[var(--unofficial-outline-hover)]"
         )}
       >
         Yes
@@ -60,7 +60,7 @@ function YesNoToggle({
           "cursor-pointer border-l border-border px-4 py-1.5 text-sm font-medium transition-colors",
           value === false
             ? "bg-[var(--unofficial-outline-active)] text-foreground"
-            : "bg-background text-foreground hover:bg-[var(--unofficial-outline-hover)]",
+            : "bg-background text-foreground hover:bg-[var(--unofficial-outline-hover)]"
         )}
       >
         No
@@ -73,7 +73,7 @@ function ItemRow({ item }: { item: FurnitureItemData }) {
   const thumbnailFile = item.photos[0] ?? null;
   const thumbnailSrc = useMemo(
     () => (thumbnailFile ? getFilePreviewUrl(thumbnailFile) : null),
-    [thumbnailFile],
+    [thumbnailFile]
   );
 
   useEffect(() => {
@@ -256,9 +256,14 @@ export default function StepDonationSummary() {
           <span className="text-sm font-medium text-foreground">
             Does anyone smoke in the household?
           </span>
-          <YesNoToggle value={smokingInHousehold} onChange={handleSmokingChange} />
+          <YesNoToggle
+            value={smokingInHousehold}
+            onChange={handleSmokingChange}
+          />
           {showSmokingError && (
-            <span className="text-xs text-destructive">Please select an option</span>
+            <span className="text-xs text-destructive">
+              Please select an option
+            </span>
           )}
         </div>
 
@@ -269,7 +274,9 @@ export default function StepDonationSummary() {
           </span>
           <YesNoToggle value={petsInHousehold} onChange={handlePetsChange} />
           {showPetsError && (
-            <span className="text-xs text-destructive">Please select an option</span>
+            <span className="text-xs text-destructive">
+              Please select an option
+            </span>
           )}
         </div>
 
@@ -295,7 +302,7 @@ export default function StepDonationSummary() {
                     ? "border-primary bg-primary"
                     : showFeeError
                       ? "border-destructive bg-background"
-                      : "border-border bg-background",
+                      : "border-border bg-background"
                 )}
               />
               {feeAgreement && (
@@ -314,4 +321,3 @@ export default function StepDonationSummary() {
     </div>
   );
 }
-

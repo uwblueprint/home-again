@@ -4,15 +4,13 @@ import "@testing-library/jest-dom";
 import FurnitureItemCard from "../components/FurnitureItemCard";
 import type { FurnitureItemData } from "../context/DonationFormContext";
 
-global.URL.createObjectURL = jest.fn(
-  (file: File) => `blob:${file.name}`,
-);
+global.URL.createObjectURL = jest.fn((file: File) => `blob:${file.name}`);
 global.URL.revokeObjectURL = jest.fn();
 
 // Helpers
 
 function createMockItem(
-  overrides: Partial<FurnitureItemData> = {},
+  overrides: Partial<FurnitureItemData> = {}
 ): FurnitureItemData {
   return {
     id: "item-1",
@@ -27,7 +25,9 @@ function createFile(name: string) {
   return new File([""], name, { type: "image/png" });
 }
 
-function renderCard(props: Partial<React.ComponentProps<typeof FurnitureItemCard>> = {}) {
+function renderCard(
+  props: Partial<React.ComponentProps<typeof FurnitureItemCard>> = {}
+) {
   const defaultProps: React.ComponentProps<typeof FurnitureItemCard> = {
     itemData: createMockItem(),
     index: 0,
@@ -38,7 +38,10 @@ function renderCard(props: Partial<React.ComponentProps<typeof FurnitureItemCard
     isDeleteDisabled: false,
     ...props,
   };
-  return { ...render(<FurnitureItemCard {...defaultProps} />), props: defaultProps };
+  return {
+    ...render(<FurnitureItemCard {...defaultProps} />),
+    props: defaultProps,
+  };
 }
 
 // Tests
@@ -58,7 +61,9 @@ describe("FurnitureItemCard", () => {
 
     it("sets aria-expanded false on header when collapsed", () => {
       renderCard({ isExpanded: false });
-      expect(screen.getByRole("button", { expanded: false })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { expanded: false })
+      ).toBeInTheDocument();
     });
 
     it("calls onToggle when header is clicked", () => {
@@ -153,7 +158,7 @@ describe("FurnitureItemCard", () => {
     it("renders upload button", () => {
       renderCard();
       expect(
-        screen.getByRole("button", { name: /upload photos/i }),
+        screen.getByRole("button", { name: /upload photos/i })
       ).toBeInTheDocument();
     });
 
@@ -165,7 +170,9 @@ describe("FurnitureItemCard", () => {
         onUpdate,
       });
 
-      fireEvent.click(screen.getByRole("button", { name: "Remove remove.png" }));
+      fireEvent.click(
+        screen.getByRole("button", { name: "Remove remove.png" })
+      );
 
       expect(onUpdate).toHaveBeenCalledWith({ photos: [] });
 
@@ -173,10 +180,12 @@ describe("FurnitureItemCard", () => {
         <FurnitureItemCard
           {...props}
           itemData={{ ...props.itemData, photos: [] }}
-        />,
+        />
       );
 
-      expect(global.URL.revokeObjectURL).toHaveBeenCalledWith("blob:remove.png");
+      expect(global.URL.revokeObjectURL).toHaveBeenCalledWith(
+        "blob:remove.png"
+      );
     });
   });
 });

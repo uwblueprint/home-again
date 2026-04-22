@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import { Plus, UsersRound } from "lucide-react";
 import IntakeStepPage from "@/app/agent-intake/components/IntakeStepPage";
 import { Button } from "@/common/components/ui/button";
-import { AgentCard, type AgentFormData } from "@/app/agent-intake/components/AgentCard";
+import {
+  AgentCard,
+  type AgentFormData,
+} from "@/app/agent-intake/components/AgentCard";
 import { useIntakeFormStore } from "@/app/agent-intake/stores/intakeFormStore";
 
 const EMPTY_AGENT: AgentFormData = {

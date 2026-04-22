@@ -14,7 +14,10 @@ jest.mock("@/common/lib/utils", () => ({
     inputs.filter(Boolean).join(" "),
 }));
 jest.mock("@/common/components/ui/button", () => ({
-  Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+  Button: ({
+    children,
+    ...props
+  }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
     <button {...props}>{children}</button>
   ),
 }));
@@ -24,17 +27,18 @@ jest.mock("@/common/components/ui/input", () => ({
   ),
 }));
 jest.mock("@/common/components/ui/label", () => ({
-  Label: ({ children, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) => (
+  Label: ({
+    children,
+    ...props
+  }: React.LabelHTMLAttributes<HTMLLabelElement>) => (
     <label {...props}>{children}</label>
   ),
 }));
 jest.mock("next/image", () => ({
   __esModule: true,
-  default: ({
-    alt,
-  }: {
-    alt?: string;
-  }) => <span role="img" aria-label={alt ?? ""} data-testid="next-image" />,
+  default: ({ alt }: { alt?: string }) => (
+    <span role="img" aria-label={alt ?? ""} data-testid="next-image" />
+  ),
 }));
 
 const mockMutate = jest.fn();
@@ -56,7 +60,9 @@ describe("DonationContactForm", () => {
   it("renders all form fields and submit button", () => {
     render(<DonationContactForm />);
 
-    expect(screen.getByRole("heading", { name: "Welcome!" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Welcome!" })
+    ).toBeInTheDocument();
     expect(screen.getByLabelText("First Name")).toBeInTheDocument();
     expect(screen.getByLabelText("Last Name")).toBeInTheDocument();
     expect(screen.getByLabelText("Email Address")).toBeInTheDocument();
@@ -95,7 +101,9 @@ describe("DonationContactForm", () => {
       screen.getByRole("button", { name: /submit a donation request/i })
     );
 
-    expect(screen.getByText("Enter a valid email address.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Enter a valid email address.")
+    ).toBeInTheDocument();
     expect(screen.getByText("Enter a valid phone number.")).toBeInTheDocument();
   });
 

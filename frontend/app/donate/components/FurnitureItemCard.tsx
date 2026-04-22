@@ -49,19 +49,19 @@ export default function FurnitureItemCard({
     (type: FurnitureType) => {
       onUpdate({ furnitureType: type });
     },
-    [onUpdate],
+    [onUpdate]
   );
 
   const handleStainsChange = useCallback(
     (value: boolean) => {
       onUpdate({ hasStains: value });
     },
-    [onUpdate],
+    [onUpdate]
   );
 
   const photoUrls = useMemo(
     () => itemData.photos.map((file) => getFilePreviewUrl(file)),
-    [itemData.photos],
+    [itemData.photos]
   );
 
   useEffect(() => {
@@ -100,7 +100,7 @@ export default function FurnitureItemCard({
         <div
           className={cn(
             "grid transition-[grid-template-rows] duration-300 ease-in-out",
-            isExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+            isExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
           )}
         >
           <div className="overflow-hidden">
@@ -127,7 +127,7 @@ export default function FurnitureItemCard({
                           "flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-colors",
                           isSelected
                             ? "border-primary bg-background"
-                            : "border-border bg-background hover:border-muted-foreground/30",
+                            : "border-border bg-background hover:border-muted-foreground/30"
                         )}
                       >
                         <input
@@ -159,7 +159,7 @@ export default function FurnitureItemCard({
                       "cursor-pointer px-4 py-1.5 text-sm font-medium transition-colors",
                       itemData.hasStains === true
                         ? "bg-[var(--unofficial-outline-active)] text-foreground"
-                        : "bg-background text-foreground hover:bg-[var(--unofficial-outline-hover)]",
+                        : "bg-background text-foreground hover:bg-[var(--unofficial-outline-hover)]"
                     )}
                   >
                     Yes
@@ -172,7 +172,7 @@ export default function FurnitureItemCard({
                       "cursor-pointer border-l border-border px-4 py-1.5 text-sm font-medium transition-colors",
                       itemData.hasStains === false
                         ? "bg-[var(--unofficial-outline-active)] text-foreground"
-                        : "bg-background text-foreground hover:bg-[var(--unofficial-outline-hover)]",
+                        : "bg-background text-foreground hover:bg-[var(--unofficial-outline-hover)]"
                     )}
                   >
                     No
@@ -217,7 +217,9 @@ export default function FurnitureItemCard({
                           type="button"
                           onClick={() =>
                             onUpdate({
-                              photos: itemData.photos.filter((_, idx) => idx !== i),
+                              photos: itemData.photos.filter(
+                                (_, idx) => idx !== i
+                              ),
                             })
                           }
                           className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-[#a3a3a3]/70 bg-white text-foreground shadow-sm hover:bg-[linear-gradient(var(--black-alpha-333),var(--black-alpha-333)),linear-gradient(#fff,#fff)]"
@@ -241,7 +243,7 @@ export default function FurnitureItemCard({
                     "inline-flex items-center gap-1.5 text-sm transition-colors",
                     isDeleteDisabled
                       ? "cursor-not-allowed text-muted-foreground/40"
-                      : "cursor-pointer text-muted-foreground hover:text-destructive",
+                      : "cursor-pointer text-muted-foreground hover:text-destructive"
                   )}
                   aria-label={`Delete item ${index + 1}`}
                 >
@@ -263,4 +265,3 @@ export default function FurnitureItemCard({
     </>
   );
 }
-

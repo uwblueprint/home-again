@@ -253,7 +253,9 @@ export function AgentCard({
             <label className="flex cursor-pointer items-center gap-3 text-sm text-foreground/80">
               <Checkbox
                 checked={formData.isAdmin}
-                onCheckedChange={(checked) => handleAdminChange(checked === true)}
+                onCheckedChange={(checked) =>
+                  handleAdminChange(checked === true)
+                }
               />
               Make this user an admin
             </label>

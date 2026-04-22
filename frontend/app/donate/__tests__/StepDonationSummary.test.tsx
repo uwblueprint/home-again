@@ -15,9 +15,7 @@ jest.mock("@/common/lib/utils", () => ({
 }));
 
 // jsdom does not implement URL.createObjectURL
-global.URL.createObjectURL = jest.fn(
-  (file: File) => `blob:${file.name}`,
-);
+global.URL.createObjectURL = jest.fn((file: File) => `blob:${file.name}`);
 global.URL.revokeObjectURL = jest.fn();
 
 const mockDonor = {
@@ -77,7 +75,7 @@ function ItemPhotosSetterButton({
         setFormState((prev) => ({
           ...prev,
           items: prev.items.map((item, idx) =>
-            idx === 0 ? { ...item, photos } : item,
+            idx === 0 ? { ...item, photos } : item
           ),
         }))
       }
@@ -93,7 +91,7 @@ function renderSummary() {
   return render(
     <DonationFormProvider initialDonorId="donor-123">
       <StepDonationSummary />
-    </DonationFormProvider>,
+    </DonationFormProvider>
   );
 }
 
@@ -111,10 +109,10 @@ describe("StepDonationSummary", () => {
     renderSummary();
 
     expect(
-      screen.getByRole("heading", { name: "Donation Summary" }),
+      screen.getByRole("heading", { name: "Donation Summary" })
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/review your donation details/i),
+      screen.getByText(/review your donation details/i)
     ).toBeInTheDocument();
     expect(screen.getByText("Contact Information")).toBeInTheDocument();
     expect(screen.getByText("Pickup Details")).toBeInTheDocument();
@@ -122,7 +120,10 @@ describe("StepDonationSummary", () => {
   });
 
   it("shows loading placeholders while donor data is loading", () => {
-    (useDonor as jest.Mock).mockReturnValue({ data: undefined, isLoading: true });
+    (useDonor as jest.Mock).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+    });
     renderSummary();
 
     // Four fields: first name, last name, email, phone
@@ -166,13 +167,13 @@ describe("StepDonationSummary", () => {
       <DonationFormProvider initialDonorId="donor-123">
         <AddressSetterButton />
         <StepDonationSummary />
-      </DonationFormProvider>,
+      </DonationFormProvider>
     );
 
     fireEvent.click(screen.getByTestId("set-address"));
 
     expect(
-      screen.getByText("210 Drake Ave, St. John's, NL, CA, A2V 1K5"),
+      screen.getByText("210 Drake Ave, St. John's, NL, CA, A2V 1K5")
     ).toBeInTheDocument();
   });
 
@@ -233,7 +234,7 @@ describe("StepDonationSummary", () => {
     const checkbox = screen.getByRole("checkbox");
     expect(checkbox).not.toBeChecked();
     expect(
-      screen.queryByText(/agreement required to submit donation/i),
+      screen.queryByText(/agreement required to submit donation/i)
     ).not.toBeInTheDocument();
   });
 
@@ -253,7 +254,7 @@ describe("StepDonationSummary", () => {
     fireEvent.click(checkbox); // uncheck
     expect(checkbox).not.toBeChecked();
     expect(
-      screen.queryByText(/agreement required to submit donation/i),
+      screen.queryByText(/agreement required to submit donation/i)
     ).not.toBeInTheDocument();
   });
 
@@ -262,12 +263,12 @@ describe("StepDonationSummary", () => {
       <DonationFormProvider initialDonorId="donor-123">
         <SubmitAttemptButton />
         <StepDonationSummary />
-      </DonationFormProvider>,
+      </DonationFormProvider>
     );
 
     fireEvent.click(screen.getByTestId("set-submit-attempted"));
     expect(
-      screen.getByText(/agreement required to submit donation/i),
+      screen.getByText(/agreement required to submit donation/i)
     ).toBeInTheDocument();
   });
 
@@ -276,13 +277,13 @@ describe("StepDonationSummary", () => {
       <DonationFormProvider initialDonorId="donor-123">
         <SubmitAttemptButton />
         <StepDonationSummary />
-      </DonationFormProvider>,
+      </DonationFormProvider>
     );
 
     fireEvent.click(screen.getByTestId("set-submit-attempted"));
     fireEvent.click(screen.getByRole("checkbox"));
     expect(
-      screen.queryByText(/agreement required to submit donation/i),
+      screen.queryByText(/agreement required to submit donation/i)
     ).not.toBeInTheDocument();
   });
 
@@ -291,7 +292,7 @@ describe("StepDonationSummary", () => {
       <DonationFormProvider initialDonorId="donor-123">
         <SubmitAttemptButton />
         <StepDonationSummary />
-      </DonationFormProvider>,
+      </DonationFormProvider>
     );
 
     fireEvent.click(screen.getByTestId("set-submit-attempted"));
@@ -303,7 +304,7 @@ describe("StepDonationSummary", () => {
       <DonationFormProvider initialDonorId="donor-123">
         <SubmitAttemptButton />
         <StepDonationSummary />
-      </DonationFormProvider>,
+      </DonationFormProvider>
     );
 
     fireEvent.click(screen.getByTestId("set-submit-attempted"));
@@ -316,7 +317,7 @@ describe("StepDonationSummary", () => {
     renderSummary();
 
     expect(
-      screen.getByText(/I agree to a \$35 fee, payable at time of pickup/i),
+      screen.getByText(/I agree to a \$35 fee, payable at time of pickup/i)
     ).toBeInTheDocument();
   });
 
@@ -334,7 +335,7 @@ describe("StepDonationSummary", () => {
         <ItemPhotosSetterButton photos={[file]} testId="set-photos" />
         <ItemPhotosSetterButton photos={[]} testId="clear-photos" />
         <StepDonationSummary />
-      </DonationFormProvider>,
+      </DonationFormProvider>
     );
 
     fireEvent.click(screen.getByTestId("set-photos"));

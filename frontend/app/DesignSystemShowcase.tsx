@@ -2,19 +2,35 @@
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <section className="space-y-md">
-      <h2 className="text-heading-4 font-semibold border-b border-border pb-sm">{title}</h2>
+      <h2 className="text-heading-4 font-semibold border-b border-border pb-sm">
+        {title}
+      </h2>
       {children}
     </section>
   );
 }
 
-function SubSection({ title, children }: { title: string; children: React.ReactNode }) {
+function SubSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="space-y-xs">
-      <p className="text-paragraph-small text-muted-foreground font-medium">{title}</p>
+      <p className="text-paragraph-small text-muted-foreground font-medium">
+        {title}
+      </p>
       {children}
     </div>
   );
@@ -45,9 +61,17 @@ function Swatch({ v, className }: { v: string; className?: string }) {
 }
 
 /** Swatch container — flex wrap so fixed-size swatches flow naturally. */
-function SwatchGrid({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+function SwatchGrid({
+  children,
+  style,
+}: {
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}) {
   return (
-    <div className="flex flex-wrap gap-xs rounded-sm" style={style}>{children}</div>
+    <div className="flex flex-wrap gap-xs rounded-sm" style={style}>
+      {children}
+    </div>
   );
 }
 
@@ -56,26 +80,27 @@ function SwatchGrid({ children, style }: { children: React.ReactNode; style?: Re
 export function DesignSystemShowcase() {
   return (
     <div className="space-y-xl py-xl">
-
       {/* ── 1. Typography ───────────────────────────────────────────────── */}
       <Section title="Typography">
         <SubSection title="Type scale">
           <div className="bg-card rounded-md border border-border px-md py-sm space-y-sm">
             {(
               [
-                ["text-heading-1",         "font-semibold", "Heading 1"],
-                ["text-heading-2",         "font-semibold", "Heading 2"],
-                ["text-heading-3",         "font-semibold", "Heading 3"],
-                ["text-heading-4",         "font-semibold", "Heading 4"],
-                ["text-paragraph-large",   "font-normal",   "Paragraph large"],
-                ["text-paragraph-regular", "font-normal",   "Paragraph regular"],
-                ["text-paragraph-small",   "font-normal",   "Paragraph small"],
-                ["text-paragraph-mini",    "font-normal",   "Paragraph mini"],
-                ["text-caption",           "font-normal",   "Caption"],
+                ["text-heading-1", "font-semibold", "Heading 1"],
+                ["text-heading-2", "font-semibold", "Heading 2"],
+                ["text-heading-3", "font-semibold", "Heading 3"],
+                ["text-heading-4", "font-semibold", "Heading 4"],
+                ["text-paragraph-large", "font-normal", "Paragraph large"],
+                ["text-paragraph-regular", "font-normal", "Paragraph regular"],
+                ["text-paragraph-small", "font-normal", "Paragraph small"],
+                ["text-paragraph-mini", "font-normal", "Paragraph mini"],
+                ["text-caption", "font-normal", "Caption"],
               ] as [string, string, string][]
             ).map(([size, weight, label]) => (
               <div key={size} className="flex items-baseline gap-md">
-                <p className={`${size} ${weight} text-foreground flex-1`}>{label}</p>
+                <p className={`${size} ${weight} text-foreground flex-1`}>
+                  {label}
+                </p>
                 <TokenLabel label={size} />
               </div>
             ))}
@@ -86,13 +111,20 @@ export function DesignSystemShowcase() {
           <div className="bg-card rounded-md border border-border px-md py-sm space-y-xs">
             {(
               [
-                ["font-normal",   "Regular (400)"],
-                ["font-medium",   "Medium (500)"],
+                ["font-normal", "Regular (400)"],
+                ["font-medium", "Medium (500)"],
                 ["font-semibold", "Semibold (600)"],
               ] as [string, string][]
             ).map(([cls, label]) => (
-              <div key={cls} className="flex items-center justify-between gap-md">
-                <span className={`text-paragraph-regular ${cls} text-foreground`}>{label}</span>
+              <div
+                key={cls}
+                className="flex items-center justify-between gap-md"
+              >
+                <span
+                  className={`text-paragraph-regular ${cls} text-foreground`}
+                >
+                  {label}
+                </span>
                 <TokenLabel label={cls} />
               </div>
             ))}
@@ -102,18 +134,28 @@ export function DesignSystemShowcase() {
 
       {/* ── 2. Colors ───────────────────────────────────────────────────── */}
       <Section title="Colors">
-
         <SubSection title="Semantic — general">
           <SwatchGrid>
             {[
-              "--background", "--foreground",
-              "--primary", "--primary-foreground",
-              "--secondary", "--secondary-foreground",
-              "--accent", "--accent-foreground",
-              "--muted", "--muted-foreground",
-              "--destructive", "--destructive-foreground",
-              "--border", "--ring", "--ring-error", "--input",
-            ].map((v) => <Swatch key={v} v={v} />)}
+              "--background",
+              "--foreground",
+              "--primary",
+              "--primary-foreground",
+              "--secondary",
+              "--secondary-foreground",
+              "--accent",
+              "--accent-foreground",
+              "--muted",
+              "--muted-foreground",
+              "--destructive",
+              "--destructive-foreground",
+              "--border",
+              "--ring",
+              "--ring-error",
+              "--input",
+            ].map((v) => (
+              <Swatch key={v} v={v} />
+            ))}
           </SwatchGrid>
         </SubSection>
 
@@ -137,11 +179,18 @@ export function DesignSystemShowcase() {
         <SubSection title="Semantic — sidebar">
           <SwatchGrid>
             {[
-              "--sidebar", "--sidebar-foreground",
-              "--sidebar-primary", "--sidebar-primary-foreground",
-              "--sidebar-accent", "--sidebar-accent-foreground",
-              "--sidebar-border", "--sidebar-ring", "--sidebar-muted",
-            ].map((v) => <Swatch key={v} v={v} />)}
+              "--sidebar",
+              "--sidebar-foreground",
+              "--sidebar-primary",
+              "--sidebar-primary-foreground",
+              "--sidebar-accent",
+              "--sidebar-accent-foreground",
+              "--sidebar-border",
+              "--sidebar-ring",
+              "--sidebar-muted",
+            ].map((v) => (
+              <Swatch key={v} v={v} />
+            ))}
           </SwatchGrid>
         </SubSection>
 
@@ -238,7 +287,8 @@ export function DesignSystemShowcase() {
 
         {/* Alpha — shown on checkered background */}
         <SubSection title="Alpha — black">
-          <SwatchGrid style={{
+          <SwatchGrid
+            style={{
               backgroundImage:
                 "linear-gradient(45deg,#ccc 25%,transparent 25%),linear-gradient(-45deg,#ccc 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ccc 75%),linear-gradient(-45deg,transparent 75%,#ccc 75%)",
               backgroundSize: "16px 16px",
@@ -248,7 +298,8 @@ export function DesignSystemShowcase() {
               paddingBottom: "0.5rem",
               paddingLeft: "0.5rem",
               paddingRight: "0.5rem",
-            }}>
+            }}
+          >
             {[
               "--black-alpha-0",
               "--black-alpha-001",
@@ -273,7 +324,8 @@ export function DesignSystemShowcase() {
         </SubSection>
 
         <SubSection title="Alpha — white">
-          <SwatchGrid style={{
+          <SwatchGrid
+            style={{
               backgroundImage:
                 "linear-gradient(45deg,#555 25%,transparent 25%),linear-gradient(-45deg,#555 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#555 75%),linear-gradient(-45deg,transparent 75%,#555 75%)",
               backgroundSize: "16px 16px",
@@ -283,7 +335,8 @@ export function DesignSystemShowcase() {
               paddingBottom: "0.5rem",
               paddingLeft: "0.5rem",
               paddingRight: "0.5rem",
-            }}>
+            }}
+          >
             {[
               "--white-alpha-0",
               "--white-alpha-001",
@@ -313,19 +366,22 @@ export function DesignSystemShowcase() {
         <div className="flex flex-wrap gap-md items-end">
           {(
             [
-              ["rounded-none", "--rounded-none",  "0"],
-              ["rounded-xs",   "--rounded-xs",    "2px"],
-              ["rounded-sm",   "--rounded-sm",    "4px"],
-              ["rounded-md",   "--rounded-md",    "6px"],
-              ["rounded-lg",   "--rounded-lg",    "8px"],
-              ["rounded-xl",   "--rounded-xl",    "12px"],
-              ["rounded-2xl",  "--rounded-2xl",   "16px"],
-              ["rounded-3xl",  "--rounded-3xl",   "24px"],
-              ["rounded-4xl",  "--rounded-4xl",   "32px"],
-              ["rounded-full", "--rounded-full",  "∞"],
+              ["rounded-none", "--rounded-none", "0"],
+              ["rounded-xs", "--rounded-xs", "2px"],
+              ["rounded-sm", "--rounded-sm", "4px"],
+              ["rounded-md", "--rounded-md", "6px"],
+              ["rounded-lg", "--rounded-lg", "8px"],
+              ["rounded-xl", "--rounded-xl", "12px"],
+              ["rounded-2xl", "--rounded-2xl", "16px"],
+              ["rounded-3xl", "--rounded-3xl", "24px"],
+              ["rounded-4xl", "--rounded-4xl", "32px"],
+              ["rounded-full", "--rounded-full", "∞"],
             ] as [string, string, string][]
           ).map(([cls, varName, px]) => (
-            <div key={cls} className="flex flex-col items-center gap-xs group cursor-default">
+            <div
+              key={cls}
+              className="flex flex-col items-center gap-xs group cursor-default"
+            >
               <div
                 className={`w-20 h-20 bg-primary border-2 border-primary/50 ${cls}`}
                 title={varName}
@@ -344,25 +400,32 @@ export function DesignSystemShowcase() {
         <div className="space-y-xs">
           {(
             [
-              ["xs",  "--xs",  "0.5rem  / 8px"],
-              ["sm",  "--sm",  "0.75rem / 12px"],
-              ["md",  "--md",  "1rem    / 16px"],
-              ["lg",  "--lg",  "1.25rem / 20px"],
-              ["xl",  "--xl",  "1.5rem  / 24px"],
+              ["xs", "--xs", "0.5rem  / 8px"],
+              ["sm", "--sm", "0.75rem / 12px"],
+              ["md", "--md", "1rem    / 16px"],
+              ["lg", "--lg", "1.25rem / 20px"],
+              ["xl", "--xl", "1.5rem  / 24px"],
               ["2xl", "--2xl", "2rem    / 32px"],
               ["3xl", "--3xl", "2.5rem  / 40px"],
               ["4xl", "--4xl", "3rem    / 48px"],
             ] as [string, string, string][]
           ).map(([name, varName, value]) => (
-            <div key={name} className="flex items-center gap-md group cursor-default">
-              <div className={`bg-primary/20 border border-primary/40 rounded-sm p-${name} shrink-0`}>
+            <div
+              key={name}
+              className="flex items-center gap-md group cursor-default"
+            >
+              <div
+                className={`bg-primary/20 border border-primary/40 rounded-sm p-${name} shrink-0`}
+              >
                 <div className="bg-primary rounded-xs w-4 h-1" />
               </div>
               <div className="flex items-center gap-xs opacity-0 group-hover:opacity-100 transition-opacity">
                 <TokenLabel label={`p-${name}`} />
                 <TokenLabel label={varName} />
               </div>
-              <span className="text-paragraph-small text-muted-foreground">{value}</span>
+              <span className="text-paragraph-small text-muted-foreground">
+                {value}
+              </span>
             </div>
           ))}
         </div>
@@ -382,7 +445,10 @@ export function DesignSystemShowcase() {
               "--shadow-2xl",
             ] as string[]
           ).map((token) => (
-            <div key={token} className="flex flex-col items-center gap-sm group cursor-default">
+            <div
+              key={token}
+              className="flex flex-col items-center gap-sm group cursor-default"
+            >
               <div className="p-md">
                 <div
                   className="w-28 h-28 bg-white rounded-md"
@@ -397,7 +463,6 @@ export function DesignSystemShowcase() {
           ))}
         </div>
       </Section>
-
     </div>
   );
 }

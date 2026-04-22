@@ -87,7 +87,9 @@ function AgentCard({
           </span>
         ) : null}
       </div>
-      <div className={`${REVIEW_THREE_COLUMN_GRID} text-sm text-muted-foreground`}>
+      <div
+        className={`${REVIEW_THREE_COLUMN_GRID} text-sm text-muted-foreground`}
+      >
         <span className="min-w-0 break-words md:col-span-2">
           {formatValue(agent.email)}
         </span>
@@ -135,7 +137,8 @@ export default function ReviewStep() {
   const agency = useIntakeFormStore((state) => state.agency);
   const mainAgent = useIntakeFormStore((state) => state.mainAgent);
   const otherAgents = useIntakeFormStore((state) => state.otherAgents);
-  const { setFooterState, setSubmitHandler, resetFooterState } = useIntakeFooter();
+  const { setFooterState, setSubmitHandler, resetFooterState } =
+    useIntakeFooter();
   const {
     submit,
     isSubmitting,
@@ -205,7 +208,10 @@ export default function ReviewStep() {
             </h3>
             <ReviewCard>
               <div className={REVIEW_THREE_COLUMN_GRID}>
-                <ReviewField label="Agency name" value={formatValue(agency.name)} />
+                <ReviewField
+                  label="Agency name"
+                  value={formatValue(agency.name)}
+                />
                 <ReviewField
                   label="Address line 1"
                   value={formatValue(agency.addressLine1)}
@@ -270,7 +276,9 @@ export default function ReviewStep() {
               <button
                 type="button"
                 className="text-left text-sm font-medium text-foreground"
-                onClick={() => setVisibleCount((prev) => prev + AGENTS_PER_PAGE)}
+                onClick={() =>
+                  setVisibleCount((prev) => prev + AGENTS_PER_PAGE)
+                }
               >
                 Load {Math.min(remaining, AGENTS_PER_PAGE)} more agents
               </button>

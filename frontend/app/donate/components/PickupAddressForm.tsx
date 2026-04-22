@@ -13,10 +13,7 @@ import {
 } from "@/common/components/ui/select";
 
 export type PickupAddressErrors = Partial<
-  Record<
-    "streetAddress" | "city" | "postalCode",
-    string
-  >
+  Record<"streetAddress" | "city" | "postalCode", string>
 >;
 
 export function validatePickupAddress(
@@ -39,14 +36,12 @@ interface PickupAddressFormProps {
   addressData: PickupAddress;
   onChange: (updated: PickupAddress) => void;
   errors?: PickupAddressErrors;
-  onBlurField?: (
-    field: "streetAddress" | "city" | "postalCode"
-  ) => void;
+  onBlurField?: (field: "streetAddress" | "city" | "postalCode") => void;
 }
 
 const inputClass =
   "h-10 rounded-lg border-border bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)] focus-visible:ring-0 aria-invalid:ring-0";
-  
+
 const labelClass =
   "font-medium text-foreground text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 aria-invalid:ring-0";
 
@@ -132,7 +127,11 @@ export default function PickupAddressForm({
             className={inputClass}
           />
           {errors.city ? (
-            <p id="city-error" className="text-destructive text-sm" role="alert">
+            <p
+              id="city-error"
+              className="text-destructive text-sm"
+              role="alert"
+            >
               {errors.city}
             </p>
           ) : null}
@@ -145,13 +144,19 @@ export default function PickupAddressForm({
           <Select
             value={addressData.province}
             onValueChange={(value) =>
-              onChange({ ...addressData, province: value ?? "Newfoundland and Labrador" })
+              onChange({
+                ...addressData,
+                province: value ?? "Newfoundland and Labrador",
+              })
             }
           >
-            <SelectTrigger id="province" className={`${inputClass} w-full !h-10 cursor-pointer`}>
+            <SelectTrigger
+              id="province"
+              className={`${inputClass} w-full !h-10 cursor-pointer`}
+            >
               <SelectValue placeholder="Newfoundland and Labrador" />
             </SelectTrigger>
-            <SelectContent 
+            <SelectContent
               alignItemWithTrigger={false}
               className="bg-background text-foreground p-2 shadow-lg [&_[data-slot=select-item]]:cursor-pointer"
             >
@@ -175,10 +180,13 @@ export default function PickupAddressForm({
               onChange({ ...addressData, country: value ?? "Canada" })
             }
           >
-            <SelectTrigger id="country" className={`${inputClass} w-full !h-10 cursor-pointer`}>
+            <SelectTrigger
+              id="country"
+              className={`${inputClass} w-full !h-10 cursor-pointer`}
+            >
               <SelectValue placeholder="Canada" />
             </SelectTrigger>
-            <SelectContent 
+            <SelectContent
               alignItemWithTrigger={false}
               className="bg-background text-foreground p-2 shadow-lg [&_[data-slot=select-item]]:cursor-pointer"
             >

@@ -18,7 +18,7 @@ function createFile(name: string) {
 }
 
 function renderDialog(
-  props: Partial<React.ComponentProps<typeof PhotoUpload>> = {},
+  props: Partial<React.ComponentProps<typeof PhotoUpload>> = {}
 ) {
   const defaultProps: React.ComponentProps<typeof PhotoUpload> = {
     open: true,
@@ -52,7 +52,7 @@ describe("PhotoUpload", () => {
       renderDialog({ open: true });
       expect(screen.getByRole("dialog")).toBeInTheDocument();
       expect(
-        screen.getByText("Upload photos of your item"),
+        screen.getByText("Upload photos of your item")
       ).toBeInTheDocument();
       expect(screen.getByText("Max 5 uploads")).toBeInTheDocument();
     });
@@ -70,13 +70,13 @@ describe("PhotoUpload", () => {
 
     it("clamps currentPhotos to MAX_PHOTOS on open and shows overflow message", () => {
       const files = Array.from({ length: 7 }, (_, i) =>
-        createFile(`existing-${i}.png`),
+        createFile(`existing-${i}.png`)
       );
       renderDialog({ currentPhotos: files });
 
       expect(screen.getAllByRole("img")).toHaveLength(5);
       expect(
-        screen.getByText(/Only 5 photos allowed\. 2 files were discarded\./),
+        screen.getByText(/Only 5 photos allowed\. 2 files were discarded\./)
       ).toBeInTheDocument();
       expect(screen.queryByAltText("existing-5.png")).not.toBeInTheDocument();
       expect(screen.queryByAltText("existing-6.png")).not.toBeInTheDocument();
@@ -84,7 +84,9 @@ describe("PhotoUpload", () => {
 
     it("moves focus to the first focusable element when opened", () => {
       renderDialog({ open: true });
-      expect(screen.getByRole("button", { name: "Close dialog" })).toHaveFocus();
+      expect(
+        screen.getByRole("button", { name: "Close dialog" })
+      ).toHaveFocus();
     });
   });
 
@@ -190,7 +192,9 @@ describe("PhotoUpload", () => {
       const input = screen.getByLabelText("Choose files");
       selectFiles(input, [createFile("release.png")]);
 
-      fireEvent.click(screen.getByRole("button", { name: "Remove release.png" }));
+      fireEvent.click(
+        screen.getByRole("button", { name: "Remove release.png" })
+      );
 
       expect(global.URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
     });
@@ -201,12 +205,12 @@ describe("PhotoUpload", () => {
       renderDialog();
       const input = screen.getByLabelText("Choose files");
       const files = Array.from({ length: 6 }, (_, i) =>
-        createFile(`photo${i}.png`),
+        createFile(`photo${i}.png`)
       );
       selectFiles(input, files);
 
       expect(
-        screen.getByText(/Only 5 photos allowed\. 1 file was discarded\./),
+        screen.getByText(/Only 5 photos allowed\. 1 file was discarded\./)
       ).toBeInTheDocument();
     });
 
@@ -214,11 +218,13 @@ describe("PhotoUpload", () => {
       renderDialog();
       const input = screen.getByLabelText("Choose files");
       const files = Array.from({ length: 6 }, (_, i) =>
-        createFile(`photo${i}.png`),
+        createFile(`photo${i}.png`)
       );
       selectFiles(input, files);
 
-      const chooserButton = screen.getByRole("button", { name: /choose files/i });
+      const chooserButton = screen.getByRole("button", {
+        name: /choose files/i,
+      });
       expect(chooserButton.className).toContain("border-destructive");
     });
 
@@ -226,7 +232,7 @@ describe("PhotoUpload", () => {
       renderDialog();
       const input = screen.getByLabelText("Choose files");
       const files = Array.from({ length: 7 }, (_, i) =>
-        createFile(`photo${i}.png`),
+        createFile(`photo${i}.png`)
       );
       selectFiles(input, files);
 
@@ -237,13 +243,13 @@ describe("PhotoUpload", () => {
       renderDialog({ currentPhotos: [createFile("existing.png")] });
       const input = screen.getByLabelText("Choose files");
       const files = Array.from({ length: 5 }, (_, i) =>
-        createFile(`new-${i}.png`),
+        createFile(`new-${i}.png`)
       );
       selectFiles(input, files);
 
       expect(screen.getAllByRole("img")).toHaveLength(5);
       expect(
-        screen.getByText(/Only 5 photos allowed\. 1 file was discarded\./),
+        screen.getByText(/Only 5 photos allowed\. 1 file was discarded\./)
       ).toBeInTheDocument();
       expect(screen.queryByAltText("new-4.png")).not.toBeInTheDocument();
     });
@@ -259,7 +265,7 @@ describe("PhotoUpload", () => {
           onOpenChange={onOpenChange}
           currentPhotos={[]}
           onSave={jest.fn()}
-        />,
+        />
       );
 
       // Add a file while open
@@ -274,7 +280,7 @@ describe("PhotoUpload", () => {
           onOpenChange={onOpenChange}
           currentPhotos={[]}
           onSave={jest.fn()}
-        />,
+        />
       );
 
       // Re-open with empty currentPhotos
@@ -284,7 +290,7 @@ describe("PhotoUpload", () => {
           onOpenChange={onOpenChange}
           currentPhotos={[]}
           onSave={jest.fn()}
-        />,
+        />
       );
 
       // Pending photos should be reset — no thumbnails

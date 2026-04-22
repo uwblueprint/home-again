@@ -11,7 +11,7 @@ For how to use the design system, Figma tokens, and shadcn components, see [DESI
 ```
 frontend/
 ├── app/                          # Next.js routes + co-located page code
-│   ├── globals.css               # Wiring entrypoint — imports common/styles/
+│   ├── globals.css               # Wiring entrypoint — imports styles/
 │   ├── layout.tsx
 │   ├── page.tsx
 │   │
@@ -28,6 +28,14 @@ frontend/
 │       │   └── index.ts
 │       └── stores/               # Zustand (cross-route navigation state)
 │
+├── styles/                       # Design token CSS
+│   ├── alpha.css
+│   ├── border-radii.css
+│   ├── colors.css
+│   ├── shadows.css
+│   ├── spacing.css
+│   └── typography.css
+│
 └── common/                       # Everything shared across ≥2 pages
     ├── components/
     │   ├── ui/                   # shadcn-generated components (run `npx shadcn add`)
@@ -36,10 +44,6 @@ frontend/
     │   ├── feedback/             # Modals, toasts
     │   ├── forms/                # Core form components
     │   └── multi-step-layout/    # Core multi-step shell
-    ├── styles/                   # Design token CSS
-    │   ├── colors.css
-    │   ├── typography.css
-    │   └── spacing.css
     ├── hooks/                    # TanStack Query hooks
     ├── lib/                      # apiClient, utils (cn)
     ├── stores/                   # Global Zustand stores (auth, UI)

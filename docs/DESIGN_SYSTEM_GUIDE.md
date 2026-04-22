@@ -13,7 +13,7 @@ The design system has four layers, each building on the one below:
 ```
 Figma (design source of truth)
   ↓ obra-shadcn plugin export
-common/styles/*.css          ← raw CSS variables (colors, typography, spacing)
+styles/*.css                 ← raw CSS variables (colors, typography, spacing)
   ↓ @theme inline in globals.css
 Tailwind utilities           ← bg-primary, text-heading-1, p-md, etc.
   ↓ npx shadcn add
@@ -32,7 +32,7 @@ Tokens start in Figma and end as Tailwind utility classes. Here is every step:
 
 ```
 Figma token
-  → exported to common/styles/colors.css (or typography.css, spacing.css)
+  → exported to styles/colors.css (or typography.css, spacing.css)
   → CSS variable: --primary: oklch(0.526 0.126 349)
   → mapped in @theme inline: --color-primary: var(--primary)
   → Tailwind utility: bg-primary, text-primary, border-primary
@@ -59,7 +59,7 @@ The fix is `@source inline(...)` in `globals.css` — it acts as a safelist. The
 
 ## 3. Token Files
 
-All three files live in `common/styles/` and are imported by `app/globals.css`.
+All token files live in `styles/` and are imported by `app/globals.css`.
 
 ### `colors.css`
 
@@ -86,7 +86,7 @@ Contains font size, line height, letter spacing, and font weight for each text s
 | Paragraphs | `--paragraph-large-font-size`, `--paragraph-regular-…`, `--paragraph-small-…`, `--paragraph-mini-…` | Body text |
 | Caption | `--caption-font-size`, `--caption-line-height` | Small labels |
 | Font weights | `--paragraph-paragraph-weight: 400`, `--paragraph-paragraph-bold-weight: 600` | Numeric — Figma exports these as strings (`Semibold`) which are invalid CSS; they are stored here as numbers |
-| Font families | `--font-definitions-font-family-sans: Geist`, … | Figma-exported names — informational only; the actual `--font-sans` / `--font-mono` variables Tailwind uses are defined in `spacing.css` independently |
+| Font families | `--font-definitions-font-family-sans: Geist`, … | Figma-exported names — mapped to `--font-sans` / `--font-mono` in `typography.css`; actual font files are loaded in `app/layout.tsx` via `next/font/google` |
 
 **Wired Tailwind utilities (typography):** `text-heading-1`, `text-heading-2`, `text-heading-3`, `text-heading-4`, `text-paragraph-large`, `text-paragraph-regular`, `text-paragraph-small`, `text-paragraph-mini`, `text-caption`. Each sets both `font-size` and `line-height`.
 
@@ -105,7 +105,7 @@ This produces a `text-label-large` utility that sets both `font-size` and `line-
 
 ### `spacing.css`
 
-Contains border radii and spacing tokens. Also defines `--font-sans` and `--font-mono` (used by the `html` base style).
+Contains spacing tokens (and absolute spacing references).
 
 | Token group | CSS variables | Description |
 |---|---|---|
@@ -157,7 +157,7 @@ The `text-*` utilities set `font-size` and `line-height` together. Add `font-sem
 
 ### Adding a new semantic color end-to-end
 
-Step 1 — define in `common/styles/colors.css`:
+Step 1 — define in `styles/colors.css`:
 
 ```css
 :root { --status-success: oklch(0.72 0.16 150); }
@@ -365,7 +365,7 @@ export default function DonationContactForm() {
 
 | Layer | File | Responsible for |
 |---|---|---|
-| Token | `common/styles/typography.css` | Font size and line height values from Figma |
+| Token | `styles/typography.css` | Font size and line height values from Figma |
 | shadcn atom | `common/components/ui/input.tsx` | Visual style of every Input platform-wide |
 | Composed component | `common/components/forms/FormField.tsx` | Consistent label + input + error layout |
 | Flow component | `app/donate/components/DonationContactForm.tsx` | Form state, validation logic, submit handling |
@@ -378,7 +378,7 @@ A change to `input.tsx` affects every input everywhere. A change to `FormField` 
 
 When a designer updates tokens in Figma:
 
-1. **Export** using the obra-shadcn plugin — this updates one or more of the `common/styles/*.css` files
+1. **Export** using the obra-shadcn plugin — this updates one or more of the `styles/*.css` files
 2. **Check** whether the changed token is already mapped in `app/globals.css @theme inline`
    - If yes: the Tailwind utility automatically picks up the new value. Done.
    - If no (new token): add a mapping to `@theme inline` following the pattern in section 4

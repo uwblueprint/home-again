@@ -36,6 +36,7 @@ var/
 # Allow shadcn utils under frontend/
 !frontend/lib/
 !frontend/lib/**
+!frontend/common/lib
 
 # Logs
 *.log

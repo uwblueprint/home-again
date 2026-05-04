@@ -495,61 +495,26 @@ function DropdownMenuDemo() {
 
   return (
     <div className="w-full max-w-xs rounded-md border border-border bg-card p-sm">
-      <h3 className="text-paragraph-small font-semibold text-foreground">
-        Dropdown/Select
-      </h3>
-
-      <div className="mt-sm space-y-sm">
-        <div className="space-y-1.5">
-          <p className="inline-flex items-center gap-1.5 text-paragraph-small font-semibold text-primary">
-            <Sparkles className="size-3.5" />
-            Dropdown select
-          </p>
-          <div className="space-y-1">
-            <Label htmlFor="dropdown-select-demo">Label</Label>
-            <Select>
-              <SelectTrigger id="dropdown-select-demo" className="w-full">
-                <SelectValue placeholder="Placeholder" />
-              </SelectTrigger>
-              <SelectContent
-                side="bottom"
-                sideOffset={4}
-                align="start"
-                alignItemWithTrigger={false}
-              >
-                {menuItems.map((item) => (
-                  <SelectItem key={item} value={item.toLowerCase().replace(" ", "-")}>
-                    {item}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <p className="inline-flex items-center gap-1.5 text-paragraph-small font-semibold text-primary">
-            <Sparkles className="size-3.5" />
-            Dropdown menu
-          </p>
-          <div className="rounded-sm border border-dashed border-primary/60 bg-background p-sm">
-            <DropdownMenu>
-              <DropdownMenuTrigger className="inline-flex h-8 items-center rounded-md border border-border bg-background px-3 text-sm text-foreground hover:bg-[var(--unofficial-outline-hover)]">
-                Open options
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-48"
-                side="bottom"
-                sideOffset={4}
-                align="start"
-              >
-                {menuItems.map((item) => (
-                  <DropdownMenuItem key={item}>{item}</DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
+      <p className="inline-flex items-center gap-1.5 text-paragraph-small font-semibold text-primary">
+        <Sparkles className="size-3.5" />
+        Dropdown menu
+      </p>
+      <div className="mt-sm rounded-sm border border-dashed border-primary/60 bg-background p-sm">
+        <DropdownMenu>
+          <DropdownMenuTrigger className="inline-flex h-8 items-center rounded-md border border-border bg-background px-3 text-sm text-foreground hover:bg-[var(--unofficial-outline-hover)]">
+            Open options
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-48"
+            side="bottom"
+            sideOffset={4}
+            align="start"
+          >
+            {menuItems.map((item) => (
+              <DropdownMenuItem key={item}>{item}</DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
@@ -694,61 +659,28 @@ function LabelDemo() {
 function SelectDemo() {
   return (
     <div className="w-full max-w-xs rounded-md border border-border bg-card p-sm">
-      <div className="space-y-sm">
-        <div className="space-y-1.5">
-          <p className="inline-flex items-center gap-1.5 text-paragraph-small font-semibold text-primary">
-            <Sparkles className="size-3.5" />
-            Dropdown select
-          </p>
-          <div className="space-y-1">
-            <Label htmlFor="select-demo-trigger">Label</Label>
-            <Select>
-              <SelectTrigger id="select-demo-trigger" className="w-full">
-                <SelectValue placeholder="Placeholder" />
-              </SelectTrigger>
-              <SelectContent
-                side="bottom"
-                sideOffset={4}
-                align="start"
-                alignItemWithTrigger={false}
-              >
-                <SelectItem value="option-1">Option 1</SelectItem>
-                <SelectItem value="option-2">Option 2</SelectItem>
-                <SelectItem value="option-3">Option 3</SelectItem>
-                <SelectItem value="option-4">Option 4</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <p className="inline-flex items-center gap-1.5 text-paragraph-small font-semibold text-primary">
-            <Sparkles className="size-3.5" />
-            Dropdown menu
-          </p>
-          <div className="rounded-sm border border-dashed border-primary/60 bg-background p-sm">
-            <Select defaultOpen>
-              <SelectTrigger
-                className="pointer-events-none h-0 w-40 border-0 p-0 opacity-0"
-                aria-label="Open options"
-              >
-                <SelectValue placeholder="Open options" />
-              </SelectTrigger>
-              <SelectContent
-                className="w-40"
-                align="start"
-                side="bottom"
-                sideOffset={0}
-                alignItemWithTrigger={false}
-              >
-                <SelectItem value="option-1">Option 1</SelectItem>
-                <SelectItem value="option-2">Option 2</SelectItem>
-                <SelectItem value="option-3">Option 3</SelectItem>
-                <SelectItem value="option-4">Option 4</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+      <p className="inline-flex items-center gap-1.5 text-paragraph-small font-semibold text-primary">
+        <Sparkles className="size-3.5" />
+        Dropdown select
+      </p>
+      <div className="mt-sm space-y-1">
+        <Label htmlFor="select-demo-trigger">Label</Label>
+        <Select>
+          <SelectTrigger id="select-demo-trigger" className="w-full">
+            <SelectValue placeholder="Placeholder" />
+          </SelectTrigger>
+          <SelectContent
+            side="bottom"
+            sideOffset={4}
+            align="start"
+            alignItemWithTrigger={false}
+          >
+            <SelectItem value="option-1">Option 1</SelectItem>
+            <SelectItem value="option-2">Option 2</SelectItem>
+            <SelectItem value="option-3">Option 3</SelectItem>
+            <SelectItem value="option-4">Option 4</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

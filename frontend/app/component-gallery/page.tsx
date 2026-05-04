@@ -1,7 +1,20 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Bookmark,
+  ChevronDown,
+  ChevronUp,
+  Info,
+  Plus,
+  Search,
+  Sparkles,
+  SquarePen,
+  Trash2,
+} from "lucide-react";
 import {
   Badge,
   Breadcrumb,
@@ -34,13 +47,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  StepIndicator,
   Textarea,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/common/components/ui";
+import { cn } from "@/common/lib/utils";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
 
@@ -94,8 +107,102 @@ function BreadcrumbDemo() {
   );
 }
 
+type DemoButtonSize = "default" | "sm" | "xs";
+
+const BUTTON_DEMO_COLUMNS: {
+  title: string;
+  size: DemoButtonSize;
+  rounded?: boolean;
+  editLabel: string;
+}[] = [
+  { title: "Regular Size", size: "default", editLabel: "Edit" },
+  { title: "Small Size", size: "sm", editLabel: "Edit" },
+  { title: "Mini Size", size: "xs", editLabel: "Label" },
+  { title: "Round", size: "default", rounded: true, editLabel: "Edit" },
+];
+
 function ButtonDemo() {
-  return <Button variant="outline">Sample button</Button>;
+  return (
+    <div className="w-full p-4 sm:p-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {BUTTON_DEMO_COLUMNS.map(({ title, size, rounded = false, editLabel }) => {
+          const iconSize = size === "xs" ? "size-3" : "size-4";
+
+          return (
+            <div key={title} className="space-y-3">
+              <h3 className="text-lg font-semibold text-muted-foreground">
+                {title}
+              </h3>
+
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  <Button size={size} rounded={rounded}>
+                    Login with Email
+                  </Button>
+                  <Button size={size} rounded={rounded}>
+                    <Plus className={iconSize} data-icon="inline-start" />
+                    Add item
+                  </Button>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" size={size} rounded={rounded}>
+                    <SquarePen className={iconSize} data-icon="inline-start" />
+                    {editLabel}
+                  </Button>
+                  <Button variant="outline" size={size} rounded={rounded}>
+                    <Plus className={iconSize} data-icon="inline-start" />
+                    Add
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size={size}
+                    rounded={rounded}
+                  >
+                    <Trash2 className={iconSize} data-icon="inline-start" />
+                    Delete
+                  </Button>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="secondary" size={size} rounded={rounded}>
+                    Dropdown
+                    <ChevronDown className={iconSize} data-icon="inline-end" />
+                  </Button>
+                  <Button variant="secondary" size={size} rounded={rounded}>
+                    Dropup
+                    <ChevronUp className={iconSize} data-icon="inline-end" />
+                  </Button>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="secondary" size={size} rounded={rounded}>
+                    <ArrowLeft className={iconSize} data-icon="inline-start" />
+                    Previous
+                  </Button>
+                  <Button variant="secondary" size={size} rounded={rounded}>
+                    Next
+                    <ArrowRight className={iconSize} data-icon="inline-end" />
+                  </Button>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="secondary" size={size} rounded={rounded}>
+                    <Search className={iconSize} data-icon="inline-start" />
+                    Search
+                  </Button>
+                  <Button variant="secondary" size={size} rounded={rounded}>
+                    Bookmark
+                    <Bookmark className={iconSize} data-icon="inline-end" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 function CardDemo() {
@@ -112,8 +219,261 @@ function CardDemo() {
   );
 }
 
-function CheckboxDemo() {
-  return <Checkbox defaultChecked aria-label="Sample checkbox" />;
+function CheckboxStateDemo() {
+  type CheckboxStateColumn = {
+    label: string;
+    className?: string;
+    invalid?: boolean;
+    disabled?: boolean;
+  };
+
+  type CheckboxStateRow = {
+    label: string;
+    checked?: boolean | "indeterminate";
+  };
+
+  const columns: CheckboxStateColumn[] = [
+    { label: "State: Default" },
+    { label: "State: Focus", className: "border-ring ring-3 ring-ring/50" },
+    { label: "State: Error", invalid: true },
+    {
+      label: "State: Error Focus",
+      invalid: true,
+      className: "border-destructive ring-3 ring-destructive/20",
+    },
+    { label: "State: Disabled", disabled: true },
+  ];
+
+  const rows: CheckboxStateRow[] = [
+    { label: "Checked?: False" },
+    { label: "Checked?: True", checked: true },
+    { label: "Checked?: Indeterminate", checked: "indeterminate" },
+  ];
+
+  return (
+    <div className="overflow-x-auto">
+      <div className="grid min-w-[44rem] grid-cols-[10rem_repeat(5,minmax(0,1fr))] gap-x-sm gap-y-xs">
+        <div />
+        {columns.map((column) => (
+          <p
+            key={column.label}
+            className="text-center text-paragraph-mini font-medium text-muted-foreground"
+          >
+            {column.label}
+          </p>
+        ))}
+
+        {rows.map((row) => (
+          <div key={row.label} className="contents">
+            <p
+              className="self-center text-paragraph-mini font-medium text-foreground/80"
+            >
+              {row.label}
+            </p>
+
+            {columns.map((column) => (
+              <div
+                key={`${row.label}-${column.label}`}
+                className="flex items-center justify-center rounded-sm border border-dashed border-border bg-muted/30 py-sm"
+              >
+                <Checkbox
+                  aria-label={`${row.label} ${column.label}`}
+                  checked={row.checked}
+                  aria-invalid={column.invalid ? "true" : undefined}
+                  disabled={column.disabled}
+                  className={column.className}
+                />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CheckboxGroupDemo() {
+  const columns = [
+    { label: "Checked?: False", checked: false },
+    { label: "Checked?: True", checked: true },
+  ] as const;
+  const rows = [
+    { label: "Layout: Inline", block: false },
+    { label: "Layout: Block", block: true },
+  ] as const;
+  const [checkedCells, setCheckedCells] = useState<boolean[][]>(() =>
+    rows.map(() => columns.map((column) => column.checked))
+  );
+
+  return (
+    <div className="overflow-x-auto">
+      <div className="grid min-w-[40rem] grid-cols-[9rem_repeat(2,minmax(0,1fr))] gap-x-sm gap-y-xs">
+        <div />
+        {columns.map((column) => (
+          <p
+            key={column.label}
+            className="text-center text-paragraph-mini font-medium text-primary"
+          >
+            {column.label}
+          </p>
+        ))}
+
+        {rows.map((row, rowIndex) => (
+          <div key={row.label} className="contents">
+            <p className="self-center text-paragraph-mini font-medium text-primary">
+              {row.label}
+            </p>
+
+            {columns.map((column, columnIndex) => (
+              <div
+                key={`${row.label}-${column.label}`}
+                className="rounded-sm border border-dashed border-primary/60 bg-background px-md py-sm"
+              >
+                <div
+                  className={cn(
+                    "gap-2",
+                    row.block
+                      ? "flex flex-col items-start gap-1.5"
+                      : "flex items-center"
+                  )}
+                >
+                  <Checkbox
+                    aria-label={`${row.label} ${column.label}`}
+                    checked={checkedCells[rowIndex][columnIndex]}
+                    onCheckedChange={(nextChecked) => {
+                      setCheckedCells((prev) =>
+                        prev.map((stateRow, rIdx) =>
+                          rIdx === rowIndex
+                            ? stateRow.map((cell, cIdx) =>
+                                cIdx === columnIndex ? nextChecked === true : cell
+                              )
+                            : stateRow
+                        )
+                      );
+                    }}
+                  />
+                  <div className="flex items-center gap-1 text-paragraph-mini text-foreground/85">
+                    <span>Label</span>
+                    <Info className="size-3.5 text-muted-foreground" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RichCheckboxGroupDemo() {
+  const columns = [
+    { label: "Flipped: False", flipped: false },
+    { label: "Flipped: True", flipped: true },
+  ] as const;
+  const rows = [
+    { label: "Checked: False", checked: false },
+    { label: "Checked: True", checked: true },
+  ] as const;
+  const [checkedCells, setCheckedCells] = useState<boolean[][]>(() =>
+    rows.map((row) => columns.map(() => row.checked))
+  );
+
+  return (
+    <div className="overflow-x-auto">
+      <div className="grid min-w-[40rem] grid-cols-[9rem_repeat(2,minmax(0,1fr))] gap-x-sm gap-y-xs">
+        <div />
+        {columns.map((column) => (
+          <p
+            key={column.label}
+            className="text-center text-paragraph-mini font-medium text-primary"
+          >
+            {column.label}
+          </p>
+        ))}
+
+        {rows.map((row, rowIndex) => (
+          <div key={row.label} className="contents">
+            <p className="self-center text-paragraph-mini font-medium text-primary">
+              {row.label}
+            </p>
+
+            {columns.map((column, columnIndex) => (
+              <div
+                key={`${row.label}-${column.label}`}
+                className="rounded-sm border border-dashed border-primary/60 bg-background px-md py-sm"
+              >
+                <label
+                  className={cn(
+                    "flex items-center gap-2 rounded-md border border-border bg-card px-sm py-sm",
+                    column.flipped && "justify-between"
+                  )}
+                >
+                  {!column.flipped ? (
+                    <>
+                      <Checkbox
+                        aria-label={`${row.label} ${column.label}`}
+                        checked={checkedCells[rowIndex][columnIndex]}
+                        onCheckedChange={(nextChecked) => {
+                          setCheckedCells((prev) =>
+                            prev.map((stateRow, rIdx) =>
+                              rIdx === rowIndex
+                                ? stateRow.map((cell, cIdx) =>
+                                    cIdx === columnIndex
+                                      ? nextChecked === true
+                                      : cell
+                                  )
+                                : stateRow
+                            )
+                          );
+                        }}
+                      />
+                      <span className="text-paragraph-mini text-foreground/90">
+                        Label
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-paragraph-mini text-foreground/90">
+                        Label
+                      </span>
+                      <Checkbox
+                        aria-label={`${row.label} ${column.label}`}
+                        checked={checkedCells[rowIndex][columnIndex]}
+                        onCheckedChange={(nextChecked) => {
+                          setCheckedCells((prev) =>
+                            prev.map((stateRow, rIdx) =>
+                              rIdx === rowIndex
+                                ? stateRow.map((cell, cIdx) =>
+                                    cIdx === columnIndex
+                                      ? nextChecked === true
+                                      : cell
+                                  )
+                                : stateRow
+                            )
+                          );
+                        }}
+                      />
+                    </>
+                  )}
+                </label>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CheckboxSectionDemo() {
+  return (
+    <div className="space-y-lg">
+      <CheckboxStateDemo />
+      <CheckboxGroupDemo />
+      <RichCheckboxGroupDemo />
+    </div>
+  );
 }
 
 function DialogDemo() {
@@ -131,14 +491,67 @@ function DialogDemo() {
 }
 
 function DropdownMenuDemo() {
+  const menuItems = ["Option 1", "Option 2", "Option 3", "Option 4"] as const;
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>Open menu</DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem>Item one</DropdownMenuItem>
-        <DropdownMenuItem>Item two</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="w-full max-w-xs rounded-md border border-border bg-card p-sm">
+      <h3 className="text-paragraph-small font-semibold text-foreground">
+        Dropdown/Select
+      </h3>
+
+      <div className="mt-sm space-y-sm">
+        <div className="space-y-1.5">
+          <p className="inline-flex items-center gap-1.5 text-paragraph-small font-semibold text-primary">
+            <Sparkles className="size-3.5" />
+            Dropdown select
+          </p>
+          <div className="space-y-1">
+            <Label htmlFor="dropdown-select-demo">Label</Label>
+            <Select>
+              <SelectTrigger id="dropdown-select-demo" className="w-full">
+                <SelectValue placeholder="Placeholder" />
+              </SelectTrigger>
+              <SelectContent
+                side="bottom"
+                sideOffset={4}
+                align="start"
+                alignItemWithTrigger={false}
+              >
+                {menuItems.map((item) => (
+                  <SelectItem key={item} value={item.toLowerCase().replace(" ", "-")}>
+                    {item}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <p className="inline-flex items-center gap-1.5 text-paragraph-small font-semibold text-primary">
+            <Sparkles className="size-3.5" />
+            Dropdown menu
+          </p>
+          <div className="rounded-sm border border-dashed border-primary/60 bg-background p-sm">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="inline-flex h-8 items-center rounded-md border border-border bg-background px-3 text-sm text-foreground hover:bg-[var(--unofficial-outline-hover)]">
+                Open options
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-48"
+                side="bottom"
+                sideOffset={4}
+                align="start"
+              >
+                {menuItems.map((item) => (
+                  <DropdownMenuItem key={item}>{item}</DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -148,34 +561,214 @@ function InputDemo() {
 
 function LabelDemo() {
   return (
-    <div className="flex items-center gap-sm">
-      <Label htmlFor="label-demo">Label</Label>
-      <Input id="label-demo" className="w-48" placeholder="With label" />
+    <div className="overflow-x-auto">
+      <div className="grid min-w-[42rem] grid-cols-[9rem_minmax(0,1fr)] gap-x-sm gap-y-xs">
+        <p className="self-center text-paragraph-mini font-medium text-primary">
+          Type: Text Value
+        </p>
+        <div className="rounded-sm border border-dashed border-primary/60 bg-background p-sm">
+          <div className="space-y-1.5">
+            <Label htmlFor="label-text-value">Label</Label>
+            <Input id="label-text-value" placeholder="Value" />
+          </div>
+        </div>
+
+        <p className="self-center text-paragraph-mini font-medium text-primary">
+          Type: Select
+        </p>
+        <div className="rounded-sm border border-dashed border-primary/60 bg-background p-sm">
+          <div className="space-y-1.5">
+            <Label htmlFor="label-select-item">Label</Label>
+            <Select>
+              <SelectTrigger id="label-select-item">
+                <SelectValue placeholder="Select an item" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="item-1">Item 1</SelectItem>
+                <SelectItem value="item-2">Item 2</SelectItem>
+                <SelectItem value="item-3">Item 3</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <p className="self-center text-paragraph-mini font-medium text-primary">
+          Type: Radio
+        </p>
+        <div className="rounded-sm border border-dashed border-primary/60 bg-background p-sm">
+          <div className="space-y-1.5">
+            <Label>Label</Label>
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="label-radio-1"
+                className="text-paragraph-mini font-normal text-foreground/90"
+              >
+                <input
+                  id="label-radio-1"
+                  name="label-radio-group"
+                  type="radio"
+                  defaultChecked
+                  className="size-3.5 accent-primary"
+                />
+                Option 1
+              </Label>
+              <Label
+                htmlFor="label-radio-2"
+                className="text-paragraph-mini font-normal text-foreground/90"
+              >
+                <input
+                  id="label-radio-2"
+                  name="label-radio-group"
+                  type="radio"
+                  className="size-3.5 accent-primary"
+                />
+                Option 2
+              </Label>
+            </div>
+          </div>
+        </div>
+
+        <p className="self-center text-paragraph-mini font-medium text-primary">
+          Type: Textarea
+        </p>
+        <div className="rounded-sm border border-dashed border-primary/60 bg-background p-sm">
+          <div className="space-y-1.5">
+            <Label htmlFor="label-textarea">Label</Label>
+            <Textarea id="label-textarea" placeholder="Type your message here." />
+          </div>
+        </div>
+
+        <p className="self-center text-paragraph-mini font-medium text-primary">
+          Type: Checkbox
+        </p>
+        <div className="rounded-sm border border-dashed border-primary/60 bg-background p-sm">
+          <div className="space-y-1.5">
+            <Label>Label</Label>
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="label-checkbox-1"
+                className="text-paragraph-mini font-normal text-foreground/90"
+              >
+                <Checkbox id="label-checkbox-1" defaultChecked />
+                Option 1
+              </Label>
+              <Label
+                htmlFor="label-checkbox-2"
+                className="text-paragraph-mini font-normal text-foreground/90"
+              >
+                <Checkbox id="label-checkbox-2" />
+                Option 2
+              </Label>
+              <Label
+                htmlFor="label-checkbox-3"
+                className="text-paragraph-mini font-normal text-foreground/90"
+              >
+                <Checkbox id="label-checkbox-3" />
+                Option 3
+              </Label>
+            </div>
+          </div>
+        </div>
+
+        <p className="self-center text-paragraph-mini font-medium text-primary">
+          Type: Slider
+        </p>
+        <div className="rounded-sm border border-dashed border-primary/60 bg-background p-sm">
+          <div className="space-y-1.5">
+            <Label htmlFor="label-slider">Label</Label>
+            <input
+              id="label-slider"
+              type="range"
+              min={0}
+              max={100}
+              defaultValue={50}
+              className="w-full accent-primary"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 function SelectDemo() {
   return (
-    <Select>
-      <SelectTrigger className="w-48">
-        <SelectValue placeholder="Choose an option" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="one">Option one</SelectItem>
-        <SelectItem value="two">Option two</SelectItem>
-        <SelectItem value="three">Option three</SelectItem>
-      </SelectContent>
-    </Select>
+    <div className="w-full max-w-xs rounded-md border border-border bg-card p-sm">
+      <div className="space-y-sm">
+        <div className="space-y-1.5">
+          <p className="inline-flex items-center gap-1.5 text-paragraph-small font-semibold text-primary">
+            <Sparkles className="size-3.5" />
+            Dropdown select
+          </p>
+          <div className="space-y-1">
+            <Label htmlFor="select-demo-trigger">Label</Label>
+            <Select>
+              <SelectTrigger id="select-demo-trigger" className="w-full">
+                <SelectValue placeholder="Placeholder" />
+              </SelectTrigger>
+              <SelectContent
+                side="bottom"
+                sideOffset={4}
+                align="start"
+                alignItemWithTrigger={false}
+              >
+                <SelectItem value="option-1">Option 1</SelectItem>
+                <SelectItem value="option-2">Option 2</SelectItem>
+                <SelectItem value="option-3">Option 3</SelectItem>
+                <SelectItem value="option-4">Option 4</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <p className="inline-flex items-center gap-1.5 text-paragraph-small font-semibold text-primary">
+            <Sparkles className="size-3.5" />
+            Dropdown menu
+          </p>
+          <div className="rounded-sm border border-dashed border-primary/60 bg-background p-sm">
+            <Select defaultOpen>
+              <SelectTrigger
+                className="pointer-events-none h-0 w-40 border-0 p-0 opacity-0"
+                aria-label="Open options"
+              >
+                <SelectValue placeholder="Open options" />
+              </SelectTrigger>
+              <SelectContent
+                className="w-40"
+                align="start"
+                side="bottom"
+                sideOffset={0}
+                alignItemWithTrigger={false}
+              >
+                <SelectItem value="option-1">Option 1</SelectItem>
+                <SelectItem value="option-2">Option 2</SelectItem>
+                <SelectItem value="option-3">Option 3</SelectItem>
+                <SelectItem value="option-4">Option 4</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
 function StepIndicatorDemo() {
   return (
-    <StepIndicator
-      steps={[{ label: "One" }, { label: "Two" }, { label: "Three" }]}
-      currentStep={1}
-    />
+    <div className="w-full max-w-xs rounded-md border border-border bg-card p-sm">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="#">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Components</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    </div>
   );
 }
 
@@ -203,7 +796,6 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Breadcrumb", Demo: BreadcrumbDemo },
   { name: "Button", Demo: ButtonDemo },
   { name: "Card", Demo: CardDemo },
-  { name: "Checkbox", Demo: CheckboxDemo },
   { name: "Dialog", Demo: DialogDemo },
   { name: "DropdownMenu", Demo: DropdownMenuDemo },
   { name: "Input", Demo: InputDemo },
@@ -243,6 +835,12 @@ export default function ComponentsPage() {
               </ComponentRow>
             ))}
           </div>
+        </Section>
+
+        <Section title="Checkbox">
+          <ComponentRow name="Checkbox">
+            <CheckboxSectionDemo />
+          </ComponentRow>
         </Section>
 
         <Section title="Composed components">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import {type ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -8,10 +8,8 @@ import {
   Bookmark,
   ChevronDown,
   ChevronUp,
-  Info,
   Plus,
   Search,
-  Sparkles,
   SquarePen,
   Trash2,
 } from "lucide-react";
@@ -53,7 +51,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/common/components/ui";
-import { cn } from "@/common/lib/utils";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
 

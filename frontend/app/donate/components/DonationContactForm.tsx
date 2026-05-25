@@ -27,18 +27,7 @@ import { Button } from "@/common/components/ui/button";
 import { Input } from "@/common/components/ui/input";
 import { Label } from "@/common/components/ui/label";
 
-import { EMAIL_REGEX } from "@/common/constants/validators";
-
-const PHONE_ALLOWED_CHARACTERS_REGEX = /^[+\d\s().-]+$/;
-
-function isValidPhoneNumber(phone: string): boolean {
-  const normalizedPhone = phone.replace(/\D/g, "");
-  return (
-    PHONE_ALLOWED_CHARACTERS_REGEX.test(phone) &&
-    normalizedPhone.length >= 10 &&
-    normalizedPhone.length <= 15
-  );
-}
+import { EMAIL_REGEX, PHONE_REGEX } from "@/common/constants/validators";
 
 function validateForm(
   values: DonationRequestContactFormValues
@@ -61,7 +50,7 @@ function validateForm(
 
   if (!values.phone.trim()) {
     errors.phone = "Phone number is required.";
-  } else if (!isValidPhoneNumber(values.phone.trim())) {
+  } else if (!PHONE_REGEX.test(values.phone.trim())) {
     errors.phone = "Enter a valid phone number.";
   }
 

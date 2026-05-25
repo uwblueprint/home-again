@@ -22,9 +22,6 @@ import { PHONE_REGEX, POSTAL_CODE_REGEX } from "@/common/constants/validators";
 
 type FormErrors = Partial<Record<keyof AgencyFormData, string>>;
 
-const POSTAL_CODE_RE = POSTAL_CODE_REGEX;
-const PHONE_RE = PHONE_REGEX;
-
 function validate(form: AgencyFormData): FormErrors {
   const errors: FormErrors = {};
 
@@ -35,11 +32,11 @@ function validate(form: AgencyFormData): FormErrors {
   if (!form.postalCode.trim()) errors.postalCode = "Enter your postal code.";
   if (!form.phone.trim()) errors.phone = "Enter your phone number.";
 
-  if (form.postalCode && !POSTAL_CODE_RE.test(form.postalCode.trim())) {
+  if (form.postalCode && !POSTAL_CODE_REGEX.test(form.postalCode.trim())) {
     errors.postalCode = "Enter a valid Canadian postal code (e.g. A1B 2C3).";
   }
 
-  if (form.phone && !PHONE_RE.test(form.phone.trim())) {
+  if (form.phone && !PHONE_REGEX.test(form.phone.trim())) {
     errors.phone = "Enter a valid phone number.";
   }
 

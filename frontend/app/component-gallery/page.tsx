@@ -292,186 +292,11 @@ function CheckboxStateDemo() {
   );
 }
 
-function CheckboxGroupDemo() {
-  const columns = [
-    { label: "Checked?: False", checked: false },
-    { label: "Checked?: True", checked: true },
-  ] as const;
-  const rows = [
-    { label: "Layout: Inline", block: false },
-    { label: "Layout: Block", block: true },
-  ] as const;
-  const [checkedCells, setCheckedCells] = useState<boolean[][]>(() =>
-    rows.map(() => columns.map((column) => column.checked))
-  );
-
-  return (
-    <div className="overflow-x-auto">
-      <div className="grid min-w-[40rem] grid-cols-[9rem_repeat(2,minmax(0,1fr))] gap-x-sm gap-y-xs">
-        <div />
-        {columns.map((column) => (
-          <p
-            key={column.label}
-            className="text-center text-paragraph-mini font-medium text-primary"
-          >
-            {column.label}
-          </p>
-        ))}
-
-        {rows.map((row, rowIndex) => (
-          <div key={row.label} className="contents">
-            <p className="self-center text-paragraph-mini font-medium text-primary">
-              {row.label}
-            </p>
-
-            {columns.map((column, columnIndex) => (
-              <div
-                key={`${row.label}-${column.label}`}
-                className="rounded-sm border border-dashed border-primary/60 bg-background px-md py-sm"
-              >
-                <div
-                  className={cn(
-                    "gap-2",
-                    row.block
-                      ? "flex flex-col items-start gap-1.5"
-                      : "flex items-center"
-                  )}
-                >
-                  <Checkbox
-                    aria-label={`${row.label} ${column.label}`}
-                    checked={checkedCells[rowIndex][columnIndex]}
-                    onCheckedChange={(nextChecked) => {
-                      setCheckedCells((prev) =>
-                        prev.map((stateRow, rIdx) =>
-                          rIdx === rowIndex
-                            ? stateRow.map((cell, cIdx) =>
-                                cIdx === columnIndex ? nextChecked === true : cell
-                              )
-                            : stateRow
-                        )
-                      );
-                    }}
-                  />
-                  <div className="flex items-center gap-1 text-paragraph-mini text-foreground/85">
-                    <span>Label</span>
-                    <Info className="size-3.5 text-muted-foreground" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function RichCheckboxGroupDemo() {
-  const columns = [
-    { label: "Flipped: False", flipped: false },
-    { label: "Flipped: True", flipped: true },
-  ] as const;
-  const rows = [
-    { label: "Checked: False", checked: false },
-    { label: "Checked: True", checked: true },
-  ] as const;
-  const [checkedCells, setCheckedCells] = useState<boolean[][]>(() =>
-    rows.map((row) => columns.map(() => row.checked))
-  );
-
-  return (
-    <div className="overflow-x-auto">
-      <div className="grid min-w-[40rem] grid-cols-[9rem_repeat(2,minmax(0,1fr))] gap-x-sm gap-y-xs">
-        <div />
-        {columns.map((column) => (
-          <p
-            key={column.label}
-            className="text-center text-paragraph-mini font-medium text-primary"
-          >
-            {column.label}
-          </p>
-        ))}
-
-        {rows.map((row, rowIndex) => (
-          <div key={row.label} className="contents">
-            <p className="self-center text-paragraph-mini font-medium text-primary">
-              {row.label}
-            </p>
-
-            {columns.map((column, columnIndex) => (
-              <div
-                key={`${row.label}-${column.label}`}
-                className="rounded-sm border border-dashed border-primary/60 bg-background px-md py-sm"
-              >
-                <label
-                  className={cn(
-                    "flex items-center gap-2 rounded-md border border-border bg-card px-sm py-sm",
-                    column.flipped && "justify-between"
-                  )}
-                >
-                  {!column.flipped ? (
-                    <>
-                      <Checkbox
-                        aria-label={`${row.label} ${column.label}`}
-                        checked={checkedCells[rowIndex][columnIndex]}
-                        onCheckedChange={(nextChecked) => {
-                          setCheckedCells((prev) =>
-                            prev.map((stateRow, rIdx) =>
-                              rIdx === rowIndex
-                                ? stateRow.map((cell, cIdx) =>
-                                    cIdx === columnIndex
-                                      ? nextChecked === true
-                                      : cell
-                                  )
-                                : stateRow
-                            )
-                          );
-                        }}
-                      />
-                      <span className="text-paragraph-mini text-foreground/90">
-                        Label
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-paragraph-mini text-foreground/90">
-                        Label
-                      </span>
-                      <Checkbox
-                        aria-label={`${row.label} ${column.label}`}
-                        checked={checkedCells[rowIndex][columnIndex]}
-                        onCheckedChange={(nextChecked) => {
-                          setCheckedCells((prev) =>
-                            prev.map((stateRow, rIdx) =>
-                              rIdx === rowIndex
-                                ? stateRow.map((cell, cIdx) =>
-                                    cIdx === columnIndex
-                                      ? nextChecked === true
-                                      : cell
-                                  )
-                                : stateRow
-                            )
-                          );
-                        }}
-                      />
-                    </>
-                  )}
-                </label>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function CheckboxSectionDemo() {
   return (
     <div className="space-y-lg">
       <CheckboxStateDemo />
-      <CheckboxGroupDemo />
-      <RichCheckboxGroupDemo />
     </div>
   );
 }
@@ -495,11 +320,6 @@ function DropdownMenuDemo() {
 
   return (
     <div className="w-full max-w-xs rounded-md border border-border bg-card p-sm">
-      <p className="inline-flex items-center gap-1.5 text-paragraph-small font-semibold text-primary">
-        <Sparkles className="size-3.5" />
-        Dropdown menu
-      </p>
-      <div className="mt-sm rounded-sm border border-dashed border-primary/60 bg-background p-sm">
         <DropdownMenu>
           <DropdownMenuTrigger className="inline-flex h-8 items-center rounded-md border border-border bg-background px-3 text-sm text-foreground hover:bg-[var(--unofficial-outline-hover)]">
             Open options
@@ -515,7 +335,6 @@ function DropdownMenuDemo() {
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
     </div>
   );
 }
@@ -659,11 +478,7 @@ function LabelDemo() {
 function SelectDemo() {
   return (
     <div className="w-full max-w-xs rounded-md border border-border bg-card p-sm">
-      <p className="inline-flex items-center gap-1.5 text-paragraph-small font-semibold text-primary">
-        <Sparkles className="size-3.5" />
-        Dropdown select
-      </p>
-      <div className="mt-sm space-y-1">
+      <div className="space-y-1">
         <Label htmlFor="select-demo-trigger">Label</Label>
         <Select>
           <SelectTrigger id="select-demo-trigger" className="w-full">

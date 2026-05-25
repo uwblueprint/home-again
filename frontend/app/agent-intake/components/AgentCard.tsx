@@ -36,8 +36,6 @@ type FormErrors = Partial<Record<AgentTextField, string>>;
 
 import { EMAIL_REGEX, PHONE_REGEX } from "@/common/constants/validators";
 
-const EMAIL_RE = EMAIL_REGEX;
-const PHONE_RE = PHONE_REGEX;
 const TOUCHED_ON_SAVE: AgentTextField[] = [
   "firstName",
   "lastName",
@@ -52,13 +50,13 @@ function validate(form: AgentFormData): FormErrors {
   if (!form.lastName.trim()) errors.lastName = "Enter your last name.";
   if (!form.email.trim()) {
     errors.email = "Enter your email address.";
-  } else if (!EMAIL_RE.test(form.email.trim())) {
+  } else if (!EMAIL_REGEX.test(form.email.trim())) {
     errors.email = "Enter a valid email address.";
   }
 
   if (!form.phoneNumber.trim()) {
     errors.phoneNumber = "Enter your phone number.";
-  } else if (!PHONE_RE.test(form.phoneNumber.trim())) {
+  } else if (!PHONE_REGEX.test(form.phoneNumber.trim())) {
     errors.phoneNumber = "Enter a valid phone number.";
   }
 

@@ -1,2 +1,7 @@
 // Core form primitives — to be built by developers.
 // See FRONTEND_GUIDE.md, Section 9 — Forms Pattern.
+export {
+  SelectAndCombo,
+  QuantityCounter,
+  type FurnitureItemCardProps,
+} from "./select_and_combo";

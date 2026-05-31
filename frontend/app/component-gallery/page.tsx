@@ -1,6 +1,6 @@
 "use client";
 
-import {type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -51,6 +51,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/common/components/ui";
+import { SelectAndCombo } from "@/common/components/forms";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
 
@@ -531,6 +532,20 @@ function TooltipDemo() {
   );
 }
 
+function SelectAndComboDemo() {
+  const [value, setValue] = useState(2);
+
+  return (
+    <SelectAndCombo
+      value={value}
+      onChange={setValue}
+      min={1}
+      max={10}
+      className="w-full max-w-xs"
+    />
+  );
+}
+
 // ─── registry ─────────────────────────────────────────────────────────────────
 // To add a base component: add an entry to BASE_COMPONENTS.
 // To add a composed component: add an entry to COMPOSED_COMPONENTS.
@@ -551,7 +566,7 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
 ];
 
 const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
-  // Add composed component demos here
+  { name: "SelectAndCombo", Demo: SelectAndComboDemo },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

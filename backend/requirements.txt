@@ -3,7 +3,7 @@ uvicorn[standard]==0.30.0
 sqlalchemy==2.0.35
 greenlet==3.5.1
 alembic==1.13.2
-python-dotenv==1.0.1
+python-dotenv==1.2.2
 psycopg2-binary==2.9.11
 asyncpg==0.29.0
 pydantic==2.8.2

@@ -22,9 +22,6 @@ const AUTH_STUB = {
 
 type FormErrors = Partial<Record<keyof MainAgentFormData, string>>;
 
-const EMAIL_RE = EMAIL_REGEX;
-const PHONE_RE = PHONE_REGEX;
-
 function validate(form: MainAgentFormData): FormErrors {
   const errors: FormErrors = {};
 
@@ -32,12 +29,12 @@ function validate(form: MainAgentFormData): FormErrors {
   if (!form.lastName.trim()) errors.lastName = "Enter your last name.";
   if (!form.email.trim()) {
     errors.email = "Enter your email address.";
-  } else if (!EMAIL_RE.test(form.email.trim())) {
+  } else if (!EMAIL_REGEX.test(form.email.trim())) {
     errors.email = "Enter a valid email address.";
   }
   if (!form.phone.trim()) {
     errors.phone = "Enter your phone number.";
-  } else if (!PHONE_RE.test(form.phone.trim())) {
+  } else if (!PHONE_REGEX.test(form.phone.trim())) {
     errors.phone = "Enter a valid phone number.";
   }
 

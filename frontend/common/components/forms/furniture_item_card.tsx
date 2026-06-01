@@ -1,28 +1,32 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Check, Minus, Plus, SquarePen } from "lucide-react"
-import { cn } from "@/common/lib/utils"
-import { Input } from "@/common/components/ui/input"
+import { useEffect, useState } from "react";
+import { Check, SquarePen } from "lucide-react";
+import { Badge } from "@/common/components/ui/badge";
+import { Button } from "@/common/components/ui/button";
+import { Checkbox } from "@/common/components/ui/checkbox";
+import { Input } from "@/common/components/ui/input";
+import { SelectAndCombo } from "@/common/components/forms/select_and_combo";
+import { cn } from "@/common/lib/utils";
 
 type FurnitureItemCardProps = {
-  className?: string
-  label: string
-  selected: boolean
-  quantity: number
-  notes?: string
+  className?: string;
+  label: string;
+  selected: boolean;
+  quantity: number;
+  notes?: string;
   subOptions?: {
-    id: string
-    label: string
-    quantity: number
-  }[]
-  minQuantity?: number
-  maxQuantity?: number
-  onToggle?: (nextSelected: boolean) => void
-  onQuantityChange?: (nextQuantity: number) => void
-  onNotesChange?: (nextNotes: string) => void
-  onSubQuantityChange?: (id: string, nextQuantity: number) => void
-}
+    id: string;
+    label: string;
+    quantity: number;
+  }[];
+  minQuantity?: number;
+  maxQuantity?: number;
+  onToggle?: (nextSelected: boolean) => void;
+  onQuantityChange?: (nextQuantity: number) => void;
+  onNotesChange?: (nextNotes: string) => void;
+  onSubQuantityChange?: (id: string, nextQuantity: number) => void;
+};
 
 export function FurnitureItemCard({
   label,
@@ -38,61 +42,62 @@ export function FurnitureItemCard({
   onSubQuantityChange,
   className,
 }: FurnitureItemCardProps) {
-  const showMainStepper = !subOptions || subOptions.length === 0
+  const showMainStepper = !subOptions || subOptions.length === 0;
   const [isEditingSubOptions, setIsEditingSubOptions] = useState(
     () => !!subOptions?.length
-  )
+  );
 
   const sizeHint = (() => {
-    if (!subOptions?.length) return ""
-    const labels = subOptions.map((sub) => sub.label)
-    if (labels.length === 1) return `Available in ${labels[0]}.`
-    if (labels.length === 2) return `Available in ${labels[0]} and ${labels[1]}.`
-    return `Available in ${labels.slice(0, -1).join(", ")} and ${labels.at(-1)}.`
-  })()
+    if (!subOptions?.length) return "";
+    const labels = subOptions.map((sub) => sub.label);
+    if (labels.length === 1) return `Available in ${labels[0]}.`;
+    if (labels.length === 2)
+      return `Available in ${labels[0]} and ${labels[1]}.`;
+    return `Available in ${labels.slice(0, -1).join(", ")} and ${labels.at(-1)}.`;
+  })();
 
   const subQuantitiesSignature =
-    subOptions?.map((sub) => `${sub.id}:${sub.quantity}`).join("|") ?? ""
-  const hasSubSelections = subOptions?.some((sub) => sub.quantity > 0) ?? false
+    subOptions?.map((sub) => `${sub.id}:${sub.quantity}`).join("|") ?? "";
+  const hasSubSelections = subOptions?.some((sub) => sub.quantity > 0) ?? false;
 
-  const handleToggle = () => {
-    const next = !selected
-    onToggle?.(next)
+  const handleToggle = (nextValue?: boolean) => {
+    const next = nextValue ?? !selected;
+    onToggle?.(next);
     if (!next) {
       if (!subOptions?.length) {
-        onQuantityChange?.(Math.max(minQuantity, 1))
+        onQuantityChange?.(Math.max(minQuantity, 1));
       } else if (onSubQuantityChange) {
-        subOptions.forEach((sub) => onSubQuantityChange(sub.id, 0))
-        onQuantityChange?.(0)
+        subOptions.forEach((sub) => onSubQuantityChange(sub.id, 0));
+        onQuantityChange?.(0);
       }
-      setIsEditingSubOptions(false)
+      setIsEditingSubOptions(false);
     } else {
       if (!subOptions?.length && quantity < Math.max(minQuantity, 1)) {
-        onQuantityChange?.(Math.max(minQuantity, 1))
+        onQuantityChange?.(Math.max(minQuantity, 1));
       }
       if (subOptions?.length) {
-        setIsEditingSubOptions(true)
+        setIsEditingSubOptions(true);
       }
     }
-  }
+  };
 
   const setQuantity = (next: number) => {
     const clamped =
       maxQuantity !== undefined
         ? Math.min(Math.max(next, minQuantity), maxQuantity)
-        : Math.max(next, minQuantity)
-    onQuantityChange?.(clamped)
-  }
+        : Math.max(next, minQuantity);
+    onQuantityChange?.(clamped);
+  };
 
   // Automatically reopen the size selectors if all selections are cleared
   // while the card remains selected.
   useEffect(() => {
-    if (!selected) return
-    if (!subOptions?.length) return
+    if (!selected) return;
+    if (!subOptions?.length) return;
     if (!hasSubSelections) {
-      setIsEditingSubOptions(true)
+      setIsEditingSubOptions(true);
     }
-  }, [selected, subQuantitiesSignature, subOptions?.length, hasSubSelections])
+  }, [selected, subQuantitiesSignature, subOptions?.length, hasSubSelections]);
 
   return (
     <div
@@ -107,114 +112,41 @@ export function FurnitureItemCard({
     >
       {showMainStepper ? (
         <div className="flex w-full items-center gap-3">
-          <label
-            className="relative inline-flex shrink-0 cursor-pointer items-center justify-center"
-            style={{ width: "18px", height: "18px" }}
-          >
-            <input
-              type="checkbox"
-              className="peer h-full w-full appearance-none rounded-[5px] border border-neutral-300 bg-white text-[#9E4876] accent-[#9E4876] shadow-inner transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9E4876]"
-              checked={selected}
-              onChange={handleToggle}
-              aria-label={`Select ${label}`}
-            />
-            <span
-              className={cn(
-                "pointer-events-none absolute inset-0 flex items-center justify-center rounded-[5px] border border-neutral-300 text-white transition-all",
-                "peer-checked:border-transparent peer-checked:bg-[#9E4876]"
-              )}
-            >
-              <svg
-                className={cn(
-                  "h-3.5 w-3.5 transition-opacity",
-                  selected ? "opacity-100" : "opacity-0"
-                )}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            </span>
-          </label>
+          <Checkbox
+            checked={selected}
+            onCheckedChange={(next) => handleToggle(!!next)}
+            aria-label={`Select ${label}`}
+            className="size-[18px] rounded-[5px] border-neutral-300 shadow-inner data-[state=checked]:border-transparent data-[state=checked]:bg-[#9E4876] data-[state=checked]:text-white"
+          />
 
           <h3 className="text-[16px] font-medium leading-6 text-[#171717]">
             {label}
           </h3>
 
-          <div className="ml-auto flex min-w-[122px] justify-end">
-            <div
-              className={cn(
-                "flex items-center gap-2 rounded-2xl border border-neutral-300 px-3 py-1.5 text-base text-foreground transition-opacity",
-                selected ? "opacity-100" : "opacity-0 pointer-events-none"
-              )}
-              aria-hidden={!selected}
-            >
-              <button
-                type="button"
-                onClick={() => setQuantity(quantity - 1)}
-                disabled={quantity <= minQuantity}
-                className="text-2xl text-neutral-500 disabled:opacity-40"
-                aria-label="Decrease quantity"
-              >
-                <Minus className="h-4 w-4" strokeWidth={2.25} />
-              </button>
-              <span className="min-w-[1.5ch] text-center">{quantity}</span>
-              <button
-                type="button"
-                onClick={() => setQuantity(quantity + 1)}
-                disabled={
-                  maxQuantity !== undefined ? quantity >= maxQuantity : false
-                }
-                className="text-2xl text-neutral-700 disabled:opacity-40"
-                aria-label="Increase quantity"
-              >
-                <Plus className="h-4 w-4" strokeWidth={2.25} />
-              </button>
-            </div>
+          <div
+            className={cn(
+              "ml-auto flex min-w-[122px] justify-end",
+              selected ? "opacity-100" : "opacity-0 pointer-events-none"
+            )}
+            aria-hidden={!selected}
+          >
+            <SelectAndCombo
+              value={quantity}
+              onChange={setQuantity}
+              min={minQuantity}
+              max={maxQuantity}
+            />
           </div>
         </div>
       ) : (
         <div className="flex w-full flex-col gap-1">
           <div className="flex items-center gap-2">
-            <label
-              className="relative inline-flex shrink-0 cursor-pointer items-center justify-center"
-              style={{ width: "18px", height: "18px" }}
-            >
-              <input
-                type="checkbox"
-                className="peer h-full w-full appearance-none rounded-[5px] border border-neutral-300 bg-white text-[#9E4876] accent-[#9E4876] shadow-inner transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9E4876]"
-                checked={selected}
-                onChange={handleToggle}
-                aria-label={`Select ${label}`}
-              />
-              <span
-                className={cn(
-                  "pointer-events-none absolute inset-0 flex items-center justify-center rounded-[5px] border border-neutral-300 text-white transition-all",
-                  "peer-checked:border-transparent peer-checked:bg-[#9E4876]"
-                )}
-              >
-                <svg
-                  className={cn(
-                    "h-3.5 w-3.5 transition-opacity",
-                    selected ? "opacity-100" : "opacity-0"
-                  )}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              </span>
-            </label>
+            <Checkbox
+              checked={selected}
+              onCheckedChange={(next) => handleToggle(!!next)}
+              aria-label={`Select ${label}`}
+              className="size-[18px] rounded-[5px] border-neutral-300 shadow-inner data-[state=checked]:border-transparent data-[state=checked]:bg-[#9E4876] data-[state=checked]:text-white"
+            />
 
             <h3 className="text-[16px] font-medium leading-6 text-[#171717]">
               {label}
@@ -236,24 +168,26 @@ export function FurnitureItemCard({
             {subOptions?.length && hasSubSelections && !isEditingSubOptions ? (
               <div className="flex flex-wrap items-center gap-2">
                 {subOptions.map((sub) => {
-                  if (!sub.quantity) return null
+                  if (!sub.quantity) return null;
                   return (
-                    <span
+                    <Badge
                       key={sub.id}
-                      className="rounded-full bg-[#B5BD7E] px-2.5 py-1 text-xs font-semibold text-[#2f3121]"
+                      className="h-auto rounded-full bg-[#B5BD7E] px-2.5 py-1 text-xs font-semibold text-[#2f3121]"
                     >
                       ({sub.quantity}) {sub.label}
-                    </span>
-                  )
+                    </Badge>
+                  );
                 })}
               </div>
             ) : null}
 
             {subOptions?.length ? (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon-sm"
                 className={cn(
-                  "ml-auto flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 transition hover:bg-neutral-100",
+                  "ml-auto h-8 w-8 rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-100",
                   selected && hasSubSelections && !isEditingSubOptions
                     ? "opacity-100"
                     : "opacity-0 pointer-events-none"
@@ -262,7 +196,7 @@ export function FurnitureItemCard({
                 aria-label="Edit sizes"
               >
                 <SquarePen className="h-4 w-4" />
-              </button>
+              </Button>
             ) : null}
           </div>
         </div>
@@ -276,15 +210,15 @@ export function FurnitureItemCard({
                 {hasSubSelections ? (
                   <div className="flex flex-wrap items-center gap-2">
                     {subOptions.map((sub) => {
-                      if (!sub.quantity) return null
+                      if (!sub.quantity) return null;
                       return (
-                        <span
+                        <Badge
                           key={sub.id}
-                          className="rounded-full bg-[#B5BD7E] px-2.5 py-1 text-xs font-semibold text-[#2f3121]"
+                          className="h-auto rounded-full bg-[#B5BD7E] px-2.5 py-1 text-xs font-semibold text-[#2f3121]"
                         >
                           ({sub.quantity}) {sub.label}
-                        </span>
-                      )
+                        </Badge>
+                      );
                     })}
                   </div>
                 ) : (
@@ -300,9 +234,9 @@ export function FurnitureItemCard({
                     onSubQuantityChange?.(
                       sub.id,
                       Math.max((sub.quantity ?? 0) - 1, 0)
-                    )
+                    );
                   const inc = () =>
-                    onSubQuantityChange?.(sub.id, (sub.quantity ?? 0) + 1)
+                    onSubQuantityChange?.(sub.id, (sub.quantity ?? 0) + 1);
                   return (
                     <div
                       key={sub.id}
@@ -311,44 +245,31 @@ export function FurnitureItemCard({
                       <span className="text-sm text-foreground">
                         {sub.label}
                       </span>
-                      <div className="flex items-center gap-2 rounded-2xl border border-neutral-300 px-3 py-1.5 text-base text-foreground">
-                        <button
-                          type="button"
-                          onClick={dec}
-                          disabled={sub.quantity <= 0}
-                          className="text-2xl text-neutral-500 disabled:opacity-40"
-                          aria-label={`Decrease ${sub.label}`}
-                        >
-                          <Minus className="h-4 w-4" strokeWidth={2.5} />
-                        </button>
-                        <span className="min-w-[1.5ch] text-center">
-                          {sub.quantity}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={inc}
-                          className="text-2xl text-neutral-700"
-                          aria-label={`Increase ${sub.label}`}
-                        >
-                          <Plus className="h-4 w-4" strokeWidth={2.5} />
-                        </button>
-                      </div>
+                      <SelectAndCombo
+                        value={sub.quantity}
+                        onChange={(next) =>
+                          onSubQuantityChange?.(sub.id, Math.max(next, 0))
+                        }
+                        min={0}
+                      />
                     </div>
-                  )
+                  );
                 })}
               </div>
 
               {hasSubSelections ? (
                 <div className="mt-3 flex justify-end">
-                  <button
+                  <Button
                     type="button"
+                    variant="secondary"
+                    size="xs"
                     onClick={() => setIsEditingSubOptions(false)}
-                    className="flex items-center gap-1 rounded-lg bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-700 transition hover:bg-neutral-200"
+                    className="rounded-lg bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-700 hover:bg-neutral-200"
                     aria-label="Done"
                   >
                     <Check className="h-3.5 w-3.5" />
                     Add
-                  </button>
+                  </Button>
                 </div>
               ) : null}
             </div>
@@ -363,7 +284,7 @@ export function FurnitureItemCard({
         </div>
       ) : null}
     </div>
-  )
+  );
 }
 
-export default FurnitureItemCard
+export default FurnitureItemCard;

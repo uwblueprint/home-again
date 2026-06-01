@@ -52,6 +52,7 @@ import {
   TooltipTrigger,
 } from "@/common/components/ui";
 import { SelectAndCombo, FurnitureItemCard } from "@/common/components/forms";
+import { MultiStepLayout } from "@/common/components/multi-step-layout";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
 
@@ -123,81 +124,88 @@ function ButtonDemo() {
   return (
     <div className="w-full p-4 sm:p-6">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-        {BUTTON_DEMO_COLUMNS.map(({ title, size, rounded = false, editLabel }) => {
-          const iconSize = size === "xs" ? "size-3" : "size-4";
+        {BUTTON_DEMO_COLUMNS.map(
+          ({ title, size, rounded = false, editLabel }) => {
+            const iconSize = size === "xs" ? "size-3" : "size-4";
 
-          return (
-            <div key={title} className="space-y-3">
-              <h3 className="text-lg font-semibold text-muted-foreground">
-                {title}
-              </h3>
+            return (
+              <div key={title} className="space-y-3">
+                <h3 className="text-lg font-semibold text-muted-foreground">
+                  {title}
+                </h3>
 
-              <div className="space-y-3">
-                <div className="flex flex-wrap gap-2">
-                  <Button size={size} rounded={rounded}>
-                    Login with Email
-                  </Button>
-                  <Button size={size} rounded={rounded}>
-                    <Plus className={iconSize} data-icon="inline-start" />
-                    Add item
-                  </Button>
-                </div>
+                <div className="space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    <Button size={size} rounded={rounded}>
+                      Login with Email
+                    </Button>
+                    <Button size={size} rounded={rounded}>
+                      <Plus className={iconSize} data-icon="inline-start" />
+                      Add item
+                    </Button>
+                  </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" size={size} rounded={rounded}>
-                    <SquarePen className={iconSize} data-icon="inline-start" />
-                    {editLabel}
-                  </Button>
-                  <Button variant="outline" size={size} rounded={rounded}>
-                    <Plus className={iconSize} data-icon="inline-start" />
-                    Add
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size={size}
-                    rounded={rounded}
-                  >
-                    <Trash2 className={iconSize} data-icon="inline-start" />
-                    Delete
-                  </Button>
-                </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" size={size} rounded={rounded}>
+                      <SquarePen
+                        className={iconSize}
+                        data-icon="inline-start"
+                      />
+                      {editLabel}
+                    </Button>
+                    <Button variant="outline" size={size} rounded={rounded}>
+                      <Plus className={iconSize} data-icon="inline-start" />
+                      Add
+                    </Button>
+                    <Button variant="destructive" size={size} rounded={rounded}>
+                      <Trash2 className={iconSize} data-icon="inline-start" />
+                      Delete
+                    </Button>
+                  </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="secondary" size={size} rounded={rounded}>
-                    Dropdown
-                    <ChevronDown className={iconSize} data-icon="inline-end" />
-                  </Button>
-                  <Button variant="secondary" size={size} rounded={rounded}>
-                    Dropup
-                    <ChevronUp className={iconSize} data-icon="inline-end" />
-                  </Button>
-                </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="secondary" size={size} rounded={rounded}>
+                      Dropdown
+                      <ChevronDown
+                        className={iconSize}
+                        data-icon="inline-end"
+                      />
+                    </Button>
+                    <Button variant="secondary" size={size} rounded={rounded}>
+                      Dropup
+                      <ChevronUp className={iconSize} data-icon="inline-end" />
+                    </Button>
+                  </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="secondary" size={size} rounded={rounded}>
-                    <ArrowLeft className={iconSize} data-icon="inline-start" />
-                    Previous
-                  </Button>
-                  <Button variant="secondary" size={size} rounded={rounded}>
-                    Next
-                    <ArrowRight className={iconSize} data-icon="inline-end" />
-                  </Button>
-                </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="secondary" size={size} rounded={rounded}>
+                      <ArrowLeft
+                        className={iconSize}
+                        data-icon="inline-start"
+                      />
+                      Previous
+                    </Button>
+                    <Button variant="secondary" size={size} rounded={rounded}>
+                      Next
+                      <ArrowRight className={iconSize} data-icon="inline-end" />
+                    </Button>
+                  </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="secondary" size={size} rounded={rounded}>
-                    <Search className={iconSize} data-icon="inline-start" />
-                    Search
-                  </Button>
-                  <Button variant="secondary" size={size} rounded={rounded}>
-                    Bookmark
-                    <Bookmark className={iconSize} data-icon="inline-end" />
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="secondary" size={size} rounded={rounded}>
+                      <Search className={iconSize} data-icon="inline-start" />
+                      Search
+                    </Button>
+                    <Button variant="secondary" size={size} rounded={rounded}>
+                      Bookmark
+                      <Bookmark className={iconSize} data-icon="inline-end" />
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          }
+        )}
       </div>
     </div>
   );
@@ -263,9 +271,7 @@ function CheckboxStateDemo() {
 
         {rows.map((row) => (
           <div key={row.label} className="contents">
-            <p
-              className="self-center text-paragraph-mini font-medium text-foreground/80"
-            >
+            <p className="self-center text-paragraph-mini font-medium text-foreground/80">
               {row.label}
             </p>
 
@@ -289,7 +295,6 @@ function CheckboxStateDemo() {
     </div>
   );
 }
-
 
 function CheckboxSectionDemo() {
   return (
@@ -318,21 +323,21 @@ function DropdownMenuDemo() {
 
   return (
     <div className="w-full max-w-xs rounded-md border border-border bg-card p-sm">
-        <DropdownMenu>
-          <DropdownMenuTrigger className="inline-flex h-8 items-center rounded-md border border-border bg-background px-3 text-sm text-foreground hover:bg-[var(--unofficial-outline-hover)]">
-            Open options
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-48"
-            side="bottom"
-            sideOffset={4}
-            align="start"
-          >
-            {menuItems.map((item) => (
-              <DropdownMenuItem key={item}>{item}</DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <DropdownMenu>
+        <DropdownMenuTrigger className="inline-flex h-8 items-center rounded-md border border-border bg-background px-3 text-sm text-foreground hover:bg-[var(--unofficial-outline-hover)]">
+          Open options
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          className="w-48"
+          side="bottom"
+          sideOffset={4}
+          align="start"
+        >
+          {menuItems.map((item) => (
+            <DropdownMenuItem key={item}>{item}</DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
@@ -416,7 +421,10 @@ function LabelDemo() {
         <div className="rounded-sm border border-dashed border-primary/60 bg-background p-sm">
           <div className="space-y-1.5">
             <Label htmlFor="label-textarea">Label</Label>
-            <Textarea id="label-textarea" placeholder="Type your message here." />
+            <Textarea
+              id="label-textarea"
+              placeholder="Type your message here."
+            />
           </div>
         </div>
 
@@ -533,26 +541,26 @@ function TooltipDemo() {
 }
 
 function FurnitureItemCardDemo() {
-  const [simpleSelected, setSimpleSelected] = useState(false)
-  const [simpleQty, setSimpleQty] = useState(1)
-  const [simpleNotes, setSimpleNotes] = useState("")
+  const [simpleSelected, setSimpleSelected] = useState(false);
+  const [simpleQty, setSimpleQty] = useState(1);
+  const [simpleNotes, setSimpleNotes] = useState("");
 
-  const [subSelected, setSubSelected] = useState(false)
-  const [subNotes, setSubNotes] = useState("")
+  const [subSelected, setSubSelected] = useState(false);
+  const [subNotes, setSubNotes] = useState("");
   const [subOptions, setSubOptions] = useState([
     { id: "single", label: "Single", quantity: 0 },
     { id: "double", label: "Double", quantity: 0 },
     { id: "queen", label: "Queen", quantity: 0 },
-  ])
+  ]);
 
   const handleSubQty = (id: string, next: number) => {
     setSubOptions((prev) =>
       prev.map((s) => (s.id === id ? { ...s, quantity: next } : s))
-    )
-  }
+    );
+  };
 
   return (
-    <div className="flex flex-wrap gap-4">
+    <div className="flex w-full flex-wrap gap-4">
       <FurnitureItemCard
         label="Chair"
         selected={simpleSelected}
@@ -561,6 +569,7 @@ function FurnitureItemCardDemo() {
         onToggle={setSimpleSelected}
         onQuantityChange={setSimpleQty}
         onNotesChange={setSimpleNotes}
+        className="w-full max-w-md"
       />
       <FurnitureItemCard
         label="Bed"
@@ -571,9 +580,10 @@ function FurnitureItemCardDemo() {
         onToggle={setSubSelected}
         onNotesChange={setSubNotes}
         onSubQuantityChange={handleSubQty}
+        className="w-full max-w-md"
       />
     </div>
-  )
+  );
 }
 
 function SelectAndComboDemo() {
@@ -587,6 +597,42 @@ function SelectAndComboDemo() {
       max={10}
       className="w-full max-w-xs"
     />
+  );
+}
+
+function MultiStepLayoutDemo() {
+  const steps = ["Furniture Details", "Schedule a Pickup", "Review & Submit"];
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const breadcrumbs = steps.map((label, index) => ({
+    label,
+    current: index === activeIndex,
+  }));
+
+  const handleNext = () => {
+    setActiveIndex((prev) => Math.min(prev + 1, steps.length - 1));
+  };
+
+  const handleBack = () => {
+    setActiveIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  return (
+    <div className="w-[50vw] overflow-hidden rounded-md border border-border bg-card">
+      <MultiStepLayout
+        title="Donation flow"
+        breadcrumbs={breadcrumbs}
+        onNext={handleNext}
+        onBack={activeIndex > 0 ? handleBack : undefined}
+        nextLabel={activeIndex === steps.length - 1 ? "Submit" : "Next"}
+      >
+        <div className="rounded-lg border border-border bg-muted/40 p-6">
+          <p className="text-sm text-muted-foreground">
+            Step {activeIndex + 1} content goes here.
+          </p>
+        </div>
+      </MultiStepLayout>
+    </div>
   );
 }
 
@@ -612,6 +658,7 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
 const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
   { name: "FurnitureItemCard", Demo: FurnitureItemCardDemo },
+  { name: "MultiStepLayout", Demo: MultiStepLayoutDemo },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

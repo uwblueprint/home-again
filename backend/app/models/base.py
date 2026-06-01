@@ -8,7 +8,7 @@ Authentication is handled by Supabase; Admin/Agent link via supabase_user_id.
 """
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import (
     Boolean,
@@ -48,8 +48,14 @@ class Admin(Base):
     last_name = Column(String(100), nullable=False)
     email = Column(String(255), unique=True, nullable=False)
     phone_number = Column(String(20), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -71,8 +77,14 @@ class Agency(Base):
     postal_code = Column(String(10), nullable=False)
     phone_number = Column(String(20), nullable=False)
     program = Column(String(255), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
 
     # Relationships
     agents = relationship(
@@ -101,8 +113,14 @@ class Agent(Base):
     email = Column(String(255), nullable=False)
     phone_number = Column(String(20), nullable=False)
     is_admin = Column(Boolean, nullable=False, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
 
     # Relationships
     agency = relationship("Agency", back_populates="agents", foreign_keys=[agency_id])
@@ -123,8 +141,14 @@ class Donor(Base):
     last_name = Column(String(100), nullable=False)
     email = Column(String(255), nullable=False)
     phone = Column(String(20), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
 
     # Relationships
     donations = relationship("Donation", back_populates="donor")
@@ -149,8 +173,14 @@ class Donation(Base):
     city = Column(String(100), nullable=True)
     postal_code = Column(String(10), nullable=True)
     status = Column(String(50), nullable=True)  # See DonationStatus
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
 
     # Relationships
     donor = relationship("Donor", back_populates="donations")
@@ -185,8 +215,14 @@ class Client(Base):
     coordinated_access_required = Column(Boolean, nullable=False, default=False)
     agency_id = Column(String(36), ForeignKey("agencies.id"), nullable=True)
     immigration_status = Column(String(50), nullable=True)  # See ImmigrationStatusEnum
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
 
     # Relationships
     agency = relationship("Agency", back_populates="clients", foreign_keys=[agency_id])
@@ -206,8 +242,14 @@ class Route(Base):
     id = Column(String(36), primary_key=True, default=generate_uuid)
     date = Column(DateTime, nullable=False)
     status = Column(String(50), nullable=True)  # See RouteStatus
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
 
     # Relationships
     pickups = relationship("Pickup", back_populates="route")
@@ -227,8 +269,14 @@ class Pickup(Base):
     id = Column(String(36), primary_key=True, default=generate_uuid)
     route_id = Column(String(36), ForeignKey("routes.id"), nullable=False)
     donation_id = Column(String(36), ForeignKey("donations.id"), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
 
     # Relationships
     route = relationship("Route", back_populates="pickups")
@@ -259,8 +307,14 @@ class Furniture(Base):
     donation_id = Column(String(36), ForeignKey("donations.id"), nullable=True)
     referral_id = Column(String(36), ForeignKey("referrals.id"), nullable=True)
     pickup_id = Column(String(36), ForeignKey("pickups.id"), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
 
     # Relationships
     donation = relationship("Donation", back_populates="furniture_items")
@@ -316,8 +370,14 @@ class Referral(Base):
     move_other_info = Column(Text, nullable=True)
     notes_and_instructions = Column(Text, nullable=True)
     status = Column(String(50), nullable=False)  # See ReferralStatus
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
 
     # Relationships
     client = relationship("Client", back_populates="referrals")
@@ -344,8 +404,14 @@ class Dropoff(Base):
     high_priority = Column(Boolean, nullable=False, default=False)
     contact_in_case_of_cancellation = Column(Boolean, nullable=False, default=False)
     dispatch_required = Column(Boolean, nullable=False, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
 
     # Relationships
     route = relationship("Route", back_populates="dropoffs")

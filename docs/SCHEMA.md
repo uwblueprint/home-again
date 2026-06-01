@@ -210,10 +210,12 @@ A request for furniture delivery to a Client.
 | agent_id | string (UUID) | no | FK → Agent (primary) |
 | secondary_agent_id | string (UUID) | no | FK → Agent (secondary) |
 | requested_items | JSON array | yes | List of requested items |
+| agents_present_during_delivery | boolean | no | Whether agents will be present |
 | program | string | no | Program name |
 | is_priority | boolean | yes (default: false) | |
 | priority_description | string | no | |
 | reason_* | boolean | yes (default: false) | Various referral reason flags |
+| previous_city_town_country | string | no | Previous location (for reason_new_to_community) |
 | address_line_1 | string | yes | Delivery address |
 | address_line_2 | string | no | |
 | city | string | yes | |
@@ -222,6 +224,7 @@ A request for furniture delivery to a Client.
 | staircases | boolean | no | |
 | narrow_passageways | boolean | no | |
 | adequate_parking | boolean | no | |
+| move_other_info | string | no | Additional move/access info |
 | notes_and_instructions | string | no | |
 | status | ReferralStatus | yes | pending, approved, completed, declined |
 | created_at | datetime | auto | |

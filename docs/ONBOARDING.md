@@ -1,52 +1,48 @@
 # Developer Onboarding Guide
 
-## Table of contents
-
-- [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
-- [Environment Variables](#environment-variables)
-- [API Documentation](#api-documentation)
-- [Understanding the Project](#understanding-the-project)
-- [Common Tasks](#common-tasks)
-- [Understanding State Management](#understanding-state-management)
-- [API Integration Pattern](#api-integration-pattern)
-- [Useful Commands Reference](#useful-commands-reference)
-- [Debugging Tips](#debugging-tips)
-- [Code Style Guidelines](#code-style-guidelines)
-- [Documentation Reference](#documentation-reference)
-- [Next Steps](#next-steps)
+Get the local environment running, then start building.
 
 ## Prerequisites
 
-Make sure you have installed:
-
 - **Node.js 20+**: [Download](https://nodejs.org/)
 - **Python 3.9+**: [Download](https://www.python.org/downloads/)
-- **PostgreSQL 12+**: [Download](https://www.postgresql.org/download/) (or use Supabase)
+- **PostgreSQL 12+**: [Download](https://www.postgresql.org/download/)
 - **Git**: [Download](https://git-scm.com/)
-- **Docker**: [Download](https://www.docker.com/products/docker-desktop)
+- **Docker + Compose**: Any runtime works — Docker Desktop, OrbStack, Colima, etc.
 
 Verify:
 ```bash
-node --version    # v20.0.0 or higher
-python --version  # 3.9 or higher
-git --version     # 2.0 or higher
+node --version            # v20.0.0 or higher
+python --version          # 3.9 or higher
+git --version             # 2.0 or higher
+docker --version          # 20.0 or higher
+docker compose version    # v2.0 or higher
 ```
 
 ## Getting Started
 
-### Option A: Docker
+### Option A: Docker (recommended)
 
 ```bash
 cd home-again
 docker-compose up --build
 ```
 
-Open http://localhost:3000 (frontend) and http://localhost:8000/docs (API docs). The database is created and migrated automatically. See [DOCKER.md](./DOCKER.md) for more.
+- Frontend: http://localhost:3000
+- Backend API docs: http://localhost:8000/docs
+
+The database is created and migrated automatically. See [DOCKER.md](./DOCKER.md) for details.
+
+**Stopping:**
+```bash
+docker-compose down              # Stop and remove containers
+docker-compose down -v           # Also remove database volume (full reset)
+docker system prune -f           # Clean up unused images/layers (optional)
+```
 
 ### Option B: Local install
 
-#### Step 1: Frontend
+#### 1. Frontend
 
 ```bash
 cd frontend
@@ -55,24 +51,28 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Frontend runs at http://localhost:3000.
+Frontend runs at http://localhost:3000. Stop with `Ctrl+C`.
 
-#### Step 2: Backend
-
-Open a new terminal:
+#### 2. Backend
 
 ```bash
 cd backend
 python3 -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env
 python3 server.py
 ```
 
-Backend runs at http://localhost:8000. API docs at http://localhost:8000/docs.
+Backend runs at http://localhost:8000. API docs at http://localhost:8000/docs. Stop with `Ctrl+C`.
 
-#### Step 3: Database
+**Environment variables**: The backend reads from `backend/.env`. See `docker-compose.yml` for the required variables and reference values — create `backend/.env` with those values for local development.
+
+**Deactivating the venv when done:**
+```bash
+deactivate
+```
+
+#### 3. Database
 
 ```bash
 createdb hafb
@@ -82,255 +82,90 @@ cd backend
 alembic upgrade head
 ```
 
-All backend resources are fully implemented (Admin, Agency, Agent, Donor, Donation, Client, Furniture, Referral, Route, Pickup, Dropoff). See [SCHEMA.md](./SCHEMA.md) for entity reference and [BACKEND_GUIDE.md](./BACKEND_GUIDE.md) for implementation patterns.
+## Quick Tour
 
-## Environment Variables
+Once everything is running:
 
-When running locally, copy the example env files and edit with your values:
+1. Browse http://localhost:3000 — the frontend app
+2. Browse http://localhost:8000/docs — interactive Swagger UI for all API endpoints
+3. Read [ARCHITECTURE.md](./ARCHITECTURE.md) for system design and data flow
+4. Read [SCHEMA.md](./SCHEMA.md) for the full entity reference (all 11 resources)
+5. Trace one feature end-to-end: pick Agencies and follow model → schema → service → router → hook → page
 
-- **Frontend**: Copy [frontend/.env.example](../frontend/.env.example) to `frontend/.env.local`
-- **Backend**: Copy [backend/.env.example](../backend/.env.example) to `backend/.env`
+## Project Guides
 
-Each example file includes comments describing the variables.
+Each guide covers its domain in depth. Start with the one relevant to your first task:
 
-## API Documentation
+| Guide | Covers |
+|-------|--------|
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | System design, data flow, tech stack decisions |
+| [BACKEND_GUIDE.md](./BACKEND_GUIDE.md) | Service/router patterns, how to add a resource, testing |
+| [FRONTEND_GUIDE.md](./FRONTEND_GUIDE.md) | Directory structure, state management, types, conventions |
+| [DESIGN_SYSTEM_GUIDE.md](./DESIGN_SYSTEM_GUIDE.md) | Tokens, Tailwind utilities, shadcn components |
+| [SCHEMA.md](./SCHEMA.md) | Entity reference (fields, types, relationships) |
+| [DOCKER.md](./DOCKER.md) | Docker Compose setup |
+| [GIT.md](./GIT.md) | Branch naming, commits, PRs |
 
-Once the backend is running:
-
-- **Swagger UI** (interactive): http://localhost:8000/docs
-- **ReDoc** (static): http://localhost:8000/redoc
-
-## Understanding the Project
-
-### Quick Tour
-
-1. **Visit the app**: http://localhost:3000
-2. **Explore the API**: http://localhost:8000/docs — try endpoints interactively
-3. **Read the docs**: [ARCHITECTURE.md](./ARCHITECTURE.md) for system design, [BACKEND_GUIDE.md](./BACKEND_GUIDE.md) for backend patterns, [SCHEMA.md](./SCHEMA.md) for entity reference
-
-For the repository layout (frontend, backend, docs, etc.), see [Project structure](../README.md#project-structure) in the main [README](../README.md).
-
-### Tech Stack at a Glance
-
-| What | Technology |
-|------|-----------|
-| Frontend Framework | Next.js 15 |
-| Frontend Language | TypeScript 5 |
-| Frontend State | Zustand + TanStack Query |
-| Frontend Styling | Tailwind CSS |
-| Backend Framework | FastAPI |
-| Backend Language | Python 3.9+ |
-| Database | PostgreSQL / Supabase |
-| ORM | SQLAlchemy 2.0 |
-
-## Common Tasks
-
-### Add a Frontend Component
-
-Create `frontend/common/components/MyComponent.tsx`:
-
-```typescript
-"use client";
-
-import { useAgencies } from "@/common/hooks/useApi";
-
-export function MyComponent() {
-  const { data: agencies, isLoading } = useAgencies();
-
-  if (isLoading) return <div>Loading...</div>;
-
-  return (
-    <div>
-      {agencies?.map((agency) => (
-        <div key={agency.id}>{agency.name}</div>
-      ))}
-    </div>
-  );
-}
-```
-
-Use it in a page (`frontend/app/page.tsx`):
-
-```typescript
-import { MyComponent } from "@/common/components/MyComponent";
-
-export default function Home() {
-  return <MyComponent />;
-}
-```
-
-### Add a Backend Endpoint
-
-1. Add ORM model in `backend/app/models/base.py`
-2. Add enums to `backend/app/enums.py` if needed
-3. Add schemas to `backend/app/schemas.py`
-4. Write an Alembic migration
-5. Create `backend/app/services/my_resource.py` following the canonical pattern
-6. Update `backend/app/services/__init__.py`
-7. Create `backend/app/api/my_resource.py` following the canonical pattern
-8. Register in `backend/app/api/__init__.py`
-9. Write `backend/tests/test_my_resource.py`
-10. Update `docs/SCHEMA.md`
-
-See [BACKEND_GUIDE.md](./BACKEND_GUIDE.md) for annotated examples and the full checklist.
-
-### Running Tests
-
-```bash
-# Frontend
-cd frontend
-npm test
-
-# Backend
-cd backend
-pytest -v
-pytest -v --tb=short      # Less verbose
-pytest -k test_create     # Run specific test
-
-# End-to-end
-cd e2e-tests
-pytest -v
-```
-
-### Linting & Formatting
-
-```bash
-# Frontend
-cd frontend
-npm run lint          # Check
-npm run lint:fix      # Auto-fix
-npm run format        # Prettier
-
-# Backend
-cd backend
-black .               # Format with Black
-isort .               # Sort imports
-```
-
-## Understanding State Management
-
-```typescript
-// Local state — stays in this component
-function SearchForm() {
-  const [query, setQuery] = useState("");
-  return <input value={query} onChange={(e) => setQuery(e.target.value)} />;
-}
-
-// Global client state — auth, UI flags (Zustand)
-function UserButton() {
-  const { user, logout } = useAuthStore();
-  return <button onClick={logout}>{user?.email}</button>;
-}
-
-// Server state — data from API (TanStack Query)
-function AgenciesList() {
-  const { data: agencies } = useAgencies();
-  // Automatically fetches, caches, and refetches on focus
-  return agencies?.map((a) => <div key={a.id}>{a.name}</div>);
-}
-```
-
-## API Integration Pattern
-
-All API calls go through typed hooks in `frontend/common/hooks/useApi.ts`:
-
-```typescript
-export function useAgencies() {
-  return useQuery({
-    queryKey: ["agencies"],
-    queryFn: async () => {
-      const response = await apiClient.get<Agency[]>("/agencies");
-      return response.data;
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
-}
-
-export function useCreateAgency() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (agency: AgencyCreate) =>
-      apiClient.post<Agency>("/agencies", agency),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["agencies"] });
-    },
-  });
-}
-```
-
-Use in components:
-
-```typescript
-function CreateAgencyForm() {
-  const { mutate, isPending } = useCreateAgency();
-  // ...
-}
-```
-
-## Useful Commands Reference
+## Commands Reference
 
 ### Frontend
 
 ```bash
-npm run dev           # Start development server
-npm run build         # Build for production
-npm run lint          # Check code style
-npm run lint:fix      # Auto-fix lint issues
-npm run format        # Format with Prettier
-npm test              # Run tests
+cd frontend
+npm run dev           # Start dev server (Turbopack)
+npm run build         # Production build
+npm run lint          # ESLint check
+npm run lint:fix      # ESLint auto-fix
+npm run format        # Prettier
+npm run type-check    # TypeScript check
+npm test              # Jest tests
 ```
 
 ### Backend
 
 ```bash
-python server.py              # Start development server
-pytest                        # Run all tests
-pytest -v                     # Verbose
-pytest tests/unit/test_csv.py # Specific file
-black .                       # Format code
-isort .                       # Sort imports
-alembic upgrade head          # Apply migrations
-alembic revision --autogenerate -m "msg"  # New migration
+cd backend
+python server.py                              # Start dev server
+pytest -v                                     # Run all tests
+pytest -k test_create -v                      # Run specific tests
+black .                                       # Format
+isort .                                       # Sort imports
+alembic upgrade head                          # Apply migrations
+alembic revision --autogenerate -m "msg"      # Generate migration
 ```
 
 ### Docker
 
 ```bash
-docker-compose up --build        # Build and start
-docker-compose up -d             # Background
+docker-compose up --build        # Build and start all services
+docker-compose up -d             # Run in background
 docker-compose down              # Stop
 docker-compose logs -f           # Follow logs
-docker-compose exec py-backend alembic upgrade head  # Run migrations
+docker-compose exec py-backend alembic upgrade head  # Run migrations in container
 ```
-
-### Git workflow
-
-For branch naming, commits, PRs, and Jira keys, see [GIT.md](./GIT.md).
 
 ## Debugging Tips
 
 ### Frontend won't start
 
 ```bash
-node --version          # Need 20+
 rm -rf .next                              # Clear Next.js cache
-rm -rf node_modules && npm install        # Reinstall dependencies
-lsof -i :3000                             # Check if port is in use
+rm -rf node_modules && npm install        # Reinstall deps
+lsof -i :3000                             # Check port conflict
 ```
 
 ### Backend won't start
 
 ```bash
-python --version        # Need 3.9+
-pip install --upgrade -r requirements.txt
-psql $DATABASE_URL -c "SELECT 1"          # Test DB connection
-lsof -i :8000
+pip install --upgrade -r requirements.txt  # Ensure deps are current
+lsof -i :8000                              # Check port conflict
 ```
 
 ### Database connection error
 
-- Check `backend/.env` has the correct `DATABASE_URL`
-- Verify PostgreSQL is running: `brew services start postgresql` (macOS) or `sudo systemctl start postgresql` (Linux)
+- Verify `DATABASE_URL` in `backend/.env` is correct
+- Confirm PostgreSQL is running: `brew services start postgresql` (macOS) or `sudo systemctl start postgresql` (Linux)
+- Test connection: `psql $DATABASE_URL -c "SELECT 1"`
 
 ### Database reset
 
@@ -339,80 +174,14 @@ dropdb hafb && createdb hafb
 cd backend && alembic upgrade head
 ```
 
-## Code Style Guidelines
-
-### Python
-
-```python
-# ✅ Good
-async def create_agency(agency: AgencyCreate, db: AsyncSession) -> Agency:
-    """Create a new agency."""
-    db_agency = Agency(**agency.model_dump())
-    db.add(db_agency)
-    await db.commit()
-    return db_agency
-
-# ❌ Bad
-def create_agency(a, db):
-    x = Agency(**a.dict())
-    db.add(x)
-    db.commit()
-    return x
-```
-
-- Use type hints everywhere
-- Write docstrings on public functions
-- Follow PEP 8
-
-### TypeScript
-
-```typescript
-// ✅ Good
-interface Agency {
-  id: string;
-  name: string;
-}
-
-function AgencyCard({ agency }: { agency: Agency }) {
-  return <div>{agency.name}</div>;
-}
-
-// ❌ Bad
-function AgencyCard({ a }: { a: any }) {
-  return <div>{a.name}</div>;
-}
-```
-
-- No `any` types
-- Explicit interfaces for all data shapes
-- Keep components under 100 lines
-- Add `"use client"` only when needed (hooks, browser APIs)
-
 ## Documentation Reference
 
-- **[README.md](../README.md)** — Project overview
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — Complete system design
-- **[DOCKER.md](./DOCKER.md)** — Docker setup and configuration
-- **[SCHEMA.md](./SCHEMA.md)** — Entity reference (fields, types, relationships)
-- **[BACKEND_GUIDE.md](./BACKEND_GUIDE.md)** — Backend patterns, how to add a resource, testing
-- **[GIT.md](./GIT.md)** — Git workflow and Jira integration
-
-## Next Steps
-
-1. ✅ Get the local environment running
-2. ✅ Browse http://localhost:3000 and http://localhost:8000/docs
-3. ✅ Read [ARCHITECTURE.md](./ARCHITECTURE.md)
-4. ✅ Read [SCHEMA.md](./SCHEMA.md) for entity relationships
-5. ✅ Read [BACKEND_GUIDE.md](./BACKEND_GUIDE.md) for implementation patterns
-6. ✅ Trace one feature end-to-end (Agencies: model → schema → service → router → hook → page)
-7. ✅ Add a new resource following the step-by-step checklist in BACKEND_GUIDE.md
-8. ✅ Write a test
-
-## Welcome! 🎉
-
-You're ready to start developing. Happy coding!
-
----
-
-**Questions?** Check [ARCHITECTURE.md](./ARCHITECTURE.md) or ask your team lead.
-**Found an issue in the docs?** Please fix it — the next developer will thank you.
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — System design and data flow
+- **[BACKEND_GUIDE.md](./BACKEND_GUIDE.md)** — Backend patterns and testing
+- **[DESIGN_SYSTEM_GUIDE.md](./DESIGN_SYSTEM_GUIDE.md)** — Design system and component workflow
+- **[DOCKER.md](./DOCKER.md)** — Docker setup
+- **[FRONTEND_GUIDE.md](./FRONTEND_GUIDE.md)** — Frontend architecture and conventions
+- **[GIT.md](./GIT.md)** — Git workflow
+- **[ONBOARDING.md](./ONBOARDING.md)** — This document
+- **[SCHEMA.md](./SCHEMA.md)** — Entity reference
+- **[TECH_DEBT.md](./TECH_DEBT.md)** — Technical debt tracking

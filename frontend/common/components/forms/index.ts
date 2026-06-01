@@ -3,6 +3,6 @@
 export {
   SelectAndCombo,
   QuantityCounter,
-  type FurnitureItemCardProps,
+  type SelectAndComboProps,
 } from "./select_and_combo";
 export { FurnitureItemCard } from "./furniture_item_card";

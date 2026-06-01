@@ -102,7 +102,7 @@ export function FurnitureItemCard({
   return (
     <div
       className={cn(
-        "flex flex-col items-start rounded-lg border border-[#D4D4D4] bg-white p-3 shadow-sm",
+        "flex flex-col items-start rounded-lg border border-border bg-card p-3 shadow-sm",
         subOptions?.length ? "gap-1.5" : "gap-2",
         selected && !subOptions?.length ? "min-h-[130px]" : "min-h-0",
         !selected ? "min-h-[130px]" : "",
@@ -116,10 +116,10 @@ export function FurnitureItemCard({
             checked={selected}
             onCheckedChange={(next) => handleToggle(!!next)}
             aria-label={`Select ${label}`}
-            className="size-[18px] rounded-[5px] border-neutral-300 shadow-inner data-[state=checked]:border-transparent data-[state=checked]:bg-[#9E4876] data-[state=checked]:text-white"
+            className="size-[18px] rounded-[5px] border-border shadow-inner data-[state=checked]:border-transparent data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
           />
 
-          <h3 className="text-[16px] font-medium leading-6 text-[#171717]">
+          <h3 className="text-[16px] font-medium leading-6 text-foreground">
             {label}
           </h3>
 
@@ -145,16 +145,16 @@ export function FurnitureItemCard({
               checked={selected}
               onCheckedChange={(next) => handleToggle(!!next)}
               aria-label={`Select ${label}`}
-              className="size-[18px] rounded-[5px] border-neutral-300 shadow-inner data-[state=checked]:border-transparent data-[state=checked]:bg-[#9E4876] data-[state=checked]:text-white"
+              className="size-[18px] rounded-[5px] border-border shadow-inner data-[state=checked]:border-transparent data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
             />
 
-            <h3 className="text-[16px] font-medium leading-6 text-[#171717]">
+            <h3 className="text-[16px] font-medium leading-6 text-foreground">
               {label}
             </h3>
           </div>
 
           {!selected && sizeHint ? (
-            <p className="pl-7 text-sm font-normal text-neutral-500">
+            <p className="pl-7 text-sm font-normal text-muted-foreground">
               {sizeHint}
             </p>
           ) : null}
@@ -172,7 +172,7 @@ export function FurnitureItemCard({
                   return (
                     <Badge
                       key={sub.id}
-                      className="h-auto rounded-full bg-[#B5BD7E] px-2.5 py-1 text-xs font-semibold text-[#2f3121]"
+                      className="h-auto rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-[--brand-greens-200]"
                     >
                       ({sub.quantity}) {sub.label}
                     </Badge>
@@ -187,7 +187,7 @@ export function FurnitureItemCard({
                 variant="ghost"
                 size="icon-sm"
                 className={cn(
-                  "ml-auto h-8 w-8 rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-100",
+                  "ml-auto h-8 w-8 rounded-lg border border-border text-muted-foreground hover:bg-muted",
                   selected && hasSubSelections && !isEditingSubOptions
                     ? "opacity-100"
                     : "opacity-0 pointer-events-none"
@@ -205,7 +205,7 @@ export function FurnitureItemCard({
       {selected ? (
         <div className="w-full animate-in fade-in-50">
           {subOptions?.length && (isEditingSubOptions || !hasSubSelections) ? (
-            <div className="mb-3 rounded-xl border border-neutral-300 bg-white px-3 py-2.5">
+            <div className="mb-3 rounded-xl border border-border bg-card px-3 py-2.5">
               <div className="mb-2 flex items-start justify-between gap-3">
                 {hasSubSelections ? (
                   <div className="flex flex-wrap items-center gap-2">
@@ -214,7 +214,7 @@ export function FurnitureItemCard({
                       return (
                         <Badge
                           key={sub.id}
-                          className="h-auto rounded-full bg-[#B5BD7E] px-2.5 py-1 text-xs font-semibold text-[#2f3121]"
+                          className="h-auto rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-[--brand-greens-200]"
                         >
                           ({sub.quantity}) {sub.label}
                         </Badge>
@@ -222,7 +222,7 @@ export function FurnitureItemCard({
                     })}
                   </div>
                 ) : (
-                  <span className="text-sm font-medium text-neutral-700">
+                  <span className="text-sm font-medium text-foreground">
                     Select a size
                   </span>
                 )}
@@ -230,13 +230,6 @@ export function FurnitureItemCard({
 
               <div className="space-y-2.5">
                 {subOptions.map((sub) => {
-                  const dec = () =>
-                    onSubQuantityChange?.(
-                      sub.id,
-                      Math.max((sub.quantity ?? 0) - 1, 0)
-                    );
-                  const inc = () =>
-                    onSubQuantityChange?.(sub.id, (sub.quantity ?? 0) + 1);
                   return (
                     <div
                       key={sub.id}
@@ -264,7 +257,7 @@ export function FurnitureItemCard({
                     variant="secondary"
                     size="xs"
                     onClick={() => setIsEditingSubOptions(false)}
-                    className="rounded-lg bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-700 hover:bg-neutral-200"
+                    className="rounded-lg"
                     aria-label="Done"
                   >
                     <Check className="h-3.5 w-3.5" />
@@ -279,7 +272,7 @@ export function FurnitureItemCard({
             value={notes}
             onChange={(e) => onNotesChange?.(e.target.value)}
             placeholder="Add item details or specifications"
-            className="h-12 rounded-lg border-neutral-300 text-base font-normal placeholder:text-neutral-500"
+            className="h-12 rounded-lg border border-[--unofficial-border-3] text-base font-normal placeholder:text-muted-foreground"
           />
         </div>
       ) : null}

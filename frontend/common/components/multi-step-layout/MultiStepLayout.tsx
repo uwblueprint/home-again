@@ -91,8 +91,7 @@ function MultiStepLayout({
                   <BreadcrumbItem className="flex items-center gap-2">
                     <span
                       className={cn(
-                        "flex size-6 items-center justify-center rounded-full bg-neutral-100",
-                        "w-[26px] h-[26px] px-[10px] py-[5px] flex-col gap-[10px] aspect-square",
+                        "flex size-6.5 items-center justify-center rounded-full bg-neutral-100",
                         "text-[16px] leading-[150%] tracking-[-0.176px] font-medium text-muted-foreground",
                         isActive && "text-foreground"
                       )}
@@ -147,15 +146,10 @@ function MultiStepLayout({
             {onBack ? (
               <Button
                 type="button"
-                variant="ghost"
+                variant="outline"
                 onClick={onBack}
                 data-testid="back-button"
-                className={cn(
-                  "flex min-h-[40px] items-center justify-center gap-2",
-                  "px-6 py-2.5",
-                  "rounded-lg bg-neutral-100",
-                  "text-sm text-muted-foreground hover:bg-neutral-200 hover:text-foreground"
-                )}
+                className="min-h-10 px-6 py-2.5"
               >
                 Back
               </Button>
@@ -167,12 +161,7 @@ function MultiStepLayout({
               disabled={isSubmitting || isNextDisabled}
               data-testid="next-button"
               aria-busy={isSubmitting}
-              className={cn(
-                "flex min-h-[40px] items-center justify-center gap-2",
-                "px-6 py-2.5",
-                "rounded-lg bg-[#9E4876] text-primary-foreground",
-                "hover:bg-[#9E4876]/90"
-              )}
+              className="min-h-10 px-6 py-2.5"
             >
               {isSubmitting ? "Loading..." : nextLabel}
             </Button>

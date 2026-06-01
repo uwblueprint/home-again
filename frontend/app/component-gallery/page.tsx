@@ -235,7 +235,8 @@ function CheckboxStateDemo() {
 
   type CheckboxStateRow = {
     label: string;
-    checked?: boolean | "mixed";
+    checked?: boolean;
+    indeterminate?: boolean;
   };
 
   const columns: CheckboxStateColumn[] = [
@@ -253,7 +254,7 @@ function CheckboxStateDemo() {
   const rows: CheckboxStateRow[] = [
     { label: "Checked?: False" },
     { label: "Checked?: True", checked: true },
-    { label: "Checked?: Indeterminate", checked: "mixed" },
+    { label: "Checked?: Indeterminate", indeterminate: true },
   ];
 
   return (
@@ -283,6 +284,7 @@ function CheckboxStateDemo() {
                 <Checkbox
                   aria-label={`${row.label} ${column.label}`}
                   checked={row.checked}
+                  indeterminate={row.indeterminate}
                   aria-invalid={column.invalid ? "true" : undefined}
                   disabled={column.disabled}
                   className={column.className}

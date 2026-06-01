@@ -6,7 +6,7 @@ import { Badge } from "@/common/components/ui/badge";
 import { Button } from "@/common/components/ui/button";
 import { Checkbox } from "@/common/components/ui/checkbox";
 import { Input } from "@/common/components/ui/input";
-import { SelectAndCombo } from "@/common/components/forms/select_and_combo";
+import { SelectAndCombo } from "@/common/components/forms/SelectAndCombo";
 import { cn } from "@/common/lib/utils";
 
 type FurnitureItemCardProps = {
@@ -89,8 +89,6 @@ export function FurnitureItemCard({
     onQuantityChange?.(clamped);
   };
 
-  // Automatically reopen the size selectors if all selections are cleared
-  // while the card remains selected.
   useEffect(() => {
     if (!selected) return;
     if (!subOptions?.length) return;
@@ -116,7 +114,7 @@ export function FurnitureItemCard({
             checked={selected}
             onCheckedChange={(next) => handleToggle(!!next)}
             aria-label={`Select ${label}`}
-            className="size-[18px] rounded-[5px] border-border shadow-inner data-[state=checked]:border-transparent data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+            className="size-[18px] rounded-[5px] border-border shadow-inner data-checked:border-transparent data-checked:bg-primary data-checked:text-primary-foreground"
           />
 
           <h3 className="text-[16px] font-medium leading-6 text-foreground">
@@ -145,7 +143,7 @@ export function FurnitureItemCard({
               checked={selected}
               onCheckedChange={(next) => handleToggle(!!next)}
               aria-label={`Select ${label}`}
-              className="size-[18px] rounded-[5px] border-border shadow-inner data-[state=checked]:border-transparent data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+              className="size-[18px] rounded-[5px] border-border shadow-inner data-checked:border-transparent data-checked:bg-primary data-checked:text-primary-foreground"
             />
 
             <h3 className="text-[16px] font-medium leading-6 text-foreground">

@@ -38,10 +38,7 @@ export function SelectAndCombo({
         <Minus className="h-4 w-4" strokeWidth={2.25} />
       </button>
 
-      <span
-        className="min-w-[1.5ch] text-center"
-        aria-live="polite"
-      >
+      <span className="min-w-[1.5ch] text-center" aria-live="polite">
         {value}
       </span>
 

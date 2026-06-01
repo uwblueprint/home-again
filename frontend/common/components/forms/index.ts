@@ -4,5 +4,5 @@ export {
   SelectAndCombo,
   QuantityCounter,
   type SelectAndComboProps,
-} from "./select_and_combo";
-export { FurnitureItemCard } from "./furniture_item_card";
+} from "./SelectAndCombo";
+export { FurnitureItemCard } from "./FurnitureItemCard";

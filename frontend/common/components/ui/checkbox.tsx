@@ -1,30 +1,35 @@
 "use client";
 
-import * as React from "react";
+import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox";
 import { CheckIcon, MinusIcon } from "lucide-react";
-import { Checkbox as CheckboxPrimitive } from "radix-ui";
 
 import { cn } from "@/common/lib/utils";
 
-function Checkbox({
-  className,
-  ...props
-}: React.ComponentProps<typeof CheckboxPrimitive.Root>) {
+function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
   return (
     <CheckboxPrimitive.Root
       data-slot="checkbox"
       className={cn(
-        "peer size-4 shrink-0 rounded-[4px] border border-(--raw-colors-neutral-300) bg-background shadow-xs outline-none transition-[background-color,border-color,color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=indeterminate]:border-primary data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground disabled:border-[var(--raw-colors-neutral-200)] disabled:bg-[var(--raw-colors-neutral-100)] disabled:text-primary-foreground/40 disabled:data-[state=checked]:border-primary/40 disabled:data-[state=checked]:bg-primary/40 disabled:data-[state=indeterminate]:border-primary/40 disabled:data-[state=indeterminate]:bg-primary/40 aria-invalid:border-destructive aria-invalid:data-[state=checked]:border-destructive aria-invalid:data-[state=checked]:bg-destructive aria-invalid:data-[state=checked]:text-destructive-foreground aria-invalid:data-[state=indeterminate]:border-destructive aria-invalid:data-[state=indeterminate]:bg-destructive aria-invalid:data-[state=indeterminate]:text-destructive-foreground aria-invalid:focus-visible:border-destructive aria-invalid:focus-visible:ring-destructive/20",
+        "group/checkbox peer size-4 shrink-0 rounded-[4px] border border-(--raw-colors-neutral-300) bg-background shadow-xs outline-none transition-[background-color,border-color,color,box-shadow]",
+        "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
+        "disabled:cursor-not-allowed disabled:border-(--raw-colors-neutral-200) disabled:bg-(--raw-colors-neutral-100) disabled:text-primary-foreground/40",
+        "data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground",
+        "data-indeterminate:border-primary data-indeterminate:bg-primary data-indeterminate:text-primary-foreground",
+        "disabled:data-checked:border-primary/40 disabled:data-checked:bg-primary/40",
+        "disabled:data-indeterminate:border-primary/40 disabled:data-indeterminate:bg-primary/40",
+        "aria-invalid:border-destructive aria-invalid:focus-visible:border-destructive aria-invalid:focus-visible:ring-destructive/20",
+        "aria-invalid:data-checked:border-destructive aria-invalid:data-checked:bg-destructive aria-invalid:data-checked:text-destructive-foreground",
+        "aria-invalid:data-indeterminate:border-destructive aria-invalid:data-indeterminate:bg-destructive aria-invalid:data-indeterminate:text-destructive-foreground",
         className
       )}
       {...props}
     >
       <CheckboxPrimitive.Indicator
         data-slot="checkbox-indicator"
-        className="group/checkbox-indicator grid place-content-center text-current transition-none"
+        className="grid place-content-center text-current transition-none"
       >
-        <CheckIcon className="size-3.5 group-data-[state=indeterminate]/checkbox-indicator:hidden" />
-        <MinusIcon className="hidden size-3.5 group-data-[state=indeterminate]/checkbox-indicator:block" />
+        <CheckIcon className="size-3.5 group-data-indeterminate/checkbox:hidden" />
+        <MinusIcon className="hidden size-3.5 group-data-indeterminate/checkbox:block" />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   );

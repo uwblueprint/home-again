@@ -235,7 +235,7 @@ function CheckboxStateDemo() {
 
   type CheckboxStateRow = {
     label: string;
-    checked?: boolean | "indeterminate";
+    checked?: boolean | "mixed";
   };
 
   const columns: CheckboxStateColumn[] = [
@@ -253,7 +253,7 @@ function CheckboxStateDemo() {
   const rows: CheckboxStateRow[] = [
     { label: "Checked?: False" },
     { label: "Checked?: True", checked: true },
-    { label: "Checked?: Indeterminate", checked: "indeterminate" },
+    { label: "Checked?: Indeterminate", checked: "mixed" },
   ];
 
   return (
@@ -484,18 +484,13 @@ function LabelDemo() {
 function SelectDemo() {
   return (
     <div className="w-full max-w-xs rounded-md border border-border bg-card p-sm">
-      <div className="space-y-1">
+      <div className="space-y-2">
         <Label htmlFor="select-demo-trigger">Label</Label>
         <Select>
           <SelectTrigger id="select-demo-trigger" className="w-full">
             <SelectValue placeholder="Placeholder" />
           </SelectTrigger>
-          <SelectContent
-            side="bottom"
-            sideOffset={4}
-            align="start"
-            alignItemWithTrigger={false}
-          >
+          <SelectContent>
             <SelectItem value="option-1">Option 1</SelectItem>
             <SelectItem value="option-2">Option 2</SelectItem>
             <SelectItem value="option-3">Option 3</SelectItem>
@@ -604,11 +599,6 @@ function MultiStepLayoutDemo() {
   const steps = ["Furniture Details", "Schedule a Pickup", "Review & Submit"];
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const breadcrumbs = steps.map((label, index) => ({
-    label,
-    current: index === activeIndex,
-  }));
-
   const handleNext = () => {
     setActiveIndex((prev) => Math.min(prev + 1, steps.length - 1));
   };
@@ -621,7 +611,8 @@ function MultiStepLayoutDemo() {
     <div className="w-[50vw] overflow-hidden rounded-md border border-border bg-card">
       <MultiStepLayout
         title="Donation flow"
-        breadcrumbs={breadcrumbs}
+        breadcrumbLabels={steps}
+        activeBreadcrumbIndex={activeIndex}
         onNext={handleNext}
         onBack={activeIndex > 0 ? handleBack : undefined}
         nextLabel={activeIndex === steps.length - 1 ? "Submit" : "Next"}

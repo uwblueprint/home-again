@@ -11,11 +11,6 @@ import { AlertCircle } from "lucide-react";
 import { Button } from "@/common/components/ui/button";
 import { cn } from "@/common/lib/utils";
 
-export type BreadcrumbStep = {
-  label: string;
-  current?: boolean;
-};
-
 type MultiStepLayoutProps = {
   onNext: () => void;
   onBack?: () => void;
@@ -24,7 +19,6 @@ type MultiStepLayoutProps = {
   footerAlert?: string;
   title: string;
   showTitle?: boolean;
-  breadcrumbs?: BreadcrumbStep[];
   breadcrumbLabels?: string[];
   activeBreadcrumbIndex?: number;
   nextLabel?: string;
@@ -34,8 +28,7 @@ type MultiStepLayoutProps = {
 function MultiStepLayout({
   title,
   showTitle = true,
-  breadcrumbs,
-  breadcrumbLabels,
+  breadcrumbLabels = [],
   activeBreadcrumbIndex = 0,
   onNext,
   onBack,
@@ -45,26 +38,10 @@ function MultiStepLayout({
   nextLabel = "Next",
   children,
 }: MultiStepLayoutProps) {
-  const resolvedBreadcrumbs: BreadcrumbStep[] = React.useMemo(() => {
-    if (breadcrumbLabels?.length) {
-      return breadcrumbLabels.map((label, idx) => ({
-        label,
-        current: idx === activeBreadcrumbIndex,
-      }));
-    }
-    return breadcrumbs ?? [];
-  }, [breadcrumbLabels, activeBreadcrumbIndex, breadcrumbs]);
-
-  const activeIndex = React.useMemo(() => {
-    if (breadcrumbLabels?.length) {
-      return Math.min(
-        Math.max(activeBreadcrumbIndex, 0),
-        Math.max(resolvedBreadcrumbs.length - 1, 0)
-      );
-    }
-    const explicit = resolvedBreadcrumbs.findIndex((crumb) => crumb.current);
-    return explicit >= 0 ? explicit : 0;
-  }, [activeBreadcrumbIndex, breadcrumbLabels, resolvedBreadcrumbs]);
+  const activeIndex = Math.min(
+    Math.max(activeBreadcrumbIndex, 0),
+    Math.max(breadcrumbLabels.length - 1, 0)
+  );
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col items-center gap-6 px-4 pb-4 pt-12">
@@ -83,11 +60,11 @@ function MultiStepLayout({
           )}
         >
           <BreadcrumbList className="mx-auto flex flex-wrap items-center justify-center gap-3">
-            {resolvedBreadcrumbs.map((crumb, index) => {
+            {breadcrumbLabels.map((label, index) => {
               const isActive = index === activeIndex;
 
               return (
-                <React.Fragment key={`${crumb.label}-${index}`}>
+                <React.Fragment key={`${label}-${index}`}>
                   <BreadcrumbItem className="flex items-center gap-2">
                     <span
                       className={cn(
@@ -105,10 +82,10 @@ function MultiStepLayout({
                         isActive && "text-foreground"
                       )}
                     >
-                      {crumb.label}
+                      {label}
                     </span>
                   </BreadcrumbItem>
-                  {index < resolvedBreadcrumbs.length - 1 && (
+                  {index < breadcrumbLabels.length - 1 && (
                     <BreadcrumbSeparator />
                   )}
                 </React.Fragment>

@@ -51,7 +51,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/common/components/ui";
-import { SelectAndCombo } from "@/common/components/forms";
+import { SelectAndCombo, FurnitureItemCard } from "@/common/components/forms";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
 
@@ -532,6 +532,50 @@ function TooltipDemo() {
   );
 }
 
+function FurnitureItemCardDemo() {
+  const [simpleSelected, setSimpleSelected] = useState(false)
+  const [simpleQty, setSimpleQty] = useState(1)
+  const [simpleNotes, setSimpleNotes] = useState("")
+
+  const [subSelected, setSubSelected] = useState(false)
+  const [subNotes, setSubNotes] = useState("")
+  const [subOptions, setSubOptions] = useState([
+    { id: "single", label: "Single", quantity: 0 },
+    { id: "double", label: "Double", quantity: 0 },
+    { id: "queen", label: "Queen", quantity: 0 },
+  ])
+
+  const handleSubQty = (id: string, next: number) => {
+    setSubOptions((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, quantity: next } : s))
+    )
+  }
+
+  return (
+    <div className="flex flex-wrap gap-4">
+      <FurnitureItemCard
+        label="Chair"
+        selected={simpleSelected}
+        quantity={simpleQty}
+        notes={simpleNotes}
+        onToggle={setSimpleSelected}
+        onQuantityChange={setSimpleQty}
+        onNotesChange={setSimpleNotes}
+      />
+      <FurnitureItemCard
+        label="Bed"
+        selected={subSelected}
+        quantity={subOptions.reduce((acc, s) => acc + s.quantity, 0)}
+        notes={subNotes}
+        subOptions={subOptions}
+        onToggle={setSubSelected}
+        onNotesChange={setSubNotes}
+        onSubQuantityChange={handleSubQty}
+      />
+    </div>
+  )
+}
+
 function SelectAndComboDemo() {
   const [value, setValue] = useState(2);
 
@@ -567,6 +611,7 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
 
 const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
+  { name: "FurnitureItemCard", Demo: FurnitureItemCardDemo },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

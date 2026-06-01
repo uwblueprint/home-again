@@ -5,3 +5,4 @@ export {
   QuantityCounter,
   type FurnitureItemCardProps,
 } from "./select_and_combo";
+export { FurnitureItemCard } from "./furniture_item_card";

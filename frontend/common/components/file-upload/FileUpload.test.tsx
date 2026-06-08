@@ -52,7 +52,7 @@ describe("FileUpload", () => {
       renderDialog({ open: true });
       expect(screen.getByRole("dialog")).toBeInTheDocument();
       expect(screen.getByText("Upload files")).toBeInTheDocument();
-      expect(screen.getByText("Max 5 uploads")).toBeInTheDocument();
+      expect(screen.getByText("Maximum 5 uploads")).toBeInTheDocument();
     });
 
     it("renders a custom title and description", () => {
@@ -66,7 +66,7 @@ describe("FileUpload", () => {
 
     it("derives the default description from maxFiles", () => {
       renderDialog({ maxFiles: 3 });
-      expect(screen.getByText("Max 3 uploads")).toBeInTheDocument();
+      expect(screen.getByText("Maximum 3 uploads")).toBeInTheDocument();
     });
 
     it("renders nothing when closed", () => {
@@ -88,7 +88,7 @@ describe("FileUpload", () => {
 
       expect(screen.getAllByRole("img")).toHaveLength(5);
       expect(
-        screen.getByText(/Only 5 files allowed\. 2 files were discarded\./)
+        screen.getByText(/You can upload up to 5 files\. 2 files weren't added\./)
       ).toBeInTheDocument();
       expect(screen.queryByAltText("existing-5.png")).not.toBeInTheDocument();
       expect(screen.queryByAltText("existing-6.png")).not.toBeInTheDocument();
@@ -282,7 +282,7 @@ describe("FileUpload", () => {
       selectFiles(input, files);
 
       expect(
-        screen.getByText(/Only 5 files allowed\. 1 file was discarded\./)
+        screen.getByText(/You can upload up to 5 files\. 1 file wasn't added\./)
       ).toBeInTheDocument();
     });
 
@@ -296,7 +296,7 @@ describe("FileUpload", () => {
 
       expect(screen.getAllByRole("img")).toHaveLength(2);
       expect(
-        screen.getByText(/Only 2 files allowed\. 1 file was discarded\./)
+        screen.getByText(/You can upload up to 2 files\. 1 file wasn't added\./)
       ).toBeInTheDocument();
     });
 
@@ -309,9 +309,11 @@ describe("FileUpload", () => {
       selectFiles(input, files);
 
       const chooserButton = screen.getByRole("button", {
-        name: /choose files/i,
+        name: /choose file/i,
       });
-      expect(chooserButton.className).toContain("border-destructive");
+      expect(chooserButton.className).toContain(
+        "border-[var(--unofficial-destructive-border)]"
+      );
     });
 
     it("only accepts files up to the maxFiles limit", () => {
@@ -335,7 +337,7 @@ describe("FileUpload", () => {
 
       expect(screen.getAllByRole("img")).toHaveLength(5);
       expect(
-        screen.getByText(/Only 5 files allowed\. 1 file was discarded\./)
+        screen.getByText(/You can upload up to 5 files\. 1 file wasn't added\./)
       ).toBeInTheDocument();
       expect(screen.queryByAltText("new-4.png")).not.toBeInTheDocument();
     });
@@ -345,7 +347,7 @@ describe("FileUpload", () => {
       expect(screen.getByLabelText("Choose files")).not.toHaveAttribute(
         "multiple"
       );
-      expect(screen.getByText("Max 1 uploads")).toBeInTheDocument();
+      expect(screen.getByText("Maximum 1 uploads")).toBeInTheDocument();
     });
   });
 

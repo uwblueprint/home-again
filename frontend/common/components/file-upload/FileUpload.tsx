@@ -80,7 +80,7 @@ export default function FileUpload({
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const helperText = description ?? `Max ${maxFiles} uploads`;
+  const helperText = description ?? `Maximum ${maxFiles} uploads`;
 
   // Preview URLs are managed by the hook (created/revoked inside an effect).
   // Non-image files get `null` and render a generic icon.
@@ -150,28 +150,31 @@ export default function FileUpload({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(next) => (next ? onOpenChange(true) : handleClose())}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => (next ? onOpenChange(true) : handleClose())}
+    >
       <DialogContent
         showCloseButton={false}
-        className="w-full max-w-[640px] gap-0 p-0"
+        className="w-full max-w-[640px] gap-0 rounded-[10px] border border-border p-0 shadow-lg ring-0 sm:max-w-[640px]"
       >
         {/* Close button */}
         <button
           type="button"
           aria-label="Close dialog"
           onClick={handleClose}
-          className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
+          className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
         >
           <X className="size-4" />
         </button>
 
         {/* Body */}
-        <div className="px-12 pb-4 pt-8">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-foreground">
+        <div className="flex flex-col gap-lg px-2xl pb-xs pt-2xl">
+          <DialogHeader className="gap-3 border-b border-[var(--unofficial-border-3)] pb-md">
+            <DialogTitle className="font-semibold text-foreground text-[length:var(--heading-4-font-size)] leading-[var(--heading-4-line-height)]">
               {title}
             </DialogTitle>
-            <DialogDescription className="mt-1 text-xs text-muted-foreground">
+            <DialogDescription className="text-foreground text-[length:var(--paragraph-mini-font-size)] leading-[var(--paragraph-mini-line-height)]">
               {helperText}
             </DialogDescription>
           </DialogHeader>
@@ -179,7 +182,7 @@ export default function FileUpload({
           {/* Upload zone */}
           <div
             className={cn(
-              "mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 transition-colors",
+              "flex flex-col items-center gap-[28px] rounded-xl border border-dashed px-6 py-12 transition-colors",
               isDragOver ? "border-primary bg-primary/5" : "border-border"
             )}
             onDragOver={handleDragOver}
@@ -187,24 +190,24 @@ export default function FileUpload({
             onDrop={handleDrop}
           >
             <Upload className="size-6 text-muted-foreground" />
-            <p className="text-xl font-semibold text-muted-foreground">
+            <p className="text-heading-4 font-semibold text-muted-foreground">
               Drop files to upload or browse
             </p>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               className={cn(
-                "flex w-80 cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm hover:bg-[var(--unofficial-outline-hover)]",
-                overflowCount > 0 ? "border-destructive" : "border-border"
+                "flex w-80 cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 py-2 text-paragraph-small hover:bg-[var(--unofficial-outline-hover)]",
+                overflowCount > 0
+                  ? "border-[var(--unofficial-destructive-border)]"
+                  : "border-border"
               )}
             >
-              <span className="font-semibold text-foreground">
-                Choose Files
-              </span>
+              <span className="font-medium text-foreground">Choose File</span>
               <span className="text-muted-foreground">
                 {pendingFiles.length === 0
                   ? "No files chosen"
-                  : `${pendingFiles.length} ${pendingFiles.length === 1 ? "file" : "files"} selected`}
+                  : `${pendingFiles.length} ${pendingFiles.length === 1 ? "file" : "files"} chosen`}
               </span>
             </button>
             <input
@@ -224,16 +227,16 @@ export default function FileUpload({
               <p
                 id="file-overflow-error"
                 role="alert"
-                className="text-center text-xs text-destructive"
+                className="text-center text-paragraph-mini text-destructive"
               >
-                {`Only ${maxFiles} ${maxFiles === 1 ? "file" : "files"} allowed. ${overflowCount} ${overflowCount === 1 ? "file was" : "files were"} discarded.`}
+                {`You can upload up to ${maxFiles} ${maxFiles === 1 ? "file" : "files"}. ${overflowCount} ${overflowCount === 1 ? "file wasn't" : "files weren't"} added.`}
               </p>
             )}
           </div>
 
           {/* Thumbnails */}
           {pendingFiles.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-sm">
               {pendingFiles.map((file, i) => {
                 const previewUrl = previewUrls[i];
                 return (
@@ -241,7 +244,7 @@ export default function FileUpload({
                     key={`${file.name}-${file.lastModified}-${file.size}-${i}`}
                     className="relative size-[75px] shrink-0"
                   >
-                    <div className="relative size-full overflow-hidden rounded-xl border border-border">
+                    <div className="relative size-full overflow-hidden rounded-xl">
                       {previewUrl ? (
                         <Image
                           src={previewUrl}
@@ -263,7 +266,7 @@ export default function FileUpload({
                       type="button"
                       onClick={() => removeFile(i)}
                       aria-label={`Remove ${file.name}`}
-                      className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-border bg-background shadow-sm hover:bg-[linear-gradient(var(--black-alpha-333),var(--black-alpha-333)),linear-gradient(#fff,#fff)]"
+                      className="absolute -left-1 -top-1 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border border-[var(--unofficial-border-4)] bg-background shadow-sm hover:bg-[linear-gradient(var(--black-alpha-333),var(--black-alpha-333)),linear-gradient(#fff,#fff)]"
                     >
                       <X className="size-3" />
                     </button>
@@ -275,13 +278,13 @@ export default function FileUpload({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 px-12 py-6">
+        <div className="flex justify-end gap-xs px-2xl py-xl">
           <Button
             type="button"
             variant="outline"
             size="lg"
             onClick={handleClose}
-            className="px-4 hover:bg-[var(--black-alpha-333)]"
+            className="border-[var(--unofficial-border-3)] px-4 hover:bg-[var(--black-alpha-333)]"
           >
             Cancel
           </Button>

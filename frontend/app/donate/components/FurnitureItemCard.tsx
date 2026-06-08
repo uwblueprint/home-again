@@ -253,7 +253,7 @@ export default function FurnitureItemCard({
         onSave={(photos) => onUpdate({ photos })}
         accept="image/*"
         maxFiles={MAX_PHOTOS}
-        title="Upload photos of your item"
+        title="Upload Photos of Your Item"
       />
     </>
   );

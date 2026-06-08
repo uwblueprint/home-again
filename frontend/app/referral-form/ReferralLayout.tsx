@@ -1,12 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  Breadcrumb as BreadcrumbNav,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from "@/common/components/ui/breadcrumb";
+import { FormBreadcrumb } from "@/common/components/forms";
 import { Button } from "@/common/components/ui/button";
 import { cn } from "@/common/lib/utils";
 
@@ -36,15 +31,10 @@ function ReferralLayout({
   nextLabel = "Next",
   children,
 }: ReferralLayoutProps) {
-  // Derive breadcrumbs from provided data and ensure exactly one is active.
-  const resolvedBreadcrumbs: BreadcrumbStep[] = React.useMemo(() => {
-    if (!breadcrumbs?.length) return [];
-
-    return breadcrumbs.map((crumb, idx) => ({
-      ...crumb,
-      current: idx === activeIndex,
-    }));
-  }, [breadcrumbs, activeIndex]);
+  const steps = React.useMemo(
+    () => breadcrumbs?.map((crumb) => ({ label: crumb.label })) ?? [],
+    [breadcrumbs]
+  );
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center gap-6 px-4 pb-4 pt-12">
@@ -55,46 +45,7 @@ function ReferralLayout({
           "flex flex-col items-center gap-3"
         )}
       >
-        <BreadcrumbNav
-          className={cn(
-            "w-full",
-            "text-sm leading-5 tracking-normal",
-            "font-sans text-muted-foreground"
-          )}
-        >
-          <BreadcrumbList className="mx-auto flex flex-wrap items-center justify-center gap-3">
-            {resolvedBreadcrumbs.map((crumb, index) => {
-              return (
-                <React.Fragment key={`${crumb.label}-${index}`}>
-                  <BreadcrumbItem className="flex items-center gap-2">
-                    <span
-                      className={cn(
-                        "flex size-6 items-center justify-center rounded-full bg-neutral-100",
-                        "w-[26px] h-[26px] px-[10px] py-[5px] flex-col gap-[10px] aspect-square",
-                        "text-[16px] leading-[150%] tracking-[-0.176px] font-medium text-muted-foreground",
-                        crumb.current && "text-foreground"
-                      )}
-                      aria-current={crumb.current ? "step" : undefined}
-                    >
-                      {index + 1}
-                    </span>
-                    <span
-                      className={cn(
-                        "text-muted-foreground",
-                        crumb.current && "text-foreground"
-                      )}
-                    >
-                      {crumb.label}
-                    </span>
-                  </BreadcrumbItem>
-                  {index < resolvedBreadcrumbs.length - 1 && (
-                    <BreadcrumbSeparator />
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </BreadcrumbList>
-        </BreadcrumbNav>
+        <FormBreadcrumb steps={steps} activeIndex={activeIndex} />
       </header>
       <div className="flex w-full flex-col gap-6 rounded-xl border border-border bg-background p-6 shadow-sm">
         <h1 className="text-xl font-semibold text-foreground">{title}</h1>

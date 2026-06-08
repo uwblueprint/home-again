@@ -1,15 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React from "react";
 import Image from "next/image";
 import { cn } from "@/common/lib/utils";
 import { useDonationForm } from "../context/DonationFormContext";
 import type { FurnitureItemData } from "../context/DonationFormContext";
 import { useDonor } from "@/common/hooks/useApi";
-import {
-  getFilePreviewUrl,
-  revokeFilePreviewUrl,
-} from "@/common/lib/filePreviewUrls";
+import { useFilePreviewUrls } from "@/common/hooks/useFilePreviewUrls";
 
 // --- Sub-components ---
 
@@ -70,17 +67,8 @@ function YesNoToggle({
 }
 
 function ItemRow({ item }: { item: FurnitureItemData }) {
-  const thumbnailFile = item.photos[0] ?? null;
-  const thumbnailSrc = useMemo(
-    () => (thumbnailFile ? getFilePreviewUrl(thumbnailFile) : null),
-    [thumbnailFile]
-  );
-
-  useEffect(() => {
-    return () => {
-      if (thumbnailFile) revokeFilePreviewUrl(thumbnailFile);
-    };
-  }, [thumbnailFile]);
+  // Only the first photo is shown as the row thumbnail.
+  const [thumbnailSrc = null] = useFilePreviewUrls(item.photos.slice(0, 1));
 
   const stainsLabel =
     item.hasStains === null ? "-" : item.hasStains ? "Has Stains" : "No Stains";

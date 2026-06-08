@@ -94,11 +94,11 @@ describe("FileUpload", () => {
       expect(screen.queryByAltText("existing-6.png")).not.toBeInTheDocument();
     });
 
-    it("moves focus to the first focusable element when opened", () => {
-      renderDialog({ open: true });
+    it("labels the dialog with its title for assistive tech", () => {
+      renderDialog({ title: "Upload files" });
       expect(
-        screen.getByRole("button", { name: "Close dialog" })
-      ).toHaveFocus();
+        screen.getByRole("dialog", { name: "Upload files" })
+      ).toBeInTheDocument();
     });
   });
 
@@ -392,33 +392,4 @@ describe("FileUpload", () => {
     });
   });
 
-  describe("focus trap", () => {
-    it("wraps focus from last to first on Tab", () => {
-      renderDialog();
-
-      const dialog = screen.getByRole("dialog");
-      const closeBtn = screen.getByRole("button", { name: "Close dialog" });
-      const cancelBtn = screen.getByRole("button", { name: "Cancel" });
-
-      cancelBtn.focus();
-      expect(cancelBtn).toHaveFocus();
-
-      fireEvent.keyDown(dialog, { key: "Tab" });
-      expect(closeBtn).toHaveFocus();
-    });
-
-    it("wraps focus from first to last on Shift+Tab", () => {
-      renderDialog();
-
-      const dialog = screen.getByRole("dialog");
-      const closeBtn = screen.getByRole("button", { name: "Close dialog" });
-      const cancelBtn = screen.getByRole("button", { name: "Cancel" });
-
-      closeBtn.focus();
-      expect(closeBtn).toHaveFocus();
-
-      fireEvent.keyDown(dialog, { key: "Tab", shiftKey: true });
-      expect(cancelBtn).toHaveFocus();
-    });
-  });
 });

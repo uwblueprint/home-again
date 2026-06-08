@@ -193,18 +193,18 @@ describe("StepDonationSummary", () => {
     const [smokingNo] = screen.getAllByRole("button", { name: "No" });
 
     // Neither active initially
-    expect(smokingYes).not.toHaveClass("bg-primary");
-    expect(smokingNo).not.toHaveClass("bg-primary");
+    expect(smokingYes).not.toHaveClass("bg-[var(--unofficial-outline-active)]");
+    expect(smokingNo).not.toHaveClass("bg-[var(--unofficial-outline-active)]");
 
     // Select Yes
     fireEvent.click(smokingYes);
-    expect(smokingYes).toHaveClass("bg-primary");
-    expect(smokingNo).not.toHaveClass("bg-primary");
+    expect(smokingYes).toHaveClass("bg-[var(--unofficial-outline-active)]");
+    expect(smokingNo).not.toHaveClass("bg-[var(--unofficial-outline-active)]");
 
     // Switch to No
     fireEvent.click(smokingNo);
-    expect(smokingYes).not.toHaveClass("bg-primary");
-    expect(smokingNo).toHaveClass("bg-primary");
+    expect(smokingYes).not.toHaveClass("bg-[var(--unofficial-outline-active)]");
+    expect(smokingNo).toHaveClass("bg-[var(--unofficial-outline-active)]");
   });
 
   it("pets Yes/No toggle updates active state on click", () => {
@@ -214,18 +214,18 @@ describe("StepDonationSummary", () => {
     const [, petsNo] = screen.getAllByRole("button", { name: "No" });
 
     // Neither active initially
-    expect(petsYes).not.toHaveClass("bg-primary");
-    expect(petsNo).not.toHaveClass("bg-primary");
+    expect(petsYes).not.toHaveClass("bg-[var(--unofficial-outline-active)]");
+    expect(petsNo).not.toHaveClass("bg-[var(--unofficial-outline-active)]");
 
     // Select Yes
     fireEvent.click(petsYes);
-    expect(petsYes).toHaveClass("bg-primary");
-    expect(petsNo).not.toHaveClass("bg-primary");
+    expect(petsYes).toHaveClass("bg-[var(--unofficial-outline-active)]");
+    expect(petsNo).not.toHaveClass("bg-[var(--unofficial-outline-active)]");
 
     // Switch to No
     fireEvent.click(petsNo);
-    expect(petsYes).not.toHaveClass("bg-primary");
-    expect(petsNo).toHaveClass("bg-primary");
+    expect(petsYes).not.toHaveClass("bg-[var(--unofficial-outline-active)]");
+    expect(petsNo).toHaveClass("bg-[var(--unofficial-outline-active)]");
   });
 
   it("fee agreement checkbox is unchecked and shows plain asterisk initially", () => {

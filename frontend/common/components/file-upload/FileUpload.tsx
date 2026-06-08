@@ -315,9 +315,9 @@ export default function FileUpload({
                 role="alert"
                 className="text-center text-xs text-destructive"
               >
-                Only {maxFiles} {maxFiles === 1 ? "file" : "files"} allowed.{" "}
-                {overflowCount} {overflowCount === 1 ? "file was" : "files were"}{" "}
-                discarded.
+                You can only upload up to {maxFiles} {maxFiles === 1 ? "file" : "files"}.{" "}
+                {overflowCount} {overflowCount === 1 ? "file wasn't" : "files weren't"}{" "}
+                added.
               </p>
             )}
           </div>

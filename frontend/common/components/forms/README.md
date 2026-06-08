@@ -319,6 +319,5 @@ Until these components are built, implement form fields inline in your flow foll
 export { FormField } from "./FormField";
 export { FieldError } from "./FieldError";
 export { AddressForm } from "./AddressForm";
-export { FileUpload } from "./FileUpload";
 export type { AddressFormValues } from "./AddressForm";
 ```

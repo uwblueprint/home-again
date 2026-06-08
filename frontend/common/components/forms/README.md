@@ -272,13 +272,13 @@ export function DonationAddressForm(props: DonationAddressFormProps) {
 
 ---
 
-### `PhotoUpload`
+### `FileUpload`
 
-A file input for uploading furniture photos, used in the donation flow. Handles preview generation and file list state.
+A modal file-upload dialog, used in the donation flow for uploading furniture photos. Handles preview generation, file-list state, drag-and-drop, and an accessible focus trap.
 
-This is a more complex component — it wraps the browser's file input, generates local preview URLs, and displays thumbnails. It lives here (rather than in `app/donate/`) because it's reusable anywhere photos need to be uploaded.
+It is configurable via props rather than photo-specific: `accept` controls the allowed file types and `maxFiles` controls the upload limit. Image files render as thumbnails; other file types render a generic file icon with the file name.
 
-> **Not yet extracted.** The current implementation lives in `app/donate/components/PhotoUpload.tsx`. When moving it here, keep the component presentational — pass file state and handlers in as props rather than managing state internally.
+> **Extracted.** It lives in `common/components/file-upload/FileUpload.tsx` (imported from `@/common/components/file-upload`) and supersedes the former `app/donate/components/PhotoUpload.tsx`.
 
 ---
 
@@ -319,6 +319,6 @@ Until these components are built, implement form fields inline in your flow foll
 export { FormField } from "./FormField";
 export { FieldError } from "./FieldError";
 export { AddressForm } from "./AddressForm";
-export { PhotoUpload } from "./PhotoUpload";
+export { FileUpload } from "./FileUpload";
 export type { AddressFormValues } from "./AddressForm";
 ```

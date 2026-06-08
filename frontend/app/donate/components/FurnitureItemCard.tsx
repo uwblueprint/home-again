@@ -10,7 +10,7 @@ import {
   type FurnitureType,
   type FurnitureItemData,
 } from "@/app/donate/context/DonationFormContext";
-import PhotoUpload from "@/app/donate/components/PhotoUpload";
+import { FileUpload } from "@/common/components/file-upload";
 import {
   getFilePreviewUrl,
   revokeFilePreviewUrls,
@@ -256,11 +256,14 @@ export default function FurnitureItemCard({
         </div>
       </div>
 
-      <PhotoUpload
+      <FileUpload
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        currentPhotos={itemData.photos}
+        currentFiles={itemData.photos}
         onSave={(photos) => onUpdate({ photos })}
+        accept="image/*"
+        maxFiles={MAX_PHOTOS}
+        title="Upload photos of your item"
       />
     </>
   );

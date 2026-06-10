@@ -280,6 +280,39 @@ It is configurable via props rather than photo-specific: `accept` controls the a
 
 > **Extracted.** It lives in `common/components/file-upload/FileUpload.tsx` (imported from `@/common/components/file-upload`) and supersedes the former `app/donate/components/PhotoUpload.tsx`.
 
+It is controlled: the parent owns the dialog's open state and the saved file list. Open it from a trigger, and commit the chosen files in `onSave`:
+
+```tsx
+import { useState } from "react";
+import { FileUpload } from "@/common/components/file-upload";
+import { Button } from "@/common/components/ui/button";
+
+function ItemPhotos() {
+  const [open, setOpen] = useState(false);
+  const [photos, setPhotos] = useState<File[]>([]);
+
+  return (
+    <>
+      <Button type="button" onClick={() => setOpen(true)}>
+        Upload Photos
+      </Button>
+
+      <FileUpload
+        open={open}
+        onOpenChange={setOpen}
+        currentFiles={photos}
+        onSave={setPhotos}
+        accept="image/*"
+        maxFiles={5}
+        title="Upload Photos of Your Item"
+      />
+    </>
+  );
+}
+```
+
+`currentFiles` seeds the dialog when it opens; `onSave` fires with the final list when the user confirms. Omit `accept` to allow any file type, and `maxFiles` defaults to 5.
+
 ---
 
 ## Important: form components are presentational

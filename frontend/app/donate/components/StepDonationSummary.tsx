@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { cn } from "@/common/lib/utils";
+import { Card } from "@/common/components/card";
 import { useDonationForm } from "../context/DonationFormContext";
 import type { FurnitureItemData } from "../context/DonationFormContext";
 import { useDonor } from "@/common/hooks/useApi";
@@ -15,14 +16,6 @@ function InfoRow({ label, value }: { label: string; value: string }) {
     <div className="flex flex-col gap-1">
       <span className="text-sm font-medium text-muted-foreground">{label}</span>
       <span className="text-sm text-foreground">{value}</span>
-    </div>
-  );
-}
-
-function SummaryCard({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border border-border bg-background px-6 py-8 shadow-sm">
-      {children}
     </div>
   );
 }
@@ -202,20 +195,20 @@ export default function StepDonationSummary() {
         <h3 className="text-xl font-semibold text-foreground">
           Contact Information
         </h3>
-        <SummaryCard>
+        <Card>
           <div className="flex flex-col gap-4">
             <InfoRow label="First Name" value={donorFirstName} />
             <InfoRow label="Last Name" value={donorLastName} />
             <InfoRow label="Email Address" value={donorEmail} />
             <InfoRow label="Phone Number" value={donorPhone} />
           </div>
-        </SummaryCard>
+        </Card>
 
         {/* Pickup Details */}
         <h3 className="text-xl font-semibold text-foreground">
           Pickup Details
         </h3>
-        <SummaryCard>
+        <Card>
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-1.5">
               <MapPinIcon />
@@ -225,19 +218,19 @@ export default function StepDonationSummary() {
             </div>
             <span className="text-sm text-foreground">{formatAddress()}</span>
           </div>
-        </SummaryCard>
+        </Card>
 
         {/* Donation Items */}
         <h3 className="text-xl font-semibold text-foreground">
           Donation Items
         </h3>
-        <SummaryCard>
+        <Card>
           <div className="flex flex-col gap-3">
             {items.map((item) => (
               <ItemRow key={item.id} item={item} />
             ))}
           </div>
-        </SummaryCard>
+        </Card>
 
         {/* Smoking */}
         <div className="flex flex-col gap-1.5">

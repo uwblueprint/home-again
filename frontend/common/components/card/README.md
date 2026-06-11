@@ -16,7 +16,7 @@ composable subcomponents so each use case assembles exactly the pieces it needs.
 
 | Component                | Purpose                                                                                |
 | ------------------------ | -------------------------------------------------------------------------------------- |
-| `Card`                   | The surface: white background, border, soft shadow, padding, `gap-lg` between children |
+| `Card`                   | The surface: white background, border, soft shadow, padding, `gap-lg` between children. Pass `gap="none"` for a collapsible card |
 | `CardCollapseHeader`     | Muted "Title + Badge + chevron" bar. Pass `onToggle` to make it an accordion trigger   |
 | `CardHeading`            | Main heading row (heading 4). Optional `action` slot on the right                       |
 | `CardCollapsibleContent` | Animated body for collapsible cards (grid-rows transition)                              |
@@ -74,7 +74,7 @@ import {
 
 ### Collapsible item (accordion)
 
-Use `gap-0` on the `Card` so it collapses flush to the header;
+Pass `gap="none"` to the `Card` so it collapses flush to the header;
 `CardCollapsibleContent` supplies its own spacing when open.
 
 ```tsx
@@ -82,7 +82,7 @@ function Item() {
   const [open, setOpen] = useState(true);
 
   return (
-    <Card className="gap-0">
+    <Card gap="none">
       <CardCollapseHeader
         title="Item 1"
         badge={<Badge variant="outline">Badge</Badge>}

@@ -71,7 +71,7 @@ export default function FurnitureItemCard({
 
   return (
     <>
-      <Card className="gap-0" data-testid={`furniture-item-card-${index}`}>
+      <Card gap="none" data-testid={`furniture-item-card-${index}`}>
         {/* Accordion header */}
         <CardCollapseHeader
           title={displayLabel}

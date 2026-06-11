@@ -28,16 +28,26 @@ import { cn } from "@/common/lib/utils";
  * Card container. Renders the white, bordered, softly-shadowed surface with the
  * design system's padding and a `gap-lg` rhythm between its children.
  *
- * For a collapsible card, pass `className="gap-0"` and wrap the body in
+ * For a collapsible card, pass `gap="none"` and wrap the body in
  * {@link CardCollapsibleContent}, which manages its own spacing so the card
  * shrinks flush to the header when collapsed.
+ *
+ * Note: the gap is selected via the `gap` prop rather than a `className`
+ * override because `tailwind-merge` doesn't treat the project's named spacing
+ * tokens (`gap-lg`) as conflicting with `gap-0`, so an override would leave
+ * both classes on the element.
  */
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+function Card({
+  className,
+  gap = "lg",
+  ...props
+}: React.ComponentProps<"div"> & { gap?: "lg" | "none" }) {
   return (
     <div
       data-slot="card"
       className={cn(
-        "flex w-full flex-col gap-lg rounded-xl border border-[var(--unofficial-border-3)] bg-background px-2xl py-xl shadow-sm",
+        "flex w-full flex-col rounded-xl border border-[var(--unofficial-border-3)] bg-background px-2xl py-xl shadow-sm",
+        gap === "none" ? "gap-0" : "gap-lg",
         className
       )}
       {...props}

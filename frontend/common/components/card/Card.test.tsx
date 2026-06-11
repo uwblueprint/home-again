@@ -23,6 +23,22 @@ describe("Card", () => {
     );
     expect(screen.getByText("card body")).toBeInTheDocument();
   });
+
+  it("uses gap-lg by default", () => {
+    render(<Card data-testid="card" />);
+    const card = screen.getByTestId("card");
+    expect(card.className).toContain("gap-lg");
+    expect(card.className).not.toContain("gap-0");
+  });
+
+  it("emits a single gap-0 (and no gap-lg) when gap='none'", () => {
+    // gap is selected via prop rather than a className override because
+    // tailwind-merge cannot dedupe the project's named spacing tokens.
+    render(<Card gap="none" data-testid="card" />);
+    const card = screen.getByTestId("card");
+    expect(card.className).toContain("gap-0");
+    expect(card.className).not.toContain("gap-lg");
+  });
 });
 
 describe("CardCollapseHeader", () => {

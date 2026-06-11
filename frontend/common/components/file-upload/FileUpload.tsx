@@ -163,7 +163,7 @@ export default function FileUpload({
           type="button"
           aria-label="Close dialog"
           onClick={handleClose}
-          className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
+          className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-[var(--unofficial-outline-hover)]"
         >
           <X className="size-4" />
         </button>

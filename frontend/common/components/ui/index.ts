@@ -26,15 +26,6 @@ export {
   DialogTitle,
   DialogDescription,
 } from "./dialog";
-export {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "./dropdown-menu";
 export { Input, InputError } from "./input";
 export { Label } from "./label";
 export {

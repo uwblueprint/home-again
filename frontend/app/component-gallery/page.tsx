@@ -298,6 +298,7 @@ function CheckboxStateDemo() {
                   aria-label={`${row.label} ${column.label}`}
                   checked={row.checked}
                   indeterminate={row.indeterminate}
+                  readOnly
                   aria-invalid={column.invalid ? "true" : undefined}
                   disabled={column.disabled}
                   className={column.className}
@@ -359,7 +360,19 @@ function DropdownMenuDemo() {
 }
 
 function InputDemo() {
-  return <Input className="w-full max-w-xs" placeholder="Input field" />;
+  return (
+    <div className="flex w-full max-w-xs flex-col gap-3">
+      <Input placeholder="Input field" />
+      <div>
+        <Input
+          aria-invalid
+          defaultValue="invalid@"
+          placeholder="Input field"
+        />
+        <InputError>Please enter a valid email address.</InputError>
+      </div>
+    </div>
+  );
 }
 
 function LabelDemo() {

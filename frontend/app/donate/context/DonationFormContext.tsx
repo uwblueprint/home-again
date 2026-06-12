@@ -90,11 +90,9 @@ function createItem(): FurnitureItemData {
 }
 
 export function validateItems(items: FurnitureItemData[]): boolean {
+  // Photos are optional; only furniture type and stains status are required.
   return items.every(
-    (item) =>
-      item.furnitureType !== null &&
-      item.hasStains !== null &&
-      item.photos.length > 0
+    (item) => item.furnitureType !== null && item.hasStains !== null
   );
 }
 

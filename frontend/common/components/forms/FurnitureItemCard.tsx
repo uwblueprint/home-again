@@ -24,7 +24,7 @@ type FurnitureItemCardProps = {
   maxQuantity?: number;
   onToggle?: (nextSelected: boolean) => void;
   onQuantityChange?: (nextQuantity: number) => void;
-  onNotesChange?: (nextNotes: string) => void;
+  onNotesChange: (nextNotes: string) => void;
   onSubQuantityChange?: (id: string, nextQuantity: number) => void;
 };
 
@@ -170,7 +170,7 @@ export function FurnitureItemCard({
                   return (
                     <Badge
                       key={sub.id}
-                      className="h-auto rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-[--brand-greens-200]"
+                      className="h-auto rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground"
                     >
                       ({sub.quantity}) {sub.label}
                     </Badge>
@@ -212,7 +212,7 @@ export function FurnitureItemCard({
                       return (
                         <Badge
                           key={sub.id}
-                          className="h-auto rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-[--brand-greens-200]"
+                          className="h-auto rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-secondary-foreground"
                         >
                           ({sub.quantity}) {sub.label}
                         </Badge>
@@ -268,7 +268,7 @@ export function FurnitureItemCard({
 
           <Input
             value={notes}
-            onChange={(e) => onNotesChange?.(e.target.value)}
+            onChange={(e) => onNotesChange(e.target.value)}
             placeholder="Add item details or specifications"
             className="h-12 rounded-lg border border-[--unofficial-border-3] text-base font-normal placeholder:text-muted-foreground"
           />

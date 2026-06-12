@@ -32,6 +32,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
   Input,
   InputError,
   Label,
@@ -608,21 +612,10 @@ function HeaderDemo() {
   return (
     <div className="w-[50vw] overflow-hidden rounded-md border border-border bg-card">
       <Header>
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbPage>Find</BreadcrumbPage>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="#">Client</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="#">Referral</BreadcrumbLink>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <FormBreadcrumb
+          steps={[{ label: "Find" }, { label: "Client" }, { label: "Referral" }]}
+          activeIndex={0}
+        />
       </Header>
     </div>
   );

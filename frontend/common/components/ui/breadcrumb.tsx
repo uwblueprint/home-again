@@ -54,8 +54,8 @@ function BreadcrumbLabel({
     <span
       data-slot="breadcrumb-label"
       className={cn(
-        "font-normal text-paragraph-small [color:var(--muted-foreground)] group-hover/step:[color:var(--foreground)]",
-        current && "[color:var(--foreground)]",
+        "font-normal text-paragraph-small [color:var(--muted-foreground)] group-hover/step:text-foreground",
+        current && "text-foreground",
         className
       )}
       {...props}

@@ -215,7 +215,6 @@ function TooltipDemo() {
 const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Badge", Demo: BadgeDemo },
   { name: "Breadcrumb", Demo: BreadcrumbDemo },
-  { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
   { name: "Button", Demo: ButtonDemo },
   { name: "Card", Demo: CardDemo },
   { name: "Checkbox", Demo: CheckboxDemo },
@@ -230,7 +229,7 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
 ];
 
 const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
-  // Add composed component demos here
+  { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

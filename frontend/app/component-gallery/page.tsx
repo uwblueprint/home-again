@@ -45,14 +45,23 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  StepIndicator,
   Textarea,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/common/components/ui";
-import { SelectAndCombo, FurnitureItemCard } from "@/common/components/forms";
-import { MultiStepLayout } from "@/common/components/multi-step-layout";
+import {
+  SelectAndCombo,
+  FurnitureItemCard,
+  Header,
+  Footer,
+} from "@/common/components/forms";
+import {
+  MultiStepLayout,
+  type Step,
+} from "@/common/components/multi-step-layout";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
 
@@ -506,18 +515,15 @@ function SelectDemo() {
 
 function StepIndicatorDemo() {
   return (
-    <div className="w-full max-w-xs rounded-md border border-border bg-card p-sm">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="#">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Components</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <div className="w-full max-w-md rounded-md border border-border bg-card p-sm">
+      <StepIndicator
+        steps={[
+          { label: "Account" },
+          { label: "Profile" },
+          { label: "Review" },
+        ]}
+        currentStep={1}
+      />
     </div>
   );
 }
@@ -597,34 +603,172 @@ function SelectAndComboDemo() {
   );
 }
 
-function MultiStepLayoutDemo() {
-  const steps = ["Furniture Details", "Schedule a Pickup", "Review & Submit"];
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const handleNext = () => {
-    setActiveIndex((prev) => Math.min(prev + 1, steps.length - 1));
-  };
-
-  const handleBack = () => {
-    setActiveIndex((prev) => Math.max(prev - 1, 0));
-  };
-
+function HeaderDemo() {
   return (
     <div className="w-[50vw] overflow-hidden rounded-md border border-border bg-card">
+      <Header>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbPage>Find</BreadcrumbPage>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#">Client</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#">Referral</BreadcrumbLink>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </Header>
+    </div>
+  );
+}
+
+function FooterDemo() {
+  return (
+    <div className="w-full overflow-hidden rounded-md border border-border bg-card">
+      <Footer
+        leftAction={
+          <Button type="button" variant="secondary" size="lg">
+            <Plus className="size-4" data-icon="inline-start" />
+            Label
+          </Button>
+        }
+        onBack={() => {}}
+        onNext={() => {}}
+        nextLabel="Label"
+      />
+    </div>
+  );
+}
+
+function MultiStepLayoutDemo() {
+  const [itemSelected, setItemSelected] = useState(true);
+  const [itemQty, setItemQty] = useState(1);
+  const [itemNotes, setItemNotes] = useState("");
+
+  const [pickupDate, setPickupDate] = useState("");
+  const [pickupTime, setPickupTime] = useState("");
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = () => {
+    setIsSubmitting(true);
+    setTimeout(() => setIsSubmitting(false), 1200);
+  };
+
+  const steps: Step[] = [
+    {
+      label: "Furniture Details",
+      substeps: [
+        {
+          label: "Furniture Details",
+          leftAction: (
+            <Button type="button" variant="secondary" size="lg">
+              <Plus className="size-4" data-icon="inline-start" />
+              Add Item
+            </Button>
+          ),
+          content: (
+            <FurnitureItemCard
+              label="Sofa"
+              selected={itemSelected}
+              quantity={itemQty}
+              notes={itemNotes}
+              onToggle={setItemSelected}
+              onQuantityChange={setItemQty}
+              onNotesChange={setItemNotes}
+              className="w-full max-w-md"
+            />
+          ),
+        },
+      ],
+    },
+    {
+      label: "Schedule a Pickup",
+      substeps: [
+        {
+          label: "Pickup date",
+          content: (
+            <div className="w-full max-w-md space-y-2">
+              <Label htmlFor="msl-pickup-date">Pickup date</Label>
+              <Input
+                id="msl-pickup-date"
+                type="date"
+                value={pickupDate}
+                onChange={(e) => setPickupDate(e.target.value)}
+              />
+            </div>
+          ),
+        },
+        {
+          label: "Pickup time",
+          content: (
+            <div className="w-full max-w-md space-y-2">
+              <Label htmlFor="msl-pickup-time">Pickup time</Label>
+              <Select
+                value={pickupTime}
+                onValueChange={(value) => value && setPickupTime(value)}
+              >
+                <SelectTrigger id="msl-pickup-time">
+                  <SelectValue placeholder="Select a time" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="morning">Morning (8am–12pm)</SelectItem>
+                  <SelectItem value="afternoon">
+                    Afternoon (12pm–4pm)
+                  </SelectItem>
+                  <SelectItem value="evening">Evening (4pm–8pm)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          ),
+        },
+      ],
+    },
+    {
+      label: "Review & Submit",
+      substeps: [
+        {
+          label: "Review & Submit",
+          content: (
+            <dl className="w-full max-w-md space-y-3 text-sm">
+              <div className="flex justify-between gap-4 border-b border-border pb-2">
+                <dt className="text-muted-foreground">Item</dt>
+                <dd className="font-medium text-foreground">
+                  {itemSelected ? `Sofa × ${itemQty}` : "—"}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4 border-b border-border pb-2">
+                <dt className="text-muted-foreground">Pickup date</dt>
+                <dd className="font-medium text-foreground">
+                  {pickupDate || "—"}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">Pickup time</dt>
+                <dd className="font-medium text-foreground">
+                  {pickupTime || "—"}
+                </dd>
+              </div>
+            </dl>
+          ),
+        },
+      ],
+    },
+  ];
+
+  return (
+    <div className="w-full overflow-hidden rounded-md border border-border bg-card">
       <MultiStepLayout
-        title="Donation flow"
-        breadcrumbLabels={steps}
-        activeBreadcrumbIndex={activeIndex}
-        onNext={handleNext}
-        onBack={activeIndex > 0 ? handleBack : undefined}
-        nextLabel={activeIndex === steps.length - 1 ? "Submit" : "Next"}
-      >
-        <div className="rounded-lg border border-border bg-muted/40 p-6">
-          <p className="text-sm text-muted-foreground">
-            Step {activeIndex + 1} content goes here.
-          </p>
-        </div>
-      </MultiStepLayout>
+        flowTitle="Donation flow"
+        steps={steps}
+        onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+      />
     </div>
   );
 }
@@ -638,6 +782,7 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Breadcrumb", Demo: BreadcrumbDemo },
   { name: "Button", Demo: ButtonDemo },
   { name: "Card", Demo: CardDemo },
+  { name: "Checkbox", Demo: CheckboxSectionDemo},
   { name: "Dialog", Demo: DialogDemo },
   { name: "DropdownMenu", Demo: DropdownMenuDemo },
   { name: "Input", Demo: InputDemo },
@@ -651,6 +796,8 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
 const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
   { name: "FurnitureItemCard", Demo: FurnitureItemCardDemo },
+  { name: "Header", Demo: HeaderDemo },
+  { name: "Footer", Demo: FooterDemo },
   { name: "MultiStepLayout", Demo: MultiStepLayoutDemo },
 ];
 
@@ -679,12 +826,6 @@ export default function ComponentsPage() {
               </ComponentRow>
             ))}
           </div>
-        </Section>
-
-        <Section title="Checkbox">
-          <ComponentRow name="Checkbox">
-            <CheckboxSectionDemo />
-          </ComponentRow>
         </Section>
 
         <Section title="Composed components">

@@ -1,3 +1,7 @@
 // Core multi-step layout — to be built by developers.
 // See FRONTEND_GUIDE.md, Section 8 — Multi-Step Layout Pattern.
-export { default as MultiStepLayout } from "./MultiStepLayout";
+export {
+  default as MultiStepLayout,
+  type Step,
+  type Substep,
+} from "./MultiStepLayout";

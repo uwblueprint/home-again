@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { Trash2, SquarePen, Info } from "lucide-react";
+import { FieldError } from "@/common/components/forms";
 import { Input } from "@/common/components/ui/input";
 import { Label } from "@/common/components/ui/label";
 import { Button } from "@/common/components/ui/button";
 import { Badge } from "@/common/components/ui/badge";
+import { Card } from "@/common/components/ui/card";
 import { Checkbox } from "@/common/components/ui/checkbox";
 import {
   Tooltip,
@@ -61,16 +63,6 @@ function validate(form: AgentFormData): FormErrors {
   }
 
   return errors;
-}
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-
-  return (
-    <p role="alert" className="mt-1 text-sm text-destructive">
-      {message}
-    </p>
-  );
 }
 
 export function AgentCard({
@@ -158,7 +150,7 @@ export function AgentCard({
 
   if (isEditing) {
     return (
-      <div className="w-full rounded-xl border border-border bg-card p-6 shadow-sm">
+      <Card className="w-full gap-6 rounded-xl border border-border p-6 py-6 shadow-sm ring-0">
         <div className="flex flex-col gap-6">
           {/* Header — click row to collapse, X to delete */}
           <div className="flex items-center justify-between">
@@ -181,13 +173,15 @@ export function AgentCard({
               <span className="font-semibold">Agent {index + 1}:</span>{" "}
               {displayName}
             </div>
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-lg"
               onClick={onRemove}
-              className="text-foreground/60 hover:text-foreground transition-colors"
+              className="text-foreground/60 hover:text-foreground"
             >
               <Trash2 className="size-6" />
-            </button>
+            </Button>
           </div>
 
           {/* Row 1: First Name / Last Name */}
@@ -280,13 +274,13 @@ export function AgentCard({
             Save
           </Button>
         </div>
-      </div>
+      </Card>
     );
   }
 
   // Collapsed state
   return (
-    <div className="flex w-full items-center justify-between rounded-[14px] border border-foreground/10 bg-card p-6 shadow-sm">
+    <Card className="w-full flex-row items-center justify-between gap-0 rounded-[14px] border border-foreground/10 p-6 py-6 shadow-sm ring-0">
       <div className="flex items-center gap-1.5">
         <p className="text-sm text-foreground">
           <span className="font-semibold">Agent {index + 1}:</span>{" "}
@@ -299,24 +293,27 @@ export function AgentCard({
         ) : null}
       </div>
       {isSaved ? (
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-lg"
           onClick={onEdit}
           disabled={disabled}
-          aria-disabled={disabled || undefined}
-          className="text-foreground/60 transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-foreground/60"
+          className="text-foreground/60 hover:text-foreground disabled:opacity-40"
         >
           <SquarePen className="size-6" />
-        </button>
+        </Button>
       ) : (
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-lg"
           onClick={onRemove}
-          className="text-foreground/60 hover:text-foreground transition-colors"
+          className="text-foreground/60 hover:text-foreground"
         >
           <Trash2 className="size-6" />
-        </button>
+        </Button>
       )}
-    </div>
+    </Card>
   );
 }

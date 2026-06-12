@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Plus, UsersRound } from "lucide-react";
 import IntakeStepPage from "@/app/agent-intake/components/IntakeStepPage";
 import { Button } from "@/common/components/ui/button";
+import { Card } from "@/common/components/ui/card";
 import {
   AgentCard,
   type AgentFormData,
@@ -96,7 +97,7 @@ export default function OtherAgentsStep() {
       description="Add other agents from your agency who need access. You can add more later from your dashboard."
     >
       {!hasVisibleAgents ? (
-        <div className="border border-border rounded-xl shadow-sm p-12 flex items-center justify-center min-h-[418px]">
+        <Card className="min-h-[418px] items-center justify-center rounded-xl border border-border p-12 py-12 shadow-sm ring-0">
           <div className="flex flex-col items-center gap-4">
             <div className="bg-secondary rounded-lg p-2">
               <UsersRound className="size-6 text-muted-foreground" />
@@ -106,7 +107,7 @@ export default function OtherAgentsStep() {
             </p>
             <Button onClick={handleAddAgent}>Add an agent</Button>
           </div>
-        </div>
+        </Card>
       ) : (
         <div className="flex flex-col gap-5">
           {agents.map((agent, index) => (

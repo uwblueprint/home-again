@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 import IntakeStepPage from "@/app/agent-intake/components/IntakeStepPage";
+import { FieldError } from "@/common/components/forms";
 import { Input } from "@/common/components/ui/input";
 import { Label } from "@/common/components/ui/label";
 import {
@@ -41,16 +42,6 @@ function validate(form: AgencyFormData): FormErrors {
   }
 
   return errors;
-}
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-
-  return (
-    <p role="alert" className="mt-1 text-sm text-destructive">
-      {message}
-    </p>
-  );
 }
 
 const TOUCHED_ON_SUBMIT: (keyof AgencyFormData)[] = [

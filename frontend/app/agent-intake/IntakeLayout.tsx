@@ -11,6 +11,7 @@ import {
   IntakeProvider,
   useIntakeContext,
 } from "@/app/agent-intake/context/IntakeContext";
+import { FieldError } from "@/common/components/forms";
 import { Button } from "@/common/components/ui/button";
 import {
   StepIndicator,
@@ -130,10 +131,8 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
 
       <footer className="border-t border-border flex items-center justify-between gap-6 px-16 py-8">
         <div className="min-h-5 flex-1">
-          {isLastStep && footerState.submitError ? (
-            <p className="text-sm text-destructive">
-              {footerState.submitError}
-            </p>
+          {isLastStep ? (
+            <FieldError message={footerState.submitError ?? undefined} />
           ) : null}
         </div>
         <div className="flex items-center gap-3">

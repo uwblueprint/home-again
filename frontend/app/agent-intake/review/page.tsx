@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 
 import IntakeStepPage from "@/app/agent-intake/components/IntakeStepPage";
 import { useIntakeFooter } from "@/app/agent-intake/context/IntakeFooterContext";
+import { Badge } from "@/common/components/ui/badge";
+import { Button } from "@/common/components/ui/button";
+import { Card } from "@/common/components/ui/card";
 import { useSubmitIntake } from "@/app/agent-intake/hooks/useSubmitIntake";
 import { useIntakeFormStore } from "@/app/agent-intake/stores/intakeFormStore";
 
@@ -64,7 +67,7 @@ function ReviewField({ label, value }: { label: string; value: string }) {
   );
 }
 
-function AgentCard({
+function ReviewAgentCard({
   agent,
 }: {
   agent: {
@@ -76,15 +79,18 @@ function AgentCard({
   };
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border p-3 shadow-sm">
+    <Card
+      size="sm"
+      className="gap-3 rounded-lg border border-border p-3 py-3 shadow-sm ring-0"
+    >
       <div className="flex flex-wrap items-center gap-1.5">
         <p className="text-sm text-foreground">
           {formatValue(formatName(agent.firstName, agent.lastName))}
         </p>
         {agent.isAdmin ? (
-          <span className="inline-flex items-center justify-center rounded-full border border-border px-2 py-0.5 text-center text-xs font-semibold leading-4 text-foreground whitespace-nowrap">
+          <Badge variant="outline" className="font-semibold">
             Admin User
-          </span>
+          </Badge>
         ) : null}
       </div>
       <div
@@ -95,15 +101,18 @@ function AgentCard({
         </span>
         <span>{formatValue(agent.phone)}</span>
       </div>
-    </div>
+    </Card>
   );
 }
 
 function ReviewCard({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-border p-3 shadow-sm">
+    <Card
+      size="sm"
+      className="gap-4 rounded-lg border border-border p-3 py-3 shadow-sm ring-0"
+    >
       {children}
-    </div>
+    </Card>
   );
 }
 
@@ -263,7 +272,7 @@ export default function ReviewStep() {
             </h3>
             {visibleAgents.length > 0 ? (
               visibleAgents.map((agent, index) => (
-                <AgentCard key={`${agent.email}-${index}`} agent={agent} />
+                <ReviewAgentCard key={`${agent.email}-${index}`} agent={agent} />
               ))
             ) : (
               <ReviewCard>
@@ -273,15 +282,16 @@ export default function ReviewStep() {
               </ReviewCard>
             )}
             {remaining > 0 ? (
-              <button
+              <Button
                 type="button"
-                className="text-left text-sm font-medium text-foreground"
+                variant="ghost"
+                className="h-auto justify-start p-0 text-sm font-medium text-foreground hover:bg-transparent"
                 onClick={() =>
                   setVisibleCount((prev) => prev + AGENTS_PER_PAGE)
                 }
               >
                 Load {Math.min(remaining, AGENTS_PER_PAGE)} more agents
-              </button>
+              </Button>
             ) : null}
           </div>
         </div>

@@ -21,10 +21,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
   Input,
   InputError,
   Label,
@@ -134,17 +130,6 @@ function DialogDemo() {
   );
 }
 
-function DropdownMenuDemo() {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>Open menu</DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem>Item one</DropdownMenuItem>
-        <DropdownMenuItem>Item two</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
 
 function InputDemo() {
   return (
@@ -219,7 +204,6 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Card", Demo: CardDemo },
   { name: "Checkbox", Demo: CheckboxDemo },
   { name: "Dialog", Demo: DialogDemo },
-  { name: "DropdownMenu", Demo: DropdownMenuDemo },
   { name: "Input", Demo: InputDemo },
   { name: "Label", Demo: LabelDemo },
   { name: "Select", Demo: SelectDemo },

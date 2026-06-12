@@ -13,14 +13,12 @@ import {
   SquarePen,
   Trash2,
 } from "lucide-react";
+import { FormBreadcrumb } from "@/common/components/forms";
 import {
   Badge,
-  Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+  BreadcrumbNumber,
+  BreadcrumbLabel,
   Button,
   Card,
   CardContent,
@@ -34,11 +32,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
   Input,
+  InputError,
   Label,
   Select,
   SelectContent,
@@ -101,18 +96,23 @@ function BadgeDemo() {
 
 function BreadcrumbDemo() {
   return (
-    <Breadcrumb>
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/">Home</BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbPage>Components</BreadcrumbPage>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
+    <ul className="list-none p-0">
+      <BreadcrumbItem>
+        <BreadcrumbNumber>1</BreadcrumbNumber>
+        <BreadcrumbLabel>Label</BreadcrumbLabel>
+      </BreadcrumbItem>
+    </ul>
   );
+}
+
+function FormBreadcrumbDemo() {
+  const steps = [
+    { label: "Client info" },
+    { label: "Referral details" },
+    { label: "Review" },
+  ];
+
+  return <FormBreadcrumb steps={steps} />;
 }
 
 type DemoButtonSize = "default" | "sm" | "xs";
@@ -328,6 +328,7 @@ function DialogDemo() {
     </Dialog>
   );
 }
+
 
 function DropdownMenuDemo() {
   const menuItems = ["Option 1", "Option 2", "Option 3", "Option 4"] as const;
@@ -784,7 +785,7 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Card", Demo: CardDemo },
   { name: "Checkbox", Demo: CheckboxSectionDemo},
   { name: "Dialog", Demo: DialogDemo },
-  { name: "DropdownMenu", Demo: DropdownMenuDemo },
+  { name: "Dropdown", Demo: DropdownMenuDemo},
   { name: "Input", Demo: InputDemo },
   { name: "Label", Demo: LabelDemo },
   { name: "Select", Demo: SelectDemo },
@@ -799,6 +800,7 @@ const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Header", Demo: HeaderDemo },
   { name: "Footer", Demo: FooterDemo },
   { name: "MultiStepLayout", Demo: MultiStepLayoutDemo },
+  { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

@@ -9,7 +9,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
       type={type}
       data-slot="input"
       className={cn(
-        "h-8 w-full min-w-0 rounded-lg border border-border bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        "flex min-h-9 w-full min-w-0 shrink-0 items-center gap-xs self-stretch rounded-lg border border-border bg-input px-sm py-[var(--scale-hacks-7p5)] shadow-[var(--shadow-xs)] text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-[var(--unofficial-destructive-border)] aria-invalid:ring-0 md:text-sm dark:disabled:bg-input/80",
         className
       )}
       {...props}
@@ -17,4 +17,18 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   );
 }
 
-export { Input };
+function InputError({ className, ...props }: React.ComponentProps<"p">) {
+  return (
+    <p
+      role="alert"
+      data-slot="input-error"
+      className={cn(
+        "flex self-stretch items-center pb-[5px] font-normal text-paragraph-mini [color:var(--unofficial-destructive-text)]",
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+export { Input, InputError };

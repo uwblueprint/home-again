@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState, useMemo } from "react";
+import React, { useCallback, useState } from "react";
 import { ChevronUp, ChevronDown, Trash2, Upload, X } from "lucide-react";
 import { cn } from "@/common/lib/utils";
 import { Button } from "@/common/components/ui/button";
@@ -10,11 +10,8 @@ import {
   type FurnitureType,
   type FurnitureItemData,
 } from "@/app/donate/context/DonationFormContext";
-import PhotoUpload from "@/app/donate/components/PhotoUpload";
-import {
-  getFilePreviewUrl,
-  revokeFilePreviewUrls,
-} from "@/common/lib/filePreviewUrls";
+import { FileUpload } from "@/common/components/file-upload";
+import { useFilePreviewUrls } from "@/common/hooks/useFilePreviewUrls";
 
 // Constants
 
@@ -59,16 +56,7 @@ export default function FurnitureItemCard({
     [onUpdate]
   );
 
-  const photoUrls = useMemo(
-    () => itemData.photos.map((file) => getFilePreviewUrl(file)),
-    [itemData.photos]
-  );
-
-  useEffect(() => {
-    return () => {
-      revokeFilePreviewUrls(itemData.photos);
-    };
-  }, [itemData.photos]);
+  const photoUrls = useFilePreviewUrls(itemData.photos);
 
   const displayLabel = itemData.furnitureType
     ? `Item ${index + 1} - ${itemData.furnitureType}`
@@ -205,13 +193,15 @@ export default function FurnitureItemCard({
                         className="relative size-16"
                       >
                         <div className="relative size-full overflow-hidden rounded-md border border-border">
-                          <Image
-                            src={photoUrls[i]}
-                            alt={file.name}
-                            fill
-                            unoptimized
-                            className="object-cover"
-                          />
+                          {photoUrls[i] && (
+                            <Image
+                              src={photoUrls[i] as string}
+                              alt={file.name}
+                              fill
+                              unoptimized
+                              className="object-cover"
+                            />
+                          )}
                         </div>
                         <button
                           type="button"
@@ -256,11 +246,14 @@ export default function FurnitureItemCard({
         </div>
       </div>
 
-      <PhotoUpload
+      <FileUpload
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        currentPhotos={itemData.photos}
+        currentFiles={itemData.photos}
         onSave={(photos) => onUpdate({ photos })}
+        accept="image/*"
+        maxFiles={MAX_PHOTOS}
+        title="Upload Photos of Your Item"
       />
     </>
   );

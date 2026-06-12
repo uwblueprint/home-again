@@ -1,12 +1,8 @@
 export { Badge } from "./badge";
 export {
-  Breadcrumb,
-  BreadcrumbList,
   BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-  BreadcrumbEllipsis,
+  BreadcrumbNumber,
+  BreadcrumbLabel,
 } from "./breadcrumb";
 export { Button } from "./button";
 export {
@@ -30,7 +26,16 @@ export {
   DialogTitle,
   DialogDescription,
 } from "./dialog";
-export { Input } from "./input";
+export {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "./dropdown-menu";
+export { Input, InputError } from "./input";
 export { Label } from "./label";
 export {
   Select,

@@ -2,14 +2,12 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { FormBreadcrumb } from "@/common/components/forms";
 import {
   Badge,
-  Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+  BreadcrumbNumber,
+  BreadcrumbLabel,
   Button,
   Card,
   CardContent,
@@ -24,6 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
   Input,
+  InputError,
   Label,
   Select,
   SelectContent,
@@ -76,18 +75,23 @@ function BadgeDemo() {
 
 function BreadcrumbDemo() {
   return (
-    <Breadcrumb>
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/">Home</BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbPage>Components</BreadcrumbPage>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
+    <ul className="list-none p-0">
+      <BreadcrumbItem>
+        <BreadcrumbNumber>1</BreadcrumbNumber>
+        <BreadcrumbLabel>Label</BreadcrumbLabel>
+      </BreadcrumbItem>
+    </ul>
   );
+}
+
+function FormBreadcrumbDemo() {
+  const steps = [
+    { label: "Client info" },
+    { label: "Referral details" },
+    { label: "Review" },
+  ];
+
+  return <FormBreadcrumb steps={steps} />;
 }
 
 function ButtonDemo() {
@@ -128,7 +132,17 @@ function DialogDemo() {
 
 
 function InputDemo() {
-  return <Input className="w-full max-w-xs" placeholder="Input field" />;
+  return (
+    <div className="flex w-full max-w-xs flex-col gap-xs">
+      <Input placeholder="Input field" />
+      <Input
+        aria-invalid
+        defaultValue="Invalid value"
+        placeholder="Error state"
+      />
+      <InputError>This field is required.</InputError>
+    </div>
+  );
 }
 
 function LabelDemo() {
@@ -199,7 +213,7 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
 ];
 
 const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
-  // Add composed component demos here
+  { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

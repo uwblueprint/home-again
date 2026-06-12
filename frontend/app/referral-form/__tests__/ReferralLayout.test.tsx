@@ -31,7 +31,7 @@ describe("ReferralLayout", () => {
     const onNext = jest.fn();
 
     render(
-      <ReferralLayout title="My Step" breadcrumbs={breadcrumbs} onNext={onNext}>
+      <ReferralLayout title="My Step" breadcrumbs={breadcrumbs} activeIndex={0} onNext={onNext}>
         <p>Form fields</p>
       </ReferralLayout>
     );
@@ -50,6 +50,7 @@ describe("ReferralLayout", () => {
       <ReferralLayout
         title="Next Step"
         breadcrumbs={breadcrumbs}
+        activeIndex={0}
         onNext={onNext}
       >
         <p>Form fields</p>
@@ -67,6 +68,7 @@ describe("ReferralLayout", () => {
       <ReferralLayout
         title="With Back"
         breadcrumbs={breadcrumbs}
+        activeIndex={0}
         onNext={jest.fn()}
         onBack={onBack}
       >
@@ -85,6 +87,7 @@ describe("ReferralLayout", () => {
       <ReferralLayout
         title="No Back"
         breadcrumbs={breadcrumbs}
+        activeIndex={0}
         onNext={jest.fn()}
       >
         <p>Form fields</p>
@@ -99,6 +102,7 @@ describe("ReferralLayout", () => {
       <ReferralLayout
         title="Submitting"
         breadcrumbs={breadcrumbs}
+        activeIndex={0}
         onNext={jest.fn()}
         isSubmitting
         nextLabel="Next"
@@ -117,6 +121,7 @@ describe("ReferralLayout", () => {
       <ReferralLayout
         title="Custom Label"
         breadcrumbs={breadcrumbs}
+        activeIndex={0}
         onNext={jest.fn()}
         nextLabel="Continue"
       >

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   IntakeFooterProvider,
@@ -11,8 +10,7 @@ import {
   IntakeProvider,
   useIntakeContext,
 } from "@/app/agent-intake/context/IntakeContext";
-import { FieldError } from "@/common/components/forms";
-import { Button } from "@/common/components/ui/button";
+import { Footer, Header } from "@/common/components/forms";
 import {
   StepIndicator,
   type Step,
@@ -111,60 +109,40 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
       footerState.isSubmitting ||
       footerState.isSubmitDisabled);
 
+  const nextLabel = isLastStep
+    ? "Submit"
+    : currentStep === OTHER_AGENTS_STEP
+      ? hasSavedOtherAgent
+        ? "Next"
+        : "Maybe later"
+      : "Next";
+
   return (
-    <div className="bg-background min-h-screen flex flex-col">
-      <header className="flex min-h-[151px] items-center justify-between bg-background px-10 py-5">
-        <Image
-          src="/hafb_logo.svg"
-          alt="Home Again"
-          width={91}
-          height={55}
-          className="object-contain"
-        />
-
+    <div className="flex min-h-screen flex-col bg-background">
+      <Header className="min-h-[151px] px-10">
         <StepIndicator steps={INTAKE_STEPS} currentStep={currentStep} />
-
-        <div className="w-[91px]" />
-      </header>
+      </Header>
 
       <main className="flex-1 px-16 py-8">{children}</main>
 
-      <footer className="border-t border-border flex items-center justify-between gap-6 px-16 py-8">
-        <div className="min-h-5 flex-1">
-          {isLastStep ? (
-            <FieldError message={footerState.submitError ?? undefined} />
-          ) : null}
-        </div>
-        <div className="flex items-center gap-3">
-          <Button
-            variant="secondary"
-            className="h-10 px-6"
-            onClick={handleBack}
-            disabled={
-              isNavigating || footerState.isSubmitting || isNavigationLocked
-            }
-          >
-            Back
-          </Button>
-          <Button
-            className="h-10 px-6"
-            onClick={handleNext}
-            disabled={
-              isLastStep ? isSubmitDisabled : isNavigating || isNavigationLocked
-            }
-          >
-            {isLastStep && footerState.isSubmitting
-              ? "Submitting..."
-              : isLastStep
-                ? "Submit"
-                : currentStep === OTHER_AGENTS_STEP
-                  ? hasSavedOtherAgent
-                    ? "Next"
-                    : "Maybe later"
-                  : "Next"}
-          </Button>
-        </div>
-      </footer>
+      <Footer
+        className="mt-auto w-full px-16 py-8"
+        footerAlert={
+          isLastStep ? footerState.submitError ?? undefined : undefined
+        }
+        onBack={isFirstStep ? undefined : handleBack}
+        isBackDisabled={
+          isNavigating || footerState.isSubmitting || isNavigationLocked
+        }
+        backVariant="secondary"
+        onNext={handleNext}
+        nextLabel={nextLabel}
+        submittingLabel="Submitting..."
+        isNextDisabled={
+          isLastStep ? isSubmitDisabled : isNavigating || isNavigationLocked
+        }
+        isSubmitting={isLastStep && footerState.isSubmitting}
+      />
     </div>
   );
 }

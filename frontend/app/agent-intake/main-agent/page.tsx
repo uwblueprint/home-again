@@ -3,9 +3,8 @@
 import React, { useEffect, useState } from "react";
 
 import IntakeStepPage from "@/app/agent-intake/components/IntakeStepPage";
-import { FieldError } from "@/common/components/forms";
+import { FormField } from "@/common/components/forms";
 import { Input } from "@/common/components/ui/input";
-import { Label } from "@/common/components/ui/label";
 import { useIntakeContext } from "@/app/agent-intake/context/IntakeContext";
 import {
   useIntakeFormStore,
@@ -48,6 +47,8 @@ const TOUCHED_ON_SUBMIT: (keyof MainAgentFormData)[] = [
   "email",
   "phone",
 ];
+
+const inputClassName = "h-11";
 
 export default function MainAgentStep() {
   const { mainAgent, setMainAgent } = useIntakeFormStore();
@@ -131,57 +132,61 @@ export default function MainAgentStep() {
     >
       <div className="flex flex-col gap-6">
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="firstName">First name</Label>
+          <FormField
+            label="First name"
+            htmlFor="firstName"
+            error={touched.firstName ? errors.firstName : undefined}
+          >
             <Input
               {...field("firstName")}
               placeholder="Enter first name"
-              className="h-11"
+              className={inputClassName}
               readOnly={hasLockedIdentity}
               disabled={hasLockedIdentity}
             />
-            <FieldError
-              message={touched.firstName ? errors.firstName : undefined}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="lastName">Last name</Label>
+          </FormField>
+          <FormField
+            label="Last name"
+            htmlFor="lastName"
+            error={touched.lastName ? errors.lastName : undefined}
+          >
             <Input
               {...field("lastName")}
               placeholder="Enter last name"
-              className="h-11"
+              className={inputClassName}
               readOnly={hasLockedIdentity}
               disabled={hasLockedIdentity}
             />
-            <FieldError
-              message={touched.lastName ? errors.lastName : undefined}
-            />
-          </div>
+          </FormField>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">Email</Label>
+          <FormField
+            label="Email"
+            htmlFor="email"
+            error={touched.email ? errors.email : undefined}
+          >
             <Input
               {...field("email")}
               type="email"
               placeholder="name@agency.org"
-              className="h-11"
+              className={inputClassName}
               readOnly={hasLockedIdentity}
               disabled={hasLockedIdentity}
             />
-            <FieldError message={touched.email ? errors.email : undefined} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="phone">Phone number</Label>
+          </FormField>
+          <FormField
+            label="Phone number"
+            htmlFor="phone"
+            error={touched.phone ? errors.phone : undefined}
+          >
             <Input
               {...field("phone")}
               type="tel"
               placeholder="Enter phone number"
-              className="h-11"
+              className={inputClassName}
             />
-            <FieldError message={touched.phone ? errors.phone : undefined} />
-          </div>
+          </FormField>
         </div>
       </div>
     </IntakeStepPage>

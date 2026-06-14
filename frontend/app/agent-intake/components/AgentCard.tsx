@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Trash2, SquarePen, Info } from "lucide-react";
-import { FieldError } from "@/common/components/forms";
+import { FormField } from "@/common/components/forms";
 import { Input } from "@/common/components/ui/input";
-import { Label } from "@/common/components/ui/label";
 import { Button } from "@/common/components/ui/button";
 import { Badge } from "@/common/components/ui/badge";
 import { Card } from "@/common/components/ui/card";
@@ -186,36 +185,39 @@ export function AgentCard({
 
           {/* Row 1: First Name / Last Name */}
           <div className="grid grid-cols-2 gap-6">
-            <div className="flex flex-col gap-1">
-              <Label htmlFor={`firstName-${index}`}>First Name</Label>
+            <FormField
+              label="First Name"
+              htmlFor={`firstName-${index}`}
+              error={touched.firstName ? errors.firstName : undefined}
+            >
               <Input
                 id={`firstName-${index}`}
                 placeholder="Enter first name"
                 className="h-11"
                 {...fieldProps("firstName")}
               />
-              <FieldError
-                message={touched.firstName ? errors.firstName : undefined}
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label htmlFor={`lastName-${index}`}>Last Name</Label>
+            </FormField>
+            <FormField
+              label="Last Name"
+              htmlFor={`lastName-${index}`}
+              error={touched.lastName ? errors.lastName : undefined}
+            >
               <Input
                 id={`lastName-${index}`}
                 placeholder="Enter last name"
                 className="h-11"
                 {...fieldProps("lastName")}
               />
-              <FieldError
-                message={touched.lastName ? errors.lastName : undefined}
-              />
-            </div>
+            </FormField>
           </div>
 
           {/* Row 2: Email / Phone */}
           <div className="grid grid-cols-2 gap-6">
-            <div className="flex flex-col gap-1">
-              <Label htmlFor={`email-${index}`}>Email</Label>
+            <FormField
+              label="Email"
+              htmlFor={`email-${index}`}
+              error={touched.email ? errors.email : undefined}
+            >
               <Input
                 id={`email-${index}`}
                 type="email"
@@ -223,10 +225,12 @@ export function AgentCard({
                 className="h-11"
                 {...fieldProps("email")}
               />
-              <FieldError message={touched.email ? errors.email : undefined} />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label htmlFor={`phone-${index}`}>Phone Number</Label>
+            </FormField>
+            <FormField
+              label="Phone Number"
+              htmlFor={`phone-${index}`}
+              error={touched.phoneNumber ? errors.phoneNumber : undefined}
+            >
               <Input
                 id={`phone-${index}`}
                 type="tel"
@@ -234,10 +238,7 @@ export function AgentCard({
                 className="h-11"
                 {...fieldProps("phoneNumber")}
               />
-              <FieldError
-                message={touched.phoneNumber ? errors.phoneNumber : undefined}
-              />
-            </div>
+            </FormField>
           </div>
 
           {/* Admin checkbox */}

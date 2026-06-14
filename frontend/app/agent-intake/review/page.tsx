@@ -9,6 +9,12 @@ import { useIntakeFooter } from "@/app/agent-intake/context/IntakeFooterContext"
 import { Badge } from "@/common/components/ui/badge";
 import { Button } from "@/common/components/ui/button";
 import { Card } from "@/common/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+} from "@/common/components/ui/dialog";
+import { Check } from "lucide-react";
 import { useSubmitIntake } from "@/app/agent-intake/hooks/useSubmitIntake";
 import { useIntakeFormStore } from "@/app/agent-intake/stores/intakeFormStore";
 
@@ -118,26 +124,17 @@ function ReviewCard({ children }: { children: ReactNode }) {
 
 function SubmissionSuccessDialog() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 px-4">
-      <div className="flex h-[337px] w-full max-w-[517px] flex-col items-center justify-center gap-4 rounded-xl border border-border bg-background p-8 text-center shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.1)]">
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 24 24"
-          className="h-6 w-6 text-foreground"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="m7 12 3 3 7-7" />
-          <path d="m3 12 3 3" />
-        </svg>
-        <p className="text-sm text-muted-foreground">
+    <Dialog open>
+      <DialogContent
+        showCloseButton={false}
+        className="flex h-[337px] w-full max-w-[517px] flex-col items-center justify-center gap-4 p-8 text-center shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.1)] sm:max-w-[517px]"
+      >
+        <Check className="size-6 text-foreground" aria-hidden="true" />
+        <DialogDescription className="text-sm text-muted-foreground">
           Profile created successfully
-        </p>
-      </div>
-    </div>
+        </DialogDescription>
+      </DialogContent>
+    </Dialog>
   );
 }
 

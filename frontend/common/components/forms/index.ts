@@ -1,4 +1,5 @@
 export { FieldError } from "./FieldError";
+export { FormField } from "./FormField";
 export {
   FormBreadcrumb,
   type FormBreadcrumbStep,

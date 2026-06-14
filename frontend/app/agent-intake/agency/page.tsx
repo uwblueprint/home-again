@@ -3,9 +3,8 @@
 import React, { useEffect, useState } from "react";
 
 import IntakeStepPage from "@/app/agent-intake/components/IntakeStepPage";
-import { FieldError } from "@/common/components/forms";
+import { FormField } from "@/common/components/forms";
 import { Input } from "@/common/components/ui/input";
-import { Label } from "@/common/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -51,6 +50,8 @@ const TOUCHED_ON_SUBMIT: (keyof AgencyFormData)[] = [
   "postalCode",
   "phone",
 ];
+
+const inputClassName = "h-11 border-border bg-background";
 
 export default function AgencyStep() {
   const { agency, setAgency } = useIntakeFormStore();
@@ -111,30 +112,31 @@ export default function AgencyStep() {
       description="Provide some basic information about your partner agency."
     >
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="name">Agency name</Label>
+        <FormField
+          label="Agency name"
+          htmlFor="name"
+          error={touched.name ? errors.name : undefined}
+        >
           <Input
             {...field("name")}
             placeholder="Enter your agency name"
-            className="h-11 border-border bg-background"
+            className={inputClassName}
           />
-          <FieldError message={touched.name ? errors.name : undefined} />
-        </div>
+        </FormField>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="addressLine1">Address line 1</Label>
+          <FormField
+            label="Address line 1"
+            htmlFor="addressLine1"
+            error={touched.addressLine1 ? errors.addressLine1 : undefined}
+          >
             <Input
               {...field("addressLine1")}
               placeholder="Street address"
-              className="h-11 border-border bg-background"
+              className={inputClassName}
             />
-            <FieldError
-              message={touched.addressLine1 ? errors.addressLine1 : undefined}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="addressLine2">Address line 2</Label>
+          </FormField>
+          <FormField label="Address line 2" htmlFor="addressLine2">
             <Input
               id="addressLine2"
               value={form.addressLine2}
@@ -142,23 +144,24 @@ export default function AgencyStep() {
                 handleChange("addressLine2", event.target.value)
               }
               placeholder="Suite, unit, floor, or building"
-              className="h-11 border-border bg-background"
+              className={inputClassName}
             />
-          </div>
+          </FormField>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="city">City</Label>
+          <FormField
+            label="City"
+            htmlFor="city"
+            error={touched.city ? errors.city : undefined}
+          >
             <Input
               {...field("city")}
               placeholder="Enter city"
-              className="h-11 border-border bg-background"
+              className={inputClassName}
             />
-            <FieldError message={touched.city ? errors.city : undefined} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="province">Province</Label>
+          </FormField>
+          <FormField label="Province" htmlFor="province">
             <Select
               value={form.province}
               onValueChange={(value) =>
@@ -174,7 +177,7 @@ export default function AgencyStep() {
                 </SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </FormField>
         </div>
 
         <p className="-mt-2 text-sm text-muted-foreground">
@@ -182,8 +185,7 @@ export default function AgencyStep() {
         </p>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="country">Country</Label>
+          <FormField label="Country" htmlFor="country">
             <Select
               value={form.country}
               onValueChange={(value) => value && handleChange("country", value)}
@@ -195,30 +197,32 @@ export default function AgencyStep() {
                 <SelectItem value="Canada">Canada</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="postalCode">Postal code</Label>
+          </FormField>
+          <FormField
+            label="Postal code"
+            htmlFor="postalCode"
+            error={touched.postalCode ? errors.postalCode : undefined}
+          >
             <Input
               {...field("postalCode")}
               placeholder="Enter postal code"
-              className="h-11 border-border bg-background"
+              className={inputClassName}
             />
-            <FieldError
-              message={touched.postalCode ? errors.postalCode : undefined}
-            />
-          </div>
+          </FormField>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="phone">Phone number</Label>
+        <FormField
+          label="Phone number"
+          htmlFor="phone"
+          error={touched.phone ? errors.phone : undefined}
+        >
           <Input
             {...field("phone")}
             type="tel"
             placeholder="Enter phone number"
-            className="h-11 border-border bg-background"
+            className={inputClassName}
           />
-          <FieldError message={touched.phone ? errors.phone : undefined} />
-        </div>
+        </FormField>
       </div>
     </IntakeStepPage>
   );

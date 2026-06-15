@@ -69,14 +69,16 @@ def upgrade():
     )
 
     # Rename phone → phone_number if phone still exists; otherwise phone_number is already correct
-    op.execute("""
+    op.execute(
+        """
         DO $$ BEGIN
             IF EXISTS (SELECT 1 FROM information_schema.columns
                        WHERE table_name='agencies' AND column_name='phone') THEN
                 ALTER TABLE agencies RENAME COLUMN phone TO phone_number;
             END IF;
         END $$;
-    """)
+    """
+    )
 
     # Drop main_agent_id FK and column (IF EXISTS — may not exist in all envs)
     op.execute(
@@ -174,39 +176,46 @@ def upgrade():
     # ------------------------------------------------------------------ #
     # Create dropoffs table (before pickups + furniture FK)
     # ------------------------------------------------------------------ #
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS dropoffs (
             id VARCHAR(36) PRIMARY KEY,
             route_id VARCHAR(36) NOT NULL REFERENCES routes(id),
             created_at TIMESTAMP,
             updated_at TIMESTAMP
         )
-    """)
+    """
+    )
 
     # ------------------------------------------------------------------ #
     # Add dropoff_id FK to furniture (IF NOT EXISTS)
     # ------------------------------------------------------------------ #
-    op.execute("""
+    op.execute(
+        """
         DO $$ BEGIN
             IF NOT EXISTS (SELECT 1 FROM information_schema.columns
                            WHERE table_name='furniture' AND column_name='dropoff_id') THEN
                 ALTER TABLE furniture ADD COLUMN dropoff_id VARCHAR(36);
             END IF;
         END $$;
-    """)
-    op.execute("""
+    """
+    )
+    op.execute(
+        """
         DO $$ BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname='fk_furniture_dropoff_id') THEN
                 ALTER TABLE furniture ADD CONSTRAINT fk_furniture_dropoff_id
                     FOREIGN KEY (dropoff_id) REFERENCES dropoffs (id);
             END IF;
         END $$;
-    """)
+    """
+    )
 
     # ------------------------------------------------------------------ #
     # Create pickups table
     # ------------------------------------------------------------------ #
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE IF NOT EXISTS pickups (
             id VARCHAR(36) PRIMARY KEY,
             route_id VARCHAR(36) NOT NULL REFERENCES routes(id),
@@ -218,7 +227,8 @@ def upgrade():
             created_at TIMESTAMP,
             updated_at TIMESTAMP
         )
-    """)
+    """
+    )
 
 
 def downgrade():

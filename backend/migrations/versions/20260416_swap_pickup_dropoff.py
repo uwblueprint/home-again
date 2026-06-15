@@ -37,7 +37,8 @@ def upgrade():
     # ---------------------------------------------------------------------- #
     # Step 2: Rename furniture.dropoff_id → furniture.pickup_id
     # ---------------------------------------------------------------------- #
-    op.execute("""
+    op.execute(
+        """
         DO $$ BEGIN
             IF EXISTS (
                 SELECT 1 FROM information_schema.columns
@@ -46,7 +47,8 @@ def upgrade():
                 ALTER TABLE furniture RENAME COLUMN dropoff_id TO pickup_id;
             END IF;
         END $$;
-    """)
+    """
+    )
 
     # ---------------------------------------------------------------------- #
     # Step 3: Swap table names via a temporary name
@@ -60,7 +62,8 @@ def upgrade():
     # ---------------------------------------------------------------------- #
     # Step 4: Add donation_id to new pickups table (formerly dropoffs)
     # ---------------------------------------------------------------------- #
-    op.execute("""
+    op.execute(
+        """
         DO $$ BEGIN
             IF NOT EXISTS (
                 SELECT 1 FROM information_schema.columns
@@ -69,8 +72,10 @@ def upgrade():
                 ALTER TABLE pickups ADD COLUMN donation_id VARCHAR(36);
             END IF;
         END $$;
-    """)
-    op.execute("""
+    """
+    )
+    op.execute(
+        """
         DO $$ BEGIN
             IF NOT EXISTS (
                 SELECT 1 FROM pg_constraint WHERE conname = 'fk_pickups_donation_id'
@@ -79,12 +84,14 @@ def upgrade():
                     FOREIGN KEY (donation_id) REFERENCES donations(id);
             END IF;
         END $$;
-    """)
+    """
+    )
 
     # ---------------------------------------------------------------------- #
     # Step 5: Add furniture.pickup_id FK → pickups.id
     # ---------------------------------------------------------------------- #
-    op.execute("""
+    op.execute(
+        """
         DO $$ BEGIN
             IF NOT EXISTS (
                 SELECT 1 FROM pg_constraint WHERE conname = 'fk_furniture_pickup_id'
@@ -93,7 +100,8 @@ def upgrade():
                     FOREIGN KEY (pickup_id) REFERENCES pickups(id);
             END IF;
         END $$;
-    """)
+    """
+    )
 
 
 def downgrade():
@@ -102,7 +110,8 @@ def downgrade():
 
     # Reverse step 4
     op.execute("ALTER TABLE pickups DROP CONSTRAINT IF EXISTS fk_pickups_donation_id")
-    op.execute("""
+    op.execute(
+        """
         DO $$ BEGIN
             IF EXISTS (
                 SELECT 1 FROM information_schema.columns
@@ -111,7 +120,8 @@ def downgrade():
                 ALTER TABLE pickups DROP COLUMN donation_id;
             END IF;
         END $$;
-    """)
+    """
+    )
 
     # Reverse step 3 (swap back)
     op.execute("ALTER TABLE dropoffs RENAME TO _pickups_swap_temp")
@@ -119,7 +129,8 @@ def downgrade():
     op.execute("ALTER TABLE _pickups_swap_temp RENAME TO pickups")
 
     # Reverse step 2
-    op.execute("""
+    op.execute(
+        """
         DO $$ BEGIN
             IF EXISTS (
                 SELECT 1 FROM information_schema.columns
@@ -128,10 +139,12 @@ def downgrade():
                 ALTER TABLE furniture RENAME COLUMN pickup_id TO dropoff_id;
             END IF;
         END $$;
-    """)
+    """
+    )
 
     # Reverse step 1 — restore furniture.dropoff_id FK → dropoffs.id
-    op.execute("""
+    op.execute(
+        """
         DO $$ BEGIN
             IF NOT EXISTS (
                 SELECT 1 FROM pg_constraint WHERE conname = 'fk_furniture_dropoff_id'
@@ -140,4 +153,5 @@ def downgrade():
                     FOREIGN KEY (dropoff_id) REFERENCES dropoffs(id);
             END IF;
         END $$;
-    """)
+    """
+    )

@@ -39,7 +39,8 @@ def upgrade():
             "furniture", sa.Column("route_id", sa.String(length=36), nullable=True)
         )
 
-    op.execute("""
+    op.execute(
+        """
         DO $$
         BEGIN
             IF NOT EXISTS (
@@ -52,7 +53,8 @@ def upgrade():
                 FOREIGN KEY (route_id) REFERENCES routes (id);
             END IF;
         END $$;
-        """)
+        """
+    )
 
 
 def downgrade():
@@ -72,7 +74,8 @@ def downgrade():
             existing_nullable=True,
             new_column_name="dispatch_id",
         )
-        op.execute("""
+        op.execute(
+            """
             DO $$
             BEGIN
                 IF NOT EXISTS (
@@ -85,4 +88,5 @@ def downgrade():
                     FOREIGN KEY (dispatch_id) REFERENCES routes (id);
                 END IF;
             END $$;
-            """)
+            """
+        )

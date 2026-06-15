@@ -9,6 +9,7 @@ import PickupAddressForm, {
   validatePickupAddress,
 } from "@/app/donate/components/PickupAddressForm";
 import { ServiceAreaNotice } from "@/common/components/feedback";
+import { InputError } from "@/common/components/ui/input";
 
 type TouchableField = "streetAddress" | "city" | "postalCode";
 
@@ -58,9 +59,9 @@ export default function StepSchedulePickup() {
       <ServiceAreaNotice />
 
       {showAll && hasAnyVisibleError ? (
-        <p className="text-destructive text-sm" role="alert">
+        <InputError>
           Please fill in all required fields before continuing.
-        </p>
+        </InputError>
       ) : null}
 
       <PickupAddressForm

@@ -31,7 +31,12 @@ describe("ReferralLayout", () => {
     const onNext = jest.fn();
 
     render(
-      <ReferralLayout title="My Step" breadcrumbs={breadcrumbs} activeIndex={0} onNext={onNext}>
+      <ReferralLayout
+        title="My Step"
+        breadcrumbs={breadcrumbs}
+        activeIndex={0}
+        onNext={onNext}
+      >
         <p>Form fields</p>
       </ReferralLayout>
     );

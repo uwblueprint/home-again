@@ -147,8 +147,8 @@ export default function StepDonationSummary() {
     setFormState((prev) => ({ ...prev, petsInHousehold: value }));
   }
 
-  function handleFeeAgreementChange() {
-    setFormState((prev) => ({ ...prev, feeAgreement: !prev.feeAgreement }));
+  function handleFeeAgreementChange(checked: boolean) {
+    setFormState((prev) => ({ ...prev, feeAgreement: checked === true }));
   }
 
   const donorFirstName = donorLoading ? "…" : (donor?.first_name ?? "-");

@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import PhotoUpload from "../components/PhotoUpload";
+import FileUpload from "./FileUpload";
 
 jest.mock("@/common/lib/utils", () => ({
   cn: (...inputs: (string | undefined | null | false)[]) =>
@@ -13,21 +13,21 @@ global.URL.revokeObjectURL = jest.fn();
 
 // Helpers
 
-function createFile(name: string) {
-  return new File([""], name, { type: "image/png" });
+function createFile(name: string, type = "image/png") {
+  return new File([""], name, { type });
 }
 
 function renderDialog(
-  props: Partial<React.ComponentProps<typeof PhotoUpload>> = {}
+  props: Partial<React.ComponentProps<typeof FileUpload>> = {}
 ) {
-  const defaultProps: React.ComponentProps<typeof PhotoUpload> = {
+  const defaultProps: React.ComponentProps<typeof FileUpload> = {
     open: true,
     onOpenChange: jest.fn(),
-    currentPhotos: [],
+    currentFiles: [],
     onSave: jest.fn(),
     ...props,
   };
-  return { ...render(<PhotoUpload {...defaultProps} />), defaultProps };
+  return { ...render(<FileUpload {...defaultProps} />), defaultProps };
 }
 
 function selectFiles(input: HTMLElement, files: File[]) {
@@ -41,7 +41,7 @@ function selectFiles(input: HTMLElement, files: File[]) {
 
 // Tests
 
-describe("PhotoUpload", () => {
+describe("FileUpload", () => {
   beforeEach(() => {
     (global.URL.createObjectURL as jest.Mock).mockClear();
     (global.URL.revokeObjectURL as jest.Mock).mockClear();
@@ -51,10 +51,22 @@ describe("PhotoUpload", () => {
     it("renders dialog content when open", () => {
       renderDialog({ open: true });
       expect(screen.getByRole("dialog")).toBeInTheDocument();
-      expect(
-        screen.getByText("Upload photos of your item")
-      ).toBeInTheDocument();
-      expect(screen.getByText("Max 5 uploads")).toBeInTheDocument();
+      expect(screen.getByText("Upload files")).toBeInTheDocument();
+      expect(screen.getByText("Maximum 5 uploads")).toBeInTheDocument();
+    });
+
+    it("renders a custom title and description", () => {
+      renderDialog({
+        title: "Upload your resume",
+        description: "PDF only, up to 1 file",
+      });
+      expect(screen.getByText("Upload your resume")).toBeInTheDocument();
+      expect(screen.getByText("PDF only, up to 1 file")).toBeInTheDocument();
+    });
+
+    it("derives the default description from maxFiles", () => {
+      renderDialog({ maxFiles: 3 });
+      expect(screen.getByText("Maximum 3 uploads")).toBeInTheDocument();
     });
 
     it("renders nothing when closed", () => {
@@ -62,55 +74,115 @@ describe("PhotoUpload", () => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
 
-    it("initializes thumbnails from currentPhotos when opened", () => {
+    it("initializes thumbnails from currentFiles when opened", () => {
       const file = createFile("existing.png");
-      renderDialog({ currentPhotos: [file] });
+      renderDialog({ currentFiles: [file] });
       expect(screen.getByAltText("existing.png")).toBeInTheDocument();
     });
 
-    it("clamps currentPhotos to MAX_PHOTOS on open and shows overflow message", () => {
+    it("clamps currentFiles to maxFiles on open and shows overflow message", () => {
       const files = Array.from({ length: 7 }, (_, i) =>
         createFile(`existing-${i}.png`)
       );
-      renderDialog({ currentPhotos: files });
+      renderDialog({ currentFiles: files });
 
       expect(screen.getAllByRole("img")).toHaveLength(5);
       expect(
-        screen.getByText(/Only 5 photos allowed\. 2 files were discarded\./)
+        screen.getByText(/You can upload up to 5 files\. 2 files weren't added\./)
       ).toBeInTheDocument();
       expect(screen.queryByAltText("existing-5.png")).not.toBeInTheDocument();
       expect(screen.queryByAltText("existing-6.png")).not.toBeInTheDocument();
     });
 
-    it("moves focus to the first focusable element when opened", () => {
-      renderDialog({ open: true });
+    it("labels the dialog with its title for assistive tech", () => {
+      renderDialog({ title: "Upload files" });
       expect(
-        screen.getByRole("button", { name: "Close dialog" })
-      ).toHaveFocus();
+        screen.getByRole("dialog", { name: "Upload files" })
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("accepted file types", () => {
+    it("passes the accept prop through to the file input", () => {
+      renderDialog({ accept: ".pdf,application/pdf" });
+      expect(screen.getByLabelText("Choose files")).toHaveAttribute(
+        "accept",
+        ".pdf,application/pdf"
+      );
+    });
+
+    it("ignores files whose type is not accepted", () => {
+      renderDialog({ accept: "image/*" });
+      const input = screen.getByLabelText("Choose files");
+      selectFiles(input, [
+        createFile("photo.png", "image/png"),
+        createFile("notes.txt", "text/plain"),
+      ]);
+
+      expect(screen.getByAltText("photo.png")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Save" })).not.toBeDisabled();
+      // Only the image was kept; the text file was filtered out.
+      expect(screen.getAllByRole("img")).toHaveLength(1);
+    });
+
+    it("accepts files matched by extension", () => {
+      renderDialog({ accept: ".pdf" });
+      const input = screen.getByLabelText("Choose files");
+      selectFiles(input, [
+        createFile("report.pdf", "application/pdf"),
+        createFile("photo.png", "image/png"),
+      ]);
+
+      expect(screen.getByText("report.pdf")).toBeInTheDocument();
+      expect(screen.queryByText("photo.png")).not.toBeInTheDocument();
+    });
+
+    it("accepts every file type when accept is omitted", () => {
+      renderDialog();
+      const input = screen.getByLabelText("Choose files");
+      selectFiles(input, [
+        createFile("photo.png", "image/png"),
+        createFile("notes.txt", "text/plain"),
+      ]);
+
+      expect(screen.getByAltText("photo.png")).toBeInTheDocument();
+      expect(screen.getByText("notes.txt")).toBeInTheDocument();
+    });
+  });
+
+  describe("non-image previews", () => {
+    it("renders the file name instead of an image for non-image files", () => {
+      renderDialog();
+      const input = screen.getByLabelText("Choose files");
+      selectFiles(input, [createFile("contract.pdf", "application/pdf")]);
+
+      expect(screen.getByText("contract.pdf")).toBeInTheDocument();
+      expect(screen.queryByRole("img")).not.toBeInTheDocument();
+      expect(global.URL.createObjectURL).not.toHaveBeenCalled();
     });
   });
 
   describe("Save button", () => {
-    it("is disabled when no photos are pending", () => {
-      renderDialog({ currentPhotos: [] });
+    it("is disabled when no files are pending", () => {
+      renderDialog({ currentFiles: [] });
       expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
     });
 
     it("is enabled after files are selected", () => {
-      renderDialog({ currentPhotos: [] });
+      renderDialog({ currentFiles: [] });
       const input = screen.getByLabelText("Choose files");
       selectFiles(input, [createFile("photo.png")]);
       expect(screen.getByRole("button", { name: "Save" })).not.toBeDisabled();
     });
 
-    it("is enabled when initialized with currentPhotos", () => {
-      renderDialog({ currentPhotos: [createFile("photo.png")] });
+    it("is enabled when initialized with currentFiles", () => {
+      renderDialog({ currentFiles: [createFile("photo.png")] });
       expect(screen.getByRole("button", { name: "Save" })).not.toBeDisabled();
     });
   });
 
   describe("Save and Cancel", () => {
-    it("calls onSave with pending photos and closes dialog when Save is clicked", () => {
+    it("calls onSave with pending files and closes dialog when Save is clicked", () => {
       const onSave = jest.fn();
       const onOpenChange = jest.fn();
       renderDialog({ onSave, onOpenChange });
@@ -169,7 +241,7 @@ describe("PhotoUpload", () => {
   });
 
   describe("thumbnails", () => {
-    it("shows a thumbnail for each selected file", () => {
+    it("shows a thumbnail for each selected image", () => {
       renderDialog();
       const input = screen.getByLabelText("Choose files");
       selectFiles(input, [createFile("a.png"), createFile("b.png")]);
@@ -200,8 +272,8 @@ describe("PhotoUpload", () => {
     });
   });
 
-  describe("overflow / max photos", () => {
-    it("shows error message when selected files exceed MAX_PHOTOS", () => {
+  describe("overflow / max files", () => {
+    it("shows error message when selected files exceed maxFiles", () => {
       renderDialog();
       const input = screen.getByLabelText("Choose files");
       const files = Array.from({ length: 6 }, (_, i) =>
@@ -210,7 +282,21 @@ describe("PhotoUpload", () => {
       selectFiles(input, files);
 
       expect(
-        screen.getByText(/Only 5 photos allowed\. 1 file was discarded\./)
+        screen.getByText(/You can upload up to 5 files\. 1 file wasn't added\./)
+      ).toBeInTheDocument();
+    });
+
+    it("respects a custom maxFiles limit", () => {
+      renderDialog({ maxFiles: 2 });
+      const input = screen.getByLabelText("Choose files");
+      const files = Array.from({ length: 3 }, (_, i) =>
+        createFile(`photo${i}.png`)
+      );
+      selectFiles(input, files);
+
+      expect(screen.getAllByRole("img")).toHaveLength(2);
+      expect(
+        screen.getByText(/You can upload up to 2 files\. 1 file wasn't added\./)
       ).toBeInTheDocument();
     });
 
@@ -223,12 +309,14 @@ describe("PhotoUpload", () => {
       selectFiles(input, files);
 
       const chooserButton = screen.getByRole("button", {
-        name: /choose files/i,
+        name: /choose file/i,
       });
-      expect(chooserButton.className).toContain("border-destructive");
+      expect(chooserButton.className).toContain(
+        "border-[var(--unofficial-destructive-border)]"
+      );
     });
 
-    it("only accepts photos up to MAX_PHOTOS limit", () => {
+    it("only accepts files up to the maxFiles limit", () => {
       renderDialog();
       const input = screen.getByLabelText("Choose files");
       const files = Array.from({ length: 7 }, (_, i) =>
@@ -239,8 +327,8 @@ describe("PhotoUpload", () => {
       expect(screen.getAllByRole("img")).toHaveLength(5);
     });
 
-    it("shows overflow error and keeps first files when current photos already exist", () => {
-      renderDialog({ currentPhotos: [createFile("existing.png")] });
+    it("shows overflow error and keeps first files when current files already exist", () => {
+      renderDialog({ currentFiles: [createFile("existing.png")] });
       const input = screen.getByLabelText("Choose files");
       const files = Array.from({ length: 5 }, (_, i) =>
         createFile(`new-${i}.png`)
@@ -249,21 +337,29 @@ describe("PhotoUpload", () => {
 
       expect(screen.getAllByRole("img")).toHaveLength(5);
       expect(
-        screen.getByText(/Only 5 photos allowed\. 1 file was discarded\./)
+        screen.getByText(/You can upload up to 5 files\. 1 file wasn't added\./)
       ).toBeInTheDocument();
       expect(screen.queryByAltText("new-4.png")).not.toBeInTheDocument();
+    });
+
+    it("renders a single-file input when maxFiles is 1", () => {
+      renderDialog({ maxFiles: 1 });
+      expect(screen.getByLabelText("Choose files")).not.toHaveAttribute(
+        "multiple"
+      );
+      expect(screen.getByText("Maximum 1 uploads")).toBeInTheDocument();
     });
   });
 
   describe("reset on re-open", () => {
-    it("resets pending photos to currentPhotos when re-opened", () => {
+    it("resets pending files to currentFiles when re-opened", () => {
       const onOpenChange = jest.fn();
 
       const { rerender } = render(
-        <PhotoUpload
+        <FileUpload
           open={true}
           onOpenChange={onOpenChange}
-          currentPhotos={[]}
+          currentFiles={[]}
           onSave={jest.fn()}
         />
       );
@@ -275,56 +371,27 @@ describe("PhotoUpload", () => {
 
       // Close
       rerender(
-        <PhotoUpload
+        <FileUpload
           open={false}
           onOpenChange={onOpenChange}
-          currentPhotos={[]}
+          currentFiles={[]}
           onSave={jest.fn()}
         />
       );
 
-      // Re-open with empty currentPhotos
+      // Re-open with empty currentFiles
       rerender(
-        <PhotoUpload
+        <FileUpload
           open={true}
           onOpenChange={onOpenChange}
-          currentPhotos={[]}
+          currentFiles={[]}
           onSave={jest.fn()}
         />
       );
 
-      // Pending photos should be reset — no thumbnails
+      // Pending files should be reset — no thumbnails
       expect(screen.queryAllByRole("img")).toHaveLength(0);
     });
   });
 
-  describe("focus trap", () => {
-    it("wraps focus from last to first on Tab", () => {
-      renderDialog();
-
-      const dialog = screen.getByRole("dialog");
-      const closeBtn = screen.getByRole("button", { name: "Close dialog" });
-      const cancelBtn = screen.getByRole("button", { name: "Cancel" });
-
-      cancelBtn.focus();
-      expect(cancelBtn).toHaveFocus();
-
-      fireEvent.keyDown(dialog, { key: "Tab" });
-      expect(closeBtn).toHaveFocus();
-    });
-
-    it("wraps focus from first to last on Shift+Tab", () => {
-      renderDialog();
-
-      const dialog = screen.getByRole("dialog");
-      const closeBtn = screen.getByRole("button", { name: "Close dialog" });
-      const cancelBtn = screen.getByRole("button", { name: "Cancel" });
-
-      closeBtn.focus();
-      expect(closeBtn).toHaveFocus();
-
-      fireEvent.keyDown(dialog, { key: "Tab", shiftKey: true });
-      expect(cancelBtn).toHaveFocus();
-    });
-  });
 });

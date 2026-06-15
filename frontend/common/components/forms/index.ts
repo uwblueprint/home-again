@@ -1,2 +1,13 @@
-// Core form primitives — to be built by developers.
-// See FRONTEND_GUIDE.md, Section 9 — Forms Pattern.
+export {
+  FormBreadcrumb,
+  type FormBreadcrumbStep,
+  type FormBreadcrumbProps,
+} from "./FormBreadcrumb";
+export {
+  SelectAndCombo,
+  QuantityCounter,
+  type SelectAndComboProps,
+} from "./SelectAndCombo";
+export { FurnitureItemCard } from "./FurnitureItemCard";
+export { Header } from "./Header";
+export { Footer } from "./Footer";

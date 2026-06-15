@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
 import {
   IntakeFooterProvider,
   useIntakeFooter,
@@ -15,30 +14,29 @@ import {
   StepIndicator,
   type Step,
 } from "@/common/components/ui/step-indicator";
-import {
-  INTAKE_AGENCY,
-  INTAKE_MAIN_AGENT,
-  INTAKE_OTHER_AGENTS,
-  INTAKE_REVIEW,
-} from "@/common/constants/Routes";
 import { useIntakeFormStore } from "@/app/agent-intake/stores/intakeFormStore";
 
 const OTHER_AGENTS_STEP = 2;
+const REVIEW_STEP = 3;
 
 const INTAKE_STEPS: Step[] = [
-  { label: "Agency", path: INTAKE_AGENCY },
-  { label: "Your Details", path: INTAKE_MAIN_AGENT },
-  { label: "Other Agents", path: INTAKE_OTHER_AGENTS },
-  { label: "Review", path: INTAKE_REVIEW },
+  { label: "Agency" },
+  { label: "Your Details" },
+  { label: "Other Agents" },
+  { label: "Review" },
 ];
 
 interface IntakeLayoutProps {
+  currentStep: number;
+  setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
   children: React.ReactNode;
 }
 
-function IntakeLayoutInner({ children }: IntakeLayoutProps) {
-  const pathname = usePathname();
-  const router = useRouter();
+function IntakeLayoutInner({
+  currentStep,
+  setCurrentStep,
+  children,
+}: IntakeLayoutProps) {
   const { runValidator } = useIntakeContext();
   const { footerState, runSubmitHandler, hasSubmitHandler } = useIntakeFooter();
   const [isNavigating, setIsNavigating] = useState(false);
@@ -47,10 +45,6 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
     (state) => state.otherAgentsStepLocked
   );
 
-  const currentStepIndex = INTAKE_STEPS.findIndex(
-    (step) => step.path !== undefined && pathname.startsWith(step.path)
-  );
-  const currentStep = currentStepIndex === -1 ? 0 : currentStepIndex;
   const isOtherAgentsStep = currentStep === OTHER_AGENTS_STEP;
   const isNavigationLocked = isOtherAgentsStep && otherAgentsStepLocked;
   const hasSavedOtherAgent = otherAgents.some(
@@ -62,17 +56,14 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
   );
 
   const isFirstStep = currentStep === 0;
-  const isLastStep = currentStep === INTAKE_STEPS.length - 1;
+  const isLastStep = currentStep === REVIEW_STEP;
 
   function handleBack() {
     if (isNavigationLocked || isFirstStep) {
       return;
     }
 
-    const prevPath = INTAKE_STEPS[currentStep - 1]?.path;
-    if (prevPath) {
-      router.push(prevPath);
-    }
+    setCurrentStep((prev) => prev - 1);
   }
 
   async function handleNext() {
@@ -97,10 +88,7 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
       return;
     }
 
-    const nextPath = INTAKE_STEPS[currentStep + 1]?.path;
-    if (nextPath) {
-      router.push(nextPath);
-    }
+    setCurrentStep((prev) => prev + 1);
   }
 
   const isSubmitDisabled =
@@ -147,11 +135,20 @@ function IntakeLayoutInner({ children }: IntakeLayoutProps) {
   );
 }
 
-export default function IntakeLayout({ children }: IntakeLayoutProps) {
+export default function IntakeLayout({
+  currentStep,
+  setCurrentStep,
+  children,
+}: IntakeLayoutProps) {
   return (
     <IntakeProvider>
       <IntakeFooterProvider>
-        <IntakeLayoutInner>{children}</IntakeLayoutInner>
+        <IntakeLayoutInner
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+        >
+          {children}
+        </IntakeLayoutInner>
       </IntakeFooterProvider>
     </IntakeProvider>
   );

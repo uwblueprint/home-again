@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
 import IntakeStepPage from "@/app/agent-intake/components/IntakeStepPage";
+import { InformationBlock } from "@/common/components/data-display";
 import { useIntakeFooter } from "@/app/agent-intake/context/IntakeFooterContext";
 import { Badge } from "@/common/components/ui/badge";
 import { Button } from "@/common/components/ui/button";
@@ -20,7 +21,7 @@ import { useIntakeFormStore } from "@/app/agent-intake/stores/intakeFormStore";
 
 const AGENTS_PER_PAGE = 3;
 const EMPTY_VALUE = "—";
-const REVIEW_THREE_COLUMN_GRID = "grid gap-3 md:grid-cols-3";
+const INFORMATION_BLOCK_GRID = "grid w-full gap-lg md:grid-cols-3";
 const SUCCESS_REDIRECT_DELAY_MS = 1200;
 
 function formatValue(value: string) {
@@ -64,15 +65,6 @@ function sortOtherAgents<
   });
 }
 
-function ReviewField({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex min-w-0 flex-1 flex-col gap-1">
-      <p className="text-sm font-medium text-foreground">{label}</p>
-      <p className="text-sm text-muted-foreground">{value}</p>
-    </div>
-  );
-}
-
 function ReviewAgentCard({
   agent,
 }: {
@@ -85,11 +77,8 @@ function ReviewAgentCard({
   };
 }) {
   return (
-    <Card
-      size="sm"
-      className="gap-3 rounded-lg border border-border p-3 py-3 shadow-sm ring-0"
-    >
-      <div className="flex flex-wrap items-center gap-1.5">
+    <Card>
+      <div className="flex flex-wrap items-center gap-1.5 self-stretch">
         <p className="text-sm text-foreground">
           {formatValue(formatName(agent.firstName, agent.lastName))}
         </p>
@@ -99,27 +88,23 @@ function ReviewAgentCard({
           </Badge>
         ) : null}
       </div>
-      <div
-        className={`${REVIEW_THREE_COLUMN_GRID} text-sm text-muted-foreground`}
-      >
-        <span className="min-w-0 break-words md:col-span-2">
-          {formatValue(agent.email)}
-        </span>
-        <span>{formatValue(agent.phone)}</span>
+      <div className="grid w-full gap-lg md:grid-cols-3">
+        <InformationBlock
+          className="md:col-span-2"
+          label="Email"
+          value={formatValue(agent.email)}
+        />
+        <InformationBlock
+          label="Phone number"
+          value={formatValue(agent.phone)}
+        />
       </div>
     </Card>
   );
 }
 
 function ReviewCard({ children }: { children: ReactNode }) {
-  return (
-    <Card
-      size="sm"
-      className="gap-4 rounded-lg border border-border p-3 py-3 shadow-sm ring-0"
-    >
-      {children}
-    </Card>
-  );
+  return <Card>{children}</Card>;
 }
 
 function SubmissionSuccessDialog() {
@@ -213,27 +198,30 @@ export default function ReviewStep() {
               Partner Agency Details
             </h3>
             <ReviewCard>
-              <div className={REVIEW_THREE_COLUMN_GRID}>
-                <ReviewField
+              <div className={INFORMATION_BLOCK_GRID}>
+                <InformationBlock
                   label="Agency name"
                   value={formatValue(agency.name)}
                 />
-                <ReviewField
+                <InformationBlock
                   label="Address line 1"
                   value={formatValue(agency.addressLine1)}
                 />
-                <ReviewField
+                <InformationBlock
                   label="Address line 2"
                   value={formatValue(agency.addressLine2)}
                 />
               </div>
-              <div className={REVIEW_THREE_COLUMN_GRID}>
-                <ReviewField label="City" value={formatValue(agency.city)} />
-                <ReviewField
+              <div className={INFORMATION_BLOCK_GRID}>
+                <InformationBlock
+                  label="City"
+                  value={formatValue(agency.city)}
+                />
+                <InformationBlock
                   label="Postal code"
                   value={formatValue(agency.postalCode)}
                 />
-                <ReviewField
+                <InformationBlock
                   label="Phone number"
                   value={formatValue(agency.phone)}
                 />
@@ -246,16 +234,16 @@ export default function ReviewStep() {
               Your Details
             </h3>
             <ReviewCard>
-              <div className={REVIEW_THREE_COLUMN_GRID}>
-                <ReviewField
+              <div className={INFORMATION_BLOCK_GRID}>
+                <InformationBlock
                   label="First name"
                   value={formatValue(mainAgent.firstName)}
                 />
-                <ReviewField
+                <InformationBlock
                   label="Last name"
                   value={formatValue(mainAgent.lastName)}
                 />
-                <ReviewField
+                <InformationBlock
                   label="Phone number"
                   value={formatValue(mainAgent.phone)}
                 />

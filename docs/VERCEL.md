@@ -189,27 +189,27 @@ All 8 entities have fixtures and/or handlers with full CRUD support:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        GitHub Repository                         │
-│                     (home-again monorepo)                        │
+│                        GitHub Repository                        │
+│                     (home-again monorepo)                       │
 ├────────────────────────────┬────────────────────────────────────┤
-│        frontend/           │           backend/                  │
-│      (Next.js app)         │         (FastAPI app)               │
+│        frontend/           │           backend/                 │
+│      (Next.js app)         │         (FastAPI app)              │
 └────────────┬───────────────┴──────────────────┬─────────────────┘
              │                                  │
              ▼                                  ▼
-┌────────────────────────┐        ┌──────────────────────────────┐
-│        Vercel           │        │       Docker Compose          │
-│  (Frontend Hosting)     │        │     (Local Development)       │
+┌─────────────────────────┐        ┌──────────────────────────────┐
+│        Vercel           │        │       Docker Compose         │
+│  (Frontend Hosting)     │        │     (Local Development)      │
 │                         │        │                              │
 │  • Builds frontend/     │        │  ┌────────────────────────┐  │
-│  • Preview URLs per PR  │        │  │   FastAPI Backend       │  │
-│  • Production deploys   │        │  │   (Python, Uvicorn)     │  │
+│  • Preview URLs per PR  │        │  │   FastAPI Backend      │  │
+│  • Production deploys   │        │  │   (Python, Uvicorn)    │  │
 │  • Env var management   │        │  └───────────┬────────────┘  │
 │                         │        │              │               │
-└────────────────────────┘        │              ▼               │
+└─────────────────────────┘        │              ▼               │
                                    │  ┌────────────────────────┐  │
-                                   │  │      Supabase           │  │
-                                   │  │  (PostgreSQL + Auth)    │  │
+                                   │  │      Supabase          │  │
+                                   │  │  (PostgreSQL + Auth)   │  │
                                    │  └────────────────────────┘  │
                                    └──────────────────────────────┘
 

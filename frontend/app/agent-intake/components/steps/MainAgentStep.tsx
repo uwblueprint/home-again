@@ -27,9 +27,7 @@ function validate(form: MainAgentFormData): FormErrors {
 
   if (!form.firstName.trim()) errors.firstName = "Enter your first name.";
   if (!form.lastName.trim()) errors.lastName = "Enter your last name.";
-  if (!form.email.trim()) {
-    errors.email = "Enter your email address.";
-  } else if (!EMAIL_REGEX.test(form.email.trim())) {
+  if (form.email.trim() && !EMAIL_REGEX.test(form.email.trim())) {
     errors.email = "Enter a valid email address.";
   }
   if (!form.phone.trim()) {
@@ -135,6 +133,7 @@ export default function MainAgentStep() {
           <FormField
             label="First name"
             htmlFor="firstName"
+            required
             error={touched.firstName ? errors.firstName : undefined}
           >
             <Input
@@ -148,6 +147,7 @@ export default function MainAgentStep() {
           <FormField
             label="Last name"
             htmlFor="lastName"
+            required
             error={touched.lastName ? errors.lastName : undefined}
           >
             <Input
@@ -178,6 +178,7 @@ export default function MainAgentStep() {
           <FormField
             label="Phone number"
             htmlFor="phone"
+            required
             error={touched.phone ? errors.phone : undefined}
           >
             <Input

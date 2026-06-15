@@ -29,6 +29,8 @@ function validate(form: AgencyFormData): FormErrors {
   if (!form.addressLine1.trim())
     errors.addressLine1 = "Enter a street address.";
   if (!form.city.trim()) errors.city = "Enter your city.";
+  if (!form.province.trim()) errors.province = "Select a province.";
+  if (!form.country.trim()) errors.country = "Select a country.";
   if (!form.postalCode.trim()) errors.postalCode = "Enter your postal code.";
   if (!form.phone.trim()) errors.phone = "Enter your phone number.";
 
@@ -40,6 +42,10 @@ function validate(form: AgencyFormData): FormErrors {
     errors.phone = "Enter a valid phone number.";
   }
 
+  if (form.url.trim() && !/^https?:\/\/.+/i.test(form.url.trim())) {
+    errors.url = "Enter a valid URL (e.g. https://agency.org).";
+  }
+
   return errors;
 }
 
@@ -47,6 +53,8 @@ const TOUCHED_ON_SUBMIT: (keyof AgencyFormData)[] = [
   "name",
   "addressLine1",
   "city",
+  "province",
+  "country",
   "postalCode",
   "phone",
 ];
@@ -97,6 +105,16 @@ export default function AgencyStep() {
     setErrors((prev) => ({ ...prev, [field]: validate(form)[field] }));
   }
 
+  function handleSelectChange(field: "province" | "country", value: string) {
+    const nextForm = { ...form, [field]: value };
+    setForm(nextForm);
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    setErrors((prev) => ({
+      ...prev,
+      [field]: validate(nextForm)[field],
+    }));
+  }
+
   const field = (id: keyof AgencyFormData) => ({
     id,
     value: form[id],
@@ -110,11 +128,13 @@ export default function AgencyStep() {
     <IntakeStepPage
       title="Partner Agency Details"
       description="Provide some basic information about your partner agency."
+      showServiceAreaNotice
     >
       <div className="flex flex-col gap-6">
         <FormField
           label="Agency name"
           htmlFor="name"
+          required
           error={touched.name ? errors.name : undefined}
         >
           <Input
@@ -128,6 +148,7 @@ export default function AgencyStep() {
           <FormField
             label="Address line 1"
             htmlFor="addressLine1"
+            required
             error={touched.addressLine1 ? errors.addressLine1 : undefined}
           >
             <Input
@@ -153,6 +174,7 @@ export default function AgencyStep() {
           <FormField
             label="City"
             htmlFor="city"
+            required
             error={touched.city ? errors.city : undefined}
           >
             <Input
@@ -161,14 +183,27 @@ export default function AgencyStep() {
               className={inputClassName}
             />
           </FormField>
-          <FormField label="Province" htmlFor="province">
+          <FormField
+            label="Province"
+            htmlFor="province"
+            required
+            error={touched.province ? errors.province : undefined}
+          >
             <Select
               value={form.province}
               onValueChange={(value) =>
-                value && handleChange("province", value)
+                value && handleSelectChange("province", value)
               }
             >
-              <SelectTrigger id="province" className="!h-11 w-full py-0">
+              <SelectTrigger
+                id="province"
+                className="!h-11 w-full py-0"
+                aria-invalid={
+                  touched.province && !!errors.province
+                    ? (true as const)
+                    : undefined
+                }
+              >
                 <SelectValue placeholder="Select a province" />
               </SelectTrigger>
               <SelectContent>
@@ -180,17 +215,28 @@ export default function AgencyStep() {
           </FormField>
         </div>
 
-        <p className="-mt-2 text-sm text-muted-foreground">
-          Home Again currently only services Newfoundland and Labrador, Canada.
-        </p>
-
         <div className="grid grid-cols-2 gap-4">
-          <FormField label="Country" htmlFor="country">
+          <FormField
+            label="Country"
+            htmlFor="country"
+            required
+            error={touched.country ? errors.country : undefined}
+          >
             <Select
               value={form.country}
-              onValueChange={(value) => value && handleChange("country", value)}
+              onValueChange={(value) =>
+                value && handleSelectChange("country", value)
+              }
             >
-              <SelectTrigger id="country" className="!h-11 w-full py-0">
+              <SelectTrigger
+                id="country"
+                className="!h-11 w-full py-0"
+                aria-invalid={
+                  touched.country && !!errors.country
+                    ? (true as const)
+                    : undefined
+                }
+              >
                 <SelectValue placeholder="Select a country" />
               </SelectTrigger>
               <SelectContent>
@@ -201,6 +247,7 @@ export default function AgencyStep() {
           <FormField
             label="Postal code"
             htmlFor="postalCode"
+            required
             error={touched.postalCode ? errors.postalCode : undefined}
           >
             <Input
@@ -214,12 +261,26 @@ export default function AgencyStep() {
         <FormField
           label="Phone number"
           htmlFor="phone"
+          required
           error={touched.phone ? errors.phone : undefined}
         >
           <Input
             {...field("phone")}
             type="tel"
             placeholder="Enter phone number"
+            className={inputClassName}
+          />
+        </FormField>
+
+        <FormField
+          label="Agency URL"
+          htmlFor="url"
+          error={touched.url ? errors.url : undefined}
+        >
+          <Input
+            {...field("url")}
+            type="url"
+            placeholder="https://agency.org"
             className={inputClassName}
           />
         </FormField>

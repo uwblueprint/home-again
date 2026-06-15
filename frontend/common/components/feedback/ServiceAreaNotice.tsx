@@ -1,0 +1,27 @@
+import { cn } from "@/common/lib/utils";
+
+interface ServiceAreaNoticeProps {
+  className?: string;
+}
+
+function ServiceAreaNotice({ className }: ServiceAreaNoticeProps) {
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-2 rounded-lg border border-border bg-secondary px-4 py-3 text-sm",
+        className
+      )}
+      role="note"
+    >
+      <span aria-hidden="true" className="text-muted-foreground">
+        ⓘ
+      </span>
+      <span>
+        Home Again Furniture Bank is currently only servicing Newfoundland and
+        Labrador, Canada.
+      </span>
+    </div>
+  );
+}
+
+export { ServiceAreaNotice };

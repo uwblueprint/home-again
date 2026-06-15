@@ -14,49 +14,30 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogTitle,
 } from "@/common/components/ui/dialog";
-import { Check } from "lucide-react";
+import { CheckCheck, Loader2 } from "lucide-react";
 import { useSubmitIntake } from "@/app/agent-intake/hooks/useSubmitIntake";
 import { useIntakeFormStore } from "@/app/agent-intake/stores/intakeFormStore";
 
 const AGENTS_PER_PAGE = 3;
 const EMPTY_VALUE = "—";
 const INFORMATION_BLOCK_GRID = "grid w-full gap-lg md:grid-cols-3";
-const SUCCESS_REDIRECT_DELAY_MS = 1200;
+const SUCCESS_DIALOG_DURATION_MS = 1500;
+const REDIRECT_DIALOG_DURATION_MS = 1500;
+
+type PostSubmitPhase = "success" | "redirecting";
 
 function formatValue(value: string) {
   return value.trim() || EMPTY_VALUE;
 }
 
-function formatName(firstName: string, lastName: string) {
-  return `${firstName} ${lastName}`.trim();
-}
-
-function sortName(firstName: string, lastName: string) {
-  return formatName(firstName, lastName).toLocaleLowerCase();
-}
-
-function sortOtherAgents<
-  T extends {
-    firstName: string;
-    lastName: string;
-    email: string;
-    isAdmin: boolean;
-  },
->(agents: T[]) {
+function sortOtherAgents<T extends { email: string; isAdmin: boolean }>(
+  agents: T[]
+) {
   return [...agents].sort((left, right) => {
     if (left.isAdmin !== right.isAdmin) {
       return left.isAdmin ? -1 : 1;
-    }
-
-    const leftName = sortName(left.firstName, left.lastName);
-    const rightName = sortName(right.firstName, right.lastName);
-    const byName = leftName.localeCompare(rightName, undefined, {
-      sensitivity: "base",
-    });
-
-    if (byName !== 0) {
-      return byName;
     }
 
     return left.email.localeCompare(right.email, undefined, {
@@ -66,38 +47,27 @@ function sortOtherAgents<
 }
 
 function ReviewAgentCard({
+  index,
   agent,
 }: {
+  index: number;
   agent: {
-    firstName: string;
-    lastName: string;
     email: string;
-    phone: string;
     isAdmin: boolean;
   };
 }) {
   return (
-    <Card>
-      <div className="flex flex-wrap items-center gap-1.5 self-stretch">
-        <p className="text-sm text-foreground">
-          {formatValue(formatName(agent.firstName, agent.lastName))}
+    <Card className="flex-row items-center justify-between">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+        <p className="min-w-0 truncate text-sm text-foreground">
+          <span className="font-semibold">Agent {index + 1}:</span>{" "}
+          {formatValue(agent.email)}
         </p>
         {agent.isAdmin ? (
-          <Badge variant="outline" className="font-semibold">
+          <Badge variant="outline" className="shrink-0 font-semibold">
             Admin User
           </Badge>
         ) : null}
-      </div>
-      <div className="grid w-full gap-lg md:grid-cols-3">
-        <InformationBlock
-          className="md:col-span-2"
-          label="Email"
-          value={formatValue(agent.email)}
-        />
-        <InformationBlock
-          label="Phone number"
-          value={formatValue(agent.phone)}
-        />
       </div>
     </Card>
   );
@@ -107,16 +77,35 @@ function ReviewCard({ children }: { children: ReactNode }) {
   return <Card>{children}</Card>;
 }
 
-function SubmissionSuccessDialog() {
+function IntakePostSubmitDialog({ phase }: { phase: PostSubmitPhase }) {
+  const isSuccess = phase === "success";
+
   return (
     <Dialog open>
       <DialogContent
         showCloseButton={false}
         className="flex h-[337px] w-full max-w-[517px] flex-col items-center justify-center gap-4 p-8 text-center shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.1)] sm:max-w-[517px]"
       >
-        <Check className="size-6 text-foreground" aria-hidden="true" />
-        <DialogDescription className="text-sm text-muted-foreground">
-          Profile created successfully
+        {isSuccess ? (
+          <CheckCheck
+            className="size-6 text-muted-foreground"
+            aria-hidden="true"
+          />
+        ) : (
+          <Loader2
+            className="size-6 animate-spin text-muted-foreground"
+            aria-hidden="true"
+          />
+        )}
+        <DialogTitle className="text-center text-paragraph-small font-normal text-muted-foreground">
+          {isSuccess
+            ? "Profile created successfully"
+            : "Please wait as we redirect you to your dashboard."}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          {isSuccess
+            ? "Your agency profile was created successfully."
+            : "Redirecting you to your agency dashboard."}
         </DialogDescription>
       </DialogContent>
     </Dialog>
@@ -139,6 +128,8 @@ export default function ReviewStep() {
     resetAfterSuccess,
   } = useSubmitIntake();
   const [visibleCount, setVisibleCount] = useState(AGENTS_PER_PAGE);
+  const [postSubmitPhase, setPostSubmitPhase] =
+    useState<PostSubmitPhase | null>(null);
 
   useEffect(() => {
     setVisibleCount((current) =>
@@ -171,15 +162,25 @@ export default function ReviewStep() {
 
   useEffect(() => {
     if (!submittedAgencyId) {
+      setPostSubmitPhase(null);
       return;
     }
 
-    const timeoutId = window.setTimeout(() => {
+    setPostSubmitPhase("success");
+
+    const redirectPhaseTimeout = window.setTimeout(() => {
+      setPostSubmitPhase("redirecting");
+    }, SUCCESS_DIALOG_DURATION_MS);
+
+    const redirectTimeout = window.setTimeout(() => {
       resetAfterSuccess();
       router.push(`/agencies/${submittedAgencyId}`);
-    }, SUCCESS_REDIRECT_DELAY_MS);
+    }, SUCCESS_DIALOG_DURATION_MS + REDIRECT_DIALOG_DURATION_MS);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      window.clearTimeout(redirectPhaseTimeout);
+      window.clearTimeout(redirectTimeout);
+    };
   }, [resetAfterSuccess, router, submittedAgencyId]);
 
   const sortedOtherAgents = sortOtherAgents(otherAgents);
@@ -226,6 +227,12 @@ export default function ReviewStep() {
                   value={formatValue(agency.phone)}
                 />
               </div>
+              <div className={INFORMATION_BLOCK_GRID}>
+                <InformationBlock
+                  label="Agency URL"
+                  value={formatValue(agency.url)}
+                />
+              </div>
             </ReviewCard>
           </div>
 
@@ -257,7 +264,11 @@ export default function ReviewStep() {
             </h3>
             {visibleAgents.length > 0 ? (
               visibleAgents.map((agent, index) => (
-                <ReviewAgentCard key={`${agent.email}-${index}`} agent={agent} />
+                <ReviewAgentCard
+                  key={`${agent.email}-${index}`}
+                  index={index}
+                  agent={agent}
+                />
               ))
             ) : (
               <ReviewCard>
@@ -282,7 +293,9 @@ export default function ReviewStep() {
         </div>
       </IntakeStepPage>
 
-      {isSuccess ? <SubmissionSuccessDialog /> : null}
+      {postSubmitPhase ? (
+        <IntakePostSubmitDialog phase={postSubmitPhase} />
+      ) : null}
     </>
   );
 }

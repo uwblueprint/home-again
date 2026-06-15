@@ -25,12 +25,11 @@ function FormField({
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
       <Label htmlFor={htmlFor}>
-        {label}
-        {required ? (
-          <span className="ml-1 text-destructive" aria-hidden>
-            *
-          </span>
-        ) : null}
+        <span>
+          {label}{required ? (
+            <span className="text-destructive" aria-hidden>*</span>
+          ) : null}
+        </span>
       </Label>
       {children}
       <FieldError message={error} />

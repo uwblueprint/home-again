@@ -1,12 +1,10 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 
-import apiClient from "@/common/lib/apiClient";
 import { useCreateAgency, useCreateAgent } from "@/common/hooks/useApi";
 import { useIntakeFormStore } from "@/app/agent-intake/stores/intakeFormStore";
-import type { CreateAgencyInput, UpdateAgencyInput } from "@/common/types";
+import type { CreateAgencyInput } from "@/common/types";
 
 function trimOrNull(value: string) {
   const trimmed = value.trim();
@@ -17,8 +15,32 @@ function extractErrorMessage(error: unknown) {
   if (typeof error === "object" && error !== null) {
     const detail = (error as { response?: { data?: { detail?: unknown } } })
       .response?.data?.detail;
+
     if (typeof detail === "string" && detail.trim()) {
       return detail;
+    }
+
+    if (Array.isArray(detail)) {
+      const messages = detail
+        .map((item) => {
+          if (typeof item !== "object" || item === null || !("msg" in item)) {
+            return null;
+          }
+
+          const field = Array.isArray(item.loc)
+            ? item.loc
+                .filter((part: unknown) => part !== "body")
+                .join(". ")
+            : "";
+          const message = String(item.msg);
+
+          return field ? `${field}: ${message}` : message;
+        })
+        .filter((message): message is string => Boolean(message));
+
+      if (messages.length > 0) {
+        return messages.join("; ");
+      }
     }
   }
 
@@ -37,10 +59,13 @@ function buildValidationErrorMessage() {
   if (!agency.name.trim()) missingFields.push("agency name");
   if (!agency.addressLine1.trim()) missingFields.push("address line 1");
   if (!agency.city.trim()) missingFields.push("city");
+  if (!agency.province.trim()) missingFields.push("province");
+  if (!agency.country.trim()) missingFields.push("country");
   if (!agency.phone.trim()) missingFields.push("phone number");
+  if (!agency.postalCode.trim()) missingFields.push("postal code");
   if (!mainAgent.firstName.trim()) missingFields.push("main agent first name");
   if (!mainAgent.lastName.trim()) missingFields.push("main agent last name");
-  if (!mainAgent.email.trim()) missingFields.push("main agent email");
+  if (!mainAgent.phone.trim()) missingFields.push("main agent phone number");
 
   if (missingFields.length === 0) {
     return null;
@@ -52,7 +77,6 @@ function buildValidationErrorMessage() {
 export function useSubmitIntake() {
   const createAgency = useCreateAgency();
   const createAgent = useCreateAgent();
-  const queryClient = useQueryClient();
   const reset = useIntakeFormStore((state) => state.reset);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -94,9 +118,8 @@ export function useSubmitIntake() {
           address_line_1: agency.addressLine1.trim(),
           address_line_2: trimOrNull(agency.addressLine2),
           city: agency.city.trim(),
-          phone: agency.phone.trim(),
-          postal_code: trimOrNull(agency.postalCode),
-          main_agent_id: null,
+          postal_code: agency.postalCode.trim(),
+          phone_number: agency.phone.trim(),
         };
 
         const createdAgency = await createAgency.mutateAsync(agencyPayload);
@@ -104,31 +127,20 @@ export function useSubmitIntake() {
         updateSubmissionCheckpoint({ agencyId });
       }
 
-      let mainAgentId = submissionCheckpoint.mainAgentId;
-
-      if (!mainAgentId) {
+      if (!submissionCheckpoint.mainAgentId) {
         const createdMainAgent = await createAgent.mutateAsync({
           first_name: mainAgent.firstName.trim(),
           last_name: mainAgent.lastName.trim(),
           email: mainAgent.email.trim(),
-          phone_number: trimOrNull(mainAgent.phone),
+          phone_number: mainAgent.phone.trim(),
           agency_id: agencyId,
           supabase_user_id: null,
         });
 
-        mainAgentId = createdMainAgent.id;
-        updateSubmissionCheckpoint({ mainAgentId });
-      }
-
-      if (!submissionCheckpoint.mainAgentLinked) {
-        const updatePayload: UpdateAgencyInput = {
-          main_agent_id: mainAgentId,
-        };
-
-        await apiClient.put(`/agencies/${agencyId}`, updatePayload);
-        queryClient.invalidateQueries({ queryKey: ["agencies"] });
-        queryClient.invalidateQueries({ queryKey: ["agency", agencyId] });
-        updateSubmissionCheckpoint({ mainAgentLinked: true });
+        updateSubmissionCheckpoint({
+          mainAgentId: createdMainAgent.id,
+          mainAgentLinked: true,
+        });
       }
 
       for (
@@ -139,11 +151,12 @@ export function useSubmitIntake() {
         const otherAgent = otherAgents[index];
 
         await createAgent.mutateAsync({
-          first_name: otherAgent.firstName.trim(),
-          last_name: otherAgent.lastName.trim(),
-          email: trimOrNull(otherAgent.email),
-          phone_number: trimOrNull(otherAgent.phone),
+          first_name: "",
+          last_name: "",
+          email: otherAgent.email.trim(),
+          phone_number: "",
           agency_id: agencyId,
+          is_admin: otherAgent.isAdmin,
           supabase_user_id: null,
         });
 
@@ -158,7 +171,7 @@ export function useSubmitIntake() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [createAgency, createAgent, isSubmitting, isSuccess, queryClient]);
+  }, [createAgency, createAgent, isSubmitting, isSuccess]);
 
   const resetAfterSuccess = useCallback(() => {
     reset();

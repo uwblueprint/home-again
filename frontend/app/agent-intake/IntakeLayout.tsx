@@ -48,11 +48,7 @@ function IntakeLayoutInner({
   const isOtherAgentsStep = currentStep === OTHER_AGENTS_STEP;
   const isNavigationLocked = isOtherAgentsStep && otherAgentsStepLocked;
   const hasSavedOtherAgent = otherAgents.some(
-    (agent) =>
-      agent.firstName.trim() !== "" &&
-      agent.lastName.trim() !== "" &&
-      agent.email.trim() !== "" &&
-      agent.phone.trim() !== ""
+    (agent) => agent.email.trim() !== ""
   );
 
   const isFirstStep = currentStep === 0;

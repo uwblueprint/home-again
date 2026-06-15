@@ -26,6 +26,12 @@ export {
   DialogTitle,
   DialogDescription,
 } from "./dialog";
+export {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "./dropdown-menu";
 export { Input, InputError } from "./input";
 export { Label } from "./label";
 export {

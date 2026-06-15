@@ -23,11 +23,15 @@ export function useFilePreviewUrls(files: File[]): (string | null)[] {
   // identity, so callers can pass a freshly mapped/sliced array each render
   // without thrashing the underlying object URLs.
   const signature = files
-    .map((file) => `${file.name}:${file.size}:${file.lastModified}:${file.type}`)
+    .map(
+      (file) => `${file.name}:${file.size}:${file.lastModified}:${file.type}`
+    )
     .join("|");
 
   useEffect(() => {
-    setUrls(files.map((file) => (isImage(file) ? getFilePreviewUrl(file) : null)));
+    setUrls(
+      files.map((file) => (isImage(file) ? getFilePreviewUrl(file) : null))
+    );
     return () => {
       files.forEach((file) => revokeFilePreviewUrl(file));
     };

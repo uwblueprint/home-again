@@ -32,8 +32,7 @@ export const donationsHandlers = [
 
   http.put(`${BASE}/donations/:id`, async ({ params, request }) => {
     const body = (await request.json()) as Record<string, unknown>;
-    const existing =
-      donations.find((d) => d.id === params.id) ?? donations[0];
+    const existing = donations.find((d) => d.id === params.id) ?? donations[0];
     return HttpResponse.json({
       ...existing,
       ...body,

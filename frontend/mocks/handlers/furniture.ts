@@ -32,8 +32,7 @@ export const furnitureHandlers = [
 
   http.put(`${BASE}/furniture/:id`, async ({ params, request }) => {
     const body = (await request.json()) as Record<string, unknown>;
-    const existing =
-      furniture.find((f) => f.id === params.id) ?? furniture[0];
+    const existing = furniture.find((f) => f.id === params.id) ?? furniture[0];
     return HttpResponse.json({
       ...existing,
       ...body,

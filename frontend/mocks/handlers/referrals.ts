@@ -32,8 +32,7 @@ export const referralsHandlers = [
 
   http.put(`${BASE}/referrals/:id`, async ({ params, request }) => {
     const body = (await request.json()) as Record<string, unknown>;
-    const existing =
-      referrals.find((r) => r.id === params.id) ?? referrals[0];
+    const existing = referrals.find((r) => r.id === params.id) ?? referrals[0];
     return HttpResponse.json({
       ...existing,
       ...body,

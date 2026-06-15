@@ -55,7 +55,9 @@ export const agenciesHandlers = [
     const id = params.id as string;
     const body = (await request.json()) as Record<string, unknown>;
     const existing =
-      createdAgencies.get(id) ?? agencies.find((a) => a.id === id) ?? agencies[0];
+      createdAgencies.get(id) ??
+      agencies.find((a) => a.id === id) ??
+      agencies[0];
     const updated: AgencyRecord = {
       ...existing,
       ...(body as Partial<AgencyRecord>),

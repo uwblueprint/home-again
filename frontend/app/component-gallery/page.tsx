@@ -334,7 +334,6 @@ function DialogDemo() {
   );
 }
 
-
 function DropdownMenuDemo() {
   const menuItems = ["Option 1", "Option 2", "Option 3", "Option 4"] as const;
 
@@ -364,11 +363,7 @@ function InputDemo() {
     <div className="flex w-full max-w-xs flex-col gap-3">
       <Input placeholder="Input field" />
       <div>
-        <Input
-          aria-invalid
-          defaultValue="invalid@"
-          placeholder="Input field"
-        />
+        <Input aria-invalid defaultValue="invalid@" placeholder="Input field" />
         <InputError>Please enter a valid email address.</InputError>
       </div>
     </div>
@@ -626,7 +621,11 @@ function HeaderDemo() {
     <div className="w-[50vw] overflow-hidden rounded-md border border-border bg-card">
       <Header>
         <FormBreadcrumb
-          steps={[{ label: "Find" }, { label: "Client" }, { label: "Referral" }]}
+          steps={[
+            { label: "Find" },
+            { label: "Client" },
+            { label: "Referral" },
+          ]}
           activeIndex={0}
         />
       </Header>
@@ -789,9 +788,9 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Breadcrumb", Demo: BreadcrumbDemo },
   { name: "Button", Demo: ButtonDemo },
   { name: "Card", Demo: CardDemo },
-  { name: "Checkbox", Demo: CheckboxSectionDemo},
+  { name: "Checkbox", Demo: CheckboxSectionDemo },
   { name: "Dialog", Demo: DialogDemo },
-  { name: "Dropdown", Demo: DropdownMenuDemo},
+  { name: "Dropdown", Demo: DropdownMenuDemo },
   { name: "Input", Demo: InputDemo },
   { name: "Label", Demo: LabelDemo },
   { name: "Select", Demo: SelectDemo },

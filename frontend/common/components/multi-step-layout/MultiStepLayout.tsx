@@ -80,9 +80,7 @@ function MultiStepLayout({
 
       <div className="mt-4 flex w-full flex-col gap-6 bg-background">
         {flowTitle ? (
-          <h1 className="text-xl font-semibold text-foreground">
-            {flowTitle}
-          </h1>
+          <h1 className="text-xl font-semibold text-foreground">{flowTitle}</h1>
         ) : null}
         <h2 className="text-lg font-semibold text-foreground">
           {substep.label}

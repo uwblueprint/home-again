@@ -6,7 +6,10 @@ export const referrals: Referral[] = [
     client_id: "client-001",
     agency_id: "agency-001",
     status: "pending",
-    requested_items: [{ name: "Sofa", quantity: 1 }, { name: "Dining Table", quantity: 1 }],
+    requested_items: [
+      { name: "Sofa", quantity: 1 },
+      { name: "Dining Table", quantity: 1 },
+    ],
     dispatch_required: true,
     referral_date: "2024-06-01",
     is_priority: false,
@@ -39,7 +42,10 @@ export const referrals: Referral[] = [
     client_id: "client-002",
     agency_id: "agency-002",
     status: "approved",
-    requested_items: [{ name: "Bed Frame", quantity: 1 }, { name: "Mattress", quantity: 1 }],
+    requested_items: [
+      { name: "Bed Frame", quantity: 1 },
+      { name: "Mattress", quantity: 1 },
+    ],
     dispatch_required: false,
     referral_date: "2024-05-20",
     is_priority: true,

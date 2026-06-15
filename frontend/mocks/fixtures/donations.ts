@@ -39,7 +39,8 @@ export const donations: Furniture[] = [
     name: "Dining Table Set",
     status: "APPROVED",
     image_url: "https://mock.api.placeholder/images/dining-table.jpg",
-    description: "6-person dining table with chairs, minor scratches on surface",
+    description:
+      "6-person dining table with chairs, minor scratches on surface",
     date_donated: "2024-03-12T14:30:00Z",
     date_received: "2024-03-14T09:00:00Z",
     address_pickup: "220 Bank Street, Ottawa, ON K2P 1X4",

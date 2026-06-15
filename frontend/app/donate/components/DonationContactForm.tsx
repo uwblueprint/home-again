@@ -24,7 +24,7 @@ export type DonationRequestContactFormSubmitStatus = {
   text: string;
 } | null;
 import { Button } from "@/common/components/ui/button";
-import { Input } from "@/common/components/ui/input";
+import { Input, InputError } from "@/common/components/ui/input";
 import { Label } from "@/common/components/ui/label";
 
 import { EMAIL_REGEX, PHONE_REGEX } from "@/common/constants/validators";
@@ -179,13 +179,9 @@ export default function DonationContactForm() {
                   className="h-10 rounded-lg bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
                 />
                 {errors.first_name ? (
-                  <p
-                    id="first_name-error"
-                    className="text-destructive text-sm"
-                    role="alert"
-                  >
+                  <InputError id="first_name-error">
                     {errors.first_name}
-                  </p>
+                  </InputError>
                 ) : null}
               </div>
 
@@ -212,13 +208,9 @@ export default function DonationContactForm() {
                   className="h-10 rounded-lg bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
                 />
                 {errors.last_name ? (
-                  <p
-                    id="last_name-error"
-                    className="text-destructive text-sm"
-                    role="alert"
-                  >
+                  <InputError id="last_name-error">
                     {errors.last_name}
-                  </p>
+                  </InputError>
                 ) : null}
               </div>
 
@@ -243,13 +235,7 @@ export default function DonationContactForm() {
                   className="h-10 rounded-lg bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
                 />
                 {errors.email ? (
-                  <p
-                    id="email-error"
-                    className="text-destructive text-sm"
-                    role="alert"
-                  >
-                    {errors.email}
-                  </p>
+                  <InputError id="email-error">{errors.email}</InputError>
                 ) : null}
               </div>
 
@@ -274,13 +260,7 @@ export default function DonationContactForm() {
                   className="h-10 rounded-lg bg-background text-[clamp(0.825rem,0.78rem+0.2vw,0.875rem)] leading-5 shadow-[0_1px_2px_0_rgba(0,0,0,0)]"
                 />
                 {errors.phone ? (
-                  <p
-                    id="phone-error"
-                    className="text-destructive text-sm"
-                    role="alert"
-                  >
-                    {errors.phone}
-                  </p>
+                  <InputError id="phone-error">{errors.phone}</InputError>
                 ) : null}
               </div>
 

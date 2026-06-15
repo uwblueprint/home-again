@@ -1,7 +1,7 @@
 "use client";
 
 import React, { type ChangeEvent } from "react";
-import { Input } from "@/common/components/ui/input";
+import { Input, InputError } from "@/common/components/ui/input";
 import { Label } from "@/common/components/ui/label";
 import type { PickupAddress } from "@/app/donate/context/DonationFormContext";
 import {
@@ -80,13 +80,9 @@ export default function PickupAddressForm({
           className={inputClass}
         />
         {errors.streetAddress ? (
-          <p
-            id="streetAddress-error"
-            className="text-destructive text-sm"
-            role="alert"
-          >
+          <InputError id="streetAddress-error">
             {errors.streetAddress}
-          </p>
+          </InputError>
         ) : null}
       </div>
 
@@ -127,13 +123,7 @@ export default function PickupAddressForm({
             className={inputClass}
           />
           {errors.city ? (
-            <p
-              id="city-error"
-              className="text-destructive text-sm"
-              role="alert"
-            >
-              {errors.city}
-            </p>
+            <InputError id="city-error">{errors.city}</InputError>
           ) : null}
         </div>
 
@@ -215,13 +205,7 @@ export default function PickupAddressForm({
             className={inputClass}
           />
           {errors.postalCode ? (
-            <p
-              id="postalCode-error"
-              className="text-destructive text-sm"
-              role="alert"
-            >
-              {errors.postalCode}
-            </p>
+            <InputError id="postalCode-error">{errors.postalCode}</InputError>
           ) : null}
         </div>
       </div>

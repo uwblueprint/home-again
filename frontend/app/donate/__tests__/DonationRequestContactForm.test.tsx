@@ -25,6 +25,14 @@ jest.mock("@/common/components/ui/input", () => ({
   Input: (props: React.InputHTMLAttributes<HTMLInputElement>) => (
     <input {...props} />
   ),
+  InputError: ({
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLParagraphElement>) => (
+    <p role="alert" {...props}>
+      {children}
+    </p>
+  ),
 }));
 jest.mock("@/common/components/ui/label", () => ({
   Label: ({

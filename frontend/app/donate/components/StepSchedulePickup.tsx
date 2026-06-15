@@ -47,10 +47,10 @@ export default function StepSchedulePickup() {
   return (
     <div className="space-y-4">
       <div className="space-y-1">
-        <h2 className="text-2xl font-bold text-foreground">
+        <h2 className="text-3xl font-semibold text-foreground">
           Schedule a Pickup
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-lg text-muted-foreground">
           Enter the address where you&apos;d like your donation picked up.
         </p>
       </div>
@@ -62,7 +62,7 @@ export default function StepSchedulePickup() {
         <span aria-hidden="true" className="text-muted-foreground">
           ⓘ
         </span>
-        <span>
+        <span className="font-medium">
           Home Again Furniture Bank is currently only servicing Newfoundland and
           Labrador, Canada.
         </span>

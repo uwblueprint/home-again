@@ -76,7 +76,7 @@ export default function FurnitureItemCard({
           aria-expanded={isExpanded}
           aria-controls={`furniture-item-body-${index}`}
         >
-          <span className="text-sm text-muted-foreground">{displayLabel}</span>
+          <span className="text-lg text-muted-foreground">{displayLabel}</span>
           {isExpanded ? (
             <ChevronUp className="size-5 text-muted-foreground" />
           ) : (
@@ -96,14 +96,14 @@ export default function FurnitureItemCard({
               id={`furniture-item-body-${index}`}
               className="flex flex-col gap-6 px-6 pb-8"
             >
-              <h3 className="text-base font-semibold text-foreground">
+              <h3 className="text-xl font-semibold text-foreground">
                 Item Details
               </h3>
 
               {/* Furniture type */}
               <fieldset>
-                <legend className="mb-3 text-sm font-semibold text-foreground">
-                  Select Furniture Type
+                <legend className="mb-3 text-sm font-medium text-foreground">
+                  Select Furniture Type<span className="text-destructive">*</span>
                 </legend>
                 <div className="grid grid-cols-3 gap-3">
                   {FURNITURE_TYPES.map((type) => {
@@ -230,7 +230,7 @@ export default function FurnitureItemCard({
                   onClick={onDelete}
                   disabled={isDeleteDisabled}
                   className={cn(
-                    "inline-flex items-center gap-1.5 text-sm transition-colors",
+                    "inline-flex items-center gap-1.5 text-sm font-medium transition-colors",
                     isDeleteDisabled
                       ? "cursor-not-allowed text-muted-foreground/40"
                       : "cursor-pointer text-muted-foreground hover:text-destructive"

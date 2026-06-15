@@ -1,0 +1,40 @@
+import type { AgencyRecord } from "@/common/types";
+
+export const agencies: AgencyRecord[] = [
+  {
+    id: "agency-001",
+    name: "Downtown Community Services",
+    phone: "613-555-0101",
+    address_line_1: "100 Main Street",
+    address_line_2: "Suite 200",
+    city: "Ottawa",
+    postal_code: "K1A 0B1",
+    main_agent_id: "agent-001",
+    created_at: "2024-01-15T09:00:00Z",
+    updated_at: "2024-06-01T14:30:00Z",
+  },
+  {
+    id: "agency-002",
+    name: "Riverside Family Support Centre",
+    phone: "613-555-0202",
+    address_line_1: "45 River Road",
+    address_line_2: null,
+    city: "Gatineau",
+    postal_code: "J8T 2K3",
+    main_agent_id: "agent-003",
+    created_at: "2024-02-20T11:00:00Z",
+    updated_at: "2024-05-18T09:15:00Z",
+  },
+  {
+    id: "agency-003",
+    name: "Westside Housing Initiative",
+    phone: "613-555-0303",
+    address_line_1: "782 Carling Avenue",
+    address_line_2: "Unit 4B",
+    city: "Ottawa",
+    postal_code: "K2A 1C4",
+    main_agent_id: null,
+    created_at: "2024-03-10T08:30:00Z",
+    updated_at: "2024-07-22T16:45:00Z",
+  },
+];

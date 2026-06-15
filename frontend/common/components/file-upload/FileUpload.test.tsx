@@ -88,7 +88,9 @@ describe("FileUpload", () => {
 
       expect(screen.getAllByRole("img")).toHaveLength(5);
       expect(
-        screen.getByText(/You can upload up to 5 files\. 2 files weren't added\./)
+        screen.getByText(
+          /You can upload up to 5 files\. 2 files weren't added\./
+        )
       ).toBeInTheDocument();
       expect(screen.queryByAltText("existing-5.png")).not.toBeInTheDocument();
       expect(screen.queryByAltText("existing-6.png")).not.toBeInTheDocument();
@@ -393,5 +395,4 @@ describe("FileUpload", () => {
       expect(screen.queryAllByRole("img")).toHaveLength(0);
     });
   });
-
 });

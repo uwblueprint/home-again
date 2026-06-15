@@ -69,7 +69,9 @@ export default function StepSchedulePickup() {
       </div>
 
       {showAll && hasAnyVisibleError ? (
-        <InputError>Please fill in all required fields before continuing.</InputError>
+        <InputError>
+          Please fill in all required fields before continuing.
+        </InputError>
       ) : null}
 
       <PickupAddressForm

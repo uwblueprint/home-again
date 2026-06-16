@@ -170,23 +170,22 @@ export default function FurnitureItemCard({
 
               {/* Photo upload */}
               <div>
-                <p className="mb-2 text-sm font-medium text-foreground">
+                <p className="mb-3 text-sm font-medium text-foreground">
                   Upload photos of item (max {MAX_PHOTOS})
                 </p>
 
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
                   onClick={() => setDialogOpen(true)}
                   className="gap-2 hover:bg-[var(--unofficial-outline-hover)]"
                 >
-                  <Upload className="size-4" />
-                  Upload Photos
+                  <Upload className="size-4" strokeWidth={1.5} />
+                  Upload photos
                 </Button>
 
                 {itemData.photos.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="mt-4 flex flex-wrap gap-2">
                     {itemData.photos.map((file, i) => (
                       <div
                         key={`${file.name}-${file.lastModified}-${file.size}-${i}`}

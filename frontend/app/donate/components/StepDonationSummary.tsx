@@ -107,6 +107,14 @@ function MapPinIcon() {
   );
 }
 
+// Prefix the donor's local number with the "(+1)" country code shown in the
+// designs, unless they already entered a country code themselves.
+function formatPhoneNumber(phone: string | null | undefined): string {
+  const trimmed = phone?.trim();
+  if (!trimmed) return "-";
+  return /^\(?\+?1\b/.test(trimmed) ? trimmed : `(+1) ${trimmed}`;
+}
+
 // --- Main component ---
 
 export default function StepDonationSummary() {
@@ -148,13 +156,13 @@ export default function StepDonationSummary() {
   }
 
   function handleFeeAgreementChange(checked: boolean) {
-    setFormState((prev) => ({ ...prev, feeAgreement: checked === true }));
+    setFormState((prev) => ({ ...prev, feeAgreement: checked }));
   }
 
   const donorFirstName = donorLoading ? "…" : (donor?.first_name ?? "-");
   const donorLastName = donorLoading ? "…" : (donor?.last_name ?? "-");
   const donorEmail = donorLoading ? "…" : (donor?.email ?? "-");
-  const donorPhone = donorLoading ? "…" : (donor?.phone ?? "-");
+  const donorPhone = donorLoading ? "…" : formatPhoneNumber(donor?.phone);
 
   return (
     <div className="flex flex-col gap-9">
@@ -254,7 +262,9 @@ export default function StepDonationSummary() {
           <label className="flex cursor-pointer items-center gap-2">
             <Checkbox
               checked={feeAgreement}
-              onCheckedChange={handleFeeAgreementChange}
+              onCheckedChange={(checked) =>
+                handleFeeAgreementChange(checked === true)
+              }
               aria-invalid={showFeeError}
               className="size-3.5 rounded-sm shadow-none"
             />

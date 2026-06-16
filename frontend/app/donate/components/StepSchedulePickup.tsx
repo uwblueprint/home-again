@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { CircleAlert } from "lucide-react";
 import {
   useDonationForm,
   type PickupAddress,
@@ -59,9 +60,10 @@ export default function StepSchedulePickup() {
         className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-4 py-3 text-sm"
         role="note"
       >
-        <span aria-hidden="true" className="text-muted-foreground">
-          ⓘ
-        </span>
+        <CircleAlert
+          aria-hidden="true"
+          className="size-4 shrink-0 text-muted-foreground"
+        />
         <span className="font-medium">
           Home Again Furniture Bank is currently only servicing Newfoundland and
           Labrador, Canada.

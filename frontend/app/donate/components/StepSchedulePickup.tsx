@@ -62,7 +62,7 @@ export default function StepSchedulePickup() {
       >
         <CircleAlert
           aria-hidden="true"
-          className="size-4 shrink-0 text-muted-foreground"
+          className="size-4 shrink-0 text-foreground"
         />
         <span className="font-medium">
           Home Again Furniture Bank is currently only servicing Newfoundland and

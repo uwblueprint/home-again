@@ -66,7 +66,7 @@ export default function StepSchedulePickup() {
         />
         <span className="font-medium">
           Home Again Furniture Bank is currently only servicing Newfoundland and
-          Labrador, Canada.
+          Labrador, Canada
         </span>
       </div>
 

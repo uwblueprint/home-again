@@ -1,10 +1,13 @@
 import { http, HttpResponse } from "msw";
 import type { AgentRecord } from "@/common/types";
+import { agents } from "../fixtures/agents";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL;
 
-// In-memory store for agents created during the session
-const createdAgents = new Map<string, AgentRecord>();
+// In-memory store seeded with fixture agents, plus any created during the session
+const createdAgents = new Map<string, AgentRecord>(
+  agents.map((agent) => [agent.id, agent])
+);
 
 export const agentsHandlers = [
   http.get(`${BASE}/agents`, () => {

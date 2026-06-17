@@ -3,11 +3,14 @@
 import { type ReactNode, useState } from "react";
 import { StepIndicator } from "@/common/components/ui/step-indicator";
 import { Header, Footer } from "@/common/components/forms";
+import { cn } from "@/common/lib/utils";
 
 export interface Substep {
   label: string;
   content: ReactNode;
   leftAction?: ReactNode;
+  /** Use the full container width instead of the default centered, reading-width column. */
+  wide?: boolean;
 }
 
 export interface Step {
@@ -23,6 +26,23 @@ type MultiStepLayoutProps = {
   isNextDisabled?: boolean;
   footerAlert?: string;
   submitLabel?: string;
+  /**
+   * Controlled step/substep index, for flows that need to jump to an
+   * arbitrary step from outside (e.g. a Review screen's "edit" links).
+   * Omit both `stepIndex` and `onNavigate` to let the layout manage its
+   * own navigation state internally (the default, uncontrolled mode).
+   */
+  stepIndex?: number;
+  substepIndex?: number;
+  onNavigate?: (next: { stepIndex: number; substepIndex: number }) => void;
+  /**
+   * Called before advancing to the next substep/step or submitting.
+   * Return `false` to block the navigation (e.g. validation failed) —
+   * the layout will not advance and `onSubmit` will not fire.
+   */
+  onBeforeNext?: () => boolean;
+  /** Overrides the root container's width/layout classes (defaults to `max-w-7xl`). */
+  className?: string;
 };
 
 function MultiStepLayout({
@@ -33,9 +53,29 @@ function MultiStepLayout({
   isNextDisabled = false,
   footerAlert,
   submitLabel = "Submit",
+  stepIndex: controlledStepIndex,
+  substepIndex: controlledSubstepIndex,
+  onNavigate,
+  onBeforeNext,
+  className,
 }: MultiStepLayoutProps) {
-  const [stepIndex, setStepIndex] = useState(0);
-  const [substepIndex, setSubstepIndex] = useState(0);
+  const isControlled = controlledStepIndex !== undefined;
+  const [internalStepIndex, setInternalStepIndex] = useState(0);
+  const [internalSubstepIndex, setInternalSubstepIndex] = useState(0);
+
+  const stepIndex = isControlled ? controlledStepIndex : internalStepIndex;
+  const substepIndex = isControlled
+    ? controlledSubstepIndex ?? 0
+    : internalSubstepIndex;
+
+  const navigate = (nextStepIndex: number, nextSubstepIndex: number) => {
+    if (isControlled) {
+      onNavigate?.({ stepIndex: nextStepIndex, substepIndex: nextSubstepIndex });
+    } else {
+      setInternalStepIndex(nextStepIndex);
+      setInternalSubstepIndex(nextSubstepIndex);
+    }
+  };
 
   const step = steps[stepIndex];
   const substep = step.substeps[substepIndex];
@@ -44,32 +84,37 @@ function MultiStepLayout({
   const isLastSubstep = substepIndex === step.substeps.length - 1;
 
   const handleNext = () => {
+    if (onBeforeNext && !onBeforeNext()) return;
+
     if (isLastStep && isLastSubstep) {
       onSubmit();
       return;
     }
     if (isLastSubstep) {
-      setStepIndex((prev) => prev + 1);
-      setSubstepIndex(0);
+      navigate(stepIndex + 1, 0);
       return;
     }
-    setSubstepIndex((prev) => prev + 1);
+    navigate(stepIndex, substepIndex + 1);
   };
 
   const handleBack = () => {
     if (substepIndex > 0) {
-      setSubstepIndex((prev) => prev - 1);
+      navigate(stepIndex, substepIndex - 1);
       return;
     }
     if (stepIndex > 0) {
       const previousStep = steps[stepIndex - 1];
-      setStepIndex((prev) => prev - 1);
-      setSubstepIndex(previousStep.substeps.length - 1);
+      navigate(stepIndex - 1, previousStep.substeps.length - 1);
     }
   };
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col items-center gap-6 px-4 pb-4 pt-12">
+    <div
+      className={cn(
+        "mx-auto flex min-h-screen w-full max-w-7xl flex-col items-center gap-6 px-4 pb-4 pt-12",
+        className
+      )}
+    >
       <Header>
         <StepIndicator
           steps={steps.map((s) => ({ label: s.label }))}
@@ -78,18 +123,25 @@ function MultiStepLayout({
         />
       </Header>
 
-      <div className="mt-4 flex w-full flex-col gap-6 bg-background">
+      <div
+        className={cn(
+          "mx-auto flex w-full flex-col gap-6 bg-background",
+          substep.wide ? "max-w-none" : "max-w-3xl"
+        )}
+      >
         {flowTitle ? (
           <h1 className="text-xl font-semibold text-foreground">{flowTitle}</h1>
         ) : null}
-        <h2 className="text-lg font-semibold text-foreground">
-          {substep.label}
-        </h2>
+        {substep.label ? (
+          <h2 className="text-lg font-semibold text-foreground">
+            {substep.label}
+          </h2>
+        ) : null}
         <div>{substep.content}</div>
       </div>
 
       <Footer
-        className="mt-auto max-w-7xl mx-auto"
+        className="mt-auto w-full"
         leftAction={substep.leftAction}
         footerAlert={footerAlert}
         onBack={isFirst ? undefined : handleBack}

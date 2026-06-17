@@ -11,14 +11,21 @@ import {
   Utensils,
 } from "lucide-react"
 
-import FurnitureItemCard from "@/components/referral-form/FurnitureItemCard"
-import SummaryList from "@/components/referral-form/SummaryList"
-import { cn } from "@/lib/utils"
+import FurnitureItemCard from "@/common/components/forms/FurnitureItemCard"
+import SummaryList from "./SummaryList"
+import { cn } from "@/common/lib/utils"
 
-type Item = {
+export type Item = {
   id: string
   label: string
   category: string
+}
+
+export type FurnitureFormData = {
+  selected: Record<string, boolean>
+  quantities: Record<string, number>
+  notes: Record<string, string>
+  subOptions: Record<string, { id: string; label: string; quantity: number }[]>
 }
 
 type FurnitureFormProps = {
@@ -26,6 +33,7 @@ type FurnitureFormProps = {
   showHeader?: boolean
   showSummary?: boolean
   onValidityChange?: (isValid: boolean) => void
+  onDataChange?: (data: FurnitureFormData) => void
 }
 
 const CATEGORIES = [
@@ -37,7 +45,7 @@ const CATEGORIES = [
   "Tables",
 ]
 
-const ITEMS: Item[] = [
+export const ITEMS: Item[] = [
   { id: "sofa-couch", label: "Sofa/Couch", category: "Seating" },
   { id: "love-seat", label: "Love Seat", category: "Seating" },
   {
@@ -193,6 +201,7 @@ export default function FurnitureForm({
   showHeader = true,
   showSummary = true,
   onValidityChange,
+  onDataChange,
 }: FurnitureFormProps) {
   const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [subOptions, setSubOptions] = useState(SUB_OPTIONS)
@@ -234,6 +243,10 @@ export default function FurnitureForm({
   useEffect(() => {
     onValidityChange?.(!hasSizeError)
   }, [hasSizeError, onValidityChange])
+
+  useEffect(() => {
+    onDataChange?.({ selected, quantities, notes, subOptions })
+  }, [selected, quantities, notes, subOptions, onDataChange])
 
   const handleSummaryQuantityChange = (itemId: string, nextQuantity: number) => {
     setQuantities((prev) => ({ ...prev, [itemId]: nextQuantity }))

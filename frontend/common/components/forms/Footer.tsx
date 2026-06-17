@@ -26,7 +26,7 @@ export function Footer({
   return (
     <nav
       className={cn(
-        "w-[50vw] border-t border-border bg-background/90 px-4 py-3 pb-6 md:px-8",
+        "w-full border-t border-border bg-background/90 px-4 py-3 pb-6 md:px-8",
         className
       )}
     >

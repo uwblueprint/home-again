@@ -20,11 +20,14 @@ import type {
   Client,
   CreateAgencyInput,
   CreateAgentInput,
+  CreateClientInput,
   CreateDonorInput,
+  CreateReferralInput,
   Donor,
   Furniture,
   Referral,
   UpdateAgencyInput,
+  UpdateClientInput,
 } from "@/common/types";
 
 /**
@@ -237,5 +240,85 @@ export function useReferrals() {
       return response.data;
     },
     staleTime: 1000 * 60 * 2,
+  });
+}
+
+/**
+ * Fetch all agents
+ */
+export function useAgents() {
+  return useQuery({
+    queryKey: ["agents"],
+    queryFn: async () => {
+      const response = await apiClient.get<AgentRecord[]>("/agents");
+      return response.data;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+/**
+ * Create a new client
+ *
+ * Automatically invalidates the clients query cache after success.
+ */
+export function useCreateClient() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: CreateClientInput) => {
+      const response = await apiClient.post<Client>("/clients", payload);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+    },
+  });
+}
+
+/**
+ * Update an existing client by ID
+ *
+ * Automatically invalidates the clients query cache after success.
+ */
+export function useUpdateClient() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      clientId,
+      data,
+    }: {
+      clientId: string;
+      data: UpdateClientInput;
+    }) => {
+      const response = await apiClient.put<Client>(
+        `/clients/${clientId}`,
+        data
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+    },
+  });
+}
+
+/**
+ * Create a new referral
+ *
+ * Automatically invalidates the referrals query cache after success.
+ */
+export function useCreateReferral() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: CreateReferralInput) => {
+      const response = await apiClient.post<Referral>("/referrals", payload);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["referrals"] });
+    },
   });
 }

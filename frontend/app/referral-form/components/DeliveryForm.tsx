@@ -3,22 +3,36 @@
 import { Info } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Input } from "@/common/components/ui/input"
+import { Label } from "@/common/components/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { cn } from "@/lib/utils"
+} from "@/common/components/ui/select"
+import { Textarea } from "@/common/components/ui/textarea"
+import { cn } from "@/common/lib/utils"
+
+export type DeliveryFormData = {
+  address1: string
+  address2: string
+  city: string
+  province: string
+  country: string
+  postalCode: string
+  dateNeeded: string
+  notes: string
+  otherDetails: string
+  selectedMoves: Record<string, boolean>
+}
 
 type DeliveryFormProps = {
   className?: string
   showErrors?: boolean
   onValidityChange?: (isValid: boolean) => void
+  onDataChange?: (data: DeliveryFormData) => void
 }
 
 const PROVINCES = [
@@ -53,6 +67,7 @@ export default function DeliveryForm({
   className,
   showErrors = false,
   onValidityChange,
+  onDataChange,
 }: DeliveryFormProps) {
   const [address1, setAddress1] = useState("")
   const [address2, setAddress2] = useState("")
@@ -106,6 +121,33 @@ export default function DeliveryForm({
   useEffect(() => {
     onValidityChange?.(isValid)
   }, [isValid, onValidityChange])
+
+  useEffect(() => {
+    onDataChange?.({
+      address1,
+      address2,
+      city,
+      province,
+      country,
+      postalCode,
+      dateNeeded,
+      notes,
+      otherDetails,
+      selectedMoves,
+    })
+  }, [
+    address1,
+    address2,
+    city,
+    province,
+    country,
+    postalCode,
+    dateNeeded,
+    notes,
+    otherDetails,
+    selectedMoves,
+    onDataChange,
+  ])
 
   return (
     <section className={cn("space-y-6", className)}>

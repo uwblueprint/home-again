@@ -1,5 +1,5 @@
 import { Minus, Plus, Trash2 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn } from "@/common/lib/utils"
 
 type SummaryItem = {
   id: string

@@ -2,11 +2,16 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAgencies, useDeleteAgency } from "@/hooks/useApi";
-import ResourceList from "@/components/ResourceList";
-import type { Agency, ColumnConfig, RowActionConfig } from "@/types";
+import { useAgencies, useDeleteAgency } from "@/common/hooks/useApi";
+import ResourceList from "@/common/components/data-display/ResourceList";
+import type {
+  AgencyRecord,
+  ColumnConfig,
+  RowActionConfig,
+} from "@/common/types";
+import { Button } from "@/common/components/ui/button";
 
-const agencyColumns: ColumnConfig<Agency>[] = [
+const agencyColumns: ColumnConfig<AgencyRecord>[] = [
   {
     key: "name",
     label: "Name",
@@ -14,9 +19,9 @@ const agencyColumns: ColumnConfig<Agency>[] = [
     width: "25%",
   },
   {
-    key: "email",
-    label: "Email",
-    type: "email",
+    key: "address_line_1",
+    label: "Address",
+    type: "text",
     width: "25%",
   },
   {
@@ -30,13 +35,13 @@ const agencyColumns: ColumnConfig<Agency>[] = [
     label: "City",
     type: "text",
     width: "15%",
-    render: (value, row: Agency) => `${row.city}, ${row.province}`,
   },
   {
-    key: "status",
-    label: "Status",
-    type: "status",
+    key: "postal_code",
+    label: "Postal Code",
+    type: "text",
     width: "15%",
+    render: (value) => (value ? String(value) : "—"),
   },
 ];
 
@@ -45,12 +50,11 @@ export default function AgenciesPage() {
   const { data: agencies, isLoading, error } = useAgencies();
   const { mutate: deleteAgency } = useDeleteAgency();
 
-  const rowActions: RowActionConfig<Agency>[] = [
+  const rowActions: RowActionConfig<AgencyRecord>[] = [
     {
       id: "view",
       label: "View",
-      className:
-        "text-blue-600 hover:text-blue-800 hover:underline transition",
+      className: "text-blue-600 hover:text-blue-800 hover:underline transition",
       onClick: (agency) => {
         router.push(`/agencies/${agency.id}`);
       },
@@ -78,20 +82,19 @@ export default function AgenciesPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
+      <header className="w-full bg-primary text-primary-foreground shadow-lg">
         <div className="max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Agencies</h1>
-          <Link
-            href="/"
-            className="px-4 py-2 bg-white/20 rounded hover:bg-white/30 transition"
-          >
-            Home
+          <h1 className="text-heading-3 font-semibold">Agencies</h1>
+          <Link href="/">
+            <Button variant="secondary" size="sm">
+              Home
+            </Button>
           </Link>
         </div>
       </header>
 
       <main className="flex-1 max-w-6xl mx-auto px-6 py-8 w-full">
-        <ResourceList<Agency>
+        <ResourceList<AgencyRecord>
           columns={agencyColumns}
           data={agencies || []}
           loading={isLoading}

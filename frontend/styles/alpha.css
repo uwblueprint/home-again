@@ -1,0 +1,36 @@
+:root {
+    /* Collection: alpha */
+    --black-alpha-0: oklch(0 0 0 / 0);
+    --black-alpha-001: oklch(0 0 0 / 0.0001);
+    --black-alpha-10: oklch(0 0 0 / 0.1);
+    --black-alpha-100: oklch(0 0 0 / 1);
+    --black-alpha-15: oklch(0 0 0 / 0.15);
+    --black-alpha-20: oklch(0 0 0 / 0.2);
+    --black-alpha-30: oklch(0 0 0 / 0.3);
+    --black-alpha-333: oklch(0 0 0 / 0.0333);
+    --black-alpha-40: oklch(0 0 0 / 0.4);
+    --black-alpha-5: oklch(0 0 0 / 0.05);
+    --black-alpha-50: oklch(0 0 0 / 0.5);
+    --black-alpha-60: oklch(0 0 0 / 0.6);
+    --black-alpha-70: oklch(0 0 0 / 0.7);
+    --black-alpha-80: oklch(0 0 0 / 0.8);
+    --black-alpha-90: oklch(0 0 0 / 0.9);
+    --black-alpha-95: oklch(0 0 0 / 0.95);
+
+    --white-alpha-0: oklch(1 0 0 / 0);
+    --white-alpha-001: oklch(1 0 0 / 0.0001);
+    --white-alpha-10: oklch(1 0 0 / 0.1);
+    --white-alpha-100: oklch(1 0 0 / 1);
+    --white-alpha-15: oklch(1 0 0 / 0.15);
+    --white-alpha-20: oklch(1 0 0 / 0.2);
+    --white-alpha-30: oklch(1 0 0 / 0.3);
+    --white-alpha-333: oklch(1 0 0 / 0.0333);
+    --white-alpha-40: oklch(1 0 0 / 0.4);
+    --white-alpha-5: oklch(1 0 0 / 0.05);
+    --white-alpha-50: oklch(1 0 0 / 0.5);
+    --white-alpha-60: oklch(1 0 0 / 0.6);
+    --white-alpha-70: oklch(1 0 0 / 0.7);
+    --white-alpha-80: oklch(1 0 0 / 0.8);
+    --white-alpha-90: oklch(1 0 0 / 0.9);
+    --white-alpha-95: oklch(1 0 0 / 0.95);
+}

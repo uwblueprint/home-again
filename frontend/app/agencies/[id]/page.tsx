@@ -2,26 +2,22 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import ResourceDetail from "@/components/ResourceDetail";
-import { useAgency, useDeleteAgency } from "@/hooks/useApi";
-import type { Agency, ResourceDetailField } from "@/types";
+import ResourceDetail from "@/common/components/data-display/ResourceDetail";
+import { useAgency, useDeleteAgency } from "@/common/hooks/useApi";
+import type { AgencyRecord, ResourceDetailField } from "@/common/types";
 
-const agencyFields: ResourceDetailField<Agency>[] = [
+const agencyFields: ResourceDetailField<AgencyRecord>[] = [
   { key: "id", label: "ID" },
   { key: "name", label: "Name" },
-  { key: "email", label: "Email" },
   { key: "phone", label: "Phone" },
-  { key: "address", label: "Address" },
+  { key: "address_line_1", label: "Address line 1" },
+  { key: "address_line_2", label: "Address line 2", emptyValue: "—" },
   { key: "city", label: "City" },
-  { key: "province", label: "Province" },
-  { key: "description", label: "Description", emptyValue: "No description" },
-  { key: "status", label: "Status", emptyValue: "Unknown" },
-  { key: "require_pre_payment", label: "Require Pre-payment" },
+  { key: "postal_code", label: "Postal code", emptyValue: "—" },
   {
-    key: "billing_profiles",
-    label: "Billing Profiles",
-    emptyValue: "None",
-    render: (value) => Array.isArray(value) ? `${value.length} profile(s)` : "-",
+    key: "main_agent_id",
+    label: "Main agent ID",
+    emptyValue: "Not linked",
   },
   {
     key: "created_at",

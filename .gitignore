@@ -33,9 +33,11 @@ var/
 .installed.cfg
 *.egg
 
-# Allow shadcn utils under frontend/
+# Allow frontend lib directories
 !frontend/lib/
 !frontend/lib/**
+!frontend/common/lib/
+!frontend/common/lib/**
 
 # Logs
 *.log
@@ -55,3 +57,4 @@ venv/
 # OS / editor
 .DS_Store
 .vscode
+.sfdx

@@ -1,9 +1,9 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import AgenciesPage from "../page";
-import { useAgencies, useDeleteAgency } from "@/hooks/useApi";
+import { useAgencies, useDeleteAgency } from "@/common/hooks/useApi";
 
-jest.mock("@/hooks/useApi");
+jest.mock("@/common/hooks/useApi");
 
 const mockPush = jest.fn();
 jest.mock("next/navigation", () => ({
@@ -14,15 +14,12 @@ const sample = [
   {
     id: "1",
     name: "Test Agency",
-    email: "a@test.com",
     phone: "123",
-    address: "",
+    address_line_1: "123 Main St",
+    address_line_2: null,
     city: "Metropolis",
-    province: "NY",
-    description: null,
-    status: "active",
-    require_pre_payment: false,
-    billing_profiles: null,
+    postal_code: "M5V 1A1",
+    main_agent_id: null,
     created_at: "",
     updated_at: "",
   },

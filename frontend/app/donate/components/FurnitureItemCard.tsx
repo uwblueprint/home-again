@@ -76,7 +76,7 @@ export default function FurnitureItemCard({
           aria-expanded={isExpanded}
           aria-controls={`furniture-item-body-${index}`}
         >
-          <span className="text-sm text-muted-foreground">{displayLabel}</span>
+          <span className="text-lg text-muted-foreground">{displayLabel}</span>
           {isExpanded ? (
             <ChevronUp className="size-5 text-muted-foreground" />
           ) : (
@@ -96,14 +96,14 @@ export default function FurnitureItemCard({
               id={`furniture-item-body-${index}`}
               className="flex flex-col gap-6 px-6 pb-8"
             >
-              <h3 className="text-base font-semibold text-foreground">
+              <h3 className="text-xl font-semibold text-foreground">
                 Item Details
               </h3>
 
               {/* Furniture type */}
               <fieldset>
-                <legend className="mb-3 text-sm font-semibold text-foreground">
-                  Select Furniture Type
+                <legend className="mb-3 text-sm font-medium text-foreground">
+                  Select Furniture Type<span className="text-destructive">*</span>
                 </legend>
                 <div className="grid grid-cols-3 gap-3">
                   {FURNITURE_TYPES.map((type) => {
@@ -170,23 +170,22 @@ export default function FurnitureItemCard({
 
               {/* Photo upload */}
               <div>
-                <p className="mb-2 text-sm font-medium text-foreground">
+                <p className="mb-3 text-sm font-medium text-foreground">
                   Upload photos of item (max {MAX_PHOTOS})
                 </p>
 
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
                   onClick={() => setDialogOpen(true)}
                   className="gap-2 hover:bg-[var(--unofficial-outline-hover)]"
                 >
-                  <Upload className="size-4" />
-                  Upload Photos
+                  <Upload className="size-4" strokeWidth={1.5} />
+                  Upload photos
                 </Button>
 
                 {itemData.photos.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="mt-4 flex flex-wrap gap-2">
                     {itemData.photos.map((file, i) => (
                       <div
                         key={`${file.name}-${file.lastModified}-${file.size}-${i}`}
@@ -230,7 +229,7 @@ export default function FurnitureItemCard({
                   onClick={onDelete}
                   disabled={isDeleteDisabled}
                   className={cn(
-                    "inline-flex items-center gap-1.5 text-sm transition-colors",
+                    "inline-flex items-center gap-1.5 text-sm font-medium transition-colors",
                     isDeleteDisabled
                       ? "cursor-not-allowed text-muted-foreground/40"
                       : "cursor-pointer text-muted-foreground hover:text-destructive"

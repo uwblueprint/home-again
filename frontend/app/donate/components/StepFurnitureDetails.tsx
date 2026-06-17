@@ -32,10 +32,10 @@ export default function StepFurnitureDetails() {
     <div className="flex flex-col gap-6">
       {/* Page heading */}
       <div>
-        <h2 className="text-2xl font-bold text-foreground">
+        <h2 className="text-3xl font-semibold text-foreground">
           What Are You Donating?
         </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-lg text-muted-foreground">
           Tell us about the items you&apos;d like to donate so we can ensure
           they meet our acceptance guidelines.
         </p>

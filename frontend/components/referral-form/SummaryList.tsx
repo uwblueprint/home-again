@@ -48,7 +48,16 @@ export default function SummaryList({
     )
   }
 
-  const summaryEntries = chosen.flatMap((item) => {
+  type SummaryEntry = {
+    key: string
+    itemId: string
+    label: string
+    quantity: number
+    subId?: string
+    subLabel?: string
+  }
+
+  const summaryEntries = chosen.flatMap((item): SummaryEntry[] => {
     const subList = subOptions[item.id]
     const activeSubs = subList?.filter((s) => (s.quantity ?? 0) > 0) ?? []
     if (activeSubs.length > 0) {
@@ -84,9 +93,16 @@ export default function SummaryList({
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-lg font-semibold text-foreground">
-                    {entry.label}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-lg font-semibold text-foreground">
+                      {entry.label}
+                    </p>
+                    {entry.subLabel ? (
+                      <span className="inline-flex items-center justify-center gap-1 rounded-lg bg-muted px-3 py-1 text-sm font-medium leading-5 text-secondary-foreground">
+                        {entry.subLabel}
+                      </span>
+                    ) : null}
+                  </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2 rounded-2xl border border-neutral-300 px-3 py-1.5 text-base text-foreground">
                       <button
@@ -148,14 +164,6 @@ export default function SummaryList({
                     Specification here
                   </p>
                 )}
-
-                {entry.subLabel ? (
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-[#B5BD7E] px-2.5 py-1 text-xs font-semibold text-[#2f3121]">
-                      {entry.subLabel}
-                    </span>
-                  </div>
-                ) : null}
               </div>
           </div>
         )

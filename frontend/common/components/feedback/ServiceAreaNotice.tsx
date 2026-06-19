@@ -1,3 +1,5 @@
+import { CircleAlert } from "lucide-react";
+
 import { cn } from "@/common/lib/utils";
 
 interface ServiceAreaNoticeProps {
@@ -13,12 +15,13 @@ function ServiceAreaNotice({ className }: ServiceAreaNoticeProps) {
       )}
       role="note"
     >
-      <span aria-hidden="true" className="text-muted-foreground">
-        ⓘ
-      </span>
-      <span>
+      <CircleAlert
+        aria-hidden="true"
+        className="size-4 shrink-0 text-foreground"
+      />
+      <span className="font-medium">
         Home Again Furniture Bank is currently only servicing Newfoundland and
-        Labrador, Canada.
+        Labrador, Canada
       </span>
     </div>
   );

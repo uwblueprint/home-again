@@ -5,9 +5,9 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
 import IntakeStepPage from "@/app/agent-intake/components/IntakeStepPage";
+import { AgentSummaryRow } from "@/app/agent-intake/components/AgentSummaryRow";
 import { InformationBlock } from "@/common/components/data-display";
 import { useIntakeFooter } from "@/app/agent-intake/context/IntakeFooterContext";
-import { Badge } from "@/common/components/ui/badge";
 import { Button } from "@/common/components/ui/button";
 import { Card } from "@/common/components/ui/card";
 import {
@@ -19,6 +19,7 @@ import {
 import { CheckCheck, Loader2 } from "lucide-react";
 import { useSubmitIntake } from "@/app/agent-intake/hooks/useSubmitIntake";
 import { useIntakeFormStore } from "@/app/agent-intake/stores/intakeFormStore";
+import { formatReviewPhoneNumber } from "@/common/constants/validators";
 
 const AGENTS_PER_PAGE = 3;
 const EMPTY_VALUE = "—";
@@ -30,6 +31,11 @@ type PostSubmitPhase = "success" | "redirecting";
 
 function formatValue(value: string) {
   return value.trim() || EMPTY_VALUE;
+}
+
+function formatPhoneValue(value: string) {
+  const formatted = formatReviewPhoneNumber(value);
+  return formatted || EMPTY_VALUE;
 }
 
 function sortOtherAgents<T extends { email: string; isAdmin: boolean }>(
@@ -58,17 +64,11 @@ function ReviewAgentCard({
 }) {
   return (
     <Card className="flex-row items-center justify-between">
-      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-        <p className="min-w-0 truncate text-sm text-foreground">
-          <span className="font-semibold">Agent {index + 1}:</span>{" "}
-          {formatValue(agent.email)}
-        </p>
-        {agent.isAdmin ? (
-          <Badge variant="outline" className="shrink-0 font-semibold">
-            Admin User
-          </Badge>
-        ) : null}
-      </div>
+      <AgentSummaryRow
+        index={index}
+        emailDisplay={formatValue(agent.email)}
+        showAdminBadge={agent.isAdmin}
+      />
     </Card>
   );
 }
@@ -224,7 +224,7 @@ export default function ReviewStep() {
                 />
                 <InformationBlock
                   label="Phone number"
-                  value={formatValue(agency.phone)}
+                  value={formatPhoneValue(agency.phone)}
                 />
               </div>
               <div className={INFORMATION_BLOCK_GRID}>
@@ -252,7 +252,7 @@ export default function ReviewStep() {
                 />
                 <InformationBlock
                   label="Phone number"
-                  value={formatValue(mainAgent.phone)}
+                  value={formatPhoneValue(mainAgent.phone)}
                 />
               </div>
             </ReviewCard>

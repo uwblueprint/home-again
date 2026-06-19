@@ -18,7 +18,11 @@ import {
   type AgencyFormData,
 } from "@/app/agent-intake/stores/intakeFormStore";
 
-import { PHONE_REGEX, POSTAL_CODE_REGEX } from "@/common/constants/validators";
+import {
+  isValidAgencyUrl,
+  PHONE_REGEX,
+  POSTAL_CODE_REGEX,
+} from "@/common/constants/validators";
 
 type FormErrors = Partial<Record<keyof AgencyFormData, string>>;
 
@@ -42,8 +46,8 @@ function validate(form: AgencyFormData): FormErrors {
     errors.phone = "Enter a valid phone number.";
   }
 
-  if (form.url.trim() && !/^https?:\/\/.+/i.test(form.url.trim())) {
-    errors.url = "Enter a valid URL (e.g. https://agency.org).";
+  if (form.url.trim() && !isValidAgencyUrl(form.url)) {
+    errors.url = "Enter a valid website (e.g. agency.com).";
   }
 
   return errors;
@@ -279,8 +283,8 @@ export default function AgencyStep() {
         >
           <Input
             {...field("url")}
-            type="url"
-            placeholder="https://agency.org"
+            type="text"
+            placeholder="Provide a link to your agency"
             className={inputClassName}
           />
         </FormField>

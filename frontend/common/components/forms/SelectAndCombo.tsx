@@ -24,7 +24,7 @@ export function SelectAndCombo({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 rounded-2xl border border-[--unofficial-border-3] bg-background px-3 py-1.5 text-base text-foreground",
+        "inline-flex items-center justify-between gap-1 rounded-2xl border border-[--unofficial-border-3] bg-background px-1 py-1 text-sm text-foreground",
         className
       )}
     >
@@ -32,13 +32,16 @@ export function SelectAndCombo({
         type="button"
         onClick={() => onChange(Math.max(min, value - 1))}
         disabled={!canDecrement}
-        className="text-2xl text-muted-foreground transition-opacity disabled:opacity-40"
+        className="flex size-5 items-center justify-center text-muted-foreground transition-opacity disabled:opacity-40"
         aria-label="Decrease value"
       >
-        <Minus className="h-4 w-4" strokeWidth={2.25} />
+        <Minus className="size-3.5" strokeWidth={2.25} />
       </button>
 
-      <span className="min-w-[1.5ch] text-center" aria-live="polite">
+      <span
+        className="flex size-5 items-center justify-center text-center"
+        aria-live="polite"
+      >
         {value}
       </span>
 
@@ -48,10 +51,10 @@ export function SelectAndCombo({
           onChange(max !== undefined ? Math.min(max, value + 1) : value + 1)
         }
         disabled={!canIncrement}
-        className="text-2xl text-foreground transition-opacity disabled:opacity-40"
+        className="flex size-5 items-center justify-center text-foreground transition-opacity disabled:opacity-40"
         aria-label="Increase value"
       >
-        <Plus className="h-4 w-4" strokeWidth={2.25} />
+        <Plus className="size-3.5" strokeWidth={2.25} />
       </button>
     </div>
   );

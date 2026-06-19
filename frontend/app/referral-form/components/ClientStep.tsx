@@ -52,14 +52,14 @@ export default function ClientStep({
 
   return (
     <div className="space-y-2">
-      <h2 className="text-xl font-semibold text-foreground">
+      <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
         Client Details
       </h2>
-      <p className="text-sm text-muted-foreground">
+      <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
         Enter the details of the client you are referring.
       </p>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+      <div className="mt-6 grid gap-xl sm:grid-cols-2">
         <div className="space-y-1">
           <Label htmlFor="client-first-name">
             First name<span className="text-destructive">*</span>
@@ -92,7 +92,9 @@ export default function ClientStep({
             <InputError>{errors.lastName}</InputError>
           ) : null}
         </div>
+      </div>
 
+      <div className="mt-6 grid gap-xl sm:grid-cols-3">
         <div className="space-y-1">
           <Label htmlFor="client-birthday">
             Birthday<span className="text-destructive">*</span>
@@ -114,8 +116,8 @@ export default function ClientStep({
             value={data.gender}
             onValueChange={(value) => patch({ gender: value ?? "" })}
           >
-            <SelectTrigger id="client-gender">
-              <SelectValue placeholder="Select an option" />
+            <SelectTrigger id="client-gender" className="w-full">
+              <SelectValue placeholder="Select an option" className="capitalize" />
             </SelectTrigger>
             <SelectContent>
               {GENDER_OPTIONS.map((option) => (
@@ -128,7 +130,7 @@ export default function ClientStep({
         </div>
         <div className="space-y-1">
           <Label htmlFor="client-immigration-status">
-            Immigration status
+            Immigration Status
           </Label>
           <Select
             value={data.immigrationStatus}
@@ -136,8 +138,8 @@ export default function ClientStep({
               patch({ immigrationStatus: value ?? "" })
             }
           >
-            <SelectTrigger id="client-immigration-status">
-              <SelectValue placeholder="Select an option" />
+            <SelectTrigger id="client-immigration-status" className="w-full">
+              <SelectValue placeholder="Select an option" className="capitalize" />
             </SelectTrigger>
             <SelectContent>
               {IMMIGRATION_STATUS_OPTIONS.map((option) => (
@@ -150,7 +152,7 @@ export default function ClientStep({
         </div>
       </div>
 
-      <div className="mt-4 space-y-2">
+      <div className="mt-6 space-y-2">
         <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
           <Checkbox
             checked={data.firstLanguageNotEnglish}
@@ -169,7 +171,7 @@ export default function ClientStep({
         ) : null}
       </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+      <div className="mt-6 grid gap-xl sm:grid-cols-2">
         <div className="space-y-1">
           <Label htmlFor="client-phone">Phone number</Label>
           <Input
@@ -190,7 +192,7 @@ export default function ClientStep({
         </div>
       </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-3">
+      <div className="mt-6 grid gap-xl sm:grid-cols-3">
         <div className="space-y-1">
           <Label htmlFor="client-family-type">
             Family type<span className="text-destructive">*</span>
@@ -201,10 +203,11 @@ export default function ClientStep({
           >
             <SelectTrigger
               id="client-family-type"
+              className="w-full"
               onBlur={() => onBlurField?.("familyType")}
               aria-invalid={Boolean(errors.familyType)}
             >
-              <SelectValue placeholder="Select an option" />
+              <SelectValue placeholder="Select an option" className="capitalize" />
             </SelectTrigger>
             <SelectContent>
               {FAMILY_TYPE_OPTIONS.map((option) => (
@@ -226,6 +229,7 @@ export default function ClientStep({
             value={data.numAdults}
             onChange={(value) => patch({ numAdults: value })}
             min={0}
+            className="w-full"
           />
         </div>
         <div className="space-y-1">
@@ -236,6 +240,7 @@ export default function ClientStep({
             value={data.numChildren}
             onChange={(value) => patch({ numChildren: value })}
             min={0}
+            className="w-full"
           />
         </div>
       </div>

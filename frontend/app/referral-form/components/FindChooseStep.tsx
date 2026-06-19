@@ -11,26 +11,26 @@ export default function FindChooseStep({
 }: FindChooseStepProps) {
   return (
     <div className="space-y-2">
-      <h2 className="text-xl font-semibold text-foreground">
+      <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
         Client Referral Form
       </h2>
-      <p className="text-sm text-muted-foreground">
+      <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
         Start a new referral by selecting an existing client or adding a new
         one.
       </p>
 
-      <div className="mt-4 flex justify-center gap-4">
+      <div className="mt-8 flex gap-4">
         <button
           type="button"
           onClick={onFindExisting}
-          className="flex h-[140px] w-full max-w-xs items-center justify-center rounded-xl border border-border bg-background px-4 text-center text-base font-semibold text-foreground transition-colors hover:bg-neutral-50"
+          className="flex h-37.5 flex-1 items-center justify-center rounded-xl border border-border bg-background px-4 text-center text-base font-semibold text-foreground transition-colors hover:bg-neutral-50"
         >
           Find existing client
         </button>
         <button
           type="button"
           onClick={onAddNew}
-          className="flex h-[140px] w-full max-w-xs items-center justify-center rounded-xl border border-border bg-background px-4 text-center text-base font-semibold text-foreground transition-colors hover:bg-neutral-50"
+          className="flex h-37.5 flex-1 items-center justify-center rounded-xl border border-border bg-background px-4 text-center text-base font-semibold text-foreground transition-colors hover:bg-neutral-50"
         >
           Add new client
         </button>

@@ -152,10 +152,10 @@ export default function DeliveryForm({
   return (
     <section className={cn("space-y-6", className)}>
       <header className="space-y-2">
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
           Delivery Details
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
           Describe the client&apos;s delivery needs and any access details.
         </p>
       </header>
@@ -223,9 +223,15 @@ export default function DeliveryForm({
               <SelectTrigger
                 id="delivery-province"
                 aria-invalid={showError("province")}
-                className={cn(showError("province") && "border-destructive")}
+                className={cn(
+                  "w-full",
+                  showError("province") && "border-destructive"
+                )}
               >
-                <SelectValue placeholder="Select a province/territory" />
+                <SelectValue
+                  placeholder="Select a province/territory"
+                  className="capitalize"
+                />
               </SelectTrigger>
               <SelectContent>
                 {PROVINCES.map((provinceOption) => (
@@ -253,9 +259,15 @@ export default function DeliveryForm({
               <SelectTrigger
                 id="delivery-country"
                 aria-invalid={showError("country")}
-                className={cn(showError("country") && "border-destructive")}
+                className={cn(
+                  "w-full",
+                  showError("country") && "border-destructive"
+                )}
               >
-                <SelectValue placeholder="Select a country" />
+                <SelectValue
+                  placeholder="Select a country"
+                  className="capitalize"
+                />
               </SelectTrigger>
               <SelectContent>
                 {COUNTRIES.map((countryOption) => (

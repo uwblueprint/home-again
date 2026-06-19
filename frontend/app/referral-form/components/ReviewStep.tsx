@@ -91,10 +91,10 @@ export default function ReviewStep({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-foreground">
+        <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
           Review &amp; Submit
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
           Review the referral details and agree to the terms and conditions
           before submitting.
         </p>

@@ -437,10 +437,8 @@ export default function ReferralFormPage() {
 
     // Every step component renders its own heading, so the substep label
     // (a second, generic heading) is left empty to avoid a duplicate title.
-    // Furniture/Delivery/Review use the full container width (card grids,
-    // multi-column summaries); the rest read better in a centered column.
-    const wide = idx === 4 || idx === 5 || idx === 7;
-    return { label, substeps: [{ label: "", content, wide }] };
+    // All steps share the same content width.
+    return { label, substeps: [{ label: "", content }] };
   });
 
   return (
@@ -448,7 +446,11 @@ export default function ReferralFormPage() {
       className="w-[90vw] max-w-none"
       steps={steps}
       stepIndex={stepIndex}
-      onNavigate={({ stepIndex: next }) => setStepIndex(next)}
+      substepIndex={substepIndex}
+      onNavigate={({ stepIndex: nextStep, substepIndex: nextSubstep }) => {
+        setStepIndex(nextStep);
+        setSubstepIndex(nextSubstep);
+      }}
       onBeforeNext={handleBeforeNext}
       onSubmit={handleSubmit}
       isSubmitting={isSubmitting}

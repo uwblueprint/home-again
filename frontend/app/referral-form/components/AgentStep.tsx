@@ -51,10 +51,10 @@ export default function AgentStep({
 
   return (
     <div className="space-y-2">
-      <h2 className="text-xl font-semibold text-foreground">
+      <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
         Agent Details
       </h2>
-      <p className="text-sm text-muted-foreground">
+      <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
         Enter the referring agent&apos;s details.
       </p>
 

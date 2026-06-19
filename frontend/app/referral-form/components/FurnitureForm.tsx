@@ -281,7 +281,7 @@ export default function FurnitureForm({
       {showHeader ? (
         <header className="space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-[30px] font-semibold tracking-[-1px] text-foreground">
+            <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
               Furniture Selection
             </h2>
             <div className="flex h-10 items-center gap-2 rounded-md border border-neutral-200 px-3">
@@ -294,7 +294,7 @@ export default function FurnitureForm({
               />
             </div>
           </div>
-          <p className="text-[18px] font-normal text-muted-foreground">
+          <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
             Add one or more requested furniture or household items.
           </p>
         </header>

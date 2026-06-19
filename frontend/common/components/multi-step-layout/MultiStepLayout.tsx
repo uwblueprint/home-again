@@ -125,8 +125,8 @@ function MultiStepLayout({
 
       <div
         className={cn(
-          "mx-auto flex w-full flex-col gap-6 bg-background",
-          substep.wide ? "max-w-none" : "max-w-3xl"
+          "mx-auto flex w-[100%] flex-col gap-6 bg-background",
+          substep.wide ? "max-w-none" : "max-w-7xl"
         )}
       >
         {flowTitle ? (

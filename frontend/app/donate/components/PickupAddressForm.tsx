@@ -62,7 +62,7 @@ export default function PickupAddressForm({
       {/* Street Address */}
       <div className="space-y-1">
         <Label htmlFor="streetAddress" className={labelClass}>
-          Street address
+          Street address<span className="text-destructive">*</span>
         </Label>
         <Input
           id="streetAddress"
@@ -108,7 +108,7 @@ export default function PickupAddressForm({
         
       <div className="space-y-1">
         <Label htmlFor="city" className={labelClass}>
-          City
+          City<span className="text-destructive">*</span>
         </Label>
         <Select
           value={addressData.city}
@@ -165,7 +165,7 @@ export default function PickupAddressForm({
 
         <div className="space-y-1">
           <Label htmlFor="province" className={labelClass}>
-            Province/territory
+            Province/territory<span className="text-destructive">*</span>
           </Label>
           <Select
             value={addressData.province}
@@ -198,7 +198,7 @@ export default function PickupAddressForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1">
           <Label htmlFor="country" className={labelClass}>
-            Country
+            Country<span className="text-destructive">*</span>
           </Label>
           <Select
             value={addressData.country}
@@ -223,7 +223,7 @@ export default function PickupAddressForm({
 
         <div className="space-y-1">
           <Label htmlFor="postalCode" className={labelClass}>
-            Postal code
+            Postal code<span className="text-destructive">*</span>
           </Label>
           <Input
             id="postalCode"

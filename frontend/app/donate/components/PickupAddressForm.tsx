@@ -105,27 +105,63 @@ export default function PickupAddressForm({
 
       {/* City + Province row */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="space-y-1">
-          <Label htmlFor="city" className={labelClass}>
-            City
-          </Label>
-          <Input
+        
+      <div className="space-y-1">
+        <Label htmlFor="city" className={labelClass}>
+          City
+        </Label>
+        <Select
+          value={addressData.city}
+          onValueChange={(value) => {
+            onChange({ ...addressData, city: value ?? "" });
+            onBlurField?.("city");
+          }}
+        >
+          <SelectTrigger
             id="city"
-            name="city"
-            type="text"
-            autoComplete="address-level2"
-            placeholder="Enter city"
-            value={addressData.city}
-            onChange={handleChange("city")}
-            onBlur={() => onBlurField?.("city")}
             aria-invalid={Boolean(errors.city)}
             aria-describedby={errors.city ? "city-error" : undefined}
-            className={inputClass}
-          />
-          {errors.city ? (
-            <InputError id="city-error">{errors.city}</InputError>
-          ) : null}
-        </div>
+            className={`${inputClass} w-full !h-10 cursor-pointer`}
+          >
+            <SelectValue placeholder="Select city" />
+          </SelectTrigger>
+          <SelectContent
+            alignItemWithTrigger={false}
+            className="bg-background text-foreground p-2 shadow-lg [&_[data-slot=select-item]]:cursor-pointer"
+          >
+            {[
+              "St. John's",
+              "Mount Pearl",
+              "Paradise",
+              "Conception Bay South",
+              "Petty Harbour/Maddox Cove",
+              "Holyrood",
+              "Portugal Cove-St. Philips",
+              "Bell Island",
+              "Bauline",
+              "Pouch Cove",
+              "Flatrock",
+              "Torbay",
+              "Logy Bay - Middle Cove - Outer Cove",
+              "Bay Bulls",
+              "Witless Bay",
+            ].map((city) => (
+              <SelectItem key={city} value={city}>
+                {city}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.city ? (
+          <p
+            id="city-error"
+            className="text-destructive text-sm"
+            role="alert"
+          >
+            {errors.city}
+          </p>
+        ) : null}
+      </div>
 
         <div className="space-y-1">
           <Label htmlFor="province" className={labelClass}>

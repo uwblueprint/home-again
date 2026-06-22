@@ -39,6 +39,32 @@ import {
   useUpdateClient,
 } from "@/common/hooks/useApi";
 import { useAuthStore } from "@/common/stores/authStore";
+import { cn } from "@/common/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/common/components/ui/dialog";
+import { Button } from "@/common/components/ui/button";
+
+const EDIT_STEP_TITLES: Record<number, string> = {
+  1: "Client Details",
+  2: "Referral Details",
+  3: "Agent Details",
+  4: "Furniture Selection",
+  5: "Delivery Details",
+};
+
+const EDIT_STEP_SUBTITLES: Record<number, string> = {
+  1: "Enter the details of the client you are referring.",
+  2: "Tell us why you are referring this client.",
+  3: "Enter the referring agent's details.",
+  4: "Add one or more requested furniture or household items.",
+  5: "Describe the client's delivery needs and any access details.",
+};
 
 function buildRequestedItems(furniture: FurnitureFormData) {
   return ITEMS.flatMap((item) => {
@@ -102,6 +128,7 @@ export default function ReferralFormPage() {
   const [substepIndex, setSubstepIndex] = useState(0);
   const [attempted, setAttempted] = useState<Record<number, boolean>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [editingStep, setEditingStep] = useState<number | null>(null);
 
   function goToStep(nextStep: number, nextSubstep = 0) {
     setStepIndex(nextStep);
@@ -194,7 +221,7 @@ export default function ReferralFormPage() {
       return "Select a size to continue";
     }
     if (stepIndex === 5 && attempted[5] && !deliveryIsValid) {
-      return "Complete the required delivery fields to continue";
+      return "Complete the required fields to continue";
     }
     if (stepIndex === 6 && !isAgreementsStepValid) {
       return "Agree to all terms and conditions to continue";
@@ -323,6 +350,70 @@ export default function ReferralFormPage() {
     goToStep(1);
   }
 
+  const renderClientStep = (hideHeading: boolean) => (
+    <ClientStep
+      data={clientData}
+      onChange={setClientData}
+      errors={
+        attempted[1] || Object.values(clientTouched).some(Boolean)
+          ? clientErrors
+          : {}
+      }
+      onBlurField={(field) =>
+        setClientTouched((prev) => ({ ...prev, [field]: true }))
+      }
+      onFindAnotherClient={() => {
+        setSelectedClient(null);
+        setSearchQuery("");
+        setEditingStep(null);
+        goToStep(0, 1);
+      }}
+      hideHeading={hideHeading}
+    />
+  );
+
+  const renderReferralStep = (hideHeading: boolean) => (
+    <ReferralStep
+      data={referralData}
+      onChange={setReferralData}
+      errors={attempted[2] ? referralErrors : {}}
+      hideHeading={hideHeading}
+    />
+  );
+
+  const renderAgentStep = (hideHeading: boolean) => (
+    <AgentStep
+      data={agentData}
+      onChange={setAgentData}
+      currentAgent={currentAgent}
+      agents={agents}
+      hideHeading={hideHeading}
+    />
+  );
+
+  const renderFurnitureStep = (hideHeading: boolean) => (
+    <FurnitureForm
+      showHeader={!hideHeading}
+      onValidityChange={setFurnitureIsValid}
+      onDataChange={setFurnitureData}
+    />
+  );
+
+  const renderDeliveryStep = (hideHeading: boolean) => (
+    <DeliveryForm
+      showErrors={attempted[5]}
+      onValidityChange={setDeliveryIsValid}
+      onDataChange={setDeliveryData}
+      hideHeading={hideHeading}
+    />
+  );
+
+  const clientStepContent = renderClientStep(false);
+  const referralStepContent = renderReferralStep(false);
+  const agentStepContent = renderAgentStep(false);
+  const furnitureStepContent = renderFurnitureStep(false);
+  const deliveryStepContent = renderDeliveryStep(false);
+
   const steps: Step[] = STEP_LABELS.map((label, idx) => {
     if (idx === 0) {
       return {
@@ -330,6 +421,7 @@ export default function ReferralFormPage() {
         substeps: [
           {
             label: "",
+            contentPadding: "tight",
             content: (
               <FindChooseStep
                 onFindExisting={() => setSubstepIndex(1)}
@@ -339,6 +431,7 @@ export default function ReferralFormPage() {
           },
           {
             label: "",
+            contentPadding: "tight",
             content: (
               <FindStep
                 searchQuery={searchQuery}
@@ -356,61 +449,19 @@ export default function ReferralFormPage() {
     let content: React.ReactNode;
     switch (idx) {
       case 1:
-        content = (
-          <ClientStep
-            data={clientData}
-            onChange={setClientData}
-            errors={
-              attempted[1] || Object.values(clientTouched).some(Boolean)
-                ? clientErrors
-                : {}
-            }
-            onBlurField={(field) =>
-              setClientTouched((prev) => ({ ...prev, [field]: true }))
-            }
-            onFindAnotherClient={() => {
-              setSelectedClient(null);
-              setSearchQuery("");
-              goToStep(0, 1);
-            }}
-          />
-        );
+        content = clientStepContent;
         break;
       case 2:
-        content = (
-          <ReferralStep
-            data={referralData}
-            onChange={setReferralData}
-            errors={attempted[2] ? referralErrors : {}}
-          />
-        );
+        content = referralStepContent;
         break;
       case 3:
-        content = (
-          <AgentStep
-            data={agentData}
-            onChange={setAgentData}
-            currentAgent={currentAgent}
-            agents={agents}
-          />
-        );
+        content = agentStepContent;
         break;
       case 4:
-        content = (
-          <FurnitureForm
-            onValidityChange={setFurnitureIsValid}
-            onDataChange={setFurnitureData}
-          />
-        );
+        content = furnitureStepContent;
         break;
       case 5:
-        content = (
-          <DeliveryForm
-            showErrors={attempted[5]}
-            onValidityChange={setDeliveryIsValid}
-            onDataChange={setDeliveryData}
-          />
-        );
+        content = deliveryStepContent;
         break;
       case 6:
         content = (
@@ -429,7 +480,7 @@ export default function ReferralFormPage() {
             }
             furniture={furnitureData}
             delivery={deliveryData}
-            onEditStep={goToStep}
+            onEditStep={setEditingStep}
           />
         );
         break;
@@ -438,25 +489,81 @@ export default function ReferralFormPage() {
     // Every step component renders its own heading, so the substep label
     // (a second, generic heading) is left empty to avoid a duplicate title.
     // All steps share the same content width.
-    return { label, substeps: [{ label: "", content }] };
+    return {
+      label,
+      substeps: [
+        { label: "", content, contentPadding: idx === 4 ? "none" : "default" },
+      ],
+    };
   });
 
+  const editStepContent =
+    editingStep === 1
+      ? renderClientStep(true)
+      : editingStep === 2
+      ? renderReferralStep(true)
+      : editingStep === 3
+      ? renderAgentStep(true)
+      : editingStep === 4
+      ? renderFurnitureStep(true)
+      : editingStep === 5
+      ? renderDeliveryStep(true)
+      : null;
+
   return (
-    <MultiStepLayout
-      className="w-[90vw] max-w-none"
-      steps={steps}
-      stepIndex={stepIndex}
-      substepIndex={substepIndex}
-      onNavigate={({ stepIndex: nextStep, substepIndex: nextSubstep }) => {
-        setStepIndex(nextStep);
-        setSubstepIndex(nextSubstep);
-      }}
-      onBeforeNext={handleBeforeNext}
-      onSubmit={handleSubmit}
-      isSubmitting={isSubmitting}
-      isNextDisabled={isNextDisabled}
-      footerAlert={footerAlert}
-      submitLabel="Submit"
-    />
+    <>
+      <MultiStepLayout
+        className="w-[90vw] max-w-none"
+        steps={steps}
+        stepIndex={stepIndex}
+        substepIndex={substepIndex}
+        onNavigate={({ stepIndex: nextStep, substepIndex: nextSubstep }) => {
+          setStepIndex(nextStep);
+          setSubstepIndex(nextSubstep);
+        }}
+        onBeforeNext={handleBeforeNext}
+        onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+        isNextDisabled={isNextDisabled}
+        footerAlert={footerAlert}
+        submitLabel="Submit"
+      />
+      <Dialog
+        open={editingStep !== null}
+        onOpenChange={(open) => !open && setEditingStep(null)}
+      >
+        <DialogContent
+          showCloseButton={false}
+          className={cn(
+            "flex max-h-[85vh] w-full flex-col gap-0 overflow-hidden p-0",
+            editingStep === 4 ? "max-w-7xl sm:max-w-7xl" : "max-w-5xl sm:max-w-5xl"
+          )}
+        >
+          <DialogHeader className="gap-2 border-b border-border px-4xl pt-4xl pb-2xl">
+            <DialogTitle className="text-3xl font-semibold text-black">
+              {editingStep ? EDIT_STEP_TITLES[editingStep] : ""}
+            </DialogTitle>
+            <DialogDescription className="text-lg text-neutral-500">
+              {editingStep ? EDIT_STEP_SUBTITLES[editingStep] : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="overflow-y-auto px-4xl py-2xl">
+            {editStepContent}
+          </div>
+          <DialogFooter className="mx-0 mb-0 justify-end gap-2 rounded-b-xl border-t border-border bg-background px-4xl py-2xl">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setEditingStep(null)}
+            >
+              Back
+            </Button>
+            <Button type="button" onClick={() => setEditingStep(null)}>
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

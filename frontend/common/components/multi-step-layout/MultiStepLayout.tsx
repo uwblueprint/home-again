@@ -5,18 +5,28 @@ import { StepIndicator } from "@/common/components/ui/step-indicator";
 import { Header, Footer } from "@/common/components/forms";
 import { cn } from "@/common/lib/utils";
 
+type ContentPadding = "default" | "tight" | "none";
+
 export interface Substep {
   label: string;
   content: ReactNode;
   leftAction?: ReactNode;
   /** Use the full container width instead of the default centered, reading-width column. */
   wide?: boolean;
+  /** Adjusts the page-level padding around the content. Defaults to "default". */
+  contentPadding?: ContentPadding;
 }
 
 export interface Step {
   label: string;
   substeps: Substep[];
 }
+
+const CONTENT_PADDING_CLASSES: Record<ContentPadding, string> = {
+  default: "px-10xl py-xl",
+  tight: "px-7xl pt-7xl pb-xl",
+  none: "",
+};
 
 type MultiStepLayoutProps = {
   steps: Step[];
@@ -111,7 +121,7 @@ function MultiStepLayout({
   return (
     <div
       className={cn(
-        "mx-auto flex min-h-screen w-full max-w-7xl flex-col items-center gap-6 px-4 pb-4 pt-12",
+        "mx-auto flex min-h-screen w-full max-w-7xl flex-col items-center gap-9",
         className
       )}
     >
@@ -125,7 +135,8 @@ function MultiStepLayout({
 
       <div
         className={cn(
-          "mx-auto flex w-[100%] flex-col gap-6 bg-background",
+          "mx-auto flex w-[100%] flex-col gap-8 bg-background",
+          CONTENT_PADDING_CLASSES[substep.contentPadding ?? "default"],
           substep.wide ? "max-w-none" : "max-w-7xl"
         )}
       >

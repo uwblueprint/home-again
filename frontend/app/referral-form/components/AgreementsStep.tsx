@@ -16,15 +16,16 @@ export default function AgreementsStep({
   onChange,
 }: AgreementsStepProps) {
   return (
-    <div className="space-y-2">
-      <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
-        Terms and Conditions
-      </h2>
-      <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
-        Please agree to all of our terms and conditions before proceeding
-      </p>
-
-      <div className="mt-4 space-y-4">
+    <div className="self-stretch flex flex-col items-start gap-6">
+      <div className="self-stretch flex flex-col items-start gap-3">
+        <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
+          Terms and Conditions
+        </h2>
+        <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
+          Please agree to all of our terms and conditions before proceeding
+        </p>
+      </div>
+      <div className="self-stretch space-y-4">
         {AGREEMENT_TERMS.map((term) => (
           <label
             key={term.id}

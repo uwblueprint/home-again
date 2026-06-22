@@ -33,7 +33,7 @@ function ReviewCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-2">
+    <section className="self-stretch space-y-2">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold text-foreground">{title}</h3>
         {onEdit ? (
@@ -89,17 +89,15 @@ export default function ReviewStep({
     .map(([id]) => id.replace(/-/g, " "));
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="self-stretch flex flex-col items-start gap-6">
+      <div className="self-stretch flex flex-col items-start gap-3">
         <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
           Review &amp; Submit
         </h2>
         <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
-          Review the referral details and agree to the terms and conditions
-          before submitting.
+          Review the referral details and agree to the terms and conditions before submitting.
         </p>
       </div>
-
       <ReviewCard title="Client Details" onEdit={() => onEditStep(1)}>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="First name" value={client.firstName} />
@@ -197,9 +195,11 @@ export default function ReviewStep({
                     <p className="font-medium text-foreground">
                       {item.label}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      {furniture.notes[item.id] || "Specification here"}
-                    </p>
+                    {furniture.notes[item.id] ? (
+                      <p className="text-sm text-muted-foreground">
+                        {furniture.notes[item.id]}
+                      </p>
+                    ) : null}
                   </div>
                   {subs?.length ? (
                     <div className="flex gap-2">

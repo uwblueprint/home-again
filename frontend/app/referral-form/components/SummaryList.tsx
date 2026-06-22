@@ -159,11 +159,7 @@ export default function SummaryList({
 
                 {note ? (
                   <p className="text-sm text-foreground/80">{note}</p>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    Specification here
-                  </p>
-                )}
+                ) : null}
               </div>
           </div>
         )

@@ -37,6 +37,8 @@ type ClientStepProps = {
   errors?: ClientStepErrors;
   onBlurField?: (field: "firstName" | "lastName" | "birthday" | "familyType") => void;
   onFindAnotherClient: () => void;
+  /** Hide the in-page heading — the edit Dialog renders its own. */
+  hideHeading?: boolean;
 };
 
 export default function ClientStep({
@@ -45,21 +47,25 @@ export default function ClientStep({
   errors = {},
   onBlurField,
   onFindAnotherClient,
+  hideHeading = false,
 }: ClientStepProps) {
   function patch(updates: Partial<ClientData>) {
     onChange({ ...data, ...updates });
   }
 
   return (
-    <div className="space-y-2">
-      <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
-        Client Details
-      </h2>
-      <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
-        Enter the details of the client you are referring.
-      </p>
-
-      <div className="mt-6 grid gap-xl sm:grid-cols-2">
+    <div className="self-stretch flex flex-col items-start gap-6">
+      {hideHeading ? null : (
+        <div className="self-stretch flex flex-col items-start gap-3">
+          <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
+            Client Details
+          </h2>
+          <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
+            Enter the details of the client you are referring.
+          </p>
+        </div>
+      )}
+      <div className="self-stretch grid gap-xl sm:grid-cols-2">
         <div className="space-y-1">
           <Label htmlFor="client-first-name">
             First name<span className="text-destructive">*</span>
@@ -94,7 +100,7 @@ export default function ClientStep({
         </div>
       </div>
 
-      <div className="mt-6 grid gap-xl sm:grid-cols-3">
+      <div className="self-stretch grid gap-xl sm:grid-cols-3">
         <div className="space-y-1">
           <Label htmlFor="client-birthday">
             Birthday<span className="text-destructive">*</span>
@@ -152,7 +158,7 @@ export default function ClientStep({
         </div>
       </div>
 
-      <div className="mt-6 space-y-2">
+      <div className="self-stretch space-y-2">
         <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
           <Checkbox
             checked={data.firstLanguageNotEnglish}
@@ -171,7 +177,7 @@ export default function ClientStep({
         ) : null}
       </div>
 
-      <div className="mt-6 grid gap-xl sm:grid-cols-2">
+      <div className="self-stretch grid gap-xl sm:grid-cols-2">
         <div className="space-y-1">
           <Label htmlFor="client-phone">Phone number</Label>
           <Input
@@ -192,7 +198,7 @@ export default function ClientStep({
         </div>
       </div>
 
-      <div className="mt-6 grid gap-xl sm:grid-cols-3">
+      <div className="self-stretch grid gap-xl sm:grid-cols-3">
         <div className="space-y-1">
           <Label htmlFor="client-family-type">
             Family type<span className="text-destructive">*</span>
@@ -248,7 +254,7 @@ export default function ClientStep({
       <button
         type="button"
         onClick={onFindAnotherClient}
-        className="mt-2 text-sm font-medium text-foreground underline"
+        className="text-sm font-medium text-foreground underline"
       >
         Find another existing client
       </button>

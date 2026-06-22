@@ -45,16 +45,16 @@ export default function FindStep({
   }
 
   return (
-    <div className="space-y-2">
-      <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
-        Client Referral Form
-      </h2>
-      <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
-        Start a new referral by selecting an existing client or adding a new
-        one.
-      </p>
-
-      <div className="mt-6 space-y-3 rounded-xl border border-border bg-background p-6">
+    <div className="self-stretch flex flex-col items-start gap-6">
+      <div className="self-stretch flex flex-col items-start gap-3">
+        <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
+          Client Referral Form
+        </h2>
+        <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
+          Start a new referral by selecting an existing client or adding a new one.
+        </p>
+      </div>
+      <div className="self-stretch space-y-3 rounded-xl border border-border bg-background p-6">
         <Label htmlFor="client-search">Search clients</Label>
         <div className="relative">
           {hasSelection ? null : (

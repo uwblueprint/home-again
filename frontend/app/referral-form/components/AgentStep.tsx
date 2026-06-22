@@ -15,6 +15,8 @@ type AgentStepProps = {
   onChange: (data: AgentData) => void;
   currentAgent: AgentRecord | null;
   agents: AgentRecord[];
+  /** Hide the in-page heading — the edit Dialog renders its own. */
+  hideHeading?: boolean;
 };
 
 export default function AgentStep({
@@ -22,6 +24,7 @@ export default function AgentStep({
   onChange,
   currentAgent,
   agents,
+  hideHeading = false,
 }: AgentStepProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -50,15 +53,18 @@ export default function AgentStep({
   );
 
   return (
-    <div className="space-y-2">
-      <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
-        Agent Details
-      </h2>
-      <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
-        Enter the referring agent&apos;s details.
-      </p>
-
-      <div className="mt-4 space-y-2">
+    <div className="self-stretch flex flex-col items-start gap-6">
+      {hideHeading ? null : (
+        <div className="self-stretch flex flex-col items-start gap-3">
+          <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
+            Agent Details
+          </h2>
+          <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
+            Enter the referring agent&apos;s details.
+          </p>
+        </div>
+      )}
+      <div className="self-stretch space-y-2">
         <h3 className="text-base font-semibold text-foreground">
           Primary case agent
         </h3>
@@ -81,7 +87,7 @@ export default function AgentStep({
         </div>
       </div>
 
-      <div className="mt-4 space-y-2">
+      <div className="self-stretch space-y-2">
         <h3 className="text-base font-semibold text-foreground">
           Secondary case agent
         </h3>
@@ -152,7 +158,7 @@ export default function AgentStep({
         </div>
       </div>
 
-      <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-foreground">
+      <label className="self-stretch flex cursor-pointer items-center gap-2 text-sm text-foreground">
         <Checkbox
           checked={data.agentNeedsToBePresent}
           onCheckedChange={(checked) =>
@@ -162,7 +168,7 @@ export default function AgentStep({
         Agent needs to be present during delivery
       </label>
 
-      <div className="mt-4 space-y-2">
+      <div className="self-stretch space-y-2">
         <h3 className="text-base font-semibold text-foreground">
           Select a program
         </h3>

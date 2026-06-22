@@ -33,6 +33,8 @@ type DeliveryFormProps = {
   showErrors?: boolean
   onValidityChange?: (isValid: boolean) => void
   onDataChange?: (data: DeliveryFormData) => void
+  /** Hide the in-page heading — the edit Dialog renders its own. */
+  hideHeading?: boolean
 }
 
 const PROVINCES = [
@@ -53,6 +55,24 @@ const PROVINCES = [
 
 const COUNTRIES = ["Canada", "United States"]
 
+const MUNICIPALITIES = [
+  "St. John's",
+  "Mount Pearl",
+  "Paradise",
+  "Conception Bay South",
+  "Petty Harbour/Maddox Cove",
+  "Holyrood",
+  "Portugal Cove-St. Philips",
+  "Bell Island",
+  "Bauline",
+  "Pouch Cove",
+  "Flatrock",
+  "Torbay",
+  "Logy Bay - Middle Cove - Outer Cove",
+  "Bay Bulls",
+  "Witless Bay",
+]
+
 const MOVE_OPTIONS = [
   { id: "staircases", label: "Staircases" },
   { id: "narrow-passageways", label: "Narrow passageways" },
@@ -68,6 +88,7 @@ export default function DeliveryForm({
   showErrors = false,
   onValidityChange,
   onDataChange,
+  hideHeading = false,
 }: DeliveryFormProps) {
   const [address1, setAddress1] = useState("")
   const [address2, setAddress2] = useState("")
@@ -86,7 +107,7 @@ export default function DeliveryForm({
     const address1Error = address1.trim()
       ? ""
       : "Address line 1"
-    const cityError = city.trim() ? "" : "Enter the city."
+    const cityError = city.trim() ? "" : "Select a municipality."
     const provinceError = province
       ? province === ALLOWED_PROVINCE
         ? ""
@@ -150,17 +171,18 @@ export default function DeliveryForm({
   ])
 
   return (
-    <section className={cn("space-y-6", className)}>
-      <header className="space-y-2">
-        <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
-          Delivery Details
-        </h2>
-        <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
-          Describe the client&apos;s delivery needs and any access details.
-        </p>
-      </header>
-
-      <div className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-foreground">
+    <div className={cn("self-stretch flex flex-col items-start gap-6", className)}>
+      {hideHeading ? null : (
+        <div className="self-stretch flex flex-col items-start gap-3">
+          <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
+            Delivery Details
+          </h2>
+          <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
+            Describe the client&apos;s delivery needs and any access details.
+          </p>
+        </div>
+      )}
+      <div className="self-stretch flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-foreground">
         <Info className="h-4 w-4 text-neutral-500" aria-hidden="true" />
         <span>
           Home Again Furniture Bank is currently only servicing Newfoundland and
@@ -168,9 +190,11 @@ export default function DeliveryForm({
         </span>
       </div>
 
-      <div className="grid gap-4">
+      <div className="self-stretch grid gap-4">
         <div className="space-y-2">
-          <Label htmlFor="delivery-address-1">Address line 1</Label>
+          <Label htmlFor="delivery-address-1">
+            Address line 1<span className="text-destructive">*</span>
+          </Label>
           <Input
             id="delivery-address-1"
             placeholder="Street address"
@@ -198,22 +222,41 @@ export default function DeliveryForm({
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="delivery-city">City</Label>
-            <Input
-              id="delivery-city"
-              placeholder="Enter city"
-              autoComplete="address-level2"
+            <Label htmlFor="delivery-municipality">
+              Municipality<span className="text-destructive">*</span>
+            </Label>
+            <Select
               value={city}
-              onChange={(event) => setCity(event.target.value)}
-              aria-invalid={showError("city")}
-              className={cn(showError("city") && "border-destructive")}
-            />
+              onValueChange={(value) => {
+                setCity(value ?? "")
+              }}
+            >
+              <SelectTrigger
+                id="delivery-municipality"
+                aria-invalid={showError("city")}
+                className={cn(
+                  "w-full",
+                  showError("city") && "border-destructive"
+                )}
+              >
+                <SelectValue placeholder="Select a municipality" />
+              </SelectTrigger>
+              <SelectContent>
+                {MUNICIPALITIES.map((municipality) => (
+                  <SelectItem key={municipality} value={municipality}>
+                    {municipality}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {showError("city") ? (
               <p className="text-xs text-destructive">{errors.city}</p>
             ) : null}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="delivery-province">Province/territory</Label>
+            <Label htmlFor="delivery-province">
+              Province/territory<span className="text-destructive">*</span>
+            </Label>
             <Select
               value={province}
               onValueChange={(value) => {
@@ -249,7 +292,9 @@ export default function DeliveryForm({
             ) : null}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="delivery-country">Country</Label>
+            <Label htmlFor="delivery-country">
+              Country<span className="text-destructive">*</span>
+            </Label>
             <Select
               value={country}
               onValueChange={(value) => {
@@ -297,7 +342,7 @@ export default function DeliveryForm({
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="self-stretch space-y-3">
         <Label className="text-sm font-medium text-foreground">
           Information related to the move
         </Label>
@@ -345,7 +390,7 @@ export default function DeliveryForm({
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="self-stretch space-y-2">
         <Label htmlFor="delivery-date">Date items needed by</Label>
         <Input
           id="delivery-date"
@@ -356,7 +401,7 @@ export default function DeliveryForm({
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="self-stretch space-y-2">
         <Label htmlFor="delivery-notes">Notes and instructions</Label>
         <Textarea
           id="delivery-notes"
@@ -366,6 +411,6 @@ export default function DeliveryForm({
           onChange={(event) => setNotes(event.target.value)}
         />
       </div>
-    </section>
+    </div>
   )
 }

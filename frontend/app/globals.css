@@ -15,7 +15,7 @@
  * Tailwind only includes utilities it finds as complete strings in source files.
  * Dynamic class names and infrequently-used tokens would otherwise be silently
  * dropped — this acts as a safelist for the full spacing and typography scales. */
-@source inline("{p,px,py,pt,pb,pl,pr,m,mx,my,mt,mb,ml,mr,gap,space-x,space-y}-{xs,sm,md,lg,xl,2xl,3xl,4xl}");
+@source inline("{p,px,py,pt,pb,pl,pr,m,mx,my,mt,mb,ml,mr,gap,space-x,space-y}-{xs,sm,md,lg,xl,2xl,3xl,4xl,5xl,6xl,7xl,8xl,9xl,10xl}");
 @source inline("text-{heading-1,heading-2,heading-3,heading-4,paragraph-large,paragraph-regular,paragraph-small,paragraph-mini,caption}");
 
 @theme inline {
@@ -104,6 +104,12 @@
   --spacing-2xl: var(--2xl);
   --spacing-3xl: var(--3xl);
   --spacing-4xl: var(--4xl);
+  --spacing-5xl: var(--5xl);
+  --spacing-6xl: var(--6xl);
+  --spacing-7xl: var(--7xl);
+  --spacing-8xl: var(--8xl);
+  --spacing-9xl: var(--9xl);
+  --spacing-10xl: var(--10xl);
 
 }
 
@@ -123,6 +129,9 @@
   --max-width-5xl: var(--container-5xl);
   --max-width-6xl: var(--container-6xl);
   --max-width-7xl: var(--container-7xl);
+  --max-width-8xl: 90rem;
+  --max-width-9xl: 96rem;
+  --max-width-10xl: 100rem;
 }
 
 @layer base {

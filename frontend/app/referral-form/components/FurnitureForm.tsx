@@ -8,7 +8,6 @@ import {
   PlugZap,
   Search,
   Sofa,
-  Utensils,
 } from "lucide-react"
 
 import FurnitureItemCard from "@/common/components/forms/FurnitureItemCard"
@@ -40,7 +39,6 @@ const CATEGORIES = [
   "Seating",
   "Storage and Shelving",
   "Bed",
-  "Household",
   "Electronics",
   "Tables",
 ]
@@ -63,6 +61,7 @@ export const ITEMS: Item[] = [
     label: "Upholstered Arm Chair",
     category: "Seating",
   },
+  { id: "desk-chair", label: "Desk Chair", category: "Seating" },
   { id: "dresser", label: "Dresser", category: "Storage and Shelving" },
   {
     id: "youth-small-dresser",
@@ -82,6 +81,12 @@ export const ITEMS: Item[] = [
     category: "Storage and Shelving",
   },
   { id: "tv-stand", label: "TV Stand", category: "Storage and Shelving" },
+  {
+    id: "laundry-basket",
+    label: "Laundry Basket",
+    category: "Storage and Shelving",
+  },
+  { id: "hangers", label: "Hangers", category: "Storage and Shelving" },
   {
     id: "box-spring-only",
     label: "Box Spring Only",
@@ -105,17 +110,6 @@ export const ITEMS: Item[] = [
 
   { id: "toaster", label: "Toaster", category: "Electronics" },
   { id: "radio", label: "Radio", category: "Electronics" },
-  { id: "cutlery", label: "Cutlery", category: "Household" },
-  { id: "dishes", label: "Dishes", category: "Household" },
-  { id: "glasses", label: "Glasses", category: "Household" },
-  { id: "kettle", label: "Kettle", category: "Household" },
-  { id: "towels", label: "Towels", category: "Household" },
-  { id: "rug", label: "Rug", category: "Household" },
-  {
-    id: "misc-household-item",
-    label: "Misc. Household Item",
-    category: "Household",
-  },
   {
     id: "table-lamp",
     label: "Table Lamp",
@@ -127,16 +121,6 @@ export const ITEMS: Item[] = [
     category: "Electronics",
   },
   {
-    id: "cooking-pots",
-    label: "Cooking Pots",
-    category: "Household",
-  },
-  {
-    id: "frying-pans",
-    label: "Frying Pans",
-    category: "Household",
-  },
-  {
     id: "microwave",
     label: "Microwave",
     category: "Electronics",
@@ -144,6 +128,11 @@ export const ITEMS: Item[] = [
   {
     id: "flatscreen-tv",
     label: "Flatscreen T.V.",
+    category: "Electronics",
+  },
+  {
+    id: "clock",
+    label: "Clock",
     category: "Electronics",
   },
   {
@@ -191,7 +180,6 @@ const CATEGORY_ICONS: Record<string, typeof Sofa> = {
   Seating: Sofa,
   "Storage and Shelving": Package,
   Bed: Bed,
-  Household: Utensils,
   Electronics: PlugZap,
   Tables: LampDesk,
 }
@@ -277,10 +265,10 @@ export default function FurnitureForm({
   }
 
   return (
-    <section className={cn("space-y-5", className)}>
+    <div className={cn("self-stretch flex flex-col items-start gap-6", className)}>
       {showHeader ? (
-        <header className="space-y-2">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="self-stretch flex flex-col items-start gap-3">
+          <div className="flex w-full flex-wrap items-center justify-between gap-3">
             <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
               Furniture Selection
             </h2>
@@ -297,10 +285,9 @@ export default function FurnitureForm({
           <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
             Add one or more requested furniture or household items.
           </p>
-        </header>
+        </div>
       ) : null}
-
-      <div className="space-y-3">
+      <div className="self-stretch space-y-3">
         {!showHeader ? (
           <div className="flex justify-end">
             <div className="flex h-10 items-center gap-2 rounded-md border border-neutral-200 px-3">
@@ -341,7 +328,7 @@ export default function FurnitureForm({
         </div>
       </div>
 
-      <div className="grid items-start gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="self-stretch grid items-stretch gap-xl md:grid-cols-2 lg:grid-cols-3">
         {filteredItems.map((item) => {
           const isSelected = selected[item.id] ?? false
           const qty = quantities[item.id] ?? 0
@@ -350,7 +337,7 @@ export default function FurnitureForm({
           return (
             <FurnitureItemCard
               key={item.id}
-              className="w-full self-start"
+              className="h-full w-full"
               label={item.label}
               selected={isSelected}
               quantity={qty}
@@ -384,7 +371,7 @@ export default function FurnitureForm({
 
 
       {showSummary ? (
-        <section className="mt-8 space-y-4">
+        <section className="self-stretch mt-8 space-y-4">
           <h3 className="text-[24px] font-semibold tracking-[-1px] text-foreground">
             Summary
           </h3>
@@ -399,6 +386,6 @@ export default function FurnitureForm({
           />
         </section>
       ) : null}
-    </section>
+    </div>
   )
 }

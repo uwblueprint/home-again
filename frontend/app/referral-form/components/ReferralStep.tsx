@@ -27,12 +27,15 @@ type ReferralStepProps = {
   data: ReferralData;
   onChange: (data: ReferralData) => void;
   errors?: ReferralStepErrors;
+  /** Hide the in-page heading — the edit Dialog renders its own. */
+  hideHeading?: boolean;
 };
 
 export default function ReferralStep({
   data,
   onChange,
   errors = {},
+  hideHeading = false,
 }: ReferralStepProps) {
   function patch(updates: Partial<ReferralData>) {
     onChange({ ...data, ...updates });
@@ -43,15 +46,18 @@ export default function ReferralStep({
   }
 
   return (
-    <div className="space-y-2">
-      <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
-        Referral Details
-      </h2>
-      <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
-        Tell us why you are referring this client.
-      </p>
-
-      <div className="mt-4 space-y-2">
+    <div className="self-stretch flex flex-col items-start gap-6">
+      {hideHeading ? null : (
+        <div className="self-stretch flex flex-col items-start gap-3">
+          <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
+            Referral Details
+          </h2>
+          <p className="self-stretch justify-start text-neutral-500 text-lg font-normal font-['Geist'] leading-7">
+            Tell us why you are referring this client.
+          </p>
+        </div>
+      )}
+      <div className="self-stretch space-y-2">
         <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-4 py-3 text-sm font-medium text-foreground">
           <Checkbox
             checked={data.hasReceivedFurnitureBefore}
@@ -99,14 +105,14 @@ export default function ReferralStep({
         ) : null}
       </div>
 
-      <div className="mt-4 space-y-1">
+      <div className="self-stretch space-y-1">
         <h3 className="text-base font-semibold text-foreground">
           Reason for new referral
         </h3>
         <p className="text-sm text-muted-foreground">Check all that apply.</p>
       </div>
 
-      <div className="space-y-2">
+      <div className="self-stretch space-y-2">
         {REFERRAL_REASONS.map((reason) => {
           const isChecked = data.reasons[reason.id];
           const requiresDetails =
@@ -160,7 +166,7 @@ export default function ReferralStep({
         })}
       </div>
 
-      <div className="mt-4 space-y-2">
+      <div className="self-stretch space-y-2">
         <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
           <Checkbox
             checked={data.isHighPriority}

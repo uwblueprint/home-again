@@ -9,6 +9,7 @@ import {
 import PickupAddressForm, {
   validatePickupAddress,
 } from "@/app/donate/components/PickupAddressForm";
+import { ServiceAreaNotice } from "@/common/components/feedback";
 import { InputError } from "@/common/components/ui/input";
 
 type TouchableField = "streetAddress" | "city" | "postalCode";
@@ -56,19 +57,7 @@ export default function StepSchedulePickup() {
         </p>
       </div>
 
-      <div
-        className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-4 py-3 text-sm"
-        role="note"
-      >
-        <CircleAlert
-          aria-hidden="true"
-          className="size-4 shrink-0 text-foreground"
-        />
-        <span className="font-medium">
-          Home Again Furniture Bank is currently only servicing Newfoundland and
-          Labrador, Canada
-        </span>
-      </div>
+      <ServiceAreaNotice />
 
       {showAll && hasAnyVisibleError ? (
         <InputError>

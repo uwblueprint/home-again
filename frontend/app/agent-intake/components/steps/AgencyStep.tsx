@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 
 import IntakeStepPage from "@/app/agent-intake/components/IntakeStepPage";
+import { FormField } from "@/common/components/forms";
 import { Input } from "@/common/components/ui/input";
-import { Label } from "@/common/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -18,7 +18,11 @@ import {
   type AgencyFormData,
 } from "@/app/agent-intake/stores/intakeFormStore";
 
-import { PHONE_REGEX, POSTAL_CODE_REGEX } from "@/common/constants/validators";
+import {
+  isValidAgencyUrl,
+  PHONE_REGEX,
+  POSTAL_CODE_REGEX,
+} from "@/common/constants/validators";
 
 type FormErrors = Partial<Record<keyof AgencyFormData, string>>;
 
@@ -29,6 +33,8 @@ function validate(form: AgencyFormData): FormErrors {
   if (!form.addressLine1.trim())
     errors.addressLine1 = "Enter a street address.";
   if (!form.city.trim()) errors.city = "Enter your city.";
+  if (!form.province.trim()) errors.province = "Select a province.";
+  if (!form.country.trim()) errors.country = "Select a country.";
   if (!form.postalCode.trim()) errors.postalCode = "Enter your postal code.";
   if (!form.phone.trim()) errors.phone = "Enter your phone number.";
 
@@ -40,26 +46,24 @@ function validate(form: AgencyFormData): FormErrors {
     errors.phone = "Enter a valid phone number.";
   }
 
+  if (form.url.trim() && !isValidAgencyUrl(form.url)) {
+    errors.url = "Enter a valid website (e.g. agency.com).";
+  }
+
   return errors;
-}
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-
-  return (
-    <p role="alert" className="mt-1 text-sm text-destructive">
-      {message}
-    </p>
-  );
 }
 
 const TOUCHED_ON_SUBMIT: (keyof AgencyFormData)[] = [
   "name",
   "addressLine1",
   "city",
+  "province",
+  "country",
   "postalCode",
   "phone",
 ];
+
+const inputClassName = "h-11 border-border bg-background";
 
 export default function AgencyStep() {
   const { agency, setAgency } = useIntakeFormStore();
@@ -105,6 +109,16 @@ export default function AgencyStep() {
     setErrors((prev) => ({ ...prev, [field]: validate(form)[field] }));
   }
 
+  function handleSelectChange(field: "province" | "country", value: string) {
+    const nextForm = { ...form, [field]: value };
+    setForm(nextForm);
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    setErrors((prev) => ({
+      ...prev,
+      [field]: validate(nextForm)[field],
+    }));
+  }
+
   const field = (id: keyof AgencyFormData) => ({
     id,
     value: form[id],
@@ -118,32 +132,36 @@ export default function AgencyStep() {
     <IntakeStepPage
       title="Partner Agency Details"
       description="Provide some basic information about your partner agency."
+      showServiceAreaNotice
     >
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="name">Agency name</Label>
+        <FormField
+          label="Agency name"
+          htmlFor="name"
+          required
+          error={touched.name ? errors.name : undefined}
+        >
           <Input
             {...field("name")}
             placeholder="Enter your agency name"
-            className="h-11 border-border bg-background"
+            className={inputClassName}
           />
-          <FieldError message={touched.name ? errors.name : undefined} />
-        </div>
+        </FormField>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="addressLine1">Address line 1</Label>
+          <FormField
+            label="Address line 1"
+            htmlFor="addressLine1"
+            required
+            error={touched.addressLine1 ? errors.addressLine1 : undefined}
+          >
             <Input
               {...field("addressLine1")}
               placeholder="Street address"
-              className="h-11 border-border bg-background"
+              className={inputClassName}
             />
-            <FieldError
-              message={touched.addressLine1 ? errors.addressLine1 : undefined}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="addressLine2">Address line 2</Label>
+          </FormField>
+          <FormField label="Address line 2" htmlFor="addressLine2">
             <Input
               id="addressLine2"
               value={form.addressLine2}
@@ -151,30 +169,45 @@ export default function AgencyStep() {
                 handleChange("addressLine2", event.target.value)
               }
               placeholder="Suite, unit, floor, or building"
-              className="h-11 border-border bg-background"
+              className={inputClassName}
             />
-          </div>
+          </FormField>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="city">City</Label>
+          <FormField
+            label="City"
+            htmlFor="city"
+            required
+            error={touched.city ? errors.city : undefined}
+          >
             <Input
               {...field("city")}
               placeholder="Enter city"
-              className="h-11 border-border bg-background"
+              className={inputClassName}
             />
-            <FieldError message={touched.city ? errors.city : undefined} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="province">Province</Label>
+          </FormField>
+          <FormField
+            label="Province"
+            htmlFor="province"
+            required
+            error={touched.province ? errors.province : undefined}
+          >
             <Select
               value={form.province}
               onValueChange={(value) =>
-                value && handleChange("province", value)
+                value && handleSelectChange("province", value)
               }
             >
-              <SelectTrigger id="province" className="!h-11 w-full py-0">
+              <SelectTrigger
+                id="province"
+                className="!h-11 w-full py-0"
+                aria-invalid={
+                  touched.province && !!errors.province
+                    ? (true as const)
+                    : undefined
+                }
+              >
                 <SelectValue placeholder="Select a province" />
               </SelectTrigger>
               <SelectContent>
@@ -183,51 +216,78 @@ export default function AgencyStep() {
                 </SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </FormField>
         </div>
 
-        <p className="-mt-2 text-sm text-muted-foreground">
-          Home Again currently only services Newfoundland and Labrador, Canada.
-        </p>
-
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="country">Country</Label>
+          <FormField
+            label="Country"
+            htmlFor="country"
+            required
+            error={touched.country ? errors.country : undefined}
+          >
             <Select
               value={form.country}
-              onValueChange={(value) => value && handleChange("country", value)}
+              onValueChange={(value) =>
+                value && handleSelectChange("country", value)
+              }
             >
-              <SelectTrigger id="country" className="!h-11 w-full py-0">
+              <SelectTrigger
+                id="country"
+                className="!h-11 w-full py-0"
+                aria-invalid={
+                  touched.country && !!errors.country
+                    ? (true as const)
+                    : undefined
+                }
+              >
                 <SelectValue placeholder="Select a country" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Canada">Canada</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="postalCode">Postal code</Label>
+          </FormField>
+          <FormField
+            label="Postal code"
+            htmlFor="postalCode"
+            required
+            error={touched.postalCode ? errors.postalCode : undefined}
+          >
             <Input
               {...field("postalCode")}
               placeholder="Enter postal code"
-              className="h-11 border-border bg-background"
+              className={inputClassName}
             />
-            <FieldError
-              message={touched.postalCode ? errors.postalCode : undefined}
-            />
-          </div>
+          </FormField>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="phone">Phone number</Label>
+        <FormField
+          label="Phone number"
+          htmlFor="phone"
+          required
+          error={touched.phone ? errors.phone : undefined}
+        >
           <Input
             {...field("phone")}
             type="tel"
             placeholder="Enter phone number"
-            className="h-11 border-border bg-background"
+            className={inputClassName}
           />
-          <FieldError message={touched.phone ? errors.phone : undefined} />
-        </div>
+        </FormField>
+
+        <FormField
+          label="Agency URL"
+          htmlFor="url"
+          error={touched.url ? errors.url : undefined}
+        >
+          <Input
+            {...field("url")}
+            type="text"
+            placeholder="Provide a link to your agency"
+            className={inputClassName}
+          />
+        </FormField>
       </div>
     </IntakeStepPage>
   );

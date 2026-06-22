@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 export interface AgencyFormData {
   name: string;
+  url: string;
   addressLine1: string;
   addressLine2: string;
   city: string;
@@ -20,10 +21,7 @@ export interface MainAgentFormData {
 }
 
 export interface OtherAgentFormData {
-  firstName: string;
-  lastName: string;
   email: string;
-  phone: string;
   isAdmin: boolean;
 }
 
@@ -56,6 +54,7 @@ interface IntakeFormStore {
 
 const initialAgency: AgencyFormData = {
   name: "",
+  url: "",
   addressLine1: "",
   addressLine2: "",
   city: "",

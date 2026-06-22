@@ -3,8 +3,8 @@
 /**
  * IntakeContext
  *
- * Allows individual intake step pages to register a `validateStep`
- * callback that IntakeLayout calls before navigating to the next step.
+ * Allows individual intake step components to register a `validateStep`
+ * callback that IntakeLayout calls before advancing to the next step.
  * If the callback returns false, navigation is blocked.
  */
 

@@ -109,16 +109,16 @@ export default function AgencyEditPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label
-              htmlFor="phone"
+              htmlFor="phone_number"
               className="block text-sm font-medium text-gray-700"
             >
               Phone
             </label>
             <input
               type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone || ""}
+              id="phone_number"
+              name="phone_number"
+              value={formData.phone_number || ""}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 border shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
             />

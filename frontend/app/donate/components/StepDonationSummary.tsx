@@ -14,8 +14,8 @@ import { useFilePreviewUrls } from "@/common/hooks/useFilePreviewUrls";
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-sm font-medium text-muted-foreground">{label}</span>
-      <span className="text-sm text-foreground">{value}</span>
+      <span className="text-sm font-medium text-foreground">{label}</span>
+      <span className="text-sm text-muted-foreground">{value}</span>
     </div>
   );
 }
@@ -80,10 +80,10 @@ function ItemRow({ item }: { item: FurnitureItemData }) {
         )}
       </div>
       <div className="flex flex-col">
-        <span className="text-sm font-medium text-foreground">
+        <span className="text-lg font-semibold text-foreground">
           {item.furnitureType ?? "Unknown item"}
         </span>
-        <span className="text-sm text-foreground">{stainsLabel}</span>
+        <span className="text-sm text-muted-foreground">{stainsLabel}</span>
       </div>
     </div>
   );
@@ -105,6 +105,14 @@ function MapPinIcon() {
       />
     </svg>
   );
+}
+
+// Prefix the donor's local number with the "(+1)" country code shown in the
+// designs, unless they already entered a country code themselves.
+function formatPhoneNumber(phone: string | null | undefined): string {
+  const trimmed = phone?.trim();
+  if (!trimmed) return "-";
+  return /^\(?\+?1\b/.test(trimmed) ? trimmed : `(+1) ${trimmed}`;
 }
 
 // --- Main component ---
@@ -148,22 +156,22 @@ export default function StepDonationSummary() {
   }
 
   function handleFeeAgreementChange(checked: boolean) {
-    setFormState((prev) => ({ ...prev, feeAgreement: checked === true }));
+    setFormState((prev) => ({ ...prev, feeAgreement: checked }));
   }
 
   const donorFirstName = donorLoading ? "…" : (donor?.first_name ?? "-");
   const donorLastName = donorLoading ? "…" : (donor?.last_name ?? "-");
   const donorEmail = donorLoading ? "…" : (donor?.email ?? "-");
-  const donorPhone = donorLoading ? "…" : (donor?.phone ?? "-");
+  const donorPhone = donorLoading ? "…" : formatPhoneNumber(donor?.phone);
 
   return (
     <div className="flex flex-col gap-9">
       {/* Page title */}
       <div className="flex flex-col gap-3">
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">
+        <h2 className="text-3xl font-semibold tracking-tight text-foreground">
           Donation Summary
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-lg text-muted-foreground">
           Review your donation details before submitting. You&apos;ll receive a
           confirmation and next steps by email.
         </p>
@@ -192,11 +200,11 @@ export default function StepDonationSummary() {
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-1.5">
               <MapPinIcon />
-              <span className="text-sm font-medium text-muted-foreground">
+              <span className="text-sm font-medium text-foreground">
                 Pickup Address
               </span>
             </div>
-            <span className="text-sm text-foreground">{formatAddress()}</span>
+            <span className="text-sm text-muted-foreground">{formatAddress()}</span>
           </div>
         </Card>
 
@@ -247,18 +255,20 @@ export default function StepDonationSummary() {
             <span className="text-sm font-medium text-foreground">
               Pickup fee agreement
             </span>
-            <span className="text-xs text-destructive">
+            <span className="text-sm font-medium text-destructive">
               {showFeeError ? "* (Agreement required to submit donation)" : "*"}
             </span>
           </div>
           <label className="flex cursor-pointer items-center gap-2">
             <Checkbox
               checked={feeAgreement}
-              onCheckedChange={handleFeeAgreementChange}
+              onCheckedChange={(checked) =>
+                handleFeeAgreementChange(checked === true)
+              }
               aria-invalid={showFeeError}
               className="size-3.5 rounded-sm shadow-none"
             />
-            <span className="text-xs text-[#404040]">
+            <span className="text-sm text-[var(--unofficial-foreground-alt)]">
               I agree to a $35 fee, payable at time of pickup (tax receipt will
               be provided)
             </span>

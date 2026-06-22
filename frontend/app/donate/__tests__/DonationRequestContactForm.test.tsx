@@ -71,10 +71,10 @@ describe("DonationContactForm", () => {
     expect(
       screen.getByRole("heading", { name: "Welcome!" })
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("First name")).toBeInTheDocument();
-    expect(screen.getByLabelText("Last name")).toBeInTheDocument();
-    expect(screen.getByLabelText("Email address")).toBeInTheDocument();
-    expect(screen.getByLabelText("Phone number")).toBeInTheDocument();
+    expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/phone number/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /submit a donation request/i })
     ).toBeInTheDocument();
@@ -92,16 +92,16 @@ describe("DonationContactForm", () => {
     expect(screen.getByText("Email address is required.")).toBeInTheDocument();
     expect(screen.getByText("Phone number is required.")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText("First name"), {
+    fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: "Jane" },
     });
-    fireEvent.change(screen.getByLabelText("Last name"), {
+    fireEvent.change(screen.getByLabelText(/last name/i), {
       target: { value: "Doe" },
     });
-    fireEvent.change(screen.getByLabelText("Email address"), {
+    fireEvent.change(screen.getByLabelText(/email address/i), {
       target: { value: "invalid-email" },
     });
-    fireEvent.change(screen.getByLabelText("Phone number"), {
+    fireEvent.change(screen.getByLabelText(/phone number/i), {
       target: { value: "abc123" },
     });
 
@@ -118,16 +118,16 @@ describe("DonationContactForm", () => {
   it("submits expected payload through useCreateDonor", () => {
     render(<DonationContactForm />);
 
-    fireEvent.change(screen.getByLabelText("First name"), {
+    fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: "Jane" },
     });
-    fireEvent.change(screen.getByLabelText("Last name"), {
+    fireEvent.change(screen.getByLabelText(/last name/i), {
       target: { value: "Doe" },
     });
-    fireEvent.change(screen.getByLabelText("Email address"), {
+    fireEvent.change(screen.getByLabelText(/email address/i), {
       target: { value: "jane@example.com" },
     });
-    fireEvent.change(screen.getByLabelText("Phone number"), {
+    fireEvent.change(screen.getByLabelText(/phone number/i), {
       target: { value: "+1 (555) 123-4567" },
     });
 
@@ -166,16 +166,16 @@ describe("DonationContactForm", () => {
   it("redirects to /donate/:id on successful submit and shows error on failure", () => {
     render(<DonationContactForm />);
 
-    fireEvent.change(screen.getByLabelText("First name"), {
+    fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: "Jane" },
     });
-    fireEvent.change(screen.getByLabelText("Last name"), {
+    fireEvent.change(screen.getByLabelText(/last name/i), {
       target: { value: "Doe" },
     });
-    fireEvent.change(screen.getByLabelText("Email address"), {
+    fireEvent.change(screen.getByLabelText(/email address/i), {
       target: { value: "jane@example.com" },
     });
-    fireEvent.change(screen.getByLabelText("Phone number"), {
+    fireEvent.change(screen.getByLabelText(/phone number/i), {
       target: { value: "+1 (555) 123-4567" },
     });
 
@@ -191,16 +191,16 @@ describe("DonationContactForm", () => {
 
     expect(mockPush).toHaveBeenCalledWith("/donate/donor-123");
 
-    fireEvent.change(screen.getByLabelText("First name"), {
+    fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: "Jane" },
     });
-    fireEvent.change(screen.getByLabelText("Last name"), {
+    fireEvent.change(screen.getByLabelText(/last name/i), {
       target: { value: "Doe" },
     });
-    fireEvent.change(screen.getByLabelText("Email address"), {
+    fireEvent.change(screen.getByLabelText(/email address/i), {
       target: { value: "jane@example.com" },
     });
-    fireEvent.change(screen.getByLabelText("Phone number"), {
+    fireEvent.change(screen.getByLabelText(/phone number/i), {
       target: { value: "+1 (555) 123-4567" },
     });
 

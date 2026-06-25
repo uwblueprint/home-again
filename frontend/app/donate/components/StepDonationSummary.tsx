@@ -187,7 +187,7 @@ export default function StepDonationSummary() {
           <div className="flex flex-col gap-4">
             <InfoRow label="First Name" value={donorFirstName} />
             <InfoRow label="Last Name" value={donorLastName} />
-            <InfoRow label="Email Address" value={donorEmail} />
+            <InfoRow label="Email Address " value={donorEmail} />
             <InfoRow label="Phone Number" value={donorPhone} />
           </div>
         </Card>

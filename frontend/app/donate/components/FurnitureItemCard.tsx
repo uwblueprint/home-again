@@ -136,7 +136,7 @@ export default function FurnitureItemCard({
               {/* Stains toggle */}
               <div>
                 <p className="mb-2 text-sm font-medium text-foreground">
-                  Are there stains on the furniture item?
+                  Are there stains on the furniture item?<span className="text-destructive">*</span>
                 </p>
                 <div className="inline-flex overflow-hidden rounded-md border border-border">
                   <button

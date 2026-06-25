@@ -1,13 +1,19 @@
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/common/components/ui/button";
 import { cn } from "@/common/lib/utils";
+import type { VariantProps } from "class-variance-authority";
+
+import { buttonVariants } from "@/common/components/ui/button";
 
 interface FooterProps {
   leftAction?: React.ReactNode;
   footerAlert?: string;
   onBack?: () => void;
+  isBackDisabled?: boolean;
+  backVariant?: VariantProps<typeof buttonVariants>["variant"];
   onNext: () => void;
   nextLabel?: string;
+  submittingLabel?: string;
   isNextDisabled?: boolean;
   isSubmitting?: boolean;
   className?: string;
@@ -17,8 +23,11 @@ export function Footer({
   leftAction,
   footerAlert,
   onBack,
+  isBackDisabled = false,
+  backVariant = "outline",
   onNext,
   nextLabel = "Next",
+  submittingLabel = "Loading...",
   isNextDisabled = false,
   isSubmitting = false,
   className,
@@ -44,8 +53,9 @@ export function Footer({
           {onBack ? (
             <Button
               type="button"
-              variant="outline"
+              variant={backVariant}
               onClick={onBack}
+              disabled={isBackDisabled}
               data-testid="back-button"
               className="min-h-10 px-6 py-2.5"
             >
@@ -60,7 +70,7 @@ export function Footer({
             aria-busy={isSubmitting}
             className="min-h-10 px-6 py-2.5"
           >
-            {isSubmitting ? "Loading..." : nextLabel}
+            {isSubmitting ? submittingLabel : nextLabel}
           </Button>
         </div>
       </div>

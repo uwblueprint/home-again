@@ -8,9 +8,9 @@ export interface CreateAgencyInput {
   address_line_1: string;
   address_line_2?: string | null;
   city: string;
-  postal_code?: string | null;
-  phone: string;
-  main_agent_id?: string | null;
+  postal_code: string;
+  phone_number: string;
+  program?: string | null;
 }
 
 export interface UpdateAgencyInput {
@@ -19,16 +19,17 @@ export interface UpdateAgencyInput {
   address_line_2?: string | null;
   city?: string;
   postal_code?: string | null;
-  phone?: string;
-  main_agent_id?: string | null;
+  phone_number?: string;
+  program?: string | null;
 }
 
 export interface CreateAgentInput {
   first_name: string;
   last_name: string;
-  email?: string | null;
-  phone_number?: string | null;
+  email: string;
+  phone_number: string;
   agency_id: string;
+  is_admin?: boolean;
   supabase_user_id?: string | null;
 }
 

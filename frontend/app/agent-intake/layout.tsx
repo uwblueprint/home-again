@@ -1,9 +1,7 @@
-import IntakeLayout from "@/app/agent-intake/IntakeLayout";
-
-export default function IntakeRouteLayout({
+export default function AgentIntakeRouteLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <IntakeLayout>{children}</IntakeLayout>;
+  return children;
 }

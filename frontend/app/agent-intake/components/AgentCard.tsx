@@ -2,22 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { Trash2, SquarePen, Info } from "lucide-react";
+import { FormField } from "@/common/components/forms";
 import { Input } from "@/common/components/ui/input";
-import { Label } from "@/common/components/ui/label";
 import { Button } from "@/common/components/ui/button";
-import { Badge } from "@/common/components/ui/badge";
+import { Card } from "@/common/components/ui/card";
 import { Checkbox } from "@/common/components/ui/checkbox";
+import { Label } from "@/common/components/ui/label";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/common/components/ui/tooltip";
 
+import { EMAIL_REGEX } from "@/common/constants/validators";
+
+import { AgentSummaryRow } from "./AgentSummaryRow";
+
 export interface AgentFormData {
-  firstName: string;
-  lastName: string;
   email: string;
-  phoneNumber: string;
   isAdmin: boolean;
 }
 
@@ -25,68 +28,42 @@ interface AgentCardProps {
   index: number;
   agent: AgentFormData;
   isEditing: boolean;
+  isNew?: boolean;
   disabled?: boolean;
   onEdit: () => void;
   onSave: (data: AgentFormData) => void;
+  onCancel: () => void;
   onRemove: () => void;
 }
 
-type AgentTextField = "firstName" | "lastName" | "email" | "phoneNumber";
-type FormErrors = Partial<Record<AgentTextField, string>>;
-
-import { EMAIL_REGEX, PHONE_REGEX } from "@/common/constants/validators";
-
-const TOUCHED_ON_SAVE: AgentTextField[] = [
-  "firstName",
-  "lastName",
-  "email",
-  "phoneNumber",
-];
+type FormErrors = Partial<Record<keyof AgentFormData, string>>;
 
 function validate(form: AgentFormData): FormErrors {
   const errors: FormErrors = {};
 
-  if (!form.firstName.trim()) errors.firstName = "Enter your first name.";
-  if (!form.lastName.trim()) errors.lastName = "Enter your last name.";
   if (!form.email.trim()) {
     errors.email = "Enter your email address.";
   } else if (!EMAIL_REGEX.test(form.email.trim())) {
     errors.email = "Enter a valid email address.";
   }
 
-  if (!form.phoneNumber.trim()) {
-    errors.phoneNumber = "Enter your phone number.";
-  } else if (!PHONE_REGEX.test(form.phoneNumber.trim())) {
-    errors.phoneNumber = "Enter a valid phone number.";
-  }
-
   return errors;
-}
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-
-  return (
-    <p role="alert" className="mt-1 text-sm text-destructive">
-      {message}
-    </p>
-  );
 }
 
 export function AgentCard({
   index,
   agent,
   isEditing,
+  isNew = false,
   disabled = false,
   onEdit,
   onSave,
+  onCancel,
   onRemove,
 }: AgentCardProps) {
   const [formData, setFormData] = useState<AgentFormData>(agent);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [touched, setTouched] = useState<
-    Partial<Record<AgentTextField, boolean>>
-  >({});
+  const [touched, setTouched] = useState<Partial<Record<"email", boolean>>>({});
 
   useEffect(() => {
     setFormData(agent);
@@ -94,22 +71,14 @@ export function AgentCard({
     setTouched({});
   }, [agent]);
 
-  const displayName =
-    agent.firstName || agent.lastName
-      ? `${agent.firstName} ${agent.lastName}`.trim()
-      : "New Agent";
-
-  const isSaved = agent.firstName !== "" || agent.lastName !== "";
+  const displayEmail = agent.email.trim() || "New Agent";
+  const isSaved = agent.email.trim() !== "";
+  const adminCheckboxId = `admin-${index}`;
 
   function handleSave() {
     const validationErrors = validate(formData);
     setErrors(validationErrors);
-    setTouched(
-      TOUCHED_ON_SAVE.reduce(
-        (acc, field) => ({ ...acc, [field]: true }),
-        {} as Partial<Record<AgentTextField, boolean>>
-      )
-    );
+    setTouched({ email: true });
 
     if (Object.keys(validationErrors).length > 0) {
       return;
@@ -122,46 +91,37 @@ export function AgentCard({
     handleSave();
   }
 
-  function handleChange(field: AgentTextField, value: string) {
-    const nextForm = { ...formData, [field]: value };
+  function handleChange(value: string) {
+    const nextForm = { ...formData, email: value };
 
     setFormData(nextForm);
 
-    if (touched[field]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: validate(nextForm)[field],
-      }));
+    if (touched.email) {
+      setErrors({ email: validate(nextForm).email });
     }
   }
 
-  function handleBlur(field: AgentTextField) {
-    setTouched((prev) => ({ ...prev, [field]: true }));
-    setErrors((prev) => ({
-      ...prev,
-      [field]: validate(formData)[field],
-    }));
+  function handleBlur() {
+    setTouched({ email: true });
+    setErrors({ email: validate(formData).email });
   }
 
   function handleAdminChange(checked: boolean) {
     setFormData((prev) => ({ ...prev, isAdmin: checked }));
   }
 
-  const fieldProps = (field: AgentTextField) => ({
-    value: formData[field],
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-      handleChange(field, e.target.value),
-    onBlur: () => handleBlur(field),
-    "aria-invalid":
-      touched[field] && !!errors[field] ? (true as const) : undefined,
-  });
+  function handleCancel() {
+    setFormData(agent);
+    setErrors({});
+    setTouched({});
+    onCancel();
+  }
 
   if (isEditing) {
     return (
-      <div className="w-full rounded-xl border border-border bg-card p-6 shadow-sm">
-        <div className="flex flex-col gap-6">
-          {/* Header — click row to collapse, X to delete */}
-          <div className="flex items-center justify-between">
+      <Card className="w-full">
+        {!isNew ? (
+          <div className="flex w-full items-center justify-between self-stretch">
             <div
               role={isSaved ? "button" : undefined}
               tabIndex={isSaved ? 0 : undefined}
@@ -176,87 +136,62 @@ export function AgentCard({
                     }
                   : undefined
               }
-              className={`flex-1 py-1 text-sm text-foreground ${isSaved ? "cursor-pointer hover:opacity-70 transition-opacity" : ""}`}
+              className={`flex-1 py-1 ${isSaved ? "cursor-pointer transition-opacity hover:opacity-70" : ""}`}
             >
-              <span className="font-semibold">Agent {index + 1}:</span>{" "}
-              {displayName}
+              <AgentSummaryRow
+                index={index}
+                emailDisplay={displayEmail}
+                showAdminBadge={agent.isAdmin && isSaved}
+              />
             </div>
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-lg"
               onClick={onRemove}
-              className="text-foreground/60 hover:text-foreground transition-colors"
+              className="text-foreground/60 hover:text-foreground"
             >
               <Trash2 className="size-6" />
-            </button>
+            </Button>
           </div>
+        ) : null}
 
-          {/* Row 1: First Name / Last Name */}
-          <div className="grid grid-cols-2 gap-6">
-            <div className="flex flex-col gap-1">
-              <Label htmlFor={`firstName-${index}`}>First Name</Label>
-              <Input
-                id={`firstName-${index}`}
-                placeholder="Enter first name"
-                className="h-11"
-                {...fieldProps("firstName")}
-              />
-              <FieldError
-                message={touched.firstName ? errors.firstName : undefined}
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label htmlFor={`lastName-${index}`}>Last Name</Label>
-              <Input
-                id={`lastName-${index}`}
-                placeholder="Enter last name"
-                className="h-11"
-                {...fieldProps("lastName")}
-              />
-              <FieldError
-                message={touched.lastName ? errors.lastName : undefined}
-              />
-            </div>
-          </div>
+        <FormField
+          label="Email"
+          htmlFor={`email-${index}`}
+          required
+          className="w-full self-stretch"
+          error={touched.email ? errors.email : undefined}
+        >
+          <Input
+            id={`email-${index}`}
+            type="email"
+            placeholder="name@agency.org"
+            className="h-11 w-full"
+            value={formData.email}
+            onChange={(event) => handleChange(event.target.value)}
+            onBlur={handleBlur}
+            aria-invalid={
+              touched.email && !!errors.email ? (true as const) : undefined
+            }
+          />
+        </FormField>
 
-          {/* Row 2: Email / Phone */}
-          <div className="grid grid-cols-2 gap-6">
-            <div className="flex flex-col gap-1">
-              <Label htmlFor={`email-${index}`}>Email</Label>
-              <Input
-                id={`email-${index}`}
-                type="email"
-                placeholder="name@agency.org"
-                className="h-11"
-                {...fieldProps("email")}
-              />
-              <FieldError message={touched.email ? errors.email : undefined} />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label htmlFor={`phone-${index}`}>Phone Number</Label>
-              <Input
-                id={`phone-${index}`}
-                type="tel"
-                placeholder="Enter phone number"
-                className="h-11"
-                {...fieldProps("phoneNumber")}
-              />
-              <FieldError
-                message={touched.phoneNumber ? errors.phoneNumber : undefined}
-              />
-            </div>
-          </div>
-
-          {/* Admin checkbox */}
-          <div className="flex items-center gap-1.5">
-            <label className="flex cursor-pointer items-center gap-3 text-sm text-foreground/80">
-              <Checkbox
-                checked={formData.isAdmin}
-                onCheckedChange={(checked) =>
-                  handleAdminChange(checked === true)
-                }
-              />
-              Make this user an admin
-            </label>
+        <div className="flex items-center gap-1.5">
+          <Label
+            htmlFor={adminCheckboxId}
+            className="cursor-pointer gap-3 font-normal text-foreground/80"
+          >
+            <Checkbox
+              id={adminCheckboxId}
+              checked={formData.isAdmin}
+              onCheckedChange={(checked) =>
+                handleAdminChange(checked === true)
+              }
+            />
+            Make this user an admin
+          </Label>
+          <TooltipProvider delay={200}>
             <Tooltip>
               <TooltipTrigger
                 aria-label="What does admin access mean?"
@@ -264,59 +199,59 @@ export function AgentCard({
               >
                 <Info className="size-[18px]" />
               </TooltipTrigger>
-              <TooltipContent className="max-w-[413px] text-left">
-                All agents can access client accounts. Admins can also add
-                agents and assign admin access to other agents.
+              <TooltipContent
+                side="bottom"
+                sideOffset={8}
+                className="max-w-[413px] text-left text-sm leading-snug"
+              >
+                All agents can access client accounts. Admins can also add agents
+                and assign admin access to other agents.
               </TooltipContent>
             </Tooltip>
-          </div>
+          </TooltipProvider>
+        </div>
 
-          {/* Save Button */}
-          <Button
-            variant="secondary"
-            className="w-full rounded-full px-3 py-1.5"
-            onClick={handleSave}
-          >
+        <div className="flex w-full self-stretch justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button type="button" onClick={handleSave}>
             Save
           </Button>
         </div>
-      </div>
+      </Card>
     );
   }
 
-  // Collapsed state
   return (
-    <div className="flex w-full items-center justify-between rounded-[14px] border border-foreground/10 bg-card p-6 shadow-sm">
-      <div className="flex items-center gap-1.5">
-        <p className="text-sm text-foreground">
-          <span className="font-semibold">Agent {index + 1}:</span>{" "}
-          {displayName}
-        </p>
-        {agent.isAdmin && isSaved ? (
-          <Badge variant="outline" className="font-semibold">
-            Admin User
-          </Badge>
-        ) : null}
-      </div>
+    <Card className="w-full flex-row items-center justify-between">
+      <AgentSummaryRow
+        index={index}
+        emailDisplay={displayEmail}
+        showAdminBadge={agent.isAdmin && isSaved}
+      />
       {isSaved ? (
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-lg"
           onClick={onEdit}
           disabled={disabled}
-          aria-disabled={disabled || undefined}
-          className="text-foreground/60 transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-foreground/60"
+          className="shrink-0 text-foreground/60 hover:text-foreground disabled:opacity-40"
         >
           <SquarePen className="size-6" />
-        </button>
+        </Button>
       ) : (
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-lg"
           onClick={onRemove}
-          className="text-foreground/60 hover:text-foreground transition-colors"
+          className="shrink-0 text-foreground/60 hover:text-foreground"
         >
           <Trash2 className="size-6" />
-        </button>
+        </Button>
       )}
-    </div>
+    </Card>
   );
 }

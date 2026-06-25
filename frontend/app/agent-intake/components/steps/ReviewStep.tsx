@@ -5,48 +5,45 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
 import IntakeStepPage from "@/app/agent-intake/components/IntakeStepPage";
+import { AgentSummaryRow } from "@/app/agent-intake/components/AgentSummaryRow";
+import { InformationBlock } from "@/common/components/data-display";
 import { useIntakeFooter } from "@/app/agent-intake/context/IntakeFooterContext";
+import { Button } from "@/common/components/ui/button";
+import { Card } from "@/common/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/common/components/ui/dialog";
+import { CheckCheck, Loader2 } from "lucide-react";
 import { useSubmitIntake } from "@/app/agent-intake/hooks/useSubmitIntake";
 import { useIntakeFormStore } from "@/app/agent-intake/stores/intakeFormStore";
+import { formatReviewPhoneNumber } from "@/common/constants/validators";
 
 const AGENTS_PER_PAGE = 3;
 const EMPTY_VALUE = "—";
-const REVIEW_THREE_COLUMN_GRID = "grid gap-3 md:grid-cols-3";
-const SUCCESS_REDIRECT_DELAY_MS = 1200;
+const INFORMATION_BLOCK_GRID = "grid w-full gap-lg md:grid-cols-3";
+const SUCCESS_DIALOG_DURATION_MS = 1500;
+const REDIRECT_DIALOG_DURATION_MS = 1500;
+
+type PostSubmitPhase = "success" | "redirecting";
 
 function formatValue(value: string) {
   return value.trim() || EMPTY_VALUE;
 }
 
-function formatName(firstName: string, lastName: string) {
-  return `${firstName} ${lastName}`.trim();
+function formatPhoneValue(value: string) {
+  const formatted = formatReviewPhoneNumber(value);
+  return formatted || EMPTY_VALUE;
 }
 
-function sortName(firstName: string, lastName: string) {
-  return formatName(firstName, lastName).toLocaleLowerCase();
-}
-
-function sortOtherAgents<
-  T extends {
-    firstName: string;
-    lastName: string;
-    email: string;
-    isAdmin: boolean;
-  },
->(agents: T[]) {
+function sortOtherAgents<T extends { email: string; isAdmin: boolean }>(
+  agents: T[]
+) {
   return [...agents].sort((left, right) => {
     if (left.isAdmin !== right.isAdmin) {
       return left.isAdmin ? -1 : 1;
-    }
-
-    const leftName = sortName(left.firstName, left.lastName);
-    const rightName = sortName(right.firstName, right.lastName);
-    const byName = leftName.localeCompare(rightName, undefined, {
-      sensitivity: "base",
-    });
-
-    if (byName !== 0) {
-      return byName;
     }
 
     return left.email.localeCompare(right.email, undefined, {
@@ -55,80 +52,63 @@ function sortOtherAgents<
   });
 }
 
-function ReviewField({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex min-w-0 flex-1 flex-col gap-1">
-      <p className="text-sm font-medium text-foreground">{label}</p>
-      <p className="text-sm text-muted-foreground">{value}</p>
-    </div>
-  );
-}
-
-function AgentCard({
+function ReviewAgentCard({
+  index,
   agent,
 }: {
+  index: number;
   agent: {
-    firstName: string;
-    lastName: string;
     email: string;
-    phone: string;
     isAdmin: boolean;
   };
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border p-3 shadow-sm">
-      <div className="flex flex-wrap items-center gap-1.5">
-        <p className="text-sm text-foreground">
-          {formatValue(formatName(agent.firstName, agent.lastName))}
-        </p>
-        {agent.isAdmin ? (
-          <span className="inline-flex items-center justify-center rounded-full border border-border px-2 py-0.5 text-center text-xs font-semibold leading-4 text-foreground whitespace-nowrap">
-            Admin User
-          </span>
-        ) : null}
-      </div>
-      <div
-        className={`${REVIEW_THREE_COLUMN_GRID} text-sm text-muted-foreground`}
-      >
-        <span className="min-w-0 break-words md:col-span-2">
-          {formatValue(agent.email)}
-        </span>
-        <span>{formatValue(agent.phone)}</span>
-      </div>
-    </div>
+    <Card className="flex-row items-center justify-between">
+      <AgentSummaryRow
+        index={index}
+        emailDisplay={formatValue(agent.email)}
+        showAdminBadge={agent.isAdmin}
+      />
+    </Card>
   );
 }
 
 function ReviewCard({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex flex-col gap-4 rounded-lg border border-border p-3 shadow-sm">
-      {children}
-    </div>
-  );
+  return <Card>{children}</Card>;
 }
 
-function SubmissionSuccessDialog() {
+function IntakePostSubmitDialog({ phase }: { phase: PostSubmitPhase }) {
+  const isSuccess = phase === "success";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 px-4">
-      <div className="flex h-[337px] w-full max-w-[517px] flex-col items-center justify-center gap-4 rounded-xl border border-border bg-background p-8 text-center shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.1)]">
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 24 24"
-          className="h-6 w-6 text-foreground"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="m7 12 3 3 7-7" />
-          <path d="m3 12 3 3" />
-        </svg>
-        <p className="text-sm text-muted-foreground">
-          Profile created successfully
-        </p>
-      </div>
-    </div>
+    <Dialog open>
+      <DialogContent
+        showCloseButton={false}
+        className="flex h-[337px] w-full max-w-[517px] flex-col items-center justify-center gap-4 p-8 text-center shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.1)] sm:max-w-[517px]"
+      >
+        {isSuccess ? (
+          <CheckCheck
+            className="size-6 text-muted-foreground"
+            aria-hidden="true"
+          />
+        ) : (
+          <Loader2
+            className="size-6 animate-spin text-muted-foreground"
+            aria-hidden="true"
+          />
+        )}
+        <DialogTitle className="text-center text-paragraph-small font-normal text-muted-foreground">
+          {isSuccess
+            ? "Profile created successfully"
+            : "Please wait as we redirect you to your dashboard."}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          {isSuccess
+            ? "Your agency profile was created successfully."
+            : "Redirecting you to your agency dashboard."}
+        </DialogDescription>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -148,6 +128,8 @@ export default function ReviewStep() {
     resetAfterSuccess,
   } = useSubmitIntake();
   const [visibleCount, setVisibleCount] = useState(AGENTS_PER_PAGE);
+  const [postSubmitPhase, setPostSubmitPhase] =
+    useState<PostSubmitPhase | null>(null);
 
   useEffect(() => {
     setVisibleCount((current) =>
@@ -180,15 +162,25 @@ export default function ReviewStep() {
 
   useEffect(() => {
     if (!submittedAgencyId) {
+      setPostSubmitPhase(null);
       return;
     }
 
-    const timeoutId = window.setTimeout(() => {
+    setPostSubmitPhase("success");
+
+    const redirectPhaseTimeout = window.setTimeout(() => {
+      setPostSubmitPhase("redirecting");
+    }, SUCCESS_DIALOG_DURATION_MS);
+
+    const redirectTimeout = window.setTimeout(() => {
       resetAfterSuccess();
       router.push(`/agencies/${submittedAgencyId}`);
-    }, SUCCESS_REDIRECT_DELAY_MS);
+    }, SUCCESS_DIALOG_DURATION_MS + REDIRECT_DIALOG_DURATION_MS);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      window.clearTimeout(redirectPhaseTimeout);
+      window.clearTimeout(redirectTimeout);
+    };
   }, [resetAfterSuccess, router, submittedAgencyId]);
 
   const sortedOtherAgents = sortOtherAgents(otherAgents);
@@ -207,29 +199,38 @@ export default function ReviewStep() {
               Partner Agency Details
             </h3>
             <ReviewCard>
-              <div className={REVIEW_THREE_COLUMN_GRID}>
-                <ReviewField
+              <div className={INFORMATION_BLOCK_GRID}>
+                <InformationBlock
                   label="Agency name"
                   value={formatValue(agency.name)}
                 />
-                <ReviewField
+                <InformationBlock
                   label="Address line 1"
                   value={formatValue(agency.addressLine1)}
                 />
-                <ReviewField
+                <InformationBlock
                   label="Address line 2"
                   value={formatValue(agency.addressLine2)}
                 />
               </div>
-              <div className={REVIEW_THREE_COLUMN_GRID}>
-                <ReviewField label="City" value={formatValue(agency.city)} />
-                <ReviewField
+              <div className={INFORMATION_BLOCK_GRID}>
+                <InformationBlock
+                  label="City"
+                  value={formatValue(agency.city)}
+                />
+                <InformationBlock
                   label="Postal code"
                   value={formatValue(agency.postalCode)}
                 />
-                <ReviewField
+                <InformationBlock
                   label="Phone number"
-                  value={formatValue(agency.phone)}
+                  value={formatPhoneValue(agency.phone)}
+                />
+              </div>
+              <div className={INFORMATION_BLOCK_GRID}>
+                <InformationBlock
+                  label="Agency URL"
+                  value={formatValue(agency.url)}
                 />
               </div>
             </ReviewCard>
@@ -240,18 +241,18 @@ export default function ReviewStep() {
               Your Details
             </h3>
             <ReviewCard>
-              <div className={REVIEW_THREE_COLUMN_GRID}>
-                <ReviewField
+              <div className={INFORMATION_BLOCK_GRID}>
+                <InformationBlock
                   label="First name"
                   value={formatValue(mainAgent.firstName)}
                 />
-                <ReviewField
+                <InformationBlock
                   label="Last name"
                   value={formatValue(mainAgent.lastName)}
                 />
-                <ReviewField
+                <InformationBlock
                   label="Phone number"
-                  value={formatValue(mainAgent.phone)}
+                  value={formatPhoneValue(mainAgent.phone)}
                 />
               </div>
             </ReviewCard>
@@ -263,7 +264,11 @@ export default function ReviewStep() {
             </h3>
             {visibleAgents.length > 0 ? (
               visibleAgents.map((agent, index) => (
-                <AgentCard key={`${agent.email}-${index}`} agent={agent} />
+                <ReviewAgentCard
+                  key={`${agent.email}-${index}`}
+                  index={index}
+                  agent={agent}
+                />
               ))
             ) : (
               <ReviewCard>
@@ -273,21 +278,24 @@ export default function ReviewStep() {
               </ReviewCard>
             )}
             {remaining > 0 ? (
-              <button
+              <Button
                 type="button"
-                className="text-left text-sm font-medium text-foreground"
+                variant="ghost"
+                className="h-auto justify-start p-0 text-sm font-medium text-foreground hover:bg-transparent"
                 onClick={() =>
                   setVisibleCount((prev) => prev + AGENTS_PER_PAGE)
                 }
               >
                 Load {Math.min(remaining, AGENTS_PER_PAGE)} more agents
-              </button>
+              </Button>
             ) : null}
           </div>
         </div>
       </IntakeStepPage>
 
-      {isSuccess ? <SubmissionSuccessDialog /> : null}
+      {postSubmitPhase ? (
+        <IntakePostSubmitDialog phase={postSubmitPhase} />
+      ) : null}
     </>
   );
 }

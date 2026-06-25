@@ -54,7 +54,7 @@ export default function ClientStep({
   }
 
   return (
-    <div className="self-stretch flex flex-col items-start gap-6">
+    <div className="self-stretch flex flex-col items-start gap-8">
       {hideHeading ? null : (
         <div className="self-stretch flex flex-col items-start gap-3">
           <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">

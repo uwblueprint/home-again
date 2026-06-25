@@ -121,20 +121,16 @@ export function FurnitureItemCard({
             {label}
           </h3>
 
-          <div
-            className={cn(
-              "ml-auto flex shrink-0 justify-end",
-              selected ? "opacity-100" : "opacity-0 pointer-events-none"
-            )}
-            aria-hidden={!selected}
-          >
-            <SelectAndCombo
-              value={quantity}
-              onChange={setQuantity}
-              min={minQuantity}
-              max={maxQuantity}
-            />
-          </div>
+          {selected ? (
+            <div className="ml-auto flex shrink-0 justify-end">
+              <SelectAndCombo
+                value={quantity}
+                onChange={setQuantity}
+                min={minQuantity}
+                max={maxQuantity}
+              />
+            </div>
+          ) : null}
         </div>
       ) : (
         <div className="flex w-full flex-col gap-1">
@@ -179,17 +175,15 @@ export function FurnitureItemCard({
               </div>
             ) : null}
 
-            {subOptions?.length ? (
+            {subOptions?.length &&
+            selected &&
+            hasSubSelections &&
+            !isEditingSubOptions ? (
               <Button
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                className={cn(
-                  "ml-auto h-8 w-8 rounded-lg border border-border text-muted-foreground hover:bg-muted",
-                  selected && hasSubSelections && !isEditingSubOptions
-                    ? "opacity-100"
-                    : "opacity-0 pointer-events-none"
-                )}
+                className="ml-auto h-8 w-8 rounded-lg border border-border text-muted-foreground hover:bg-muted"
                 onClick={() => setIsEditingSubOptions(true)}
                 aria-label="Edit sizes"
               >

@@ -29,6 +29,7 @@ export type FurnitureFormData = {
 
 type FurnitureFormProps = {
   className?: string
+  data?: FurnitureFormData
   showHeader?: boolean
   showSummary?: boolean
   onValidityChange?: (isValid: boolean) => void
@@ -176,6 +177,33 @@ const SUB_OPTIONS: Record<
 const buildDefaults = (value: number) =>
   Object.fromEntries(ITEMS.map((item) => [item.id, value]))
 
+const buildDefaultNotes = () =>
+  Object.fromEntries(ITEMS.map((item) => [item.id, ""]))
+
+const cloneSubOptions = (
+  source: Record<string, { id: string; label: string; quantity: number }[]>
+) =>
+  Object.fromEntries(
+    Object.entries(source).map(([itemId, options]) => [
+      itemId,
+      options.map((option) => ({ ...option })),
+    ])
+  )
+
+const normalizeFurnitureData = (
+  data?: FurnitureFormData
+): FurnitureFormData => ({
+  selected: { ...(data?.selected ?? {}) },
+  quantities: { ...buildDefaults(0), ...(data?.quantities ?? {}) },
+  notes: { ...buildDefaultNotes(), ...(data?.notes ?? {}) },
+  subOptions: {
+    ...cloneSubOptions(SUB_OPTIONS),
+    ...(data?.subOptions
+      ? cloneSubOptions(data.subOptions)
+      : {}),
+  },
+})
+
 const CATEGORY_ICONS: Record<string, typeof Sofa> = {
   Seating: Sofa,
   "Storage and Shelving": Package,
@@ -186,18 +214,22 @@ const CATEGORY_ICONS: Record<string, typeof Sofa> = {
 
 export default function FurnitureForm({
   className,
+  data,
   showHeader = true,
   showSummary = true,
   onValidityChange,
   onDataChange,
 }: FurnitureFormProps) {
-  const [selected, setSelected] = useState<Record<string, boolean>>({})
-  const [subOptions, setSubOptions] = useState(SUB_OPTIONS)
+  const initialData = useMemo(() => normalizeFurnitureData(data), [data])
+  const [selected, setSelected] = useState<Record<string, boolean>>(
+    initialData.selected
+  )
+  const [subOptions, setSubOptions] = useState(initialData.subOptions)
   const [quantities, setQuantities] = useState<Record<string, number>>(() =>
-    buildDefaults(0)
+    initialData.quantities
   )
   const [notes, setNotes] = useState<Record<string, string>>(() =>
-    Object.fromEntries(ITEMS.map((item) => [item.id, ""]))
+    initialData.notes
   )
 
   const [activeCategory, setActiveCategory] = useState<string>(CATEGORIES[0])

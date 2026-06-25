@@ -79,7 +79,10 @@ function buildRequestedItems(furniture: FurnitureFormData) {
         notes: furniture.notes[item.id] || null,
       }));
     }
-    if (furniture.selected[item.id] && (furniture.quantities[item.id] ?? 0) > 0) {
+    if (
+      furniture.selected[item.id] &&
+      (furniture.quantities[item.id] ?? 0) > 0
+    ) {
       return [
         {
           item: item.label,
@@ -123,6 +126,31 @@ const EMPTY_DELIVERY_DATA: DeliveryFormData = {
   selectedMoves: {},
 };
 
+const DEFAULT_STEP_SECTION_CLASS =
+  "self-stretch max-w-none px-36 py-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.00)] inline-flex flex-col justify-start items-center gap-9";
+
+const TALL_STEP_SECTION_CLASS =
+  "self-stretch max-w-none px-36 pt-6 pb-16 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.00)] inline-flex flex-col justify-start items-center gap-9";
+
+const FURNITURE_STEP_SECTION_CLASS =
+  "self-stretch max-w-none px-36 py-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.00)] inline-flex flex-col justify-start items-start gap-8";
+
+const DEFAULT_STEP_BODY_CLASS =
+  "self-stretch px-36 flex flex-col justify-start items-start gap-8";
+
+const FIND_CHOOSE_BODY_CLASS =
+  "w-[777px] flex-1 px-24 pt-24 flex flex-col justify-start items-start gap-8";
+
+const FURNITURE_STEP_BODY_CLASS =
+  "self-stretch flex flex-col justify-start items-start gap-12";
+
+const SECTION_CLASS_BY_STEP: Record<number, string> = {
+  2: TALL_STEP_SECTION_CLASS,
+  4: FURNITURE_STEP_SECTION_CLASS,
+  5: TALL_STEP_SECTION_CLASS,
+  7: TALL_STEP_SECTION_CLASS,
+};
+
 export default function ReferralFormPage() {
   const [stepIndex, setStepIndex] = useState(0);
   const [substepIndex, setSubstepIndex] = useState(0);
@@ -144,7 +172,9 @@ export default function ReferralFormPage() {
   const updateClient = useUpdateClient();
   const createReferral = useCreateReferral();
   const isSubmitting =
-    createClient.isPending || updateClient.isPending || createReferral.isPending;
+    createClient.isPending ||
+    updateClient.isPending ||
+    createReferral.isPending;
 
   // Step 0: Find
   const [searchQuery, setSearchQuery] = useState("");
@@ -157,23 +187,20 @@ export default function ReferralFormPage() {
   >({});
 
   // Step 2: Referral
-  const [referralData, setReferralData] = useState<ReferralData>(
-    EMPTY_REFERRAL_DATA
-  );
+  const [referralData, setReferralData] =
+    useState<ReferralData>(EMPTY_REFERRAL_DATA);
 
   // Step 3: Agent
   const [agentData, setAgentData] = useState<AgentData>(EMPTY_AGENT_DATA);
 
   // Step 4: Furniture
-  const [furnitureData, setFurnitureData] = useState<FurnitureFormData>(
-    EMPTY_FURNITURE_DATA
-  );
+  const [furnitureData, setFurnitureData] =
+    useState<FurnitureFormData>(EMPTY_FURNITURE_DATA);
   const [furnitureIsValid, setFurnitureIsValid] = useState(true);
 
   // Step 5: Delivery
-  const [deliveryData, setDeliveryData] = useState<DeliveryFormData>(
-    EMPTY_DELIVERY_DATA
-  );
+  const [deliveryData, setDeliveryData] =
+    useState<DeliveryFormData>(EMPTY_DELIVERY_DATA);
   const [deliveryIsValid, setDeliveryIsValid] = useState(false);
 
   // Step 6: Agreements
@@ -181,9 +208,7 @@ export default function ReferralFormPage() {
     EMPTY_AGREEMENTS_DATA
   );
 
-  const clientErrors = useMemo(() => validateClient(clientData), [
-    clientData,
-  ]);
+  const clientErrors = useMemo(() => validateClient(clientData), [clientData]);
   const referralErrors = useMemo(
     () => validateReferral(referralData),
     [referralData]
@@ -317,8 +342,8 @@ export default function ReferralFormPage() {
       await createReferral.mutateAsync(payload);
     } catch (error) {
       const message =
-        (error as { response?: { data?: { detail?: string } } })?.response
-          ?.data?.detail ?? "Something went wrong submitting the referral.";
+        (error as { response?: { data?: { detail?: string } } })?.response?.data
+          ?.detail ?? "Something went wrong submitting the referral.";
       setSubmitError(message);
     }
   }
@@ -393,6 +418,7 @@ export default function ReferralFormPage() {
 
   const renderFurnitureStep = (hideHeading: boolean) => (
     <FurnitureForm
+      data={furnitureData}
       showHeader={!hideHeading}
       onValidityChange={setFurnitureIsValid}
       onDataChange={setFurnitureData}
@@ -401,6 +427,7 @@ export default function ReferralFormPage() {
 
   const renderDeliveryStep = (hideHeading: boolean) => (
     <DeliveryForm
+      data={deliveryData}
       showErrors={attempted[5]}
       onValidityChange={setDeliveryIsValid}
       onDataChange={setDeliveryData}
@@ -421,7 +448,10 @@ export default function ReferralFormPage() {
         substeps: [
           {
             label: "",
-            contentPadding: "tight",
+            wide: true,
+            contentPadding: "none",
+            contentClassName: DEFAULT_STEP_SECTION_CLASS,
+            contentBodyClassName: FIND_CHOOSE_BODY_CLASS,
             content: (
               <FindChooseStep
                 onFindExisting={() => setSubstepIndex(1)}
@@ -431,7 +461,10 @@ export default function ReferralFormPage() {
           },
           {
             label: "",
-            contentPadding: "tight",
+            wide: true,
+            contentPadding: "none",
+            contentClassName: DEFAULT_STEP_SECTION_CLASS,
+            contentBodyClassName: DEFAULT_STEP_BODY_CLASS,
             content: (
               <FindStep
                 searchQuery={searchQuery}
@@ -488,11 +521,20 @@ export default function ReferralFormPage() {
 
     // Every step component renders its own heading, so the substep label
     // (a second, generic heading) is left empty to avoid a duplicate title.
-    // All steps share the same content width.
+    // The visual frame is defined here so each step component can focus on its fields.
     return {
       label,
       substeps: [
-        { label: "", content, contentPadding: idx === 4 ? "none" : "default" },
+        {
+          label: "",
+          content,
+          wide: true,
+          contentPadding: "none",
+          contentClassName:
+            SECTION_CLASS_BY_STEP[idx] ?? DEFAULT_STEP_SECTION_CLASS,
+          contentBodyClassName:
+            idx === 4 ? FURNITURE_STEP_BODY_CLASS : DEFAULT_STEP_BODY_CLASS,
+        },
       ],
     };
   });
@@ -501,19 +543,19 @@ export default function ReferralFormPage() {
     editingStep === 1
       ? renderClientStep(true)
       : editingStep === 2
-      ? renderReferralStep(true)
-      : editingStep === 3
-      ? renderAgentStep(true)
-      : editingStep === 4
-      ? renderFurnitureStep(true)
-      : editingStep === 5
-      ? renderDeliveryStep(true)
-      : null;
+        ? renderReferralStep(true)
+        : editingStep === 3
+          ? renderAgentStep(true)
+          : editingStep === 4
+            ? renderFurnitureStep(true)
+            : editingStep === 5
+              ? renderDeliveryStep(true)
+              : null;
 
   return (
     <>
       <MultiStepLayout
-        className="w-[90vw] max-w-none"
+        className="w-full max-w-none"
         steps={steps}
         stepIndex={stepIndex}
         substepIndex={substepIndex}
@@ -536,7 +578,9 @@ export default function ReferralFormPage() {
           showCloseButton={false}
           className={cn(
             "flex max-h-[85vh] w-full flex-col gap-0 overflow-hidden p-0",
-            editingStep === 4 ? "max-w-7xl sm:max-w-7xl" : "max-w-5xl sm:max-w-5xl"
+            editingStep === 4
+              ? "max-w-7xl sm:max-w-7xl"
+              : "max-w-5xl sm:max-w-5xl"
           )}
         >
           <DialogHeader className="gap-2 border-b border-border px-4xl pt-4xl pb-2xl">
@@ -547,9 +591,7 @@ export default function ReferralFormPage() {
               {editingStep ? EDIT_STEP_SUBTITLES[editingStep] : ""}
             </DialogDescription>
           </DialogHeader>
-          <div className="overflow-y-auto px-4xl py-2xl">
-            {editStepContent}
-          </div>
+          <div className="overflow-y-auto px-4xl py-2xl">{editStepContent}</div>
           <DialogFooter className="mx-0 mb-0 justify-end gap-2 rounded-b-xl border-t border-border bg-background px-4xl py-2xl">
             <Button
               type="button"

@@ -53,7 +53,7 @@ export default function AgentStep({
   );
 
   return (
-    <div className="self-stretch flex flex-col items-start gap-6">
+    <div className="self-stretch flex flex-col items-start gap-8">
       {hideHeading ? null : (
         <div className="self-stretch flex flex-col items-start gap-3">
           <h2 className="justify-start text-black text-3xl font-semibold font-['Geist'] leading-8">
@@ -64,7 +64,7 @@ export default function AgentStep({
           </p>
         </div>
       )}
-      <div className="self-stretch space-y-2">
+      <div className="self-stretch space-y-4">
         <h3 className="text-base font-semibold text-foreground">
           Primary case agent
         </h3>
@@ -87,7 +87,7 @@ export default function AgentStep({
         </div>
       </div>
 
-      <div className="self-stretch space-y-2">
+      <div className="self-stretch space-y-4">
         <h3 className="text-base font-semibold text-foreground">
           Secondary case agent
         </h3>
@@ -168,7 +168,7 @@ export default function AgentStep({
         Agent needs to be present during delivery
       </label>
 
-      <div className="self-stretch space-y-2">
+      <div className="self-stretch space-y-4">
         <h3 className="text-base font-semibold text-foreground">
           Select a program
         </h3>

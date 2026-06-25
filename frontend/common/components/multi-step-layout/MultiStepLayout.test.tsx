@@ -141,11 +141,7 @@ describe("MultiStepLayout", () => {
 
   it("disables next button and shows loading text when submitting", () => {
     render(
-      <MultiStepLayout
-        steps={makeSteps()}
-        onSubmit={jest.fn()}
-        isSubmitting
-      />
+      <MultiStepLayout steps={makeSteps()} onSubmit={jest.fn()} isSubmitting />
     );
 
     const nextButton = screen.getByTestId("next-button");
@@ -165,5 +161,20 @@ describe("MultiStepLayout", () => {
     expect(screen.getByTestId("next-button")).toHaveTextContent("Next");
     fireEvent.click(screen.getByTestId("next-button"));
     expect(screen.getByTestId("next-button")).toHaveTextContent("Finish");
+  });
+
+  it("applies layout-level classes to the active step content container", () => {
+    render(
+      <MultiStepLayout
+        steps={makeSteps()}
+        onSubmit={jest.fn()}
+        contentClassName="w-[90vw] px-md"
+      />
+    );
+
+    expect(screen.getByTestId("multi-step-content")).toHaveClass(
+      "w-[90vw]",
+      "px-md"
+    );
   });
 });

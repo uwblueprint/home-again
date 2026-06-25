@@ -30,6 +30,7 @@ export type DeliveryFormData = {
 
 type DeliveryFormProps = {
   className?: string
+  data?: DeliveryFormData
   showErrors?: boolean
   onValidityChange?: (isValid: boolean) => void
   onDataChange?: (data: DeliveryFormData) => void
@@ -80,27 +81,48 @@ const MOVE_OPTIONS = [
   { id: "other", label: "Other" },
 ]
 
+const buildDefaultMoves = () =>
+  Object.fromEntries(MOVE_OPTIONS.map((option) => [option.id, false]))
+
+const normalizeDeliveryData = (data?: DeliveryFormData): DeliveryFormData => ({
+  address1: data?.address1 ?? "",
+  address2: data?.address2 ?? "",
+  city: data?.city ?? "",
+  province: data?.province ?? "",
+  country: data?.country ?? "",
+  postalCode: data?.postalCode ?? "",
+  dateNeeded: data?.dateNeeded ?? "",
+  notes: data?.notes ?? "",
+  otherDetails: data?.otherDetails ?? "",
+  selectedMoves: {
+    ...buildDefaultMoves(),
+    ...(data?.selectedMoves ?? {}),
+  },
+})
+
 const ALLOWED_PROVINCE = "newfoundland and labrador"
 const ALLOWED_COUNTRY = "canada"
 
 export default function DeliveryForm({
   className,
+  data,
   showErrors = false,
   onValidityChange,
   onDataChange,
   hideHeading = false,
 }: DeliveryFormProps) {
-  const [address1, setAddress1] = useState("")
-  const [address2, setAddress2] = useState("")
-  const [city, setCity] = useState("")
-  const [province, setProvince] = useState("")
-  const [country, setCountry] = useState("")
-  const [postalCode, setPostalCode] = useState("")
-  const [dateNeeded, setDateNeeded] = useState("")
-  const [notes, setNotes] = useState("")
-  const [otherDetails, setOtherDetails] = useState("")
+  const initialData = useMemo(() => normalizeDeliveryData(data), [data])
+  const [address1, setAddress1] = useState(initialData.address1)
+  const [address2, setAddress2] = useState(initialData.address2)
+  const [city, setCity] = useState(initialData.city)
+  const [province, setProvince] = useState(initialData.province)
+  const [country, setCountry] = useState(initialData.country)
+  const [postalCode, setPostalCode] = useState(initialData.postalCode)
+  const [dateNeeded, setDateNeeded] = useState(initialData.dateNeeded)
+  const [notes, setNotes] = useState(initialData.notes)
+  const [otherDetails, setOtherDetails] = useState(initialData.otherDetails)
   const [selectedMoves, setSelectedMoves] = useState<Record<string, boolean>>(
-    () => Object.fromEntries(MOVE_OPTIONS.map((option) => [option.id, false]))
+    initialData.selectedMoves
   )
 
   const errors = useMemo(() => {

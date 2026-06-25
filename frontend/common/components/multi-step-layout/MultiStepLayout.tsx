@@ -15,6 +15,10 @@ export interface Substep {
   wide?: boolean;
   /** Adjusts the page-level padding around the content. Defaults to "default". */
   contentPadding?: ContentPadding;
+  /** Applies sizing or spacing to this substep's content section. */
+  contentClassName?: string;
+  /** Applies sizing or spacing to the wrapper immediately around this substep's content. */
+  contentBodyClassName?: string;
 }
 
 export interface Step {
@@ -53,6 +57,8 @@ type MultiStepLayoutProps = {
   onBeforeNext?: () => boolean;
   /** Overrides the root container's width/layout classes (defaults to `max-w-7xl`). */
   className?: string;
+  /** Applies layout-level sizing or spacing to the active step content container. */
+  contentClassName?: string;
 };
 
 function MultiStepLayout({
@@ -68,6 +74,7 @@ function MultiStepLayout({
   onNavigate,
   onBeforeNext,
   className,
+  contentClassName,
 }: MultiStepLayoutProps) {
   const isControlled = controlledStepIndex !== undefined;
   const [internalStepIndex, setInternalStepIndex] = useState(0);
@@ -75,12 +82,15 @@ function MultiStepLayout({
 
   const stepIndex = isControlled ? controlledStepIndex : internalStepIndex;
   const substepIndex = isControlled
-    ? controlledSubstepIndex ?? 0
+    ? (controlledSubstepIndex ?? 0)
     : internalSubstepIndex;
 
   const navigate = (nextStepIndex: number, nextSubstepIndex: number) => {
     if (isControlled) {
-      onNavigate?.({ stepIndex: nextStepIndex, substepIndex: nextSubstepIndex });
+      onNavigate?.({
+        stepIndex: nextStepIndex,
+        substepIndex: nextSubstepIndex,
+      });
     } else {
       setInternalStepIndex(nextStepIndex);
       setInternalSubstepIndex(nextSubstepIndex);
@@ -134,10 +144,13 @@ function MultiStepLayout({
       </Header>
 
       <div
+        data-testid="multi-step-content"
         className={cn(
           "mx-auto flex w-[100%] flex-col gap-8 bg-background",
           CONTENT_PADDING_CLASSES[substep.contentPadding ?? "default"],
-          substep.wide ? "max-w-none" : "max-w-7xl"
+          substep.wide ? "max-w-none" : "max-w-7xl",
+          contentClassName,
+          substep.contentClassName
         )}
       >
         {flowTitle ? (
@@ -148,7 +161,7 @@ function MultiStepLayout({
             {substep.label}
           </h2>
         ) : null}
-        <div>{substep.content}</div>
+        <div className={substep.contentBodyClassName}>{substep.content}</div>
       </div>
 
       <Footer

@@ -25,6 +25,7 @@ export const FURNITURE_TYPES = [
   "Loveseat",
   "Mattress",
   "Boxspring",
+  "Other",
 ] as const;
 
 export type FurnitureType = (typeof FURNITURE_TYPES)[number];
@@ -34,6 +35,9 @@ export interface FurnitureItemData {
   furnitureType: FurnitureType | null;
   hasStains: boolean | null;
   photos: File[];
+  mattressSize: "Twin" | "Double" | "Queen" | null;
+  chairCount: number | null;
+  otherDescription: string | null;
 }
 
 export interface PickupAddress {
@@ -86,6 +90,9 @@ function createItem(): FurnitureItemData {
     furnitureType: null,
     hasStains: null,
     photos: [],
+    mattressSize: null,
+    chairCount: null,
+    otherDescription: null,
   };
 }
 
@@ -118,7 +125,7 @@ export function DonationFormProvider({
     petsInHousehold: null,
     feeAgreement: false,
     items: [
-      { id: "item-initial", furnitureType: null, hasStains: null, photos: [] },
+      { id: "item-initial", furnitureType: null, hasStains: null, photos: [], mattressSize: null, chairCount: null, otherDescription: null },
     ],
     pickupSubmitAttempted: false,
   }));

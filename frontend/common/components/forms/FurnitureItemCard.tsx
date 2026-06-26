@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, SquarePen } from "lucide-react";
+import { AlertCircle, Check, SquarePen } from "lucide-react";
 import { Badge } from "@/common/components/ui/badge";
 import { Button } from "@/common/components/ui/button";
 import { Checkbox } from "@/common/components/ui/checkbox";
@@ -109,32 +109,28 @@ export function FurnitureItemCard({
       )}
     >
       {showMainStepper ? (
-        <div className="flex w-full items-center gap-3">
+        <div className="flex w-full flex-wrap items-center gap-2">
           <Checkbox
             checked={selected}
             onCheckedChange={(next) => handleToggle(!!next)}
             aria-label={`Select ${label}`}
-            className="size-[18px] rounded-[5px] border-border shadow-inner data-checked:border-transparent data-checked:bg-primary data-checked:text-primary-foreground"
+            className="size-[18px] shrink-0 rounded-[5px] border-border shadow-inner data-checked:border-transparent data-checked:bg-primary data-checked:text-primary-foreground"
           />
 
-          <h3 className="text-[16px] font-medium leading-6 text-foreground">
+          <h3 className="min-w-0 flex-1 text-[16px] font-medium leading-6 text-foreground">
             {label}
           </h3>
 
-          <div
-            className={cn(
-              "ml-auto flex min-w-[122px] justify-end",
-              selected ? "opacity-100" : "opacity-0 pointer-events-none"
-            )}
-            aria-hidden={!selected}
-          >
-            <SelectAndCombo
-              value={quantity}
-              onChange={setQuantity}
-              min={minQuantity}
-              max={maxQuantity}
-            />
-          </div>
+          {selected ? (
+            <div className="ml-auto flex shrink-0 justify-end">
+              <SelectAndCombo
+                value={quantity}
+                onChange={setQuantity}
+                min={minQuantity}
+                max={maxQuantity}
+              />
+            </div>
+          ) : null}
         </div>
       ) : (
         <div className="flex w-full flex-col gap-1">
@@ -179,17 +175,15 @@ export function FurnitureItemCard({
               </div>
             ) : null}
 
-            {subOptions?.length ? (
+            {subOptions?.length &&
+            selected &&
+            hasSubSelections &&
+            !isEditingSubOptions ? (
               <Button
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                className={cn(
-                  "ml-auto h-8 w-8 rounded-lg border border-border text-muted-foreground hover:bg-muted",
-                  selected && hasSubSelections && !isEditingSubOptions
-                    ? "opacity-100"
-                    : "opacity-0 pointer-events-none"
-                )}
+                className="ml-auto h-8 w-8 rounded-lg border border-border text-muted-foreground hover:bg-muted"
                 onClick={() => setIsEditingSubOptions(true)}
                 aria-label="Edit sizes"
               >
@@ -220,8 +214,9 @@ export function FurnitureItemCard({
                     })}
                   </div>
                 ) : (
-                  <span className="text-sm font-medium text-foreground">
-                    Select a size
+                  <span className="flex items-center gap-1.5 text-sm font-medium text-destructive">
+                    <AlertCircle className="h-3.5 w-3.5" aria-hidden="true" />
+                    Select a size to continue
                   </span>
                 )}
               </div>

@@ -4,5 +4,5 @@
  */
 
 export const HOME_PAGE = "/";
-
 export const AGENT_INTAKE = "/agent-intake";
+export const REFERRAL_FORM = "/referral-form";

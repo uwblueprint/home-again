@@ -133,6 +133,78 @@ export default function FurnitureItemCard({
                 </div>
               </fieldset>
 
+              {/* Chair count — shown only for dining table & chairs */}
+              {itemData.furnitureType === "Dining table & chairs /sets" && (
+                <div>
+                  <p className="mb-2 text-sm font-medium text-foreground">
+                    How many chairs are in the set?<span className="text-destructive">*</span>
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => onUpdate({ chairCount: Math.max(0, (itemData.chairCount ?? 1) - 1) })}
+                      className="flex size-8 items-center justify-center rounded-md border border-border text-foreground hover:bg-secondary"
+                      aria-label="Decrease chair count"
+                    >
+                      −
+                    </button>
+                    <span className="w-6 text-center text-sm font-medium">
+                      {itemData.chairCount ?? 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => onUpdate({ chairCount: (itemData.chairCount ?? 1) + 1 })}
+                      className="flex size-8 items-center justify-center rounded-md border border-border text-foreground hover:bg-secondary"
+                      aria-label="Increase chair count"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Mattress/Boxspring/Bed frame size */}
+              {(itemData.furnitureType === "Mattress" ||
+                itemData.furnitureType === "Boxspring" ||
+                itemData.furnitureType === "Bed frames") && (
+                <div>
+                  <p className="mb-2 text-sm font-medium text-foreground">
+                    Please indicate size<span className="text-destructive">*</span>
+                  </p>
+                  <div className="flex gap-4">
+                    {(["Twin", "Double", "Queen"] as const).map((size) => (
+                      <label key={size} className="flex cursor-pointer items-center gap-2 text-sm">
+                        <input
+                          type="radio"
+                          name={`mattress-size-${itemData.id}`}
+                          value={size}
+                          checked={itemData.mattressSize === size}
+                          onChange={() => onUpdate({ mattressSize: size })}
+                          className="accent-primary size-4"
+                        />
+                        {size}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Other description */}
+              {itemData.furnitureType === "Other" && (
+                <div>
+                  <p className="mb-2 text-sm font-medium text-foreground">
+                    Please describe the item<span className="text-destructive">*</span>
+                  </p>
+                  <input
+                    type="text"
+                    placeholder="Specify here"
+                    value={itemData.otherDescription ?? ""}
+                    onChange={(e) => onUpdate({ otherDescription: e.target.value })}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+              )}
+
               {/* Stains toggle */}
               <div>
                 <p className="mb-2 text-sm font-medium text-foreground">

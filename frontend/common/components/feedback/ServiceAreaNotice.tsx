@@ -20,8 +20,7 @@ function ServiceAreaNotice({ className }: ServiceAreaNoticeProps) {
         className="size-4 shrink-0 text-foreground"
       />
       <span className="font-medium">
-        Home Again Furniture Bank is currently only servicing Newfoundland and
-        Labrador, Canada
+        Home Again Furniture Bank currently serves only the Northeast Avalon region of Newfoundland and Labrador, Canada.
       </span>
     </div>
   );

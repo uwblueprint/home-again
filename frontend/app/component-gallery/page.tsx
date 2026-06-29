@@ -61,6 +61,16 @@ import {
   MultiStepLayout,
   type Step,
 } from "@/common/components/multi-step-layout";
+import {
+  ReviewedBadge,
+  PendingReviewBadge,
+  PartiallyReviewedBadge,
+  ApprovalsLabel,
+  ApprovedBadge,
+  RejectedBadge,
+  UnconfirmedBadge,
+  ConfirmedBadge,
+} from "@/common/components/status-labels";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
 
@@ -96,6 +106,33 @@ function ComponentRow({
 
 function BadgeDemo() {
   return <Badge variant="outline">Sample badge</Badge>;
+}
+
+const STATUS_LABEL_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
+  { name: "StatusLabels", Demo: StatusLabelsDemo },
+];
+function StatusLabelsDemo() {
+  return (
+    <div className="flex flex-col gap-md">
+      <div className="flex flex-wrap gap-sm">
+        <ReviewedBadge />
+        <PendingReviewBadge />
+        <PartiallyReviewedBadge />
+      </div>
+      <div className="flex flex-wrap gap-sm">
+        <ApprovalsLabel approved={0} total={4} />
+        <ApprovalsLabel approved={2} total={4} />
+      </div>
+      <div className="flex flex-wrap gap-sm">
+        <ApprovedBadge />
+        <RejectedBadge />
+      </div>
+      <div className="flex flex-wrap gap-sm">
+        <UnconfirmedBadge />
+        <ConfirmedBadge />
+      </div>
+    </div>
+  );
 }
 
 function BreadcrumbDemo() {
@@ -785,6 +822,7 @@ function MultiStepLayoutDemo() {
 
 const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Badge", Demo: BadgeDemo },
+  { name: "StatusLabels", Demo: StatusLabelsDemo },
   { name: "Breadcrumb", Demo: BreadcrumbDemo },
   { name: "Button", Demo: ButtonDemo },
   { name: "Card", Demo: CardDemo },

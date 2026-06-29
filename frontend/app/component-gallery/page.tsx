@@ -108,9 +108,6 @@ function BadgeDemo() {
   return <Badge variant="outline">Sample badge</Badge>;
 }
 
-const STATUS_LABEL_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
-  { name: "StatusLabels", Demo: StatusLabelsDemo },
-];
 function StatusLabelsDemo() {
   return (
     <div className="flex flex-col gap-md">

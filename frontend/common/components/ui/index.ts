@@ -46,6 +46,15 @@ export {
 export { Input, InputError } from "./input";
 export { Label } from "./label";
 export {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "./pagination";
+export {
   Select,
   SelectTrigger,
   SelectValue,

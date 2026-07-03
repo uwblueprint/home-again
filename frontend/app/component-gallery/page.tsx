@@ -13,7 +13,12 @@ import {
   SquarePen,
   Trash2,
 } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
 import { FormBreadcrumb } from "@/common/components/forms";
+import {
+  DataTable,
+  DataTableColumnHeader,
+} from "@/common/components/data-display";
 import {
   Badge,
   BreadcrumbItem,
@@ -779,6 +784,119 @@ function MultiStepLayoutDemo() {
   );
 }
 
+interface ReferralRow {
+  id: string;
+  clientName: string;
+  referralId: string;
+  caseAgent: string;
+  creationDate: string;
+  status: "Pending" | "Delivered" | "Scheduled" | "Rejected";
+}
+
+const REFERRAL_STATUS_STYLES: Record<ReferralRow["status"], string> = {
+  Pending: "bg-amber-100 text-amber-900",
+  Delivered: "bg-green-100 text-green-900",
+  Scheduled: "bg-blue-100 text-blue-900",
+  Rejected: "bg-red-100 text-red-900",
+};
+
+function ReferralStatusBadge({ status }: { status: ReferralRow["status"] }) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-lg px-xs py-[2px] text-paragraph-small font-normal ${REFERRAL_STATUS_STYLES[status]}`}
+    >
+      {status}
+    </span>
+  );
+}
+
+const REFERRAL_STATUSES: ReferralRow["status"][] = [
+  "Pending",
+  "Delivered",
+  "Scheduled",
+  "Rejected",
+];
+
+function makeReferralRows(): ReferralRow[] {
+  return Array.from({ length: 23 }, (_, i) => ({
+    id: String(i),
+    clientName: "Jane Doe",
+    referralId: "WCYIECNIE",
+    caseAgent: "WX",
+    creationDate: "23 March 2026",
+    status: REFERRAL_STATUSES[i % REFERRAL_STATUSES.length],
+  }));
+}
+
+const referralColumns: ColumnDef<ReferralRow>[] = [
+  {
+    accessorKey: "clientName",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Client Name" />
+    ),
+  },
+  {
+    accessorKey: "referralId",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Referral ID" />
+    ),
+  },
+  {
+    accessorKey: "caseAgent",
+    header: "Case Agents",
+    cell: ({ getValue }) => (
+      <div className="flex size-[30px] items-center justify-center rounded-full bg-[#c3ce9b] text-paragraph-mini font-semibold text-black">
+        {getValue<string>()}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "creationDate",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Creation Date" />
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    filterFn: (row, columnId, filterValue: string[]) =>
+      filterValue.includes(row.getValue(columnId)),
+    cell: ({ getValue }) => (
+      <ReferralStatusBadge status={getValue<ReferralRow["status"]>()} />
+    ),
+  },
+];
+
+function DataTableDemo() {
+  const data = useState(makeReferralRows)[0];
+
+  return (
+    <div className="w-full">
+      <DataTable
+        columns={referralColumns}
+        data={data}
+        searchPlaceholder="Search"
+        filters={[
+          {
+            columnId: "status",
+            title: "Filter",
+            options: REFERRAL_STATUSES.map((status) => ({
+              label: status,
+              value: status,
+            })),
+          },
+        ]}
+        toolbarActions={
+          <Button size="default">
+            <Plus className="size-4" data-icon="inline-start" />
+            New client referral
+          </Button>
+        }
+      />
+    </div>
+  );
+}
+
 // ─── registry ─────────────────────────────────────────────────────────────────
 // To add a base component: add an entry to BASE_COMPONENTS.
 // To add a composed component: add an entry to COMPOSED_COMPONENTS.
@@ -806,6 +924,7 @@ const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Footer", Demo: FooterDemo },
   { name: "MultiStepLayout", Demo: MultiStepLayoutDemo },
   { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
+  { name: "DataTable", Demo: DataTableDemo },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

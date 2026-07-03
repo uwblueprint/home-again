@@ -43,6 +43,7 @@ import {
   FurnitureCategoryTabsContent,
   FurnitureCategoryTabsList,
   FurnitureCategoryTabsTrigger,
+  FurnitureCategoryIcon,
   Input,
   InputError,
   Label,
@@ -663,16 +664,28 @@ function FurnitureCategoryTabsDemo() {
   return (
     <FurnitureCategoryTabs defaultValue="seating" className="w-full">
       <FurnitureCategoryTabsList>
-        <FurnitureCategoryTabsTrigger value="seating">
+        <FurnitureCategoryTabsTrigger
+          value="seating"
+          icon={<FurnitureCategoryIcon />}
+        >
           Seating
         </FurnitureCategoryTabsTrigger>
-        <FurnitureCategoryTabsTrigger value="tables">
+        <FurnitureCategoryTabsTrigger
+          value="tables"
+          icon={<FurnitureCategoryIcon />}
+        >
           Tables
         </FurnitureCategoryTabsTrigger>
-        <FurnitureCategoryTabsTrigger value="bedroom">
+        <FurnitureCategoryTabsTrigger
+          value="bedroom"
+          icon={<FurnitureCategoryIcon />}
+        >
           Bedroom
         </FurnitureCategoryTabsTrigger>
-        <FurnitureCategoryTabsTrigger value="storage">
+        <FurnitureCategoryTabsTrigger
+          value="storage"
+          icon={<FurnitureCategoryIcon />}
+        >
           Storage
         </FurnitureCategoryTabsTrigger>
       </FurnitureCategoryTabsList>

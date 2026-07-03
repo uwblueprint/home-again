@@ -15,10 +15,9 @@ import {
 import {
   SidebarAgenciesIcon,
   SidebarChevronIcon,
-  SidebarDonorsIcon,
   SidebarFurnitureIcon,
   SidebarHomeIcon,
-  SidebarManageAdminsIcon,
+  SidebarPeopleIcon,
   SidebarReferralsAndDonationsIcon,
   SidebarReportsIcon,
   SidebarRoutesAndSchedulingIcon,
@@ -58,13 +57,13 @@ const ADMIN_NAV_ITEMS: {
     icon: SidebarRoutesAndSchedulingIcon,
   },
   { id: "agencies", label: "Agencies", icon: SidebarAgenciesIcon },
-  { id: "donors", label: "Donors", icon: SidebarDonorsIcon },
+  { id: "donors", label: "Donors", icon: SidebarPeopleIcon },
   { id: "furniture", label: "Furniture", icon: SidebarFurnitureIcon },
   { id: "reports", label: "Reports", icon: SidebarReportsIcon },
   {
     id: "manage-admins",
     label: "Manage Admins",
-    icon: SidebarManageAdminsIcon,
+    icon: SidebarPeopleIcon,
   },
 ];
 

@@ -60,6 +60,7 @@ export {
   FurnitureCategoryTabsList,
   FurnitureCategoryTabsTrigger,
   FurnitureCategoryTabsContent,
+  FurnitureCategoryIcon,
 } from "./furniture-category-tabs";
 export { Input, InputError } from "./input";
 export { Label } from "./label";

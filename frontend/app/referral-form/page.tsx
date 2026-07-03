@@ -577,7 +577,7 @@ export default function ReferralFormPage() {
         <DialogContent
           showCloseButton={false}
           className={cn(
-            "flex max-h-[85vh] w-full flex-col gap-0 overflow-hidden p-0",
+            "max-h-[85vh]",
             editingStep === 4
               ? "max-w-7xl sm:max-w-7xl"
               : "max-w-5xl sm:max-w-5xl"
@@ -592,7 +592,7 @@ export default function ReferralFormPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="overflow-y-auto px-4xl py-2xl">{editStepContent}</div>
-          <DialogFooter className="mx-0 mb-0 justify-end gap-2 rounded-b-xl border-t border-border bg-background px-4xl py-2xl">
+          <DialogFooter className="border-t border-border px-4xl py-2xl">
             <Button
               type="button"
               variant="outline"

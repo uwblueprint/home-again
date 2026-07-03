@@ -227,7 +227,7 @@ describe("FileUpload", () => {
       const onOpenChange = jest.fn();
       renderDialog({ onSave, onOpenChange });
 
-      fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
+      fireEvent.click(screen.getByRole("button", { name: "Close" }));
 
       expect(onOpenChange).toHaveBeenCalledWith(false);
       expect(onSave).not.toHaveBeenCalled();

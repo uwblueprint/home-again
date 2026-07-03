@@ -31,14 +31,15 @@ export function PartiallyReviewedBadge() {
 interface ApprovalsLabelProps {
   approved: number;
   total: number;
+  minApproved?: number;
 }
 
-export function ApprovalsLabel({ approved, total }: ApprovalsLabelProps) {
-  const allApproved = approved === total;
+export function ApprovalsLabel({ approved, total, minApproved = 1 }: ApprovalsLabelProps) {
+  const meetsThreshold = approved >= minApproved;
   return (
     <Badge
       className={
-        allApproved
+        meetsThreshold
           ? "rounded-[8px] font-normal border-lime-600 bg-lime-50 text-lime-900"
           : "rounded-[8px] font-normal border-red-600 bg-red-50 text-red-900"
       }

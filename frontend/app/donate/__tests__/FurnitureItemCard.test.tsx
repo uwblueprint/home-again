@@ -2,7 +2,10 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import FurnitureItemCard from "../components/FurnitureItemCard";
-import type { FurnitureItemData } from "../context/DonationFormContext";
+import {
+  FURNITURE_TYPES,
+  type FurnitureItemData,
+} from "../context/DonationFormContext";
 
 global.URL.createObjectURL = jest.fn((file: File) => `blob:${file.name}`);
 global.URL.revokeObjectURL = jest.fn();
@@ -88,10 +91,10 @@ describe("FurnitureItemCard", () => {
   });
 
   describe("furniture type selection", () => {
-    it("renders all 14 furniture type options", () => {
+    it("renders all furniture type options", () => {
       renderCard();
       const radios = screen.getAllByRole("radio");
-      expect(radios).toHaveLength(14);
+      expect(radios).toHaveLength(FURNITURE_TYPES.length);
     });
 
     it("calls onUpdate with selected furniture type", () => {

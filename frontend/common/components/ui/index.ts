@@ -64,6 +64,9 @@ export {
 } from "./furniture-category-tabs";
 export { Input, InputError } from "./input";
 export { Label } from "./label";
+export { RadioGroup, RadioGroupItem } from "./radio-group";
+export { SortMenu } from "./sort-menu";
+export type { SortMenuOption, SortMenuProps } from "./sort-menu";
 export {
   Select,
   SelectTrigger,

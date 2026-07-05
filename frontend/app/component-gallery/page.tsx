@@ -66,6 +66,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
+  SortMenu,
 } from "@/common/components/ui";
 import {
   SelectAndCombo,
@@ -77,6 +78,16 @@ import {
   MultiStepLayout,
   type Step,
 } from "@/common/components/multi-step-layout";
+import {
+  ReviewedBadge,
+  PendingReviewBadge,
+  PartiallyReviewedBadge,
+  ApprovalsLabel,
+  ApprovedBadge,
+  RejectedBadge,
+  UnconfirmedBadge,
+  ConfirmedBadge,
+} from "@/common/components/status-labels";
 import { cn } from "@/common/lib/utils";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
@@ -141,6 +152,30 @@ function AvatarDemo() {
 
 function BadgeDemo() {
   return <Badge variant="outline">Sample badge</Badge>;
+}
+
+function StatusLabelsDemo() {
+  return (
+    <div className="flex flex-col gap-md">
+      <div className="flex flex-wrap gap-sm">
+        <ReviewedBadge />
+        <PendingReviewBadge />
+        <PartiallyReviewedBadge />
+      </div>
+      <div className="flex flex-wrap gap-sm">
+        <ApprovalsLabel approved={0} total={4} />
+        <ApprovalsLabel approved={1} total={4} />
+      </div>
+      <div className="flex flex-wrap gap-sm">
+        <ApprovedBadge />
+        <RejectedBadge />
+      </div>
+      <div className="flex flex-wrap gap-sm">
+        <UnconfirmedBadge />
+        <ConfirmedBadge />
+      </div>
+    </div>
+  );
 }
 
 function BreadcrumbDemo() {
@@ -716,6 +751,25 @@ function TooltipDemo() {
   );
 }
 
+function SortMenuDemo() {
+  const options = [
+    { value: "date_newest", label: "Date Submitted (Newest)" },
+    { value: "date_oldest", label: "Date Submitted (Oldest)" },
+    { value: "donor_az", label: "Donor name (A-Z)" },
+    { value: "donor_za", label: "Donor name (Z-A)" },
+  ];
+  const [value, setValue] = useState<string | null>("date_newest");
+
+  return (
+    <SortMenu
+      options={options}
+      value={value}
+      onChange={setValue}
+      onReset={() => setValue(null)}
+    />
+  );
+}
+
 function FurnitureItemCardDemo() {
   const [simpleSelected, setSimpleSelected] = useState(false);
   const [simpleQty, setSimpleQty] = useState(1);
@@ -946,6 +1000,7 @@ function MultiStepLayoutDemo() {
 const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Avatar", Demo: AvatarDemo },
   { name: "Badge", Demo: BadgeDemo },
+  { name: "StatusLabels", Demo: StatusLabelsDemo },
   { name: "Breadcrumb", Demo: BreadcrumbDemo },
   { name: "Button", Demo: ButtonDemo },
   { name: "Card", Demo: CardDemo },
@@ -957,6 +1012,7 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Select", Demo: SelectDemo },
   { name: "Admin sidebar", Demo: AdminSidebarDemo },
   { name: "Agent sidebar", Demo: AgentSidebarDemo },
+  { name: "SortMenu", Demo: SortMenuDemo },
   { name: "StepIndicator", Demo: StepIndicatorDemo },
   { name: "Tabs", Demo: TabsDemo },
   { name: "Furniture category tabs", Demo: FurnitureCategoryTabsDemo },

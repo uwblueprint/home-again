@@ -50,6 +50,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
+  SortMenu,
 } from "@/common/components/ui";
 import {
   SelectAndCombo,
@@ -590,6 +591,25 @@ function TooltipDemo() {
   );
 }
 
+function SortMenuDemo() {
+  const options = [
+    { value: "date_newest", label: "Date Submitted (Newest)" },
+    { value: "date_oldest", label: "Date Submitted (Oldest)" },
+    { value: "donor_az", label: "Donor name (A-Z)" },
+    { value: "donor_za", label: "Donor name (Z-A)" },
+  ];
+  const [value, setValue] = useState<string | null>("date_newest");
+
+  return (
+    <SortMenu
+      options={options}
+      value={value}
+      onChange={setValue}
+      onReset={() => setValue(null)}
+    />
+  );
+}
+
 function FurnitureItemCardDemo() {
   const [simpleSelected, setSimpleSelected] = useState(false);
   const [simpleQty, setSimpleQty] = useState(1);
@@ -829,6 +849,7 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Input", Demo: InputDemo },
   { name: "Label", Demo: LabelDemo },
   { name: "Select", Demo: SelectDemo },
+  { name: "SortMenu", Demo: SortMenuDemo },
   { name: "StepIndicator", Demo: StepIndicatorDemo },
   { name: "Textarea", Demo: TextareaDemo },
   { name: "Tooltip", Demo: TooltipDemo },

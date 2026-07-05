@@ -84,7 +84,8 @@ function IntakePostSubmitDialog({ phase }: { phase: PostSubmitPhase }) {
     <Dialog open>
       <DialogContent
         showCloseButton={false}
-        className="h-[337px] max-w-[517px] items-center justify-center gap-4 p-8 text-center sm:max-w-[517px]"
+        centered
+        className="h-[337px] max-w-[517px] gap-4 p-8 sm:max-w-[517px]"
       >
         {isSuccess ? (
           <CheckCheck

@@ -44,6 +44,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogBody,
   DialogFooter,
   DialogTitle,
   DialogDescription,
@@ -591,7 +592,9 @@ export default function ReferralFormPage() {
               {editingStep ? EDIT_STEP_SUBTITLES[editingStep] : ""}
             </DialogDescription>
           </DialogHeader>
-          <div className="overflow-y-auto px-4xl py-2xl">{editStepContent}</div>
+          <DialogBody className="overflow-y-auto px-4xl py-2xl">
+            {editStepContent}
+          </DialogBody>
           <DialogFooter className="border-t border-border px-4xl py-2xl">
             <Button
               type="button"

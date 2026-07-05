@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 import { FormBreadcrumb } from "@/common/components/forms";
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
   Badge,
   BreadcrumbItem,
   BreadcrumbNumber,
@@ -36,6 +39,11 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  FurnitureCategoryTabs,
+  FurnitureCategoryTabsContent,
+  FurnitureCategoryTabsList,
+  FurnitureCategoryTabsTrigger,
+  FurnitureCategoryIcon,
   Input,
   InputError,
   Label,
@@ -44,7 +52,15 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  AdminSidebar,
+  AgentSidebar,
+  SidebarInset,
+  SidebarProvider,
   StepIndicator,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
   Textarea,
   Tooltip,
   TooltipContent,
@@ -72,6 +88,7 @@ import {
   UnconfirmedBadge,
   ConfirmedBadge,
 } from "@/common/components/status-labels";
+import { cn } from "@/common/lib/utils";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
 
@@ -93,8 +110,16 @@ function ComponentRow({
   name: string;
   children: ReactNode;
 }) {
+  const alignTop =
+    name === "Admin sidebar" || name === "Agent sidebar";
+
   return (
-    <div className="flex flex-col gap-sm rounded-md border border-border bg-card p-md md:flex-row md:items-center md:justify-between md:gap-md">
+    <div
+      className={cn(
+        "flex flex-col gap-sm rounded-md border border-border bg-card p-md md:flex-row md:justify-between md:gap-md",
+        alignTop ? "md:items-start" : "md:items-center"
+      )}
+    >
       <div className="w-full md:w-auto">{children}</div>
       <code className="text-caption font-medium bg-muted text-muted-foreground px-xs py-[2px] rounded-sm border border-border w-fit md:ml-auto shrink-0">
         {name}
@@ -104,6 +129,26 @@ function ComponentRow({
 }
 
 // ─── base component demos ─────────────────────────────────────────────────────
+
+function AvatarDemo() {
+  return (
+    <div className="flex flex-wrap items-center gap-md">
+      <Avatar>
+        <AvatarImage src="https://github.com/shadcn.png" alt="User" />
+        <AvatarFallback>CN</AvatarFallback>
+      </Avatar>
+      <Avatar>
+        <AvatarFallback>HA</AvatarFallback>
+      </Avatar>
+      <Avatar size="sm">
+        <AvatarFallback>SM</AvatarFallback>
+      </Avatar>
+      <Avatar size="lg">
+        <AvatarFallback>LG</AvatarFallback>
+      </Avatar>
+    </div>
+  );
+}
 
 function BadgeDemo() {
   return <Badge variant="outline">Sample badge</Badge>;
@@ -561,6 +606,61 @@ function SelectDemo() {
   );
 }
 
+function SidebarDemoFrame({
+  children,
+  heightClassName = "h-[1099px]",
+}: {
+  children: ReactNode;
+  heightClassName?: string;
+}) {
+  return (
+    <TooltipProvider>
+      <SidebarProvider className="min-h-0">
+        <div
+          className={cn(
+            "relative flex w-full rounded-md border border-border [&_[data-slot=sidebar-container]]:absolute [&_[data-slot=sidebar-container]]:inset-y-0 [&_[data-slot=sidebar-container]]:h-full [&_[data-slot=sidebar]]:h-full",
+            heightClassName
+          )}
+        >
+          {children}
+          <SidebarInset>
+            <div className="flex h-full flex-1 items-center justify-center p-4 text-paragraph-small text-muted-foreground">
+              Main content area
+            </div>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
+    </TooltipProvider>
+  );
+}
+
+function SidebarGalleryDemo({
+  sidebar,
+  heightClassName = "h-[1099px]",
+}: {
+  sidebar: ReactNode;
+  heightClassName?: string;
+}) {
+  return (
+    <SidebarDemoFrame heightClassName={heightClassName}>
+      {sidebar}
+    </SidebarDemoFrame>
+  );
+}
+
+function AdminSidebarDemo() {
+  return <SidebarGalleryDemo sidebar={<AdminSidebar />} />;
+}
+
+function AgentSidebarDemo() {
+  return (
+    <SidebarGalleryDemo
+      sidebar={<AgentSidebar />}
+      heightClassName="h-[28rem]"
+    />
+  );
+}
+
 function StepIndicatorDemo() {
   return (
     <div className="w-full max-w-md rounded-md border border-border bg-card p-sm">
@@ -578,6 +678,66 @@ function StepIndicatorDemo() {
 
 function TextareaDemo() {
   return <Textarea className="w-64" placeholder="Textarea" />;
+}
+
+function TabsDemo() {
+  return (
+    <Tabs defaultValue="tab-1" className="w-full max-w-md">
+      <TabsList>
+        <TabsTrigger value="tab-1">Tab 1</TabsTrigger>
+        <TabsTrigger value="tab-2">Tab 2</TabsTrigger>
+        <TabsTrigger value="tab-3">Tab 3</TabsTrigger>
+      </TabsList>
+      <TabsContent value="tab-1">Content for tab 1</TabsContent>
+      <TabsContent value="tab-2">Content for tab 2</TabsContent>
+      <TabsContent value="tab-3">Content for tab 3</TabsContent>
+    </Tabs>
+  );
+}
+
+function FurnitureCategoryTabsDemo() {
+  return (
+    <FurnitureCategoryTabs defaultValue="seating" className="w-full">
+      <FurnitureCategoryTabsList>
+        <FurnitureCategoryTabsTrigger
+          value="seating"
+          icon={<FurnitureCategoryIcon />}
+        >
+          Seating
+        </FurnitureCategoryTabsTrigger>
+        <FurnitureCategoryTabsTrigger
+          value="tables"
+          icon={<FurnitureCategoryIcon />}
+        >
+          Tables
+        </FurnitureCategoryTabsTrigger>
+        <FurnitureCategoryTabsTrigger
+          value="bedroom"
+          icon={<FurnitureCategoryIcon />}
+        >
+          Bedroom
+        </FurnitureCategoryTabsTrigger>
+        <FurnitureCategoryTabsTrigger
+          value="storage"
+          icon={<FurnitureCategoryIcon />}
+        >
+          Storage
+        </FurnitureCategoryTabsTrigger>
+      </FurnitureCategoryTabsList>
+      <FurnitureCategoryTabsContent value="seating">
+        Seating category content
+      </FurnitureCategoryTabsContent>
+      <FurnitureCategoryTabsContent value="tables">
+        Tables category content
+      </FurnitureCategoryTabsContent>
+      <FurnitureCategoryTabsContent value="bedroom">
+        Bedroom category content
+      </FurnitureCategoryTabsContent>
+      <FurnitureCategoryTabsContent value="storage">
+        Storage category content
+      </FurnitureCategoryTabsContent>
+    </FurnitureCategoryTabs>
+  );
 }
 
 function TooltipDemo() {
@@ -838,6 +998,7 @@ function MultiStepLayoutDemo() {
 // To add a composed component: add an entry to COMPOSED_COMPONENTS.
 
 const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
+  { name: "Avatar", Demo: AvatarDemo },
   { name: "Badge", Demo: BadgeDemo },
   { name: "StatusLabels", Demo: StatusLabelsDemo },
   { name: "Breadcrumb", Demo: BreadcrumbDemo },
@@ -849,8 +1010,12 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Input", Demo: InputDemo },
   { name: "Label", Demo: LabelDemo },
   { name: "Select", Demo: SelectDemo },
+  { name: "Admin sidebar", Demo: AdminSidebarDemo },
+  { name: "Agent sidebar", Demo: AgentSidebarDemo },
   { name: "SortMenu", Demo: SortMenuDemo },
   { name: "StepIndicator", Demo: StepIndicatorDemo },
+  { name: "Tabs", Demo: TabsDemo },
+  { name: "Furniture category tabs", Demo: FurnitureCategoryTabsDemo },
   { name: "Textarea", Demo: TextareaDemo },
   { name: "Tooltip", Demo: TooltipDemo },
 ];

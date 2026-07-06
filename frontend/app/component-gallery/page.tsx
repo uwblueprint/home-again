@@ -30,8 +30,11 @@ import {
   CardTitle,
   Checkbox,
   Dialog,
+  DialogBody,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -403,12 +406,30 @@ function CheckboxSectionDemo() {
 function DialogDemo() {
   return (
     <Dialog>
-      <DialogTrigger>Open dialog</DialogTrigger>
+      <DialogTrigger render={<Button variant="outline" />}>
+        Open dialog
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Dialog</DialogTitle>
-          <DialogDescription>This is a preview dialog.</DialogDescription>
+          <DialogTitle>Title</DialogTitle>
+          <DialogDescription>Subtext here</DialogDescription>
         </DialogHeader>
+        <DialogBody>
+          {["Content goes here", "Content goes here", "Content goes here"].map(
+            (label, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-center rounded-xl border border-dashed border-[var(--unofficial-border-3)] px-4 py-7 text-paragraph-small text-muted-foreground"
+              >
+                {label}
+              </div>
+            )
+          )}
+        </DialogBody>
+        <DialogFooter>
+          <DialogClose render={<Button variant="outline" />}>Button</DialogClose>
+          <Button>Button</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

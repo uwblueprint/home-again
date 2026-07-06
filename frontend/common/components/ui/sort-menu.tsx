@@ -65,7 +65,7 @@ function SortMenu({
           <label
             key={option.value}
             data-disabled={option.disabled || undefined}
-            className="flex h-6 cursor-pointer items-center gap-xs rounded-md px-xs py-[var(--scale-hacks-5p5)] transition-colors hover:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50"
+            className="flex h-6 cursor-pointer items-center gap-xs rounded-md px-xs py-(--scale-hacks-5p5) transition-colors hover:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50"
           >
             <RadioGroupItem value={option.value} disabled={option.disabled} />
             <span className="text-paragraph-small whitespace-nowrap text-foreground">

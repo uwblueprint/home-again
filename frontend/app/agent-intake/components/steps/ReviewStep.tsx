@@ -84,7 +84,8 @@ function IntakePostSubmitDialog({ phase }: { phase: PostSubmitPhase }) {
     <Dialog open>
       <DialogContent
         showCloseButton={false}
-        className="flex h-[337px] w-full max-w-[517px] flex-col items-center justify-center gap-4 p-8 text-center shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.1)] sm:max-w-[517px]"
+        centered
+        className="h-[337px] max-w-[517px] gap-4 p-8 sm:max-w-[517px]"
       >
         {isSuccess ? (
           <CheckCheck

@@ -26,7 +26,7 @@ function DonationItemPreview({
         {imageSrc && (
           <Image
             src={imageSrc}
-            alt=""
+            alt={title}
             fill
             unoptimized
             className="object-cover"

@@ -112,7 +112,7 @@ function RejectItemDialog({
           {needsDetails && (
             <div className="flex flex-col gap-1">
               <Label htmlFor="reject-details">
-                Please Indicate Reason Below
+                Please indicate reason below
                 <span className="text-destructive"> *</span>
               </Label>
               <Textarea
@@ -123,7 +123,7 @@ function RejectItemDialog({
                 onChange={(event) => setDetails(event.target.value)}
               />
               <p className="self-end text-paragraph-mini text-muted-foreground">
-                {details.length}/{MAX_DETAILS_LENGTH} Characters
+                {details.length}/{MAX_DETAILS_LENGTH} characters
               </p>
             </div>
           )}

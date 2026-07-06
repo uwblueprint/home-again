@@ -91,6 +91,12 @@ import {
   UnconfirmedBadge,
   ConfirmedBadge,
 } from "@/common/components/status-labels";
+import {
+  ApproveItemDialog,
+  DonationItemPreview,
+  RejectItemDialog,
+  type DonationItem,
+} from "@/app/donation-request/components";
 import { cn } from "@/common/lib/utils";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
@@ -432,6 +438,35 @@ function DialogDemo() {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+const SAMPLE_DONATION_ITEM: DonationItem = {
+  title: "Dining table & chairs / set",
+  condition: "No Stains",
+};
+
+function DonationItemPreviewDemo() {
+  return (
+    <DonationItemPreview {...SAMPLE_DONATION_ITEM} className="w-full max-w-md" />
+  );
+}
+
+function ApproveItemDialogDemo() {
+  return (
+    <ApproveItemDialog
+      trigger={<Button variant="outline">Approve item</Button>}
+      item={SAMPLE_DONATION_ITEM}
+    />
+  );
+}
+
+function RejectItemDialogDemo() {
+  return (
+    <RejectItemDialog
+      trigger={<Button variant="outline">Reject item</Button>}
+      item={SAMPLE_DONATION_ITEM}
+    />
   );
 }
 
@@ -1042,6 +1077,9 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
 ];
 
 const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
+  { name: "DonationItemPreview", Demo: DonationItemPreviewDemo },
+  { name: "ApproveItemDialog", Demo: ApproveItemDialogDemo },
+  { name: "RejectItemDialog", Demo: RejectItemDialogDemo },
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
   { name: "FurnitureItemCard", Demo: FurnitureItemCardDemo },
   { name: "Header", Demo: HeaderDemo },

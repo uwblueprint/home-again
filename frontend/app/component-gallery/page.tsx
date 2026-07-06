@@ -77,6 +77,7 @@ import {
   Header,
   Footer,
 } from "@/common/components/forms";
+import { AgentHover } from "@/common/components/agents";
 import {
   MultiStepLayout,
   type Step,
@@ -837,6 +838,23 @@ function FurnitureItemCardDemo() {
   );
 }
 
+function AgentHoverDemo() {
+  return (
+    <div className="flex flex-wrap items-end gap-md py-16">
+      <AgentHover
+        firstName="Wanyun"
+        lastName="Xue"
+        role="primary"
+      />
+      <AgentHover
+        firstName="Alex"
+        lastName="Morgan"
+        role="secondary"
+      />
+    </div>
+  );
+}
+
 function SelectAndComboDemo() {
   const [value, setValue] = useState(2);
 
@@ -1042,6 +1060,7 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
 ];
 
 const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
+  { name: "Agent Hover", Demo: AgentHoverDemo },
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
   { name: "FurnitureItemCard", Demo: FurnitureItemCardDemo },
   { name: "Header", Demo: HeaderDemo },

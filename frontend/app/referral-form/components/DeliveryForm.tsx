@@ -38,23 +38,12 @@ type DeliveryFormProps = {
   hideHeading?: boolean
 }
 
-const PROVINCES = [
-  "Alberta",
-  "British Columbia",
-  "Manitoba",
-  "New Brunswick",
-  "Newfoundland and Labrador",
-  "Nova Scotia",
-  "Ontario",
-  "Prince Edward Island",
-  "Quebec",
-  "Saskatchewan",
-  "Northwest Territories",
-  "Nunavut",
-  "Yukon",
-]
+const PROVINCES = ["Newfoundland and Labrador"]
 
-const COUNTRIES = ["Canada", "United States"]
+const COUNTRIES = ["Canada"]
+
+const ALLOWED_PROVINCE = "newfoundland and labrador"
+const ALLOWED_COUNTRY = "canada"
 
 const MUNICIPALITIES = [
   "St. John's",
@@ -88,8 +77,8 @@ const normalizeDeliveryData = (data?: DeliveryFormData): DeliveryFormData => ({
   address1: data?.address1 ?? "",
   address2: data?.address2 ?? "",
   city: data?.city ?? "",
-  province: data?.province ?? "",
-  country: data?.country ?? "",
+  province: data?.province || ALLOWED_PROVINCE,
+  country: data?.country || ALLOWED_COUNTRY,
   postalCode: data?.postalCode ?? "",
   dateNeeded: data?.dateNeeded ?? "",
   notes: data?.notes ?? "",
@@ -99,9 +88,6 @@ const normalizeDeliveryData = (data?: DeliveryFormData): DeliveryFormData => ({
     ...(data?.selectedMoves ?? {}),
   },
 })
-
-const ALLOWED_PROVINCE = "newfoundland and labrador"
-const ALLOWED_COUNTRY = "canada"
 
 export default function DeliveryForm({
   className,

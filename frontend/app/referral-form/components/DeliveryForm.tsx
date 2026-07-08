@@ -42,7 +42,7 @@ const PROVINCES = ["Newfoundland and Labrador"]
 
 const COUNTRIES = ["Canada"]
 
-const ALLOWED_PROVINCE = "newfoundland and labrador"
+const ALLOWED_PROVINCE = "Newfoundland and Labrador"
 const ALLOWED_COUNTRY = "canada"
 
 const MUNICIPALITIES = [
@@ -281,7 +281,6 @@ export default function DeliveryForm({
               >
                 <SelectValue
                   placeholder="Select a province/territory"
-                  className="capitalize"
                 />
               </SelectTrigger>
               <SelectContent>

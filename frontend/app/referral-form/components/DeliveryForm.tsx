@@ -43,7 +43,7 @@ const PROVINCES = ["Newfoundland and Labrador"]
 const COUNTRIES = ["Canada"]
 
 const ALLOWED_PROVINCE = "Newfoundland and Labrador"
-const ALLOWED_COUNTRY = "canada"
+const ALLOWED_COUNTRY = "Canada"
 
 const MUNICIPALITIES = [
   "St. John's",

@@ -54,7 +54,7 @@ frontend/
 │   │   ├── feedback/         # ConfirmModal, ServiceAreaNotice
 │   │   ├── data-display/     # ResourceList, ResourceDetail, InformationBlock
 │   │   ├── layout/           # PageLayout
-│   │   ├── multi-step-layout/# MultiStepLayout shell (see its README.md)
+│   │   ├── multi-step-layout/  # MultiStepLayout shell (see its README.md)
 │   │   ├── file-upload/      # FileUpload dialog
 │   │   └── status-labels/    # domain status Badges
 │   ├── hooks/                # useApi (TanStack Query), use-mobile, …
@@ -112,7 +112,7 @@ maps to code below. **Check here before building any UI.** Import primitives fro
 | Figma section                           | Code component(s)                                                                                                                | Notes / status                                                                                                   |
 | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | Button                                  | `ui/button.tsx` — `Button`, `buttonVariants`                                                                                     | cva variants: `default/outline/secondary/ghost/destructive/link`; sizes `xs…xl`, `icon*`, `rounded`.             |
-| Text inputs / textarea / labels         | `ui/input.tsx`, `ui/textarea.tsx`, `ui/label.tsx`                                                                                | Wrap with `forms/FormField` for label + error layout.                                                            |
+| Text inputs / textarea / labels         | `ui/input.tsx`, `ui/textarea.tsx`, `ui/label.tsx`                                                                                | Wrap with `FormField` from the `@/common/components/forms` barrel for label + error layout.                      |
 | Dropdown / Select                       | `ui/select.tsx`, `ui/dropdown-menu.tsx`, `forms/SelectAndCombo.tsx`                                                              |                                                                                                                  |
 | Checkbox / Radio                        | `ui/checkbox.tsx`, `ui/radio-group.tsx`                                                                                          |                                                                                                                  |
 | Upload                                  | `file-upload/FileUpload.tsx`                                                                                                     | Controlled modal upload; parent owns open state + file list.                                                     |

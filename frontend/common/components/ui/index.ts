@@ -1,3 +1,15 @@
+export {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarBadge,
+} from "./avatar";
+export { AdminSidebar, type AdminSidebarActiveItem } from "./admin-sidebar";
+export { AgentSidebar, type AgentSidebarActiveItem } from "./agent-sidebar";
+export { SidebarAppShell } from "./sidebar-app-shell";
+export { SidebarNavShell } from "./sidebar-nav-shell";
 export { Badge } from "./badge";
 export {
   BreadcrumbItem,
@@ -21,6 +33,7 @@ export {
   DialogTrigger,
   DialogClose,
   DialogContent,
+  DialogBody,
   DialogHeader,
   DialogFooter,
   DialogTitle,
@@ -43,8 +56,18 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from "./dropdown-menu";
+export {
+  FurnitureCategoryTabs,
+  FurnitureCategoryTabsList,
+  FurnitureCategoryTabsTrigger,
+  FurnitureCategoryTabsContent,
+  FurnitureCategoryIcon,
+} from "./furniture-category-tabs";
 export { Input, InputError } from "./input";
 export { Label } from "./label";
+export { RadioGroup, RadioGroupItem } from "./radio-group";
+export { SortMenu } from "./sort-menu";
+export type { SortMenuOption, SortMenuProps } from "./sort-menu";
 export {
   Pagination,
   PaginationContent,
@@ -61,7 +84,46 @@ export {
   SelectContent,
   SelectItem,
 } from "./select";
+export { Separator } from "./separator";
+export {
+  Sheet,
+  SheetTrigger,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetFooter,
+  SheetTitle,
+  SheetDescription,
+} from "./sheet";
+export {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupAction,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInput,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSkeleton,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarSeparator,
+  SidebarTrigger,
+  useSidebar,
+} from "./sidebar";
+export { Skeleton } from "./skeleton";
 export { StepIndicator } from "./step-indicator";
+export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 export { Textarea } from "./textarea";
 export {
   Tooltip,

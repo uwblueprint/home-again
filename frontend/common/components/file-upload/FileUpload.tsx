@@ -6,8 +6,10 @@ import { cn } from "@/common/lib/utils";
 import { Button } from "@/common/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/common/components/ui/dialog";
@@ -154,31 +156,15 @@ export default function FileUpload({
       open={open}
       onOpenChange={(next) => (next ? onOpenChange(true) : handleClose())}
     >
-      <DialogContent
-        showCloseButton={false}
-        className="w-full max-w-[640px] gap-0 rounded-[10px] border border-border p-0 shadow-lg ring-0 sm:max-w-[640px]"
-      >
-        {/* Close button */}
-        <button
-          type="button"
-          aria-label="Close dialog"
-          onClick={handleClose}
-          className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-[var(--unofficial-outline-hover)]"
-        >
-          <X className="size-4" />
-        </button>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription className="text-foreground">
+            {helperText}
+          </DialogDescription>
+        </DialogHeader>
 
-        {/* Body */}
-        <div className="flex flex-col gap-lg px-2xl pb-xs pt-2xl">
-          <DialogHeader className="gap-3 border-b border-[var(--unofficial-border-3)] pb-md">
-            <DialogTitle className="font-semibold text-foreground text-[length:var(--heading-4-font-size)] leading-[var(--heading-4-line-height)]">
-              {title}
-            </DialogTitle>
-            <DialogDescription className="text-foreground text-[length:var(--paragraph-mini-font-size)] leading-[var(--paragraph-mini-line-height)]">
-              {helperText}
-            </DialogDescription>
-          </DialogHeader>
-
+        <DialogBody>
           {/* Upload zone */}
           <div
             className={cn(
@@ -275,10 +261,9 @@ export default function FileUpload({
               })}
             </div>
           )}
-        </div>
+        </DialogBody>
 
-        {/* Footer */}
-        <div className="flex justify-end gap-xs px-2xl py-xl">
+        <DialogFooter>
           <Button
             type="button"
             variant="outline"
@@ -297,7 +282,7 @@ export default function FileUpload({
           >
             Save
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

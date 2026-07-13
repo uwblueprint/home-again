@@ -17,6 +17,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { FormBreadcrumb } from "@/common/components/forms";
 import {
   BigToggleButton,
+  SearchBar,
   DataTable,
   DataTableColumnHeader,
 } from "@/common/components/data-display";
@@ -713,6 +714,16 @@ function AgentSidebarDemo() {
   );
 }
 
+function SearchBarDemo() {
+  const [value, setValue] = useState("");
+
+  return (
+    <div className="w-full max-w-md rounded-md border border-border bg-card p-sm">
+      <SearchBar value={value} onChange={setValue} placeholder="Search" />
+    </div>
+  );
+}
+
 function StepIndicatorDemo() {
   return (
     <div className="w-full max-w-md rounded-md border border-border bg-card p-sm">
@@ -1175,6 +1186,7 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Input", Demo: InputDemo },
   { name: "Label", Demo: LabelDemo },
   { name: "Select", Demo: SelectDemo },
+  { name: "SearchBar", Demo: SearchBarDemo },
   { name: "Admin sidebar", Demo: AdminSidebarDemo },
   { name: "Agent sidebar", Demo: AgentSidebarDemo },
   { name: "SortMenu", Demo: SortMenuDemo },

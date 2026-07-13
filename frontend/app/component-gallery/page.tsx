@@ -16,6 +16,7 @@ import {
 import type { ColumnDef } from "@tanstack/react-table";
 import { FormBreadcrumb } from "@/common/components/forms";
 import {
+  BigToggleButton,
   DataTable,
   DataTableColumnHeader,
 } from "@/common/components/data-display";
@@ -159,6 +160,30 @@ function AvatarDemo() {
 
 function BadgeDemo() {
   return <Badge variant="outline">Sample badge</Badge>;
+}
+
+function BigToggleButtonDemo() {
+  const [selected, setSelected] = useState("pending");
+
+  const options = [
+    { value: "pending", count: 15, label: "Pending" },
+    { value: "delivered", count: 8, label: "Delivered" },
+  ];
+
+  return (
+    <div className="flex w-full flex-wrap gap-lg">
+      {options.map((option) => (
+        <BigToggleButton
+          key={option.value}
+          count={option.count}
+          label={option.label}
+          selected={option.value === selected}
+          className="max-w-65"
+          onClick={() => setSelected(option.value)}
+        />
+      ))}
+    </div>
+  );
 }
 
 function StatusLabelsDemo() {
@@ -1140,6 +1165,7 @@ function DataTableDemo() {
 const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Avatar", Demo: AvatarDemo },
   { name: "Badge", Demo: BadgeDemo },
+  { name: "BigToggleButton", Demo: BigToggleButtonDemo },
   { name: "StatusLabels", Demo: StatusLabelsDemo },
   { name: "Breadcrumb", Demo: BreadcrumbDemo },
   { name: "Button", Demo: ButtonDemo },

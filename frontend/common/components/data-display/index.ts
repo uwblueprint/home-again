@@ -1,6 +1,7 @@
 export { default as ResourceList } from "./ResourceList";
 export { default as ResourceDetail } from "./ResourceDetail";
 export { InformationBlock } from "./InformationBlock";
+export { BigToggleButton } from "./BigToggleButton";
 export { DataTable } from "./data-table/DataTable";
 export type {
   DataTableFilterConfig,

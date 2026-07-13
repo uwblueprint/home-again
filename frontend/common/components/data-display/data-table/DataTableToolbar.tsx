@@ -7,7 +7,7 @@ import {
   DataTableFacetedFilter,
   type DataTableFilterOption,
 } from "./DataTableFacetedFilter";
-import { DataTableSearch } from "../DataTableSearch";
+import { SearchBar } from "../SearchBar";
 
 export interface DataTableFilterConfig {
   columnId: string;
@@ -34,7 +34,7 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   return (
     <div className="flex w-full items-center justify-between gap-sm">
-      <DataTableSearch
+      <SearchBar
         placeholder={searchPlaceholder}
         value={(table.getState().globalFilter as string) ?? ""}
         onChange={(value) => table.setGlobalFilter(value)}

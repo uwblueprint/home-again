@@ -8,9 +8,6 @@ export type {
 } from "./data-table/DataTable";
 export { DataTableColumnHeader } from "./data-table/DataTableColumnHeader";
 export { DataTableFacetedFilter } from "./data-table/DataTableFacetedFilter";
-export { DataTableSearch } from "./DataTableSearch";
+export { SearchBar } from "./SearchBar";
 export { DataTableToolbar } from "./data-table/DataTableToolbar";
 export { DataTablePagination } from "./data-table/DataTablePagination";
-export { BigToggleButton } from "./toggle-button-group/BigToggleButton";
-export { ToggleButtonGroup } from "./toggle-button-group/ToggleButtonGroup";
-export type { ToggleButtonGroupOption } from "./toggle-button-group/ToggleButtonGroup";

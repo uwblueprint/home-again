@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { BigToggleButton } from "@/common/components/ui/big-toggle-button";
+import { BigToggleButton } from "./BigToggleButton";
 import { cn } from "@/common/lib/utils";
 
 export interface ToggleButtonGroupOption {

@@ -1165,7 +1165,6 @@ function DataTableDemo() {
 const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Avatar", Demo: AvatarDemo },
   { name: "Badge", Demo: BadgeDemo },
-  { name: "BigToggleButton", Demo: BigToggleButtonDemo },
   { name: "StatusLabels", Demo: StatusLabelsDemo },
   { name: "Breadcrumb", Demo: BreadcrumbDemo },
   { name: "Button", Demo: ButtonDemo },
@@ -1194,6 +1193,7 @@ const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "MultiStepLayout", Demo: MultiStepLayoutDemo },
   { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
   { name: "DataTable", Demo: DataTableDemo },
+  { name: "BigToggleButton", Demo: BigToggleButtonDemo },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

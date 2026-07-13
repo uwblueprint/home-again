@@ -48,7 +48,7 @@ export function DataTableColumnHeader<TData, TValue>({
             <Button
               variant="ghost"
               size="sm"
-              className="-ml-2 h-8 data-[popup-open]:bg-accent"
+              className="-ml-2 h-8 data-popup-open:bg-accent"
             >
               <span>{title}</span>
               {sortDirection === "desc" ? (

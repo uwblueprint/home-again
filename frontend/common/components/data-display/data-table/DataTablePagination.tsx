@@ -1,6 +1,5 @@
 "use client";
 
-import type { MouseEvent } from "react";
 import type { Table } from "@tanstack/react-table";
 
 import {
@@ -15,10 +14,6 @@ import {
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
-}
-
-function preventDefault(event: MouseEvent) {
-  event.preventDefault();
 }
 
 /**
@@ -65,17 +60,8 @@ export function DataTablePagination<TData>({
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              href="#"
-              aria-disabled={!table.getCanPreviousPage()}
-              className={
-                table.getCanPreviousPage()
-                  ? undefined
-                  : "pointer-events-none opacity-50"
-              }
-              onClick={(event) => {
-                preventDefault(event);
-                table.previousPage();
-              }}
+              disabled={!table.getCanPreviousPage()}
+              onClick={() => table.previousPage()}
             />
           </PaginationItem>
           {getPageNumbers(pageIndex + 1, pageCount).map((page, i) =>
@@ -86,12 +72,8 @@ export function DataTablePagination<TData>({
             ) : (
               <PaginationItem key={page}>
                 <PaginationLink
-                  href="#"
                   isActive={page === pageIndex + 1}
-                  onClick={(event) => {
-                    preventDefault(event);
-                    table.setPageIndex(page - 1);
-                  }}
+                  onClick={() => table.setPageIndex(page - 1)}
                 >
                   {page}
                 </PaginationLink>
@@ -100,17 +82,8 @@ export function DataTablePagination<TData>({
           )}
           <PaginationItem>
             <PaginationNext
-              href="#"
-              aria-disabled={!table.getCanNextPage()}
-              className={
-                table.getCanNextPage()
-                  ? undefined
-                  : "pointer-events-none opacity-50"
-              }
-              onClick={(event) => {
-                preventDefault(event);
-                table.nextPage();
-              }}
+              disabled={!table.getCanNextPage()}
+              onClick={() => table.nextPage()}
             />
           </PaginationItem>
         </PaginationContent>

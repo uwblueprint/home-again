@@ -7,7 +7,7 @@ import {
   DataTableFacetedFilter,
   type DataTableFilterOption,
 } from "./DataTableFacetedFilter";
-import { DataTableSearch } from "../SearchBar";
+import { DataTableSearch } from "./DataTableSearch";
 
 export interface DataTableFilterConfig {
   columnId: string;

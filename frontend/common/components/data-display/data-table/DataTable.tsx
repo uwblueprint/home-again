@@ -4,8 +4,9 @@ import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import {
   type ColumnDef,
-  type SortingState,
   type ColumnFiltersState,
+  type Row,
+  type SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -35,8 +36,8 @@ export type { DataTableFilterConfig } from "./DataTableToolbar";
 export type { DataTableFilterOption } from "./DataTableFacetedFilter";
 
 /** Matches a row if any cell's stringified value contains the search term. */
-function globalSubstringFilter(
-  row: { getAllCells: () => { getValue: () => unknown }[] },
+function globalSubstringFilter<TData>(
+  row: Row<TData>,
   _columnId: string,
   filterValue: string
 ) {
@@ -121,76 +122,80 @@ export function DataTable<TData, TValue>({
         actions={toolbarActions}
       />
 
-      <div className="w-full overflow-x-auto">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-border">
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className="h-auto px-xs py-3.5 text-paragraph-small font-medium text-foreground"
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id} className="border-border">
+              {headerGroup.headers.map((header) => (
+                <TableHead
+                  key={header.id}
+                  className="h-auto px-xs py-3.5 text-paragraph-small font-medium text-foreground"
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {loading ? (
+            <DataTableSkeletonRows columns={tableColumns.length} />
+          ) : error ? (
+            <TableRow>
+              <TableCell
+                colSpan={tableColumns.length}
+                className="h-24 text-center text-destructive"
+              >
+                {error.message || "Error loading data"}
+              </TableCell>
+            </TableRow>
+          ) : table.getRowModel().rows.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                onClick={() => onRowClick?.(row.original)}
+                onKeyDown={
+                  onRowClick
+                    ? (event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          onRowClick(row.original);
+                        }
+                      }
+                    : undefined
+                }
+                role={onRowClick ? "button" : undefined}
+                tabIndex={onRowClick ? 0 : undefined}
+                className={cn("border-border", onRowClick && "cursor-pointer")}
+                data-testid={`${testId}-row-${row.index}`}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    className="whitespace-nowrap px-xs py-3.5 text-paragraph-small text-foreground"
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <DataTableSkeletonRows columns={tableColumns.length} />
-            ) : error ? (
-              <TableRow>
-                <TableCell
-                  colSpan={tableColumns.length}
-                  className="h-24 text-center text-destructive"
-                >
-                  {error.message || "Error loading data"}
-                </TableCell>
-              </TableRow>
-            ) : table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  onClick={() => onRowClick?.(row.original)}
-                  className={cn(
-                    "border-border",
-                    onRowClick && "cursor-pointer"
-                  )}
-                  data-testid={`${testId}-row-${row.index}`}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className="whitespace-nowrap px-xs py-3.5 text-paragraph-small text-foreground"
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={tableColumns.length}
-                  className="h-24 text-center text-muted-foreground"
-                >
-                  {emptyStateMessage}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={tableColumns.length}
+                className="h-24 text-center text-muted-foreground"
+              >
+                {emptyStateMessage}
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
 
       <DataTablePagination table={table} />
     </div>

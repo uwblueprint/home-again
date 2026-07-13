@@ -845,7 +845,7 @@ const referralColumns: ColumnDef<ReferralRow>[] = [
     accessorKey: "caseAgent",
     header: "Case Agents",
     cell: ({ getValue }) => (
-      <div className="flex size-[30px] items-center justify-center rounded-full bg-[#c3ce9b] text-paragraph-mini font-semibold text-black">
+      <div className="flex size-[30px] items-center justify-center rounded-full bg-muted text-paragraph-mini font-semibold text-black">
         {getValue<string>()}
       </div>
     ),
@@ -868,7 +868,7 @@ const referralColumns: ColumnDef<ReferralRow>[] = [
 ];
 
 function DataTableDemo() {
-  const data = useState(makeReferralRows)[0];
+  const [data] = useState(makeReferralRows);
 
   return (
     <div className="w-full">

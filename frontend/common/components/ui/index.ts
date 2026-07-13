@@ -11,6 +11,7 @@ export { AgentSidebar, type AgentSidebarActiveItem } from "./agent-sidebar";
 export { SidebarAppShell } from "./sidebar-app-shell";
 export { SidebarNavShell } from "./sidebar-nav-shell";
 export { Badge } from "./badge";
+export { BigToggleButton } from "./big-toggle-button";
 export {
   BreadcrumbItem,
   BreadcrumbNumber,

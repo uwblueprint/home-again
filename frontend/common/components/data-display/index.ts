@@ -11,3 +11,5 @@ export { DataTableFacetedFilter } from "./data-table/DataTableFacetedFilter";
 export { DataTableSearch } from "./data-table/DataTableSearch";
 export { DataTableToolbar } from "./data-table/DataTableToolbar";
 export { DataTablePagination } from "./data-table/DataTablePagination";
+export { ToggleButtonGroup } from "./toggle-button-group/ToggleButtonGroup";
+export type { ToggleButtonGroupOption } from "./toggle-button-group/ToggleButtonGroup";

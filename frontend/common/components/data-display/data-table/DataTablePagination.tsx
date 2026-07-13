@@ -16,10 +16,6 @@ interface DataTablePaginationProps<TData> {
   table: Table<TData>;
 }
 
-/**
- * Builds a windowed list of page numbers around the current page, e.g.
- * [1, "...", 4, 5, 6, "...", 10]. Mirrors the Figma pagination footer.
- */
 function getPageNumbers(current: number, total: number): (number | "...")[] {
   const maxVisible = 5;
   if (total <= maxVisible) {

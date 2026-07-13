@@ -18,6 +18,7 @@ import { FormBreadcrumb } from "@/common/components/forms";
 import {
   DataTable,
   DataTableColumnHeader,
+  ToggleButtonGroup,
 } from "@/common/components/data-display";
 import {
   Avatar,
@@ -118,8 +119,7 @@ function ComponentRow({
   name: string;
   children: ReactNode;
 }) {
-  const alignTop =
-    name === "Admin sidebar" || name === "Agent sidebar";
+  const alignTop = name === "Admin sidebar" || name === "Agent sidebar";
 
   return (
     <div
@@ -432,7 +432,9 @@ function DialogDemo() {
           )}
         </DialogBody>
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>Button</DialogClose>
+          <DialogClose render={<Button variant="outline" />}>
+            Button
+          </DialogClose>
           <Button>Button</Button>
         </DialogFooter>
       </DialogContent>
@@ -1132,6 +1134,27 @@ function DataTableDemo() {
   );
 }
 
+function ToggleButtonGroupDemo() {
+  const [data] = useState(makeReferralRows);
+  const [status, setStatus] = useState<ReferralRow["status"]>(
+    REFERRAL_STATUSES[0]
+  );
+
+  const options = REFERRAL_STATUSES.map((s) => ({
+    value: s,
+    label: s,
+    count: data.filter((row) => row.status === s).length,
+  }));
+
+  return (
+    <ToggleButtonGroup
+      options={options}
+      value={status}
+      onValueChange={(value) => setStatus(value as ReferralRow["status"])}
+    />
+  );
+}
+
 // ─── registry ─────────────────────────────────────────────────────────────────
 // To add a base component: add an entry to BASE_COMPONENTS.
 // To add a composed component: add an entry to COMPOSED_COMPONENTS.
@@ -1167,6 +1190,7 @@ const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "MultiStepLayout", Demo: MultiStepLayoutDemo },
   { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
   { name: "DataTable", Demo: DataTableDemo },
+  { name: "ToggleButtonGroup", Demo: ToggleButtonGroupDemo },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

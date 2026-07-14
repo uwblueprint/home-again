@@ -91,6 +91,7 @@ import {
   UnconfirmedBadge,
   ConfirmedBadge,
 } from "@/common/components/status-labels";
+import { DonationItemCard } from "@/app/donation-request/components";
 import { cn } from "@/common/lib/utils";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
@@ -1014,6 +1015,42 @@ function MultiStepLayoutDemo() {
   );
 }
 
+function DonationItemCardDemo() {
+  const samplePhotos = [
+    "https://placehold.co/200x200",
+    "https://placehold.co/200x200",
+    "https://placehold.co/200x200",
+    "https://placehold.co/200x200",
+    "https://placehold.co/200x200",
+  ];
+
+  return (
+    <div className="flex w-full flex-col gap-md">
+      <DonationItemCard
+        name="Dining table & chairs / set"
+        notes="No Stains"
+        photos={samplePhotos}
+        status="pending"
+        onApprove={() => {}}
+        onReject={() => {}}
+      />
+      <DonationItemCard
+        name="Dining table & chairs / set"
+        notes="No Stains"
+        photos={samplePhotos}
+        status="approved"
+      />
+      <DonationItemCard
+        name="Sofa"
+        notes="No Stains"
+        photos={samplePhotos}
+        status="rejected"
+        rejectionReason="Item condition not suitable"
+      />
+    </div>
+  );
+}
+
 // ─── registry ─────────────────────────────────────────────────────────────────
 // To add a base component: add an entry to BASE_COMPONENTS.
 // To add a composed component: add an entry to COMPOSED_COMPONENTS.
@@ -1044,10 +1081,12 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
 const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
   { name: "FurnitureItemCard", Demo: FurnitureItemCardDemo },
+  { name: "DonationItemCard", Demo: DonationItemCardDemo },
   { name: "Header", Demo: HeaderDemo },
   { name: "Footer", Demo: FooterDemo },
   { name: "MultiStepLayout", Demo: MultiStepLayoutDemo },
   { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
+  
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

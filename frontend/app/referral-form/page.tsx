@@ -584,7 +584,7 @@ export default function ReferralFormPage() {
               : "max-w-5xl sm:max-w-5xl"
           )}
         >
-          <DialogHeader className="gap-2 border-b border-border px-4xl pt-4xl pb-2xl">
+          <DialogHeader className="gap-2 border-b border-border px-4xl pt-4xl pb-2xl after:hidden">
             <DialogTitle className="text-3xl font-semibold text-black">
               {editingStep ? EDIT_STEP_TITLES[editingStep] : ""}
             </DialogTitle>

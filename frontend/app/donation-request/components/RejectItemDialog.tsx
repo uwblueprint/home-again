@@ -93,7 +93,7 @@ function RejectItemDialog({
             <Label htmlFor="reject-reason">Reason for rejection</Label>
             <Select
               items={reasons}
-              value={reason ?? undefined}
+              value={reason}
               onValueChange={(value) => value && setReason(value as string)}
             >
               <SelectTrigger id="reject-reason" className="w-full">

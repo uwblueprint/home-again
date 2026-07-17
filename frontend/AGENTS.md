@@ -133,6 +133,7 @@ maps to code below. **Check here before building any UI.** Import primitives fro
 | Alerts                                  | `feedback/ConfirmModal.tsx`, `feedback/ServiceAreaNotice.tsx`                                                                    |                                                                                                                  |
 | Cards (information, page content)       | `ui/card.tsx`, `data-display/InformationBlock.tsx`                                                                               |                                                                                                                  |
 | Avatar / Tooltip / Separator / Skeleton | `ui/avatar.tsx`, `ui/tooltip.tsx`, `ui/separator.tsx`, `ui/skeleton.tsx`                                                         |                                                                                                                  |
+| Icons                                   | `lucide-react` — e.g. `import { XIcon } from "lucide-react"`                                                                     | Use a lucide icon rather than pasting inline `<svg>` markup. Exception: brand art like `/hafb_logo.svg`.         |
 
 If a design calls for something marked **Gap**, build it as a _shared_ component in the right
 `common/components` category (with a barrel export) rather than inlining it in a page — that is
@@ -157,6 +158,12 @@ Follow the pattern in `ui/button.tsx` when creating or extending a primitive:
   (`ui/index.ts`, `forms/index.ts`, …). Add new components to the barrel and import through it.
 - **React imports.** Import only the names you need (`import { useState } from "react"`).
   **Never `import * as React`.**
+- **Icons come from `lucide-react`,** not hand-written `<svg>` markup — see `ui/dialog.tsx`'s
+  `XIcon`. They inherit `currentColor` and take a token size utility (`size-4`), so they pick up
+  `text-muted-foreground` and friends for free. A few older spots still inline SVG paths
+  (`ui/step-indicator.tsx`, `data-display/ResourceList.tsx`, `donate/components/StepDonationSummary.tsx`);
+  replace those with lucide equivalents when you touch them. Only genuine brand art (the
+  `/hafb_logo.svg` wordmark) stays a static asset.
 - **Folder-per-category.** Put a new shared component in the category that matches its role
   (`ui` = design-system primitive, `forms` = form block, `feedback` = alerts/modals, etc.).
   Colocate its test as `Component.test.tsx`.

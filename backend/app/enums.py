@@ -60,6 +60,21 @@ class DonationStatus(str, enum.Enum):
     CANCELLED = "cancelled"
 
 
+class DonationReviewStatus(str, enum.Enum):
+    """
+    Progress of an admin's item-by-item review of a donation request.
+
+    Derived from the donation's furniture statuses and its pickup — never stored,
+    so it cannot drift when an item is re-reviewed. See
+    services.donations.compute_review_status.
+    """
+
+    PENDING_REVIEW = "pending_review"
+    PARTIALLY_REVIEWED = "partially_reviewed"
+    REVIEWED = "reviewed"
+    SCHEDULED = "scheduled"
+
+
 # ---------------------------------------------------------------------------
 # Furniture
 # ---------------------------------------------------------------------------
@@ -68,10 +83,20 @@ class DonationStatus(str, enum.Enum):
 class FurnitureStatus(str, enum.Enum):
     PICKUP_PENDING = "PICKUP_PENDING"
     APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
     OFFERED = "OFFERED"
     SCHEDULED = "SCHEDULED"
     DELIVERED = "DELIVERED"
     CLOSED = "CLOSED"
+
+
+class FurnitureRejectionReason(str, enum.Enum):
+    """Why an admin rejected a donated item. OTHER requires free-text details."""
+
+    CONDITION = "condition"
+    PICKUP = "pickup"
+    LOCATION = "location"
+    OTHER = "other"
 
 
 class FurnitureConditionEnum(str, enum.Enum):

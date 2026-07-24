@@ -53,6 +53,17 @@ async def update_pickup(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
+@router.post("/{pickup_id}/confirm", response_model=PickupSchema)
+async def confirm_pickup(
+    pickup: Pickup = Depends(get_pickup_or_404),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        return await pickups_service.confirm_pickup(db, pickup)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
 @router.delete("/{pickup_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_pickup(
     pickup: Pickup = Depends(get_pickup_or_404),

@@ -840,18 +840,12 @@ function FurnitureItemCardDemo() {
 
 function AgentHoverDemo() {
   return (
-    <div className="flex flex-wrap items-end gap-md py-16">
-      <AgentHover
-        firstName="Wanyun"
-        lastName="Xue"
-        role="primary"
-      />
-      <AgentHover
-        firstName="Alex"
-        lastName="Morgan"
-        role="secondary"
-      />
-    </div>
+    <TooltipProvider delay={0}>
+      <div className="flex flex-wrap items-end gap-md py-16">
+        <AgentHover firstName="Wanyun" lastName="Xue" role="primary" />
+        <AgentHover firstName="Alex" lastName="Morgan" role="secondary" />
+      </div>
+    </TooltipProvider>
   );
 }
 

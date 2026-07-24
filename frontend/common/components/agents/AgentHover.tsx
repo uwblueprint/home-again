@@ -1,11 +1,15 @@
 "use client";
 
-import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/common/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/common/components/ui/tooltip";
 import { cn } from "@/common/lib/utils";
 
 export type AgentRole = "primary" | "secondary";
@@ -20,7 +24,7 @@ export type AgentHoverProps = {
 };
 
 function getInitials(firstName: string, lastName: string) {
-  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toLowerCase();
+  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 }
 
 function getRoleLabel(role: AgentRole) {
@@ -44,6 +48,7 @@ function AgentAvatar({
   );
 }
 
+/** Requires a parent `TooltipProvider` so multiple agents share one timing group. */
 export function AgentHover({
   firstName,
   lastName,
@@ -56,52 +61,37 @@ export function AgentHover({
   const roleLabel = getRoleLabel(role);
 
   return (
-    <TooltipPrimitive.Provider delay={0}>
-      <TooltipPrimitive.Root>
-        <TooltipPrimitive.Trigger
-          className={cn("inline-flex cursor-default rounded-full", className)}
-        >
-          <AgentAvatar
-            firstName={firstName}
-            lastName={lastName}
-            imageUrl={imageUrl}
-            size={size}
-          />
-        </TooltipPrimitive.Trigger>
-        <TooltipPrimitive.Portal>
-          <TooltipPrimitive.Positioner
-            side="top"
-            align="center"
-            sideOffset={10}
-            className="isolate z-50"
-          >
-            <TooltipPrimitive.Popup
-              className={cn(
-                "z-50 flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 shadow-md",
-                "origin-(--transform-origin) whitespace-nowrap",
-                "data-[side=top]:slide-in-from-bottom-2",
-                "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95",
-                "data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95"
-              )}
-            >
-              <AgentAvatar
-                firstName={firstName}
-                lastName={lastName}
-                imageUrl={imageUrl}
-                size={size}
-              />
-              <div className="flex flex-col gap-0.5 pr-1">
-                <span className="text-sm font-semibold text-foreground">
-                  {fullName}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {roleLabel}
-                </span>
-              </div>
-            </TooltipPrimitive.Popup>
-          </TooltipPrimitive.Positioner>
-        </TooltipPrimitive.Portal>
-      </TooltipPrimitive.Root>
-    </TooltipPrimitive.Provider>
+    <Tooltip>
+      <TooltipTrigger
+        className={cn("inline-flex cursor-default rounded-full", className)}
+      >
+        <AgentAvatar
+          firstName={firstName}
+          lastName={lastName}
+          imageUrl={imageUrl}
+          size={size}
+        />
+      </TooltipTrigger>
+      <TooltipContent
+        side="top"
+        align="center"
+        sideOffset={10}
+        className={cn(
+          "max-w-none gap-3 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground shadow-md",
+          "[&>*:last-child]:hidden"
+        )}
+      >
+        <AgentAvatar
+          firstName={firstName}
+          lastName={lastName}
+          imageUrl={imageUrl}
+          size={size}
+        />
+        <div className="flex flex-col gap-0.5 pr-1">
+          <span className="font-semibold text-foreground">{fullName}</span>
+          <span className="text-muted-foreground">{roleLabel}</span>
+        </div>
+      </TooltipContent>
+    </Tooltip>
   );
 }

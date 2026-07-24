@@ -63,9 +63,12 @@ function RejectItemDialog({
   const [reason, setReason] = useState<string | null>(null);
   const [details, setDetails] = useState("");
 
-  const selectedReason = reasons.find((r) => r.value === reason);
-  const needsDetails =
-    selectedReason?.requiresDetails ?? selectedReason?.value === "other";
+  const requiresDetails = (value: string | null) => {
+    const match = reasons.find((r) => r.value === value);
+    return match?.requiresDetails ?? match?.value === "other";
+  };
+
+  const needsDetails = requiresDetails(reason);
   const isValid =
     reason !== null && (!needsDetails || details.trim().length > 0);
 
@@ -94,7 +97,14 @@ function RejectItemDialog({
             <Select
               items={reasons}
               value={reason}
-              onValueChange={(value) => value && setReason(value as string)}
+              onValueChange={(value) => {
+                if (!value) return;
+                const next = value as string;
+                setReason(next);
+                // Drop any typed details once the new reason no longer needs them,
+                // so they don't reappear when switching back.
+                if (!requiresDetails(next)) setDetails("");
+              }}
             >
               <SelectTrigger id="reject-reason" className="w-full">
                 <SelectValue placeholder="Select a reason" />

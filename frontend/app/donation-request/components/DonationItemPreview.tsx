@@ -19,10 +19,10 @@ function DonationItemPreview({
   return (
     <div
       data-slot="donation-item-preview"
-      className={cn("flex items-center gap-2.5 py-sm", className)}
+      className={cn("flex items-center gap-item-preview py-sm", className)}
       {...props}
     >
-      <div className="relative size-13 shrink-0 overflow-hidden rounded-lg bg-muted">
+      <div className="relative size-item-thumb shrink-0 overflow-hidden rounded-lg bg-muted">
         {imageSrc && (
           <Image
             src={imageSrc}

@@ -21,10 +21,12 @@ from typing import Any, Optional
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from .enums import (
+    DonationReviewStatus,
     DonationStatus,
     DonationTypeEnum,
     FamilyTypeEnum,
     FurnitureConditionEnum,
+    FurnitureRejectionReason,
     FurnitureStatus,
     GenderEnum,
     ImmigrationStatusEnum,
@@ -174,6 +176,8 @@ class DonationBase(BaseModel):
     city: Optional[str] = None
     postal_code: Optional[str] = None
     status: Optional[DonationStatus] = None
+    smoking_household: Optional[bool] = None
+    has_pets: Optional[bool] = None
 
 
 class DonationCreate(DonationBase):
@@ -189,6 +193,8 @@ class DonationUpdate(BaseModel):
     city: Optional[str] = None
     postal_code: Optional[str] = None
     status: Optional[DonationStatus] = None
+    smoking_household: Optional[bool] = None
+    has_pets: Optional[bool] = None
 
 
 class Donation(DonationBase):
@@ -251,6 +257,24 @@ class Client(ClientBase):
 # ============ Furniture Schemas ============
 
 
+class FurniturePhotoBase(BaseModel):
+    url: str
+    position: int = 0
+
+
+class FurniturePhotoCreate(FurniturePhotoBase):
+    furniture_id: str
+
+
+class FurniturePhoto(FurniturePhotoBase):
+    id: str
+    furniture_id: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class FurnitureBase(BaseModel):
     name: str
     image_url: str
@@ -261,6 +285,8 @@ class FurnitureBase(BaseModel):
     smoking_household: bool
     has_pets: bool
     status: FurnitureStatus
+    rejection_reason: Optional[FurnitureRejectionReason] = None
+    rejection_details: Optional[str] = None
     donation_id: Optional[str] = None
     referral_id: Optional[str] = None
     pickup_id: Optional[str] = None
@@ -280,17 +306,33 @@ class FurnitureUpdate(BaseModel):
     smoking_household: Optional[bool] = None
     has_pets: Optional[bool] = None
     status: Optional[FurnitureStatus] = None
+    rejection_reason: Optional[FurnitureRejectionReason] = None
+    rejection_details: Optional[str] = None
     donation_id: Optional[str] = None
     referral_id: Optional[str] = None
     pickup_id: Optional[str] = None
 
 
+class FurnitureReject(BaseModel):
+    """Payload for POST /furniture/{id}/reject."""
+
+    rejection_reason: FurnitureRejectionReason
+    rejection_details: Optional[str] = None
+
+
 class Furniture(FurnitureBase):
     id: str
+    reviewed_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class FurnitureDetail(Furniture):
+    """Furniture with its ordered photo set, for the donation review UI."""
+
+    photos: list[FurniturePhoto] = []
 
 
 # ============ Route Schemas ============
@@ -322,8 +364,12 @@ class Route(RouteBase):
 
 
 class PickupBase(BaseModel):
-    route_id: str
+    # Optional: a pickup is scheduled against a donation during review, and only
+    # later assigned to a route by dispatch.
+    route_id: Optional[str] = None
     donation_id: Optional[str] = None
+    scheduled_date: Optional[datetime] = None
+    note: Optional[str] = None
 
 
 class PickupCreate(PickupBase):
@@ -333,10 +379,13 @@ class PickupCreate(PickupBase):
 class PickupUpdate(BaseModel):
     route_id: Optional[str] = None
     donation_id: Optional[str] = None
+    scheduled_date: Optional[datetime] = None
+    note: Optional[str] = None
 
 
 class Pickup(PickupBase):
     id: str
+    confirmed_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 
@@ -465,5 +514,26 @@ class Referral(ReferralBase):
         if isinstance(v, str):
             return json.loads(v) if v else []
         return v if v is not None else []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ============ Composite Schemas ============
+# Schemas that stitch several resources together for a single screen. Kept at the
+# end of the file so they can reference every model above.
+
+
+class DonationDetail(Donation):
+    """
+    Everything the donation-request review screen needs, in one response.
+
+    review_status is computed from the furniture statuses and pickup rather than
+    stored — see services.donations.compute_review_status.
+    """
+
+    review_status: DonationReviewStatus
+    donor: Optional[Donor] = None
+    furniture_items: list[FurnitureDetail] = []
+    pickup: Optional[Pickup] = None
 
     model_config = ConfigDict(from_attributes=True)

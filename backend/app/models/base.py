@@ -364,7 +364,11 @@ class FurniturePhoto(Base):
     __tablename__ = "furniture_photos"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
-    furniture_id = Column(String(36), ForeignKey("furniture.id"), nullable=False)
+    # Indexed to match the migration; without it autogenerate proposes dropping
+    # ix_furniture_photos_furniture_id.
+    furniture_id = Column(
+        String(36), ForeignKey("furniture.id"), nullable=False, index=True
+    )
     url = Column(String(500), nullable=False)
     position = Column(Integer, nullable=False, default=0)
     created_at = Column(

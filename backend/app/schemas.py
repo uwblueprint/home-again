@@ -15,7 +15,7 @@ Schema naming convention:
 """
 
 import json
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict, field_validator
@@ -33,6 +33,21 @@ from .enums import (
     ReferralStatus,
     RouteStatus,
 )
+
+
+def _to_naive_utc(v: Optional[datetime]) -> Optional[datetime]:
+    """
+    Normalise an inbound datetime to naive UTC.
+
+    The DateTime columns are TIMESTAMP WITHOUT TIME ZONE and asyncpg refuses a
+    tz-aware value outright, but clients legitimately send offsets — JavaScript's
+    Date.toISOString() emits 'Z' — so convert once here rather than at every call
+    site. Matches how the models write timestamps.
+    """
+    if v is not None and v.tzinfo is not None:
+        return v.astimezone(timezone.utc).replace(tzinfo=None)
+    return v
+
 
 # ============ Admin Schemas ============
 
@@ -262,8 +277,15 @@ class FurniturePhotoBase(BaseModel):
     position: int = 0
 
 
-class FurniturePhotoCreate(FurniturePhotoBase):
-    furniture_id: str
+class FurniturePhotoInput(BaseModel):
+    """
+    Request body for PUT /furniture/{id}/photos.
+
+    Deliberately has no position: display order is the order of the submitted
+    list, so accepting a position would advertise a field the server ignores.
+    """
+
+    url: str
 
 
 class FurniturePhoto(FurniturePhotoBase):
@@ -342,6 +364,8 @@ class RouteBase(BaseModel):
     date: datetime
     status: Optional[RouteStatus] = None
 
+    _normalize_date = field_validator("date")(_to_naive_utc)
+
 
 class RouteCreate(RouteBase):
     pass
@@ -350,6 +374,8 @@ class RouteCreate(RouteBase):
 class RouteUpdate(BaseModel):
     date: Optional[datetime] = None
     status: Optional[RouteStatus] = None
+
+    _normalize_date = field_validator("date")(_to_naive_utc)
 
 
 class Route(RouteBase):
@@ -371,6 +397,8 @@ class PickupBase(BaseModel):
     scheduled_date: Optional[datetime] = None
     note: Optional[str] = None
 
+    _normalize_scheduled_date = field_validator("scheduled_date")(_to_naive_utc)
+
 
 class PickupCreate(PickupBase):
     pass
@@ -381,6 +409,8 @@ class PickupUpdate(BaseModel):
     donation_id: Optional[str] = None
     scheduled_date: Optional[datetime] = None
     note: Optional[str] = None
+
+    _normalize_scheduled_date = field_validator("scheduled_date")(_to_naive_utc)
 
 
 class Pickup(PickupBase):

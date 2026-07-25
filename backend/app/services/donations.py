@@ -107,10 +107,19 @@ async def get_donation_detail(db: AsyncSession, donation_id: str) -> Donation | 
 
 
 def get_active_pickup(donation: Donation) -> Pickup | None:
-    """The pickup a donation is currently scheduled under — its most recent one."""
-    if not donation.pickups:
+    """
+    The pickup the review screen means by "the" pickup.
+
+    A donation can carry two kinds of pickup row: the one an admin scheduled
+    during review (has a scheduled_date, no route yet) and the one dispatch
+    later created to assign a route (has a route, no date). Prefer a scheduled
+    one, so a subsequent dispatch row doesn't hide the donor's confirmed date.
+    """
+    pickups = donation.pickups or []
+    if not pickups:
         return None
-    return max(donation.pickups, key=lambda pickup: pickup.created_at)
+    scheduled = [pickup for pickup in pickups if pickup.scheduled_date]
+    return max(scheduled or pickups, key=lambda pickup: pickup.created_at)
 
 
 def compute_review_status(donation: Donation) -> DonationReviewStatus:
@@ -121,10 +130,6 @@ def compute_review_status(donation: Donation) -> DonationReviewStatus:
     or a scheduled pickup is removed. Requires furniture_items and pickups to be
     loaded — use get_donation_detail.
     """
-    pickup = get_active_pickup(donation)
-    if pickup and pickup.scheduled_date:
-        return DonationReviewStatus.SCHEDULED
-
     items = donation.furniture_items or []
     reviewed = [item for item in items if item.status in REVIEWED_FURNITURE_STATUSES]
 
@@ -133,6 +138,12 @@ def compute_review_status(donation: Donation) -> DonationReviewStatus:
         return DonationReviewStatus.PENDING_REVIEW
     if len(reviewed) < len(items):
         return DonationReviewStatus.PARTIALLY_REVIEWED
+
+    # Scheduling only outranks a *finished* review; a pickup booked while items
+    # are still outstanding must not hide that they need attention.
+    pickup = get_active_pickup(donation)
+    if pickup and pickup.scheduled_date:
+        return DonationReviewStatus.SCHEDULED
     return DonationReviewStatus.REVIEWED
 
 

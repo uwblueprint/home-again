@@ -6,6 +6,8 @@ furniture, donations and pickups routers, so they live together rather than
 being split across three files.
 """
 
+from sqlalchemy import text
+
 DONOR_BASE = {
     "first_name": "Katie",
     "last_name": "Sun",
@@ -152,6 +154,25 @@ async def test_put_rejection_reason_on_non_rejected_item_is_invalid(client):
     assert resp.status_code == 400
 
 
+async def test_changing_the_reason_clears_details_from_the_previous_one(client):
+    donation = await create_donation(client, tag="staledetails")
+    item = await create_item(client, donation["id"])
+
+    await client.post(
+        f"/api/furniture/{item['id']}/reject",
+        json={"rejection_reason": "other", "rejection_details": "Leg is snapped off"},
+    )
+
+    # Free text written for 'other' must not survive onto a different reason —
+    # the rejected item's card renders it verbatim.
+    resp = await client.put(
+        f"/api/furniture/{item['id']}", json={"rejection_reason": "location"}
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["rejection_reason"] == "location"
+    assert resp.json()["rejection_details"] is None
+
+
 # ── Item photos ───────────────────────────────────────────────────────────────
 
 
@@ -195,6 +216,42 @@ async def test_replace_photos_discards_the_previous_set(client):
     assert [p["url"] for p in detail.json()["photos"]] == [
         "https://example.com/new.jpg"
     ]
+
+
+async def test_more_than_five_photos_is_rejected(client):
+    donation = await create_donation(client, tag="toomanyphotos")
+    item = await create_item(client, donation["id"])
+
+    resp = await client.put(
+        f"/api/furniture/{item['id']}/photos",
+        json=[{"url": f"https://example.com/{i}.jpg"} for i in range(6)],
+    )
+    assert resp.status_code == 400
+    assert "at most 5 photos" in resp.json()["detail"]
+
+
+async def test_photos_are_deleted_with_their_item(client, db_session):
+    """
+    The cascade is ORM-level (cascade="all, delete-orphan"), not ON DELETE
+    CASCADE, so it lives entirely in a relationship argument — assert the rows
+    actually go rather than trusting the 204.
+    """
+    donation = await create_donation(client, tag="photocascade")
+    item = await create_item(client, donation["id"])
+    await client.put(
+        f"/api/furniture/{item['id']}/photos",
+        json=[
+            {"url": "https://example.com/a.jpg"},
+            {"url": "https://example.com/b.jpg"},
+        ],
+    )
+
+    count = text("SELECT count(*) FROM furniture_photos WHERE furniture_id = :id")
+    assert (await db_session.execute(count, {"id": item["id"]})).scalar() == 2
+
+    resp = await client.delete(f"/api/furniture/{item['id']}")
+    assert resp.status_code == 204, resp.text
+    assert (await db_session.execute(count, {"id": item["id"]})).scalar() == 0
 
 
 # ── Donation detail + derived review status ───────────────────────────────────
@@ -263,6 +320,60 @@ async def test_detail_scheduled_once_a_pickup_has_a_date(client):
     data = resp.json()
     assert data["review_status"] == "scheduled"
     assert data["pickup"]["scheduled_date"].startswith("2026-03-26")
+
+
+async def test_scheduling_does_not_mask_an_unfinished_review(client):
+    """A pickup booked early must not hide items that still need attention."""
+    donation = await create_donation(client, tag="earlypickup")
+    first = await create_item(client, donation["id"])
+    await create_item(client, donation["id"], name="Table")
+
+    await client.post(f"/api/furniture/{first['id']}/approve")
+    await client.post(
+        "/api/pickups",
+        json={
+            "donation_id": donation["id"],
+            "scheduled_date": "2026-03-26T00:00:00",
+        },
+    )
+
+    resp = await client.get(f"/api/donations/{donation['id']}/detail")
+    assert resp.json()["review_status"] == "partially_reviewed"
+
+
+async def test_a_dispatch_pickup_does_not_hide_the_scheduled_one(client):
+    """
+    Dispatch creates a second, route-assigned pickup row for the same donation.
+    The review screen must still show the date the donor confirmed.
+    """
+    donation = await create_donation(client, tag="dispatch")
+    item = await create_item(client, donation["id"])
+    await client.post(f"/api/furniture/{item['id']}/approve")
+
+    scheduled = (
+        await client.post(
+            "/api/pickups",
+            json={
+                "donation_id": donation["id"],
+                "scheduled_date": "2026-03-26T00:00:00",
+            },
+        )
+    ).json()
+    await client.post(f"/api/pickups/{scheduled['id']}/confirm")
+
+    route = (
+        await client.post("/api/routes", json={"date": "2026-03-27T00:00:00"})
+    ).json()
+    later = await client.post(
+        "/api/pickups", json={"donation_id": donation["id"], "route_id": route["id"]}
+    )
+    assert later.status_code == 201, later.text
+
+    resp = await client.get(f"/api/donations/{donation['id']}/detail")
+    data = resp.json()
+    assert data["review_status"] == "scheduled"
+    assert data["pickup"]["id"] == scheduled["id"]
+    assert data["pickup"]["confirmed_at"] is not None
 
 
 async def test_detail_includes_item_photos(client):
@@ -391,3 +502,47 @@ async def test_note_longer_than_500_characters_is_rejected(client):
     )
     assert resp.status_code == 400
     assert "500 characters" in resp.json()["detail"]
+
+
+async def test_scheduled_date_with_an_offset_is_stored_as_utc(client):
+    """
+    Clients send offsets — Date.toISOString() emits 'Z'. The column is
+    TIMESTAMP WITHOUT TIME ZONE and asyncpg rejects a tz-aware value outright,
+    so the offset has to be applied, not dropped.
+    """
+    donation = await create_donation(client, tag="tzoffset")
+
+    resp = await client.post(
+        "/api/pickups",
+        json={
+            "donation_id": donation["id"],
+            "scheduled_date": "2026-03-26T14:00:00+05:00",
+        },
+    )
+    assert resp.status_code == 201, resp.text
+    assert resp.json()["scheduled_date"] == "2026-03-26T09:00:00"
+
+
+async def test_resending_the_same_instant_keeps_confirmation(client):
+    """
+    Re-submitting an unchanged date — an edit dialog that posts its whole form —
+    must not read as a reschedule just because it carries a UTC offset.
+    """
+    donation = await create_donation(client, tag="samedate")
+    pickup = (
+        await client.post(
+            "/api/pickups",
+            json={
+                "donation_id": donation["id"],
+                "scheduled_date": "2026-03-26T00:00:00Z",
+            },
+        )
+    ).json()
+    confirmed = (await client.post(f"/api/pickups/{pickup['id']}/confirm")).json()
+
+    resp = await client.put(
+        f"/api/pickups/{pickup['id']}",
+        json={"scheduled_date": "2026-03-26T00:00:00Z"},
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["confirmed_at"] == confirmed["confirmed_at"]

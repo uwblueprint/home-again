@@ -91,7 +91,16 @@ def upgrade():
 
 def downgrade():
     # Pickups scheduled during review have no route yet and cannot satisfy the
-    # restored NOT NULL, so they are dropped. Downgrading loses that scheduling.
+    # restored NOT NULL, so they are dropped. Downgrading loses that scheduling,
+    # and dropping furniture_photos below loses every photo — not just the ones
+    # seeded from image_url on the way up.
+    #
+    # Items already assigned to one of those pickups have to be detached first,
+    # or the delete trips fk_furniture_pickup_id and the whole downgrade aborts.
+    op.execute("""
+        UPDATE furniture SET pickup_id = NULL
+        WHERE pickup_id IN (SELECT id FROM pickups WHERE route_id IS NULL)
+        """)
     op.execute("DELETE FROM pickups WHERE route_id IS NULL")
     op.alter_column("pickups", "route_id", existing_type=sa.String(36), nullable=False)
     op.drop_column("pickups", "confirmed_at")

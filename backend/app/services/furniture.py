@@ -13,12 +13,15 @@ from ..enums import FurnitureRejectionReason, FurnitureStatus
 from ..models import Donation, Furniture, FurniturePhoto, Referral
 from ..schemas import (
     FurnitureCreate,
-    FurniturePhotoBase,
+    FurniturePhotoInput,
     FurnitureReject,
     FurnitureUpdate,
 )
 
 logger = logging.getLogger(__name__)
+
+# The review screen shows a fixed photo strip per item.
+MAX_PHOTOS_PER_ITEM = 5
 
 
 async def list_furniture(db: AsyncSession) -> list[Furniture]:
@@ -58,6 +61,11 @@ async def update_furniture(
     if not data:
         raise ValueError("No update fields were provided.")
     await _validate_fks(db, data)
+    # A new reason invalidates details written for the previous one, which would
+    # otherwise keep showing on the rejected item's card. Clearing before the
+    # merge also lets the 'other' rule below demand fresh details.
+    if "rejection_reason" in data and "rejection_details" not in data:
+        data["rejection_details"] = None
     # Validate against the merged result, not just the patch, so a partial update
     # can't leave the row in an inconsistent review state.
     _validate_rejection_fields(
@@ -130,15 +138,20 @@ async def get_furniture_with_photos(
 
 
 async def replace_furniture_photos(
-    db: AsyncSession, furniture: Furniture, photos: list[FurniturePhotoBase]
+    db: AsyncSession, furniture: Furniture, photos: list[FurniturePhotoInput]
 ) -> list[FurniturePhoto]:
     """
     Replace an item's whole photo set in one call.
 
     Photos are ordered and shown as a group, so the UI submits the full set
-    rather than patching individual rows. Position is taken from list order,
-    ignoring any client-supplied value, so it always stays gap-free.
+    rather than patching individual rows. Position is taken from list order, so
+    it always stays gap-free.
     """
+    if len(photos) > MAX_PHOTOS_PER_ITEM:
+        raise ValueError(
+            f"An item can have at most {MAX_PHOTOS_PER_ITEM} photos; got {len(photos)}."
+        )
+
     existing = await db.execute(
         select(FurniturePhoto).where(FurniturePhoto.furniture_id == furniture.id)
     )

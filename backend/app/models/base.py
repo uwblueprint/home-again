@@ -188,7 +188,10 @@ class Donation(Base):
 
     # Relationships
     donor = relationship("Donor", back_populates="donations")
-    furniture_items = relationship("Furniture", back_populates="donation")
+    # Ordered so the review screen renders its item cards the same way every load.
+    furniture_items = relationship(
+        "Furniture", back_populates="donation", order_by="Furniture.created_at"
+    )
     pickups = relationship("Pickup", back_populates="donation")
 
 

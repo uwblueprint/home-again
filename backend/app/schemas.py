@@ -273,16 +273,11 @@ class Client(ClientBase):
 
 
 class FurniturePhotoBase(BaseModel):
-    url: str
-    position: int = 0
-
-
-class FurniturePhotoInput(BaseModel):
     """
-    Request body for PUT /furniture/{id}/photos.
+    What a client sends for a photo.
 
-    Deliberately has no position: display order is the order of the submitted
-    list, so accepting a position would advertise a field the server ignores.
+    No position: display order is the order of the submitted list, so accepting
+    one would advertise a field the server ignores.
     """
 
     url: str
@@ -291,6 +286,7 @@ class FurniturePhotoInput(BaseModel):
 class FurniturePhoto(FurniturePhotoBase):
     id: str
     furniture_id: str
+    position: int
     created_at: datetime
     updated_at: datetime
 

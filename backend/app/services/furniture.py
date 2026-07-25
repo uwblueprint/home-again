@@ -13,7 +13,7 @@ from ..enums import FurnitureRejectionReason, FurnitureStatus
 from ..models import Donation, Furniture, FurniturePhoto, Referral
 from ..schemas import (
     FurnitureCreate,
-    FurniturePhotoInput,
+    FurniturePhotoBase,
     FurnitureReject,
     FurnitureUpdate,
 )
@@ -138,7 +138,7 @@ async def get_furniture_with_photos(
 
 
 async def replace_furniture_photos(
-    db: AsyncSession, furniture: Furniture, photos: list[FurniturePhotoInput]
+    db: AsyncSession, furniture: Furniture, photos: list[FurniturePhotoBase]
 ) -> list[FurniturePhoto]:
     """
     Replace an item's whole photo set in one call.

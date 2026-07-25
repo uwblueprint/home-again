@@ -84,7 +84,7 @@ async def approve_furniture(db: AsyncSession, furniture: Furniture) -> Furniture
     furniture.status = FurnitureStatus.APPROVED.value
     furniture.rejection_reason = None
     furniture.rejection_details = None
-    furniture.reviewed_at = _utcnow()
+    furniture.reviewed_at = datetime.now(timezone.utc).replace(tzinfo=None)
     return await _commit_review(db, furniture)
 
 
@@ -100,7 +100,7 @@ async def reject_furniture(
     furniture.status = FurnitureStatus.REJECTED.value
     furniture.rejection_reason = payload.rejection_reason.value
     furniture.rejection_details = payload.rejection_details
-    furniture.reviewed_at = _utcnow()
+    furniture.reviewed_at = datetime.now(timezone.utc).replace(tzinfo=None)
     return await _commit_review(db, furniture)
 
 
@@ -162,10 +162,6 @@ async def replace_furniture_photos(
     for photo in created:
         await db.refresh(photo)
     return created
-
-
-def _utcnow() -> datetime:
-    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def _validate_rejection_fields(

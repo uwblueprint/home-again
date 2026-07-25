@@ -104,6 +104,20 @@ async def reject_furniture(
     return await _commit_review(db, furniture)
 
 
+async def _commit_review(db: AsyncSession, furniture: Furniture) -> Furniture:
+    """Shared persistence tail for approve_furniture / reject_furniture."""
+    try:
+        await db.commit()
+    except IntegrityError as e:
+        await db.rollback()
+        logger.exception(
+            "IntegrityError reviewing furniture %s: %s", furniture.id, e.orig
+        )
+        raise ValueError(f"Review failed: {str(e.orig)}") from e
+    await db.refresh(furniture)
+    return furniture
+
+
 async def get_furniture_with_photos(
     db: AsyncSession, furniture_id: str
 ) -> Furniture | None:
@@ -148,19 +162,6 @@ async def replace_furniture_photos(
     for photo in created:
         await db.refresh(photo)
     return created
-
-
-async def _commit_review(db: AsyncSession, furniture: Furniture) -> Furniture:
-    try:
-        await db.commit()
-    except IntegrityError as e:
-        await db.rollback()
-        logger.exception(
-            "IntegrityError reviewing furniture %s: %s", furniture.id, e.orig
-        )
-        raise ValueError(f"Review failed: {str(e.orig)}") from e
-    await db.refresh(furniture)
-    return furniture
 
 
 def _utcnow() -> datetime:

@@ -60,9 +60,6 @@ def upgrade():
         sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=True),
     )
-    op.create_index(
-        "ix_furniture_photos_furniture_id", "furniture_photos", ["furniture_id"]
-    )
 
     # Seed the new table from the existing single-image column so no photo is lost.
     # gen_random_uuid() is built into Postgres 13+ (docker-compose runs 15).
@@ -107,7 +104,6 @@ def downgrade():
     op.drop_column("pickups", "note")
     op.drop_column("pickups", "scheduled_date")
 
-    op.drop_index("ix_furniture_photos_furniture_id", table_name="furniture_photos")
     op.drop_table("furniture_photos")
 
     op.drop_column("furniture", "reviewed_at")

@@ -175,9 +175,6 @@ def _validate_rejection_fields(
       - reason OTHER requires details
       - any other status carries no rejection fields
     """
-    status = _enum_value(status)
-    rejection_reason = _enum_value(rejection_reason)
-
     if status == FurnitureStatus.REJECTED.value:
         if not rejection_reason:
             raise ValueError("A rejection_reason is required to reject an item.")
@@ -194,11 +191,6 @@ def _validate_rejection_fields(
         raise ValueError(
             "rejection_reason and rejection_details are only valid on a rejected item."
         )
-
-
-def _enum_value(value: object) -> str | None:
-    """Accept either an enum member or its raw string value."""
-    return getattr(value, "value", value)
 
 
 async def delete_furniture(db: AsyncSession, furniture: Furniture) -> None:

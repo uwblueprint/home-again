@@ -10,7 +10,7 @@ from ..schemas import (
     FurnitureCreate,
     FurnitureDetail,
     FurniturePhoto,
-    FurniturePhotoInput,
+    FurniturePhotoBase,
     FurnitureReject,
     FurnitureUpdate,
 )
@@ -75,7 +75,7 @@ async def get_furniture_detail(furniture_id: str, db: AsyncSession = Depends(get
 
 @router.put("/{furniture_id}/photos", response_model=list[FurniturePhoto])
 async def replace_furniture_photos(
-    payload: list[FurniturePhotoInput],
+    payload: list[FurniturePhotoBase],
     furniture: Furniture = Depends(get_furniture_or_404),
     db: AsyncSession = Depends(get_db),
 ):

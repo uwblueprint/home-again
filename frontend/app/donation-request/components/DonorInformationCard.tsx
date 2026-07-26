@@ -232,11 +232,15 @@ function DonorInformationForm({
         />
       </FieldColumn>
 
+      {/* Figma's donor card uses a borderless Cancel next to an outlined Save —
+          distinct from the dialogs, where Save is the filled primary action. */}
       <div className="flex justify-end gap-xs">
-        <Button variant="outline" onClick={onCancel}>
+        <Button variant="ghost" onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={onSave}>Save</Button>
+        <Button variant="outline" onClick={onSave}>
+          Save
+        </Button>
       </div>
     </div>
   );

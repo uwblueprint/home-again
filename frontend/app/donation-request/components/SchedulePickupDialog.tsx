@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CalendarDays } from "lucide-react";
 
 import {
   Dialog,
@@ -79,16 +78,14 @@ function SchedulePickupDialog({
             <Label htmlFor="pickup-date">
               Date<span className="text-destructive"> *</span>
             </Label>
-            <div className="relative">
-              <CalendarDays className="pointer-events-none absolute left-sm top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="pickup-date"
-                type="date"
-                value={date}
-                onChange={(event) => setDate(event.target.value)}
-                className="pl-8"
-              />
-            </div>
+            {/* No decorative calendar icon here: type="date" draws its own
+                picker indicator, so adding one renders two side by side. */}
+            <Input
+              id="pickup-date"
+              type="date"
+              value={date}
+              onChange={(event) => setDate(event.target.value)}
+            />
           </div>
 
           <div className="flex flex-col gap-xs">

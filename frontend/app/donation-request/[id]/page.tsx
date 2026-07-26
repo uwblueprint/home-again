@@ -65,7 +65,7 @@ export default function DonationRequestPage() {
             request={request}
             reviewStatus={reviewStatus}
             approvedCount={approvedCount}
-            totalItems={request.items.length}
+            totalItems={request.furniture_items.length}
             onSchedulePickup={openSchedule}
           />
 
@@ -81,9 +81,9 @@ export default function DonationRequestPage() {
 
           <section className="flex flex-col gap-lg">
             <h2 className="text-heading-3 font-semibold text-foreground">
-              {request.items.length} Items Donated
+              {request.furniture_items.length} Items Donated
             </h2>
-            {request.items.map((item) => (
+            {request.furniture_items.map((item) => (
               <DonationItemCard
                 key={item.id}
                 item={item}

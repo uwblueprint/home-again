@@ -26,7 +26,7 @@ export const DONATION_REQUEST_FIXTURE: DonationRequest = {
     has_pets: false,
     pickup_address: "210 Drake Ave, NL, CA A2V 1K5",
   },
-  items: [
+  furniture_items: [
     {
       id: "item-dining",
       name: "Dining table & chairs / set",

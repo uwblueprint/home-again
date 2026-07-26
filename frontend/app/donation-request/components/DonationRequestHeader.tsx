@@ -9,7 +9,7 @@ import {
   PendingReviewBadge,
   ScheduledBadge,
 } from "@/common/components/status-labels";
-import { formatDate } from "@/common/utils/DateUtils";
+import { formatDate, formatShortDate } from "@/common/utils/DateUtils";
 import type { DonationRequest, ReviewStatus } from "./types";
 
 interface DonationRequestHeaderProps {
@@ -53,13 +53,6 @@ function ReviewStatusIndicator({
         />
       );
   }
-}
-
-/** "March 26, 2026" → "Mar 26" for the compact scheduled badge. */
-function formatShortDate(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 function DonationRequestHeader(props: DonationRequestHeaderProps) {

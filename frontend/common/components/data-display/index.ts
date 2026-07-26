@@ -12,3 +12,5 @@ export { DataTableFacetedFilter } from "./data-table/DataTableFacetedFilter";
 export { SearchBar } from "./SearchBar";
 export { DataTableToolbar } from "./data-table/DataTableToolbar";
 export { DataTablePagination } from "./data-table/DataTablePagination";
+export { PhotoStrip, type PhotoStripPhoto } from "./PhotoStrip";
+export { PhotoLightboxDialog } from "./PhotoLightboxDialog";

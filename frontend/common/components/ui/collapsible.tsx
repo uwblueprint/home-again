@@ -21,8 +21,15 @@ function CollapsiblePanel({
   return (
     <CollapsiblePrimitive.Panel
       data-slot="collapsible-panel"
+      // The panel has to consume --collapsible-panel-height, which base-ui
+      // measures onto the element, and be zero-height whenever it is closed.
+      // `data-closed` is the one that actually matters: base-ui frequently
+      // settles there with an inline `transition-duration: 0s` and never applies
+      // data-ending-style, so keying the collapse off the transition states
+      // alone leaves the panel stuck at full height. The starting/ending styles
+      // only smooth the cases where a transition does run.
       className={cn(
-        "overflow-hidden transition-[height] ease-out data-open:animate-in data-closed:animate-out",
+        "h-[var(--collapsible-panel-height)] overflow-hidden transition-[height] duration-150 ease-out data-closed:h-0 data-ending-style:h-0 data-starting-style:h-0",
         className
       )}
       {...props}

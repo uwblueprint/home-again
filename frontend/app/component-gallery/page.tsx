@@ -20,8 +20,11 @@ import {
   SearchBar,
   DataTable,
   DataTableColumnHeader,
+  PhotoStrip,
+  PhotoLightboxDialog,
 } from "@/common/components/data-display";
 import {
+  Alert,
   Avatar,
   AvatarFallback,
   AvatarImage,
@@ -36,6 +39,10 @@ import {
   CardHeader,
   CardTitle,
   Checkbox,
+  Collapsible,
+  CollapsiblePanel,
+  CollapsibleTrigger,
+  CopyButton,
   Dialog,
   DialogBody,
   DialogClose,
@@ -72,6 +79,8 @@ import {
   TabsList,
   TabsTrigger,
   Textarea,
+  ToggleGroup,
+  ToggleGroupItem,
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -92,6 +101,7 @@ import {
   ReviewedBadge,
   PendingReviewBadge,
   PartiallyReviewedBadge,
+  ScheduledBadge,
   ApprovalsLabel,
   ApprovedBadge,
   RejectedBadge,
@@ -200,6 +210,7 @@ function StatusLabelsDemo() {
         <ReviewedBadge />
         <PendingReviewBadge />
         <PartiallyReviewedBadge />
+        <ScheduledBadge date="Mar 14" />
       </div>
       <div className="flex flex-wrap gap-sm">
         <ApprovalsLabel approved={0} total={4} />
@@ -480,7 +491,10 @@ const SAMPLE_DONATION_ITEM: DonationItem = {
 
 function DonationItemPreviewDemo() {
   return (
-    <DonationItemPreview {...SAMPLE_DONATION_ITEM} className="w-full max-w-md" />
+    <DonationItemPreview
+      {...SAMPLE_DONATION_ITEM}
+      className="w-full max-w-md"
+    />
   );
 }
 
@@ -1204,11 +1218,88 @@ function DataTableDemo() {
   );
 }
 
+function AlertDemo() {
+  return (
+    <div className="flex w-full max-w-md flex-col gap-sm">
+      <Alert variant="info">This is an informational notice.</Alert>
+      <Alert variant="warning">
+        Selecting a new date will require new confirmation.
+      </Alert>
+      <Alert variant="destructive">Something went wrong.</Alert>
+    </div>
+  );
+}
+
+function CopyButtonDemo() {
+  return (
+    <div className="flex items-center gap-sm text-paragraph-small text-muted-foreground">
+      katiesun@uwblueprint.org
+      <CopyButton value="katiesun@uwblueprint.org" label="Copy email" />
+    </div>
+  );
+}
+
+function CollapsibleDemo() {
+  return (
+    <Collapsible
+      defaultOpen
+      className="w-full max-w-md rounded-lg border border-border p-md"
+    >
+      <CollapsibleTrigger render={<Button variant="ghost" size="sm" />}>
+        Toggle details
+      </CollapsibleTrigger>
+      <CollapsiblePanel>
+        <p className="pt-sm text-paragraph-small text-muted-foreground">
+          Hidden content revealed by the trigger.
+        </p>
+      </CollapsiblePanel>
+    </Collapsible>
+  );
+}
+
+function ToggleGroupDemo() {
+  const [value, setValue] = useState<string[]>(["no"]);
+  return (
+    <ToggleGroup value={value} onValueChange={setValue} aria-label="Yes or no">
+      <ToggleGroupItem value="yes">Yes</ToggleGroupItem>
+      <ToggleGroupItem value="no">No</ToggleGroupItem>
+    </ToggleGroup>
+  );
+}
+
+const SAMPLE_PHOTOS = Array.from({ length: 5 }, (_, i) => ({
+  url: `https://picsum.photos/seed/gallery-${i}/240/240`,
+  alt: `Sample photo ${i + 1}`,
+}));
+
+function PhotoStripDemo() {
+  const [open, setOpen] = useState(false);
+  const [index, setIndex] = useState(0);
+  return (
+    <div className="w-full max-w-md">
+      <PhotoStrip
+        photos={SAMPLE_PHOTOS}
+        onView={(i) => {
+          setIndex(i);
+          setOpen(true);
+        }}
+      />
+      <PhotoLightboxDialog
+        open={open}
+        onOpenChange={setOpen}
+        photos={SAMPLE_PHOTOS}
+        initialIndex={index}
+      />
+    </div>
+  );
+}
+
 // ─── registry ─────────────────────────────────────────────────────────────────
 // To add a base component: add an entry to BASE_COMPONENTS.
 // To add a composed component: add an entry to COMPOSED_COMPONENTS.
 
 const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
+  { name: "Alert", Demo: AlertDemo },
   { name: "Avatar", Demo: AvatarDemo },
   { name: "Badge", Demo: BadgeDemo },
   { name: "StatusLabels", Demo: StatusLabelsDemo },
@@ -1216,6 +1307,8 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Button", Demo: ButtonDemo },
   { name: "Card", Demo: CardDemo },
   { name: "Checkbox", Demo: CheckboxSectionDemo },
+  { name: "Collapsible", Demo: CollapsibleDemo },
+  { name: "CopyButton", Demo: CopyButtonDemo },
   { name: "Dialog", Demo: DialogDemo },
   { name: "Dropdown", Demo: DropdownMenuDemo },
   { name: "Input", Demo: InputDemo },
@@ -1229,6 +1322,7 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Tabs", Demo: TabsDemo },
   { name: "Furniture category tabs", Demo: FurnitureCategoryTabsDemo },
   { name: "Textarea", Demo: TextareaDemo },
+  { name: "ToggleGroup", Demo: ToggleGroupDemo },
   { name: "Tooltip", Demo: TooltipDemo },
 ];
 
@@ -1244,6 +1338,7 @@ const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
   { name: "DataTable", Demo: DataTableDemo },
   { name: "BigToggleButton", Demo: BigToggleButtonDemo },
+  { name: "PhotoStrip + Lightbox", Demo: PhotoStripDemo },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

@@ -25,6 +25,13 @@ export function PartiallyReviewedBadge() {
   );
 }
 
+export function ScheduledBadge({ date }: { date?: string }) {
+  return (
+    <Badge className="rounded-[8px] font-normal border-transparent bg-teal-100 text-teal-900">
+      {date ? `Scheduled ${date}` : "Scheduled"}
+    </Badge>
+  );
+}
 
 // ── Donation Card Approvals Label ─────────────────────────────────────────────
 
@@ -34,7 +41,11 @@ interface ApprovalsLabelProps {
   minApproved?: number;
 }
 
-export function ApprovalsLabel({ approved, total, minApproved = 1 }: ApprovalsLabelProps) {
+export function ApprovalsLabel({
+  approved,
+  total,
+  minApproved = 1,
+}: ApprovalsLabelProps) {
   const meetsThreshold = approved >= minApproved;
   return (
     <Badge

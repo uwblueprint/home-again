@@ -8,6 +8,7 @@ export {
 } from "./avatar";
 export { AdminSidebar, type AdminSidebarActiveItem } from "./admin-sidebar";
 export { AgentSidebar, type AgentSidebarActiveItem } from "./agent-sidebar";
+export { Alert, alertVariants } from "./alert";
 export { SidebarAppShell } from "./sidebar-app-shell";
 export { SidebarNavShell } from "./sidebar-nav-shell";
 export { Badge } from "./badge";
@@ -26,6 +27,12 @@ export {
   CardContent,
 } from "./card";
 export { Checkbox } from "./checkbox";
+export {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsiblePanel,
+} from "./collapsible";
+export { CopyButton } from "./copy-button";
 export {
   Dialog,
   DialogPortal,
@@ -125,6 +132,7 @@ export { Skeleton } from "./skeleton";
 export { StepIndicator } from "./step-indicator";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 export { Textarea } from "./textarea";
+export { ToggleGroup, ToggleGroupItem } from "./toggle-group";
 export {
   Tooltip,
   TooltipContent,

@@ -8,8 +8,12 @@ import { Avatar, AvatarFallback } from "@/common/components/ui/avatar";
 
 interface AdminHeaderProps {
   className?: string;
-  search?: string;
-  onSearchChange?: (value: string) => void;
+  /**
+   * Search box state. Required — the caller owns it, so the header can't
+   * silently render a search that looks live but is wired to nothing.
+   */
+  search: string;
+  onSearchChange: (value: string) => void;
   /** Initials shown in the avatar (e.g. "WX"). */
   userInitials?: string;
 }
@@ -20,7 +24,7 @@ interface AdminHeaderProps {
  */
 function AdminHeader({
   className,
-  search = "",
+  search,
   onSearchChange,
   userInitials = "HA",
 }: AdminHeaderProps) {
@@ -42,7 +46,7 @@ function AdminHeader({
       <div className="flex items-center gap-lg">
         <SearchBar
           value={search}
-          onChange={onSearchChange ?? (() => {})}
+          onChange={onSearchChange}
           placeholder="Find anything"
         />
         <Avatar>

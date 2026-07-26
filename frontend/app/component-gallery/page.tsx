@@ -114,6 +114,7 @@ import {
   RejectItemDialog,
   type DonationItem,
 } from "@/app/donation-request/components";
+import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
@@ -1294,6 +1295,19 @@ function PhotoStripDemo() {
   );
 }
 
+function AdminHeaderDemo() {
+  const [search, setSearch] = useState("");
+  return (
+    <div className="w-full rounded-lg border border-border">
+      <AdminHeader
+        search={search}
+        onSearchChange={setSearch}
+        userInitials="WX"
+      />
+    </div>
+  );
+}
+
 // ─── registry ─────────────────────────────────────────────────────────────────
 // To add a base component: add an entry to BASE_COMPONENTS.
 // To add a composed component: add an entry to COMPOSED_COMPONENTS.
@@ -1339,6 +1353,7 @@ const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "DataTable", Demo: DataTableDemo },
   { name: "BigToggleButton", Demo: BigToggleButtonDemo },
   { name: "PhotoStrip + Lightbox", Demo: PhotoStripDemo },
+  { name: "AdminHeader", Demo: AdminHeaderDemo },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

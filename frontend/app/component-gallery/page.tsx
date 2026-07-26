@@ -1268,8 +1268,10 @@ function ToggleGroupDemo() {
   );
 }
 
+// The same furniture shot repeated five times, matching the donation-review
+// frames — the strip is meant to read as one item's photo set.
 const SAMPLE_PHOTOS = Array.from({ length: 5 }, (_, i) => ({
-  url: `https://picsum.photos/seed/gallery-${i}/240/240`,
+  url: "/sample-furniture.jpg",
   alt: `Sample photo ${i + 1}`,
 }));
 

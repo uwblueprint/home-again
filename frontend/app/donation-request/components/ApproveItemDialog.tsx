@@ -44,9 +44,7 @@ function ApproveItemDialog({
           <DonationItemPreview {...item} />
         </DialogBody>
         <DialogFooter>
-          <DialogClose
-            render={<Button variant="outline" onClick={onCancel} />}
-          >
+          <DialogClose render={<Button variant="outline" onClick={onCancel} />}>
             Cancel
           </DialogClose>
           <DialogClose render={<Button onClick={onConfirm} />}>

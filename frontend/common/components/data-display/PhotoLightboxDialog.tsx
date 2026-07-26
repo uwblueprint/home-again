@@ -50,10 +50,13 @@ function PhotoLightboxDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[760px]">
+      <DialogContent className="sm:max-w-[986px]">
         <DialogTitle className="sr-only">{title}</DialogTitle>
-        <div className="flex gap-lg p-2xl">
-          <div className="relative flex flex-1 items-center">
+        {/* Padding mirrors the frame's dialog bands: a 48px strip above the
+            content for the close button, 48px down each side, and a 68px
+            footer strip. The arrows sit beside the image, not over it. */}
+        <div className="flex gap-lg px-[48px] pt-[48px] pb-[68px]">
+          <div className="flex flex-1 items-center gap-5">
             {photos.length > 1 && (
               <Button
                 type="button"
@@ -62,18 +65,19 @@ function PhotoLightboxDialog({
                 rounded
                 onClick={() => go(-1)}
                 aria-label="Previous photo"
-                className="absolute left-2 z-10"
+                className="size-12 shrink-0"
               >
                 <ChevronLeft />
               </Button>
             )}
 
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-muted">
+            <div className="relative aspect-[3/2] min-w-0 flex-1 overflow-hidden rounded-lg bg-muted">
               <Image
                 src={current.url}
                 alt={current.alt ?? `Photo ${clamped + 1}`}
                 fill
                 unoptimized
+                sizes="604px"
                 className="object-cover"
               />
             </div>
@@ -86,7 +90,7 @@ function PhotoLightboxDialog({
                 rounded
                 onClick={() => go(1)}
                 aria-label="Next photo"
-                className="absolute right-2 z-10"
+                className="size-12 shrink-0"
               >
                 <ChevronRight />
               </Button>
@@ -94,7 +98,7 @@ function PhotoLightboxDialog({
           </div>
 
           {photos.length > 1 && (
-            <div className="flex max-h-[360px] w-[76px] shrink-0 flex-col gap-sm overflow-y-auto">
+            <div className="flex shrink-0 flex-col items-center gap-3 px-5">
               {photos.map((photo, i) => (
                 <button
                   key={i}
@@ -103,7 +107,7 @@ function PhotoLightboxDialog({
                   aria-label={`View photo ${i + 1}`}
                   aria-current={i === clamped || undefined}
                   className={cn(
-                    "relative aspect-square w-full shrink-0 cursor-pointer overflow-hidden rounded-lg bg-muted outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                    "relative size-[70px] shrink-0 cursor-pointer overflow-hidden rounded-lg bg-muted outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
                     i === clamped
                       ? "ring-2 ring-primary"
                       : "opacity-80 hover:opacity-100"
@@ -114,6 +118,7 @@ function PhotoLightboxDialog({
                     alt={photo.alt ?? `Thumbnail ${i + 1}`}
                     fill
                     unoptimized
+                    sizes="70px"
                     className="object-cover"
                   />
                 </button>

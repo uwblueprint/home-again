@@ -111,6 +111,9 @@
   --spacing-9xl: var(--9xl);
   --spacing-10xl: var(--10xl);
 
+  /* Component spacing — gap-item-preview, size-item-thumb */
+  --spacing-item-preview: var(--item-preview-gap);
+  --spacing-item-thumb: var(--item-preview-thumb);
 }
 
 /* max-w-{name} fix: our --spacing-{name} tokens override Tailwind's spacing scale

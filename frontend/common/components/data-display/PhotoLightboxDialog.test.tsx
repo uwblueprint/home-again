@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import type { ComponentProps } from "react";
 
 import { PhotoLightboxDialog } from "./PhotoLightboxDialog";
 
@@ -10,7 +11,7 @@ const PHOTOS = [
 ];
 
 function renderDialog(
-  props: Partial<React.ComponentProps<typeof PhotoLightboxDialog>> = {}
+  props: Partial<ComponentProps<typeof PhotoLightboxDialog>> = {}
 ) {
   const onOpenChange = jest.fn();
   render(

@@ -101,7 +101,7 @@ function PhotoLightboxDialog({
                   type="button"
                   onClick={() => setIndex(i)}
                   aria-label={`View photo ${i + 1}`}
-                  aria-current={i === clamped}
+                  aria-current={i === clamped || undefined}
                   className={cn(
                     "relative aspect-square w-full shrink-0 cursor-pointer overflow-hidden rounded-lg bg-muted outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
                     i === clamped

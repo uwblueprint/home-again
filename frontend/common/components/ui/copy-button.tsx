@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ComponentProps } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
 
 import { cn } from "@/common/lib/utils";
 import { Button } from "@/common/components/ui/button";
 
 interface CopyButtonProps extends Omit<
-  React.ComponentProps<typeof Button>,
+  ComponentProps<typeof Button>,
   "children" | "onClick"
 > {
   /** Text written to the clipboard when pressed. */

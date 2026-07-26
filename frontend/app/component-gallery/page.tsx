@@ -13,7 +13,14 @@ import {
   SquarePen,
   Trash2,
 } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
 import { FormBreadcrumb } from "@/common/components/forms";
+import {
+  BigToggleButton,
+  SearchBar,
+  DataTable,
+  DataTableColumnHeader,
+} from "@/common/components/data-display";
 import {
   Avatar,
   AvatarFallback,
@@ -92,6 +99,12 @@ import {
   UnconfirmedBadge,
   ConfirmedBadge,
 } from "@/common/components/status-labels";
+import {
+  ApproveItemDialog,
+  DonationItemPreview,
+  RejectItemDialog,
+  type DonationItem,
+} from "@/app/donation-request/components";
 import { cn } from "@/common/lib/utils";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
@@ -114,8 +127,7 @@ function ComponentRow({
   name: string;
   children: ReactNode;
 }) {
-  const alignTop =
-    name === "Admin sidebar" || name === "Agent sidebar";
+  const alignTop = name === "Admin sidebar" || name === "Agent sidebar";
 
   return (
     <div
@@ -156,6 +168,30 @@ function AvatarDemo() {
 
 function BadgeDemo() {
   return <Badge variant="outline">Sample badge</Badge>;
+}
+
+function BigToggleButtonDemo() {
+  const [selected, setSelected] = useState("pending");
+
+  const options = [
+    { value: "pending", count: 15, label: "Pending" },
+    { value: "delivered", count: 8, label: "Delivered" },
+  ];
+
+  return (
+    <div className="flex w-full flex-wrap gap-lg">
+      {options.map((option) => (
+        <BigToggleButton
+          key={option.value}
+          count={option.count}
+          label={option.label}
+          selected={option.value === selected}
+          className="max-w-65"
+          onClick={() => setSelected(option.value)}
+        />
+      ))}
+    </div>
+  );
 }
 
 function StatusLabelsDemo() {
@@ -428,11 +464,42 @@ function DialogDemo() {
           )}
         </DialogBody>
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>Button</DialogClose>
+          <DialogClose render={<Button variant="outline" />}>
+            Button
+          </DialogClose>
           <Button>Button</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+const SAMPLE_DONATION_ITEM: DonationItem = {
+  title: "Dining table & chairs / set",
+  condition: "No Stains",
+};
+
+function DonationItemPreviewDemo() {
+  return (
+    <DonationItemPreview {...SAMPLE_DONATION_ITEM} className="w-full max-w-md" />
+  );
+}
+
+function ApproveItemDialogDemo() {
+  return (
+    <ApproveItemDialog
+      trigger={<Button variant="outline">Approve item</Button>}
+      item={SAMPLE_DONATION_ITEM}
+    />
+  );
+}
+
+function RejectItemDialogDemo() {
+  return (
+    <RejectItemDialog
+      trigger={<Button variant="outline">Reject item</Button>}
+      item={SAMPLE_DONATION_ITEM}
+    />
   );
 }
 
@@ -680,6 +747,16 @@ function AgentSidebarDemo() {
       sidebar={<AgentSidebar />}
       heightClassName="h-[28rem]"
     />
+  );
+}
+
+function SearchBarDemo() {
+  const [value, setValue] = useState("");
+
+  return (
+    <div className="w-full max-w-md rounded-md border border-border bg-card p-sm">
+      <SearchBar value={value} onChange={setValue} placeholder="Search" />
+    </div>
   );
 }
 
@@ -1026,6 +1103,119 @@ function MultiStepLayoutDemo() {
   );
 }
 
+interface ReferralRow {
+  id: string;
+  clientName: string;
+  referralId: string;
+  caseAgent: string;
+  creationDate: string;
+  status: "Pending" | "Delivered" | "Scheduled" | "Rejected";
+}
+
+const REFERRAL_STATUS_STYLES: Record<ReferralRow["status"], string> = {
+  Pending: "bg-amber-100 text-amber-900",
+  Delivered: "bg-green-100 text-green-900",
+  Scheduled: "bg-blue-100 text-blue-900",
+  Rejected: "bg-red-100 text-red-900",
+};
+
+function ReferralStatusBadge({ status }: { status: ReferralRow["status"] }) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-lg px-xs py-[2px] text-paragraph-small font-normal ${REFERRAL_STATUS_STYLES[status]}`}
+    >
+      {status}
+    </span>
+  );
+}
+
+const REFERRAL_STATUSES: ReferralRow["status"][] = [
+  "Pending",
+  "Delivered",
+  "Scheduled",
+  "Rejected",
+];
+
+function makeReferralRows(): ReferralRow[] {
+  return Array.from({ length: 23 }, (_, i) => ({
+    id: String(i),
+    clientName: "Jane Doe",
+    referralId: "WCYIECNIE",
+    caseAgent: "WX",
+    creationDate: "23 March 2026",
+    status: REFERRAL_STATUSES[i % REFERRAL_STATUSES.length],
+  }));
+}
+
+const referralColumns: ColumnDef<ReferralRow>[] = [
+  {
+    accessorKey: "clientName",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Client Name" />
+    ),
+  },
+  {
+    accessorKey: "referralId",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Referral ID" />
+    ),
+  },
+  {
+    accessorKey: "caseAgent",
+    header: "Case Agents",
+    cell: ({ getValue }) => (
+      <div className="flex size-[30px] items-center justify-center rounded-full bg-muted text-paragraph-mini font-semibold text-black">
+        {getValue<string>()}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "creationDate",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Creation Date" />
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    filterFn: (row, columnId, filterValue: string[]) =>
+      filterValue.includes(row.getValue(columnId)),
+    cell: ({ getValue }) => (
+      <ReferralStatusBadge status={getValue<ReferralRow["status"]>()} />
+    ),
+  },
+];
+
+function DataTableDemo() {
+  const [data] = useState(makeReferralRows);
+
+  return (
+    <div className="w-full">
+      <DataTable
+        columns={referralColumns}
+        data={data}
+        searchPlaceholder="Search"
+        filters={[
+          {
+            columnId: "status",
+            title: "Filter",
+            options: REFERRAL_STATUSES.map((status) => ({
+              label: status,
+              value: status,
+            })),
+          },
+        ]}
+        toolbarActions={
+          <Button size="default">
+            <Plus className="size-4" data-icon="inline-start" />
+            New client referral
+          </Button>
+        }
+      />
+    </div>
+  );
+}
+
 // ─── registry ─────────────────────────────────────────────────────────────────
 // To add a base component: add an entry to BASE_COMPONENTS.
 // To add a composed component: add an entry to COMPOSED_COMPONENTS.
@@ -1043,6 +1233,7 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Input", Demo: InputDemo },
   { name: "Label", Demo: LabelDemo },
   { name: "Select", Demo: SelectDemo },
+  { name: "SearchBar", Demo: SearchBarDemo },
   { name: "Admin sidebar", Demo: AdminSidebarDemo },
   { name: "Agent sidebar", Demo: AgentSidebarDemo },
   { name: "SortMenu", Demo: SortMenuDemo },
@@ -1055,12 +1246,17 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
 
 const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Agent Hover", Demo: AgentHoverDemo },
+  { name: "DonationItemPreview", Demo: DonationItemPreviewDemo },
+  { name: "ApproveItemDialog", Demo: ApproveItemDialogDemo },
+  { name: "RejectItemDialog", Demo: RejectItemDialogDemo },
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
   { name: "FurnitureItemCard", Demo: FurnitureItemCardDemo },
   { name: "Header", Demo: HeaderDemo },
   { name: "Footer", Demo: FooterDemo },
   { name: "MultiStepLayout", Demo: MultiStepLayoutDemo },
   { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
+  { name: "DataTable", Demo: DataTableDemo },
+  { name: "BigToggleButton", Demo: BigToggleButtonDemo },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

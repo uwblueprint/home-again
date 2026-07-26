@@ -69,6 +69,15 @@ export { RadioGroup, RadioGroupItem } from "./radio-group";
 export { SortMenu } from "./sort-menu";
 export type { SortMenuOption, SortMenuProps } from "./sort-menu";
 export {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "./pagination";
+export {
   Select,
   SelectTrigger,
   SelectValue,

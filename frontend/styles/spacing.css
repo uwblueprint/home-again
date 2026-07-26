@@ -57,4 +57,9 @@
 
     --xl: var(--spacing-absolute-6);
     --xs: var(--spacing-absolute-2);
+
+    /* Collection: component spacing
+     * Sizes the design calls for that fall between steps of the scale above. */
+    --item-preview-gap: var(--scale-hacks-10);
+    --item-preview-thumb: 3.25rem;
 }

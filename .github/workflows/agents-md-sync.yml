@@ -1,0 +1,33 @@
+name: Check AGENTS.md matches CLAUDE.md
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "frontend/AGENTS.md"
+      - "frontend/CLAUDE.md"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "frontend/AGENTS.md"
+      - "frontend/CLAUDE.md"
+
+jobs:
+  check-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify AGENTS.md is identical to CLAUDE.md
+        run: |
+          if ! diff -q frontend/CLAUDE.md frontend/AGENTS.md; then
+            echo "::error::frontend/AGENTS.md and frontend/CLAUDE.md have diverged. They must be kept identical."
+            echo "Sync them by copying one over the other, e.g.:"
+            echo "  cp frontend/CLAUDE.md frontend/AGENTS.md"
+            diff frontend/CLAUDE.md frontend/AGENTS.md || true
+            exit 1
+          fi
+          echo "AGENTS.md and CLAUDE.md are in sync."

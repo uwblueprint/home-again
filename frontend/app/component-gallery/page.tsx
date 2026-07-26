@@ -76,6 +76,7 @@ import {
   FurnitureItemCard,
   Header,
   Footer,
+  DatePicker,
 } from "@/common/components/forms";
 import {
   MultiStepLayout,
@@ -886,6 +887,12 @@ function SelectAndComboDemo() {
   );
 }
 
+function DatePickerDemo() {
+  const [date, setDate] = useState<Date>();
+
+  return <DatePicker date={date} onDateChange={setDate} />;
+}
+
 function HeaderDemo() {
   return (
     <div className="w-[50vw] overflow-hidden rounded-md border border-border bg-card">
@@ -1081,6 +1088,7 @@ const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "ApproveItemDialog", Demo: ApproveItemDialogDemo },
   { name: "RejectItemDialog", Demo: RejectItemDialogDemo },
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
+  { name: "DatePicker", Demo: DatePickerDemo },
   { name: "FurnitureItemCard", Demo: FurnitureItemCardDemo },
   { name: "Header", Demo: HeaderDemo },
   { name: "Footer", Demo: FooterDemo },

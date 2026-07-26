@@ -1,9 +1,12 @@
 import type { DonationRequest } from "./types";
 
-/** Five stable placeholder photo URLs for an item, keyed by a seed. */
-function samplePhotos(seed: string) {
+/**
+ * Five placeholder photos for an item — the same furniture shot repeated, as in
+ * the review frames, so the strip reads as one item's photo set.
+ */
+function samplePhotos() {
   return Array.from({ length: 5 }, (_, i) => ({
-    url: `https://picsum.photos/seed/${seed}-${i}/480/480`,
+    url: "/sample-furniture.jpg",
     position: i,
   }));
 }
@@ -34,7 +37,7 @@ export const DONATION_REQUEST_FIXTURE: DonationRequest = {
       status: "PICKUP_PENDING",
       rejection_reason: null,
       rejection_details: null,
-      photos: samplePhotos("dining"),
+      photos: samplePhotos(),
     },
     {
       id: "item-sofa",
@@ -43,7 +46,7 @@ export const DONATION_REQUEST_FIXTURE: DonationRequest = {
       status: "PICKUP_PENDING",
       rejection_reason: null,
       rejection_details: null,
-      photos: samplePhotos("sofa"),
+      photos: samplePhotos(),
     },
   ],
   pickup: null,

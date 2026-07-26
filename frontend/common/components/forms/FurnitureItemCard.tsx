@@ -183,7 +183,7 @@ export function FurnitureItemCard({
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                className="ml-auto h-8 w-8 rounded-lg border border-border text-muted-foreground hover:bg-muted"
+                className="ml-auto h-8 w-8 rounded-lg border border-border text-muted-foreground"
                 onClick={() => setIsEditingSubOptions(true)}
                 aria-label="Edit sizes"
               >

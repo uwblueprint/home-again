@@ -45,7 +45,7 @@ export const useDonationRequestStore = create<DonationRequestStore>((set) => ({
     set((state) => ({
       request: {
         ...state.request,
-        items: state.request.items.map((item) =>
+        furniture_items: state.request.furniture_items.map((item) =>
           item.id === itemId
             ? {
                 ...item,
@@ -62,7 +62,7 @@ export const useDonationRequestStore = create<DonationRequestStore>((set) => ({
     set((state) => ({
       request: {
         ...state.request,
-        items: state.request.items.map((item) =>
+        furniture_items: state.request.furniture_items.map((item) =>
           item.id === itemId
             ? {
                 ...item,

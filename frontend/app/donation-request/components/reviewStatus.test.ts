@@ -34,10 +34,17 @@ function makeRequest(
       has_pets: false,
       pickup_address: "210 Drake Ave",
     },
-    items,
+    furniture_items: items,
     pickup,
   };
 }
+
+const SCHEDULED_PICKUP: DonationRequest["pickup"] = {
+  id: "p1",
+  scheduled_date: "2026-03-26",
+  note: null,
+  confirmed_at: null,
+};
 
 describe("deriveReviewStatus", () => {
   it("is pending_review when a donation has no items", () => {
@@ -68,14 +75,38 @@ describe("deriveReviewStatus", () => {
     expect(deriveReviewStatus(request)).toBe("reviewed");
   });
 
-  it("is scheduled once a pickup has a date, regardless of item states", () => {
-    const request = makeRequest([makeItem("a", "PICKUP_PENDING")], {
-      id: "p1",
-      scheduled_date: "2026-03-26",
-      note: null,
-      confirmed_at: null,
-    });
+  it("is scheduled once every item is reviewed and a pickup has a date", () => {
+    const request = makeRequest(
+      [makeItem("a", "APPROVED"), makeItem("b", "REJECTED")],
+      SCHEDULED_PICKUP
+    );
     expect(deriveReviewStatus(request)).toBe("scheduled");
+  });
+
+  // Mirrors compute_review_status: "a pickup booked while items are still
+  // outstanding must not hide that they need attention."
+  it("does not let a scheduled pickup mask items still awaiting review", () => {
+    const request = makeRequest(
+      [makeItem("a", "APPROVED"), makeItem("b", "PICKUP_PENDING")],
+      SCHEDULED_PICKUP
+    );
+    expect(deriveReviewStatus(request)).toBe("partially_reviewed");
+  });
+
+  it("does not let a scheduled pickup mask a wholly unreviewed donation", () => {
+    const request = makeRequest(
+      [makeItem("a", "PICKUP_PENDING")],
+      SCHEDULED_PICKUP
+    );
+    expect(deriveReviewStatus(request)).toBe("pending_review");
+  });
+
+  it("treats downstream statuses as not-yet-reviewed, as the backend does", () => {
+    const request = makeRequest([
+      makeItem("a", "APPROVED"),
+      makeItem("b", "OFFERED"),
+    ]);
+    expect(deriveReviewStatus(request)).toBe("partially_reviewed");
   });
 
   it("ignores a pickup with no scheduled date", () => {

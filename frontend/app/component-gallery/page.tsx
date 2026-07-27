@@ -122,12 +122,32 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 function ComponentRow({
   name,
+  fullWidth = false,
   children,
 }: {
   name: string;
+  /** Let the demo use the full row width instead of shrinking to its content — for demos (like DataTable) that are meant to be full-bleed. */
+  fullWidth?: boolean;
   children: ReactNode;
 }) {
   const alignTop = name === "Admin sidebar" || name === "Agent sidebar";
+  const label = (
+    <code className="w-fit shrink-0 rounded-sm border border-border bg-muted px-xs py-[2px] text-caption font-medium text-muted-foreground md:ml-auto">
+      {name}
+    </code>
+  );
+
+  if (fullWidth) {
+    // The label chip competing for row width with the content is exactly
+    // what made this demo look narrower than it should — stack it above
+    // instead so the content can use the full card width.
+    return (
+      <div className="flex flex-col gap-sm rounded-md border border-border bg-card p-md">
+        {label}
+        <div className="w-full">{children}</div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -137,9 +157,7 @@ function ComponentRow({
       )}
     >
       <div className="w-full md:w-auto">{children}</div>
-      <code className="text-caption font-medium bg-muted text-muted-foreground px-xs py-[2px] rounded-sm border border-border w-fit md:ml-auto shrink-0">
-        {name}
-      </code>
+      {label}
     </div>
   );
 }
@@ -1136,13 +1154,39 @@ const REFERRAL_STATUSES: ReferralRow["status"][] = [
   "Rejected",
 ];
 
+const CASE_AGENTS = ["WX", "AL", "JD"];
+
+const CLIENT_NAMES = [
+  "Jane Doe",
+  "Maria Garcia",
+  "Wei Chen",
+  "Amara Okafor",
+  "Liam O'Brien",
+  "Priya Patel",
+  "Noah Kim",
+];
+const REFERRAL_IDS = [
+  "WCYIECNIE",
+  "CURNCEUI",
+  "CEIUNRICR",
+  "PXQTVBNRM",
+  "HLMZKFDWA",
+];
+const CREATION_DATES = [
+  "23 March 2026",
+  "2 April 2026",
+  "15 April 2026",
+  "30 April 2026",
+  "9 May 2026",
+];
+
 function makeReferralRows(): ReferralRow[] {
   return Array.from({ length: 23 }, (_, i) => ({
     id: String(i),
-    clientName: "Jane Doe",
-    referralId: "WCYIECNIE",
-    caseAgent: "WX",
-    creationDate: "23 March 2026",
+    clientName: CLIENT_NAMES[i % CLIENT_NAMES.length],
+    referralId: REFERRAL_IDS[i % REFERRAL_IDS.length],
+    caseAgent: CASE_AGENTS[i % CASE_AGENTS.length],
+    creationDate: CREATION_DATES[i % CREATION_DATES.length],
     status: REFERRAL_STATUSES[i % REFERRAL_STATUSES.length],
   }));
 }
@@ -1178,6 +1222,8 @@ const referralColumns: ColumnDef<ReferralRow>[] = [
   {
     accessorKey: "status",
     header: "Status",
+    // Both subtabs and the Filter dropdown target this column, so both
+    // write/read a string[] — see DataTableToolbar's subtabs handling.
     filterFn: (row, columnId, filterValue: string[]) =>
       filterValue.includes(row.getValue(columnId)),
     cell: ({ getValue }) => (
@@ -1188,13 +1234,21 @@ const referralColumns: ColumnDef<ReferralRow>[] = [
 
 function DataTableDemo() {
   const [data] = useState(makeReferralRows);
+  const [selectedRow, setSelectedRow] = useState<ReferralRow | null>(null);
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-md">
       <DataTable
         columns={referralColumns}
         data={data}
         searchPlaceholder="Search"
+        subtabs={{
+          columnId: "status",
+          options: REFERRAL_STATUSES.map((status) => ({
+            label: status,
+            value: status,
+          })),
+        }}
         filters={[
           {
             columnId: "status",
@@ -1205,6 +1259,7 @@ function DataTableDemo() {
             })),
           },
         ]}
+        onRowClick={setSelectedRow}
         toolbarActions={
           <Button size="default">
             <Plus className="size-4" data-icon="inline-start" />
@@ -1212,6 +1267,11 @@ function DataTableDemo() {
           </Button>
         }
       />
+      {selectedRow && (
+        <p className="text-paragraph-small text-muted-foreground">
+          Selected: {selectedRow.clientName} ({selectedRow.referralId})
+        </p>
+      )}
     </div>
   );
 }
@@ -1244,7 +1304,11 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Tooltip", Demo: TooltipDemo },
 ];
 
-const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
+const COMPOSED_COMPONENTS: {
+  name: string;
+  Demo: () => ReactNode;
+  fullWidth?: boolean;
+}[] = [
   { name: "Agent Hover", Demo: AgentHoverDemo },
   { name: "DonationItemPreview", Demo: DonationItemPreviewDemo },
   { name: "ApproveItemDialog", Demo: ApproveItemDialogDemo },
@@ -1255,7 +1319,7 @@ const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Footer", Demo: FooterDemo },
   { name: "MultiStepLayout", Demo: MultiStepLayoutDemo },
   { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
-  { name: "DataTable", Demo: DataTableDemo },
+  { name: "DataTable", Demo: DataTableDemo, fullWidth: true },
   { name: "BigToggleButton", Demo: BigToggleButtonDemo },
 ];
 
@@ -1294,8 +1358,8 @@ export default function ComponentsPage() {
             </p>
           ) : (
             <div className="space-y-sm">
-              {COMPOSED_COMPONENTS.map(({ name, Demo }) => (
-                <ComponentRow key={name} name={name}>
+              {COMPOSED_COMPONENTS.map(({ name, Demo, fullWidth }) => (
+                <ComponentRow key={name} name={name} fullWidth={fullWidth}>
                   <Demo />
                 </ComponentRow>
               ))}

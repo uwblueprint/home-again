@@ -84,6 +84,7 @@ import {
   Header,
   Footer,
 } from "@/common/components/forms";
+import { AgentHover } from "@/common/components/agents";
 import {
   MultiStepLayout,
   type Step,
@@ -932,6 +933,17 @@ function FurnitureItemCardDemo() {
   );
 }
 
+function AgentHoverDemo() {
+  return (
+    <TooltipProvider delay={0}>
+      <div className="flex flex-wrap items-end gap-md py-16">
+        <AgentHover firstName="Wanyun" lastName="Xue" role="primary" />
+        <AgentHover firstName="Alex" lastName="Morgan" role="secondary" />
+      </div>
+    </TooltipProvider>
+  );
+}
+
 function SelectAndComboDemo() {
   const [value, setValue] = useState(2);
 
@@ -1292,11 +1304,8 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Tooltip", Demo: TooltipDemo },
 ];
 
-const COMPOSED_COMPONENTS: {
-  name: string;
-  Demo: () => ReactNode;
-  fullWidth?: boolean;
-}[] = [
+const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
+  { name: "Agent Hover", Demo: AgentHoverDemo },
   { name: "DonationItemPreview", Demo: DonationItemPreviewDemo },
   { name: "ApproveItemDialog", Demo: ApproveItemDialogDemo },
   { name: "RejectItemDialog", Demo: RejectItemDialogDemo },

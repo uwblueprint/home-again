@@ -1304,7 +1304,11 @@ const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Tooltip", Demo: TooltipDemo },
 ];
 
-const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
+const COMPOSED_COMPONENTS: {
+  name: string;
+  Demo: () => ReactNode;
+  fullWidth?: boolean;
+}[] = [
   { name: "Agent Hover", Demo: AgentHoverDemo },
   { name: "DonationItemPreview", Demo: DonationItemPreviewDemo },
   { name: "ApproveItemDialog", Demo: ApproveItemDialogDemo },

@@ -6,12 +6,10 @@ import type { Column } from "@tanstack/react-table";
 import { cn } from "@/common/lib/utils";
 import { Button } from "@/common/components/ui/button";
 
-interface DataTableColumnHeaderProps<
-  TData,
-  TValue,
-> extends React.HTMLAttributes<HTMLDivElement> {
+interface DataTableColumnHeaderProps<TData, TValue> {
   column: Column<TData, TValue>;
   title: string;
+  className?: string;
 }
 
 /**

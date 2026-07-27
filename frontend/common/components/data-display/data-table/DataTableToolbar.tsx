@@ -67,23 +67,38 @@ export function DataTableToolbar<TData>({
 
   if (subtabs) {
     const column = table.getColumn(subtabs.columnId);
+
+    if (!column) {
+      return (
+        <div className="flex w-full items-center justify-between gap-sm">
+          {search}
+          {filterControls}
+        </div>
+      );
+    }
+
     // Stored as string[] (not a lone string) so this column can also be
     // targeted by a multi-select `filters` entry at the same time — see the
     // README's "Subtabs" section for why the shapes have to match. A tab
     // click replaces the whole array with its one value; "All" shows active
-    // whenever zero or more-than-one values are selected (e.g. via filters).
-    const filterValue = column?.getFilterValue() as string[] | undefined;
+    // whenever zero or more-than-one values are selected (e.g. via filters,
+    // or another column filter entirely that happens to write a non-array
+    // value — hence the Array.isArray guard rather than a blind cast).
+    const rawFilterValue = column.getFilterValue();
+    const filterValue = Array.isArray(rawFilterValue)
+      ? (rawFilterValue as string[])
+      : undefined;
     const activeValue =
       filterValue?.length === 1 ? filterValue[0] : ALL_SUBTAB_VALUE;
-    const facets = column?.getFacetedUniqueValues();
-    const totalRows = column?.getFacetedRowModel().rows.length ?? 0;
+    const facets = column.getFacetedUniqueValues();
+    const totalRows = column.getFacetedRowModel().rows.length;
 
     return (
       <div className="flex w-full items-center justify-between gap-sm">
         <SubTabs
           value={activeValue}
           onValueChange={(value) =>
-            column?.setFilterValue(
+            column.setFilterValue(
               value === ALL_SUBTAB_VALUE ? undefined : [value]
             )
           }
@@ -94,7 +109,7 @@ export function DataTableToolbar<TData>({
             </SubTabsTrigger>
             {subtabs.options.map((option) => (
               <SubTabsTrigger key={option.value} value={option.value}>
-                {option.label} ({facets?.get(option.value) ?? 0})
+                {option.label} ({facets.get(option.value) ?? 0})
               </SubTabsTrigger>
             ))}
           </SubTabsList>

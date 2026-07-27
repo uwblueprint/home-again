@@ -75,22 +75,23 @@ export function DataTableFacetedFilter<TData, TValue>({
           return (
             <DropdownMenuItem
               key={option.value}
+              role="menuitemcheckbox"
+              aria-checked={isSelected}
               closeOnClick={false}
               onClick={() => toggleValue(option.value)}
             >
-              <Checkbox checked={isSelected} tabIndex={-1} />
+              <Checkbox checked={isSelected} tabIndex={-1} aria-hidden />
               <span>{option.label}</span>
             </DropdownMenuItem>
           );
         })}
         {selectedValues.length > 0 && (
-          <button
-            type="button"
+          <DropdownMenuItem
             onClick={() => column?.setFilterValue(undefined)}
-            className="w-full pt-xs text-right text-paragraph-small text-foreground underline"
+            className="justify-end text-right text-paragraph-small text-foreground underline"
           >
             Clear
-          </button>
+          </DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { format } from "date-fns";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, CalendarIcon } from "lucide-react";
 
 import { Button } from "@/common/components/ui/button";
 import { Calendar } from "@/common/components/ui/calendar";
@@ -32,7 +32,10 @@ export function DatePicker({
             data-empty={!date}
             className="w-[212px] justify-between text-left font-normal data-[empty=true]:text-muted-foreground"
           >
-            {date ? format(date, "PPP") : <span>{placeholder}</span>}
+            <span className="flex items-center gap-xs">
+              <CalendarIcon className="size-4" />
+              {date ? format(date, "PPP") : <span>{placeholder}</span>}
+            </span>
             <ChevronDownIcon data-icon="inline-end" />
           </Button>
         }
@@ -43,6 +46,7 @@ export function DatePicker({
           selected={date}
           onSelect={onDateChange}
           defaultMonth={date}
+          captionLayout="dropdown-months"
         />
       </PopoverContent>
     </Popover>

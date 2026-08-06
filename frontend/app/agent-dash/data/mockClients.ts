@@ -211,7 +211,7 @@ export function getClientReferralHistory(
 
   const base = row.mostRecentReferralAt;
 
-  return [
+  const fallback: ClientReferralHistoryItem[] = [
     {
       id: "1",
       referralId: "SDCRFVRFSD",
@@ -228,7 +228,9 @@ export function getClientReferralHistory(
       status: "Rejected",
       createdAt: base - 7 * 86_400_000,
     },
-  ].sort((a, b) => b.createdAt - a.createdAt);
+  ];
+
+  return fallback.sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export const CLIENT_STATUSES: ClientStatus[] = [

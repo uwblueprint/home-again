@@ -6,9 +6,12 @@ export { DataTable } from "./data-table/DataTable";
 export type {
   DataTableFilterConfig,
   DataTableFilterOption,
+  DataTableSortOption,
+  DataTableSortOptionConfig,
 } from "./data-table/DataTable";
 export { DataTableColumnHeader } from "./data-table/DataTableColumnHeader";
 export { DataTableFacetedFilter } from "./data-table/DataTableFacetedFilter";
 export { SearchBar } from "./SearchBar";
+export { HighlightText, DataTableSearchEmptyState } from "./HighlightText";
 export { DataTableToolbar } from "./data-table/DataTableToolbar";
 export { DataTablePagination } from "./data-table/DataTablePagination";

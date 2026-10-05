@@ -123,6 +123,12 @@ export {
 } from "./sidebar";
 export { Skeleton } from "./skeleton";
 export { StepIndicator } from "./step-indicator";
+export {
+  SubTabs,
+  SubTabsList,
+  SubTabsTrigger,
+  SubTabsContent,
+} from "./subtabs";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 export { Textarea } from "./textarea";
 export {

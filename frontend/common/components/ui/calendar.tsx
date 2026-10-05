@@ -10,7 +10,7 @@ import {
 
 import { cn } from "@/common/lib/utils"
 import { Button, buttonVariants } from "@/common/components/ui/button"
-import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
+import { ArrowLeftIcon, ArrowRightIcon, ChevronDownIcon } from "lucide-react"
 
 function Calendar({
   className,
@@ -73,8 +73,7 @@ function Calendar({
           defaultClassNames.dropdowns
         ),
         dropdown_root: cn(
-          // Reads as plain text; the select box only appears on hover/focus
-          "relative flex min-h-8 items-center rounded-lg border border-transparent px-xs transition-colors hover:border-[var(--unofficial-border-3)] hover:bg-input hover:shadow-[var(--shadow-xs)] has-focus-visible:border-ring has-focus-visible:ring-3 has-focus-visible:ring-ring/50",
+          "relative flex min-h-8 items-center rounded-lg border border-[var(--unofficial-border-3)] bg-input px-xs py-[var(--scale-hacks-5p5)] shadow-[var(--shadow-xs)] transition-colors hover:bg-accent has-focus-visible:border-ring has-focus-visible:ring-3 has-focus-visible:ring-ring/50",
           defaultClassNames.dropdown_root
         ),
         dropdown: cn(
@@ -85,7 +84,7 @@ function Calendar({
           "font-medium select-none",
           captionLayout === "label"
             ? "text-sm"
-            : "flex items-center text-sm font-normal",
+            : "flex items-center gap-[var(--scale-hacks-6)] text-sm font-normal [&>svg]:text-muted-foreground",
           defaultClassNames.caption_label
         ),
         month_grid: cn("w-full border-collapse", defaultClassNames.month_grid),
@@ -158,8 +157,9 @@ function Calendar({
             )
           }
 
-          // No chevron on the month/year dropdowns; hover styling signals they're editable
-          return <></>
+          return (
+            <ChevronDownIcon className={cn("size-4", className)} {...props} />
+          )
         },
         DayButton: ({ ...props }) => (
           <CalendarDayButton locale={locale} {...props} />

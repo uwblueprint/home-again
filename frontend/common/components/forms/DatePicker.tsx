@@ -35,6 +35,7 @@ export function DatePicker({
       <PopoverContent
         className="w-(--anchor-width) border border-border p-md shadow-[var(--shadow-md)] ring-0"
         align="start"
+        sideOffset={8}
       >
         <Calendar
           className="p-0"

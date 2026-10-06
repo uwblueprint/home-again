@@ -26,6 +26,20 @@ interface AgentDashStatusBadgeProps {
   className?: string;
 }
 
+export function PriorityLabel({ className }: { className?: string }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-lg bg-background px-xs py-[2px] text-paragraph-small font-medium text-orange-600",
+        className
+      )}
+    >
+      <span aria-hidden className="size-[5px] rounded-full bg-current" />
+      Priority
+    </span>
+  );
+}
+
 export function AgentDashStatusBadge({
   status,
   date,

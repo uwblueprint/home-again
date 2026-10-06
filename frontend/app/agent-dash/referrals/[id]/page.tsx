@@ -10,7 +10,10 @@ import {
   type CaseAgentDetails,
 } from "@/app/agent-dash/data/mockReferralDetails";
 import { InformationBlock } from "@/common/components/data-display";
-import { AgentDashStatusBadge } from "@/common/components/status-labels";
+import {
+  AgentDashStatusBadge,
+  PriorityLabel,
+} from "@/common/components/status-labels";
 import { Badge } from "@/common/components/ui/badge";
 import { AGENT_DASH } from "@/common/constants";
 
@@ -69,11 +72,7 @@ export default async function ReferralDetailsPage({
       }
       aside={
         <div className="flex flex-wrap items-center gap-xs">
-          {row.isPriority ? (
-            <Badge className="rounded-lg border-transparent bg-orange-100 font-normal text-orange-900">
-              + Priority
-            </Badge>
-          ) : null}
+          {row.isPriority ? <PriorityLabel /> : null}
           <AgentDashStatusBadge status={row.status} date={row.statusDate} />
         </div>
       }
@@ -168,10 +167,7 @@ export default async function ReferralDetailsPage({
                 {item.sizeTags?.length ? (
                   <div className="flex flex-wrap gap-xs">
                     {item.sizeTags.map((tag) => (
-                      <Badge
-                        key={tag}
-                        className="rounded-lg border-transparent bg-lime-100 font-normal text-lime-900"
-                      >
+                      <Badge key={tag} variant="tag">
                         {tag}
                       </Badge>
                     ))}

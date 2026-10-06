@@ -5,8 +5,8 @@ type HighlightTextProps = {
 };
 
 /**
- * Highlights case-insensitive substrings matching `query` using the
- * unofficial secondary hover token from the design system.
+ * Highlights case-insensitive substrings matching `query`. Uses `bg-muted`
+ * so the mark stays visible on both white rows and hovered (`bg-muted/50`) rows.
  */
 export function HighlightText({ text, query, className }: HighlightTextProps) {
   const trimmed = query?.trim() ?? "";
@@ -22,7 +22,7 @@ export function HighlightText({ text, query, className }: HighlightTextProps) {
         part.isMatch ? (
           <mark
             key={`${part.value}-${index}`}
-            className="rounded-sm bg-[var(--unofficial-secondary-hover)] text-inherit"
+            className="rounded-sm bg-muted text-inherit"
           >
             {part.value}
           </mark>

@@ -2,7 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, type FormEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { SearchBar } from "@/common/components/data-display";
@@ -30,21 +36,46 @@ function getActiveItem(pathname: string): AgentSidebarActiveItem | undefined {
   return undefined;
 }
 
+const SEARCH_DEBOUNCE_MS = 250;
+
 export function AgentDashShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const user = useAuthStore((state) => state.user);
   const [findQuery, setFindQuery] = useState("");
+  const searchTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const initials = user
     ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
     : "";
 
+  useEffect(() => () => clearTimeout(searchTimer.current), []);
+
+  function showResults(value: string) {
+    clearTimeout(searchTimer.current);
+    const query = value.trim();
+    const onSearchPage = pathname === AGENT_DASH_SEARCH;
+    if (!query && !onSearchPage) return;
+
+    const href = query
+      ? `${AGENT_DASH_SEARCH}?q=${encodeURIComponent(query)}`
+      : AGENT_DASH_SEARCH;
+    // Replace while already on the search page so each keystroke doesn't add a history entry.
+    if (onSearchPage) router.replace(href);
+    else router.push(href);
+  }
+
+  function handleSearchChange(value: string) {
+    setFindQuery(value);
+    clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(
+      () => showResults(value),
+      SEARCH_DEBOUNCE_MS
+    );
+  }
+
   function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const query = findQuery.trim();
-    if (query) {
-      router.push(`${AGENT_DASH_SEARCH}?q=${encodeURIComponent(query)}`);
-    }
+    showResults(findQuery);
   }
 
   return (
@@ -67,7 +98,7 @@ export function AgentDashShell({ children }: { children: ReactNode }) {
             <form onSubmit={handleSearchSubmit}>
               <SearchBar
                 value={findQuery}
-                onChange={setFindQuery}
+                onChange={handleSearchChange}
                 placeholder="Find anything"
                 className="w-64 max-w-none sm:w-80"
               />

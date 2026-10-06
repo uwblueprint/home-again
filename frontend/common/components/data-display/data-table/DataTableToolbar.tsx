@@ -58,7 +58,7 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   return (
     <div className="flex w-full flex-wrap items-center justify-between gap-sm">
-      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-xs">
+      <div className="flex flex-1 flex-wrap items-center gap-xs">
         {leading}
       </div>
       <div className="flex shrink-0 items-center gap-xs">

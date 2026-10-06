@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { BigToggleButton } from "@/common/components/data-display";
+import { Tabs, TabsList, TabsTrigger } from "@/common/components/ui/tabs";
 import { cn } from "@/common/lib/utils";
 
 /** Single-select status filter shared by the cards and pills on list pages. */
@@ -79,23 +80,17 @@ export function StatusPills<TStatus extends string>({
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-xs">
-      {pills.map((pill) => (
-        <button
-          key={pill.value}
-          type="button"
-          aria-pressed={filter === pill.value}
-          onClick={() => onFilterChange(pill.value)}
-          className={cn(
-            "rounded-lg px-sm py-xs text-paragraph-small font-medium transition-colors",
-            filter === pill.value
-              ? "bg-muted text-foreground"
-              : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-          )}
-        >
-          {pill.label} ({pill.count})
-        </button>
-      ))}
-    </div>
+    <Tabs
+      value={filter}
+      onValueChange={(value: TStatus | "all") => onFilterChange(value)}
+    >
+      <TabsList variant="segmented">
+        {pills.map((pill) => (
+          <TabsTrigger key={pill.value} value={pill.value}>
+            {pill.label} ({pill.count})
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 }

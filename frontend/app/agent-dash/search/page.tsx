@@ -134,8 +134,8 @@ export default function UniversalSearchPage({
   if (hits.length === 0) {
     return (
       <SearchMessage>
-        <p className="text-heading-3 font-semibold text-muted-foreground">
-          No results found for &apos;{query}&apos;
+        <p className="text-paragraph-large font-normal text-foreground">
+          No results found for &ldquo;{query}&rdquo;
         </p>
       </SearchMessage>
     );

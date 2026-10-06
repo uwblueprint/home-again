@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
+  type VisibilityState,
   type Row,
+  type RowData,
   type SortingState,
   flexRender,
   getCoreRowModel,
@@ -29,11 +31,25 @@ import {
 import {
   DataTableToolbar,
   type DataTableFilterConfig,
+  type DataTableSortOption,
 } from "./DataTableToolbar";
 import { DataTablePagination } from "./DataTablePagination";
 
 export type { DataTableFilterConfig } from "./DataTableToolbar";
 export type { DataTableFilterOption } from "./DataTableFacetedFilter";
+
+declare module "@tanstack/react-table" {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface TableMeta<TData extends RowData> {
+    /** Current search query, for highlighting matches in cells. */
+    globalFilter?: string;
+  }
+}
+
+export type DataTableSortOptionConfig = DataTableSortOption & {
+  /** TanStack sorting state applied when this option is selected. */
+  sorting: SortingState;
+};
 
 /** Matches a row if any cell's stringified value contains the search term. */
 function globalSubstringFilter<TData>(
@@ -41,7 +57,7 @@ function globalSubstringFilter<TData>(
   _columnId: string,
   filterValue: string
 ) {
-  const search = filterValue.toLowerCase();
+  const search = filterValue.trim().toLowerCase();
   return row.getAllCells().some((cell) =>
     String(cell.getValue() ?? "")
       .toLowerCase()
@@ -57,9 +73,18 @@ interface DataTableProps<TData, TValue> {
   emptyStateMessage?: string;
   searchPlaceholder?: string;
   filters?: DataTableFilterConfig[];
+  /** Sort menu options; the first one is applied by default. */
+  sortOptions?: DataTableSortOptionConfig[];
+  header?: ReactNode;
+  toolbarLeading?: ReactNode;
   toolbarActions?: React.ReactNode;
   onRowClick?: (row: TData) => void;
+  /** Highlights this query in cells without filtering rows. */
+  highlightQuery?: string;
   pageSize?: number;
+  initialColumnVisibility?: VisibilityState;
+  hideToolbar?: boolean;
+  hidePagination?: boolean;
   testId?: string;
 }
 
@@ -71,13 +96,28 @@ export function DataTable<TData, TValue>({
   emptyStateMessage = "No results found",
   searchPlaceholder,
   filters,
+  sortOptions,
+  header,
+  toolbarLeading,
   toolbarActions,
   onRowClick,
+  highlightQuery,
   pageSize = 10,
+  initialColumnVisibility = {},
+  hideToolbar = false,
+  hidePagination = false,
   testId = "data-table",
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sortValue, setSortValue] = useState<string | null>(
+    sortOptions?.[0]?.value ?? null
+  );
+  const [sorting, setSorting] = useState<SortingState>(
+    sortOptions?.[0]?.sorting ?? []
+  );
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    initialColumnVisibility
+  );
   const [globalFilter, setGlobalFilter] = useState("");
 
   const tableColumns = onRowClick
@@ -96,9 +136,10 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns: tableColumns,
-    state: { sorting, columnFilters, globalFilter },
+    state: { sorting, columnFilters, columnVisibility, globalFilter },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: globalSubstringFilter,
     getCoreRowModel: getCoreRowModel(),
@@ -108,96 +149,159 @@ export function DataTable<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getPaginationRowModel: getPaginationRowModel(),
     initialState: { pagination: { pageSize } },
+    meta: { globalFilter: highlightQuery ?? globalFilter },
   });
+
+  const handleSortChange = (value: string) => {
+    const option = sortOptions?.find((item) => item.value === value);
+    if (!option) return;
+    setSortValue(value);
+    setSorting(option.sorting);
+  };
+
+  const handleSortReset = () => {
+    setSortValue(null);
+    setSorting([]);
+  };
+
+  const hasRows = table.getRowModel().rows.length > 0;
+  const trimmedSearch = globalFilter.trim();
+  const showSearchEmpty = !loading && !error && !hasRows && !!trimmedSearch;
+  const { pageIndex } = table.getState().pagination;
 
   return (
     <div
       className="flex w-full flex-col gap-xl rounded-xl border border-border p-xl shadow-xs"
       data-testid={testId}
     >
-      <DataTableToolbar
-        table={table}
-        searchPlaceholder={searchPlaceholder}
-        filters={filters}
-        actions={toolbarActions}
-      />
+      {header}
 
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="border-border">
-              {headerGroup.headers.map((header) => (
-                <TableHead
-                  key={header.id}
-                  className="h-auto px-xs py-3.5 text-paragraph-small font-medium text-foreground"
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
+      {hideToolbar ? null : (
+        <DataTableToolbar
+          table={table}
+          searchPlaceholder={searchPlaceholder}
+          filters={filters}
+          sortOptions={sortOptions}
+          sortValue={sortValue}
+          onSortChange={sortOptions ? handleSortChange : undefined}
+          onSortReset={sortOptions ? handleSortReset : undefined}
+          leading={toolbarLeading}
+          actions={toolbarActions}
+        />
+      )}
+
+      {showSearchEmpty ? (
+        <DataTableSearchEmptyState query={trimmedSearch} />
+      ) : (
+        <>
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="border-border">
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className="h-auto px-xs py-3.5 text-paragraph-small font-medium text-foreground"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
               ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {loading ? (
-            <DataTableSkeletonRows columns={tableColumns.length} />
-          ) : error ? (
-            <TableRow>
-              <TableCell
-                colSpan={tableColumns.length}
-                className="h-24 text-center text-destructive"
-              >
-                {error.message || "Error loading data"}
-              </TableCell>
-            </TableRow>
-          ) : table.getRowModel().rows.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                onClick={() => onRowClick?.(row.original)}
-                onKeyDown={
-                  onRowClick
-                    ? (event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          onRowClick(row.original);
-                        }
-                      }
-                    : undefined
-                }
-                role={onRowClick ? "button" : undefined}
-                tabIndex={onRowClick ? 0 : undefined}
-                className={cn("border-border", onRowClick && "cursor-pointer")}
-                data-testid={`${testId}-row-${row.index}`}
-              >
-                {row.getVisibleCells().map((cell) => (
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <DataTableSkeletonRows columns={tableColumns.length} />
+              ) : error ? (
+                <TableRow>
                   <TableCell
-                    key={cell.id}
-                    className="whitespace-nowrap px-xs py-3.5 text-paragraph-small text-foreground"
+                    colSpan={tableColumns.length}
+                    className="h-24 text-center text-destructive"
                   >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    {error.message || "Error loading data"}
                   </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={tableColumns.length}
-                className="h-24 text-center text-muted-foreground"
-              >
-                {emptyStateMessage}
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+                </TableRow>
+              ) : hasRows ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    onClick={() => onRowClick?.(row.original)}
+                    onKeyDown={
+                      onRowClick
+                        ? (event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              onRowClick(row.original);
+                            }
+                          }
+                        : undefined
+                    }
+                    role={onRowClick ? "button" : undefined}
+                    tabIndex={onRowClick ? 0 : undefined}
+                    className={cn(
+                      "border-border",
+                      onRowClick && "cursor-pointer"
+                    )}
+                    data-testid={`${testId}-row-${row.index}`}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        className="whitespace-nowrap px-xs py-3.5 text-paragraph-small text-foreground"
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={tableColumns.length}
+                    className="h-24 text-center text-muted-foreground"
+                  >
+                    {emptyStateMessage}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
 
-      <DataTablePagination table={table} />
+          {hidePagination ? null : (
+            <DataTablePagination
+              pageIndex={pageIndex}
+              pageCount={table.getPageCount()}
+              pageSize={pageSize}
+              totalRows={table.getFilteredRowModel().rows.length}
+              onPageChange={table.setPageIndex}
+            />
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function DataTableSearchEmptyState({ query }: { query: string }) {
+  return (
+    <div
+      className="flex min-h-[280px] flex-col items-center justify-center gap-xs rounded-xl border border-border px-xl py-2xl text-center"
+      data-testid="data-table-search-empty"
+    >
+      <p className="text-heading-3 font-semibold text-muted-foreground">
+        Search not found
+      </p>
+      <p className="text-paragraph-small text-muted-foreground">
+        No results found for &apos;{query}&apos;
+      </p>
     </div>
   );
 }

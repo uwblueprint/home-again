@@ -4,15 +4,11 @@ import { ListFilter } from "lucide-react";
 import type { Column } from "@tanstack/react-table";
 
 import { cn } from "@/common/lib/utils";
-import { Badge } from "@/common/components/ui/badge";
 import { Button } from "@/common/components/ui/button";
+import { Checkbox } from "@/common/components/ui/checkbox";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/common/components/ui/dropdown-menu";
 
@@ -29,8 +25,8 @@ interface DataTableFacetedFilterProps<TData, TValue> {
 }
 
 /**
- * Filter dropdown for a single column, matching the "Filter" toolbar button
- * in the Figma design (list-filter icon + checkbox options with row counts).
+ * Filter dropdown for a single column, matching the Figma "Filter" control:
+ * list-filter icon, "Select all that apply" heading, checkboxes, and Clear.
  */
 export function DataTableFacetedFilter<TData, TValue>({
   column,
@@ -38,7 +34,6 @@ export function DataTableFacetedFilter<TData, TValue>({
   options,
   className,
 }: DataTableFacetedFilterProps<TData, TValue>) {
-  const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(
     (column?.getFilterValue() as string[] | undefined) ?? []
   );
@@ -63,44 +58,50 @@ export function DataTableFacetedFilter<TData, TValue>({
           >
             <ListFilter className="size-4" />
             {title}
-            {selectedValues.size > 0 && (
-              <Badge variant="secondary" className="ml-1 rounded-full">
-                {selectedValues.size}
-              </Badge>
-            )}
           </Button>
         }
       />
-      <DropdownMenuContent align="start" className="min-w-48">
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>{title}</DropdownMenuLabel>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        {options.map((option) => (
-          <DropdownMenuCheckboxItem
-            key={option.value}
-            checked={selectedValues.has(option.value)}
-            onCheckedChange={() => toggleValue(option.value)}
-          >
-            <span className="flex-1">{option.label}</span>
-            {facets?.get(option.value) !== undefined && (
-              <span className="ml-2 font-mono text-xs text-muted-foreground">
-                {facets.get(option.value)}
-              </span>
-            )}
-          </DropdownMenuCheckboxItem>
-        ))}
-        {selectedValues.size > 0 && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem
-              checked={false}
-              onCheckedChange={() => column?.setFilterValue(undefined)}
+      <DropdownMenuContent
+        align="end"
+        side="bottom"
+        collisionAvoidance={{ side: "none", fallbackAxisSide: "none" }}
+        className="min-w-56 p-md"
+      >
+        <p className="mb-sm text-paragraph-small text-muted-foreground">
+          Select all that apply
+        </p>
+
+        <div className="flex flex-col gap-xs">
+          {options.map((option) => {
+            const checked = selectedValues.has(option.value);
+            return (
+              <label
+                key={option.value}
+                className="flex cursor-pointer items-center gap-sm rounded-md px-xs py-xs hover:bg-accent"
+              >
+                <Checkbox
+                  checked={checked}
+                  onCheckedChange={() => toggleValue(option.value)}
+                />
+                <span className="text-paragraph-small text-foreground">
+                  {option.label}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+
+        {selectedValues.size > 0 ? (
+          <div className="mt-sm flex justify-end">
+            <button
+              type="button"
+              onClick={() => column?.setFilterValue(undefined)}
+              className="cursor-pointer text-paragraph-small text-foreground underline"
             >
-              Clear filters
-            </DropdownMenuCheckboxItem>
-          </>
-        )}
+              Clear
+            </button>
+          </div>
+        ) : null}
       </DropdownMenuContent>
     </DropdownMenu>
   );

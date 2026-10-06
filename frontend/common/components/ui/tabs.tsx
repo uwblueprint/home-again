@@ -30,6 +30,7 @@ const tabsListVariants = cva(
       variant: {
         default: "",
         line: "gap-1",
+        segmented: "gap-0 rounded-xl bg-secondary p-1",
       },
     },
     defaultVariants: {
@@ -59,6 +60,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
       data-slot="tabs-trigger"
       className={cn(
         "relative inline-flex h-10 min-h-8 min-w-8 items-center justify-center gap-xs border-b-2 border-transparent px-sm py-xs text-paragraph-regular font-medium whitespace-nowrap text-neutral-400 transition-colors [&:not([data-active])]:hover:text-neutral-500 data-active:border-[var(--brand-purples-700)] data-active:text-foreground group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "group-data-[variant=segmented]/tabs-list:h-auto group-data-[variant=segmented]/tabs-list:min-h-8 group-data-[variant=segmented]/tabs-list:rounded-[var(--radius)] group-data-[variant=segmented]/tabs-list:border-0 group-data-[variant=segmented]/tabs-list:py-[5.5px] group-data-[variant=segmented]/tabs-list:text-paragraph-small group-data-[variant=segmented]/tabs-list:text-foreground group-data-[variant=segmented]/tabs-list:hover:text-foreground group-data-[variant=segmented]/tabs-list:data-active:bg-background group-data-[variant=segmented]/tabs-list:data-active:shadow-[var(--shadow-sm)]",
         className
       )}
       {...props}

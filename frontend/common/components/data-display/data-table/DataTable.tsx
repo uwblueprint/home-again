@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
   type VisibilityState,
   type Row,
+  type RowData,
   type SortingState,
   flexRender,
   getCoreRowModel,
@@ -34,42 +35,34 @@ import {
 } from "./DataTableToolbar";
 import { DataTablePagination } from "./DataTablePagination";
 
-export type { DataTableFilterConfig, DataTableSortOption } from "./DataTableToolbar";
+export type { DataTableFilterConfig } from "./DataTableToolbar";
 export type { DataTableFilterOption } from "./DataTableFacetedFilter";
+
+declare module "@tanstack/react-table" {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface TableMeta<TData extends RowData> {
+    /** Current search query, for highlighting matches in cells. */
+    globalFilter?: string;
+  }
+}
 
 export type DataTableSortOptionConfig = DataTableSortOption & {
   /** TanStack sorting state applied when this option is selected. */
   sorting: SortingState;
 };
 
-/** Matches a row if any cell value or top-level string field contains the search term. */
+/** Matches a row if any cell's stringified value contains the search term. */
 function globalSubstringFilter<TData>(
   row: Row<TData>,
   _columnId: string,
   filterValue: string
 ) {
-  const search = String(filterValue ?? "")
-    .toLowerCase()
-    .trim();
-  if (!search) return true;
-
-  const cellMatches = row.getAllCells().some((cell) => {
-    const value = cell.getValue();
-    if (value == null) return false;
-    if (Array.isArray(value)) {
-      return value.some((item) =>
-        String(item).toLowerCase().includes(search)
-      );
-    }
-    return String(value).toLowerCase().includes(search);
-  });
-  if (cellMatches) return true;
-
-  const original = row.original as Record<string, unknown>;
-  return Object.values(original).some((value) => {
-    if (value == null || typeof value === "object") return false;
-    return String(value).toLowerCase().includes(search);
-  });
+  const search = filterValue.trim().toLowerCase();
+  return row.getAllCells().some((cell) =>
+    String(cell.getValue() ?? "")
+      .toLowerCase()
+      .includes(search)
+  );
 }
 
 interface DataTableProps<TData, TValue> {
@@ -78,30 +71,19 @@ interface DataTableProps<TData, TValue> {
   loading?: boolean;
   error?: Error | null;
   emptyStateMessage?: string;
-  /** Custom empty UI. Receives the current search query when the table has no rows. */
-  emptyState?: ReactNode | ((ctx: { globalFilter: string }) => ReactNode);
   searchPlaceholder?: string;
   filters?: DataTableFilterConfig[];
+  /** Sort menu options; the first one is applied by default. */
   sortOptions?: DataTableSortOptionConfig[];
-  defaultSortValue?: string;
   header?: ReactNode;
   toolbarLeading?: ReactNode;
   toolbarActions?: React.ReactNode;
   onRowClick?: (row: TData) => void;
-  /** Controlled search query. Pair with `onGlobalFilterChange`. */
-  globalFilter?: string;
-  onGlobalFilterChange?: (value: string) => void;
-  /** Fires when the table search query or filtered row count changes. */
-  onSearchStateChange?: (state: {
-    query: string;
-    resultCount: number;
-  }) => void;
+  /** Highlights this query in cells without filtering rows. */
+  highlightQuery?: string;
   pageSize?: number;
-  initialSorting?: SortingState;
   initialColumnVisibility?: VisibilityState;
-  /** Hide the search / filter / sort toolbar (e.g. universal search sections). */
   hideToolbar?: boolean;
-  /** Hide the pagination footer. */
   hidePagination?: boolean;
   testId?: string;
 }
@@ -112,62 +94,31 @@ export function DataTable<TData, TValue>({
   loading = false,
   error = null,
   emptyStateMessage = "No results found",
-  emptyState,
   searchPlaceholder,
   filters,
   sortOptions,
-  defaultSortValue,
   header,
   toolbarLeading,
   toolbarActions,
   onRowClick,
-  globalFilter: controlledGlobalFilter,
-  onGlobalFilterChange,
-  onSearchStateChange,
+  highlightQuery,
   pageSize = 10,
-  initialSorting = [],
   initialColumnVisibility = {},
   hideToolbar = false,
   hidePagination = false,
   testId = "data-table",
 }: DataTableProps<TData, TValue>) {
-  const defaultOption = useMemo(() => {
-    if (!sortOptions?.length) return null;
-    return (
-      sortOptions.find((option) => option.value === defaultSortValue) ??
-      sortOptions[0]
-    );
-  }, [sortOptions, defaultSortValue]);
-
   const [sortValue, setSortValue] = useState<string | null>(
-    defaultOption?.value ?? null
+    sortOptions?.[0]?.value ?? null
   );
   const [sorting, setSorting] = useState<SortingState>(
-    defaultOption?.sorting ?? initialSorting
+    sortOptions?.[0]?.sorting ?? []
   );
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     initialColumnVisibility
   );
-  const [uncontrolledGlobalFilter, setUncontrolledGlobalFilter] = useState("");
-  const isSearchControlled = controlledGlobalFilter !== undefined;
-  const globalFilter = isSearchControlled
-    ? controlledGlobalFilter
-    : uncontrolledGlobalFilter;
-
-  const setGlobalFilter = (
-    updater: string | ((previous: string) => string)
-  ) => {
-    const previous = isSearchControlled
-      ? (controlledGlobalFilter ?? "")
-      : uncontrolledGlobalFilter;
-    const next = typeof updater === "function" ? updater(previous) : updater;
-    if (isSearchControlled) {
-      onGlobalFilterChange?.(next);
-    } else {
-      setUncontrolledGlobalFilter(next);
-    }
-  };
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const tableColumns = onRowClick
     ? [
@@ -198,17 +149,8 @@ export function DataTable<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getPaginationRowModel: getPaginationRowModel(),
     initialState: { pagination: { pageSize } },
-    meta: { globalFilter },
+    meta: { globalFilter: highlightQuery ?? globalFilter },
   });
-
-  const filteredRowCount = table.getFilteredRowModel().rows.length;
-
-  useEffect(() => {
-    onSearchStateChange?.({
-      query: globalFilter,
-      resultCount: filteredRowCount,
-    });
-  }, [globalFilter, filteredRowCount, onSearchStateChange]);
 
   const handleSortChange = (value: string) => {
     const option = sortOptions?.find((item) => item.value === value);
@@ -224,14 +166,8 @@ export function DataTable<TData, TValue>({
 
   const hasRows = table.getRowModel().rows.length > 0;
   const trimmedSearch = globalFilter.trim();
-  const showSearchEmpty =
-    !loading && !error && !hasRows && trimmedSearch.length > 0;
-
-  const searchEmptyState = showSearchEmpty
-    ? typeof emptyState === "function"
-      ? emptyState({ globalFilter: trimmedSearch })
-      : emptyState
-    : null;
+  const showSearchEmpty = !loading && !error && !hasRows && !!trimmedSearch;
+  const { pageIndex } = table.getState().pagination;
 
   return (
     <div
@@ -254,8 +190,8 @@ export function DataTable<TData, TValue>({
         />
       )}
 
-      {searchEmptyState ? (
-        searchEmptyState
+      {showSearchEmpty ? (
+        <DataTableSearchEmptyState query={trimmedSearch} />
       ) : (
         <>
           <Table>
@@ -339,9 +275,33 @@ export function DataTable<TData, TValue>({
             </TableBody>
           </Table>
 
-          {hidePagination ? null : <DataTablePagination table={table} />}
+          {hidePagination ? null : (
+            <DataTablePagination
+              pageIndex={pageIndex}
+              pageCount={table.getPageCount()}
+              pageSize={pageSize}
+              totalRows={table.getFilteredRowModel().rows.length}
+              onPageChange={table.setPageIndex}
+            />
+          )}
         </>
       )}
+    </div>
+  );
+}
+
+function DataTableSearchEmptyState({ query }: { query: string }) {
+  return (
+    <div
+      className="flex min-h-[280px] flex-col items-center justify-center gap-xs rounded-xl border border-border px-xl py-2xl text-center"
+      data-testid="data-table-search-empty"
+    >
+      <p className="text-heading-3 font-semibold text-muted-foreground">
+        Search not found
+      </p>
+      <p className="text-paragraph-small text-muted-foreground">
+        No results found for &apos;{query}&apos;
+      </p>
     </div>
   );
 }

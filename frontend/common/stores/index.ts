@@ -1,6 +1,2 @@
-export {
-  useAuthStore,
-  canAccessAgentDash,
-  type User,
-} from "./authStore";
+export { useAuthStore } from "./authStore";
 export { useUIStore } from "./uiStore";

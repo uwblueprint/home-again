@@ -1,8 +1,4 @@
-export type ReferralStatus =
-  | "Pending"
-  | "Delivered"
-  | "Scheduled"
-  | "Rejected";
+export type ReferralStatus = "Pending" | "Delivered" | "Scheduled" | "Rejected";
 
 export type ReferralAttribute =
   | "priority"
@@ -138,8 +134,7 @@ function buildAttributes(
   return attributes;
 }
 
-/** Mock referral rows shaped for the agent dashboard Client Referrals view. */
-export function makeReferralRows(): ReferralRow[] {
+function makeReferralRows(): ReferralRow[] {
   const now = Date.UTC(2025, 2, 23);
   const statusPlan: ReferralStatus[] = [
     ...Array.from({ length: 15 }, () => "Pending" as const),
@@ -179,6 +174,13 @@ export function makeReferralRows(): ReferralRow[] {
       attributes: buildAttributes(status, isPriority, hasSecondary, index),
     };
   });
+}
+
+/** Mock referrals shared by every agent dashboard page. */
+export const REFERRAL_ROWS = makeReferralRows();
+
+export function getReferralRowById(id: string): ReferralRow | undefined {
+  return REFERRAL_ROWS.find((row) => row.id === id);
 }
 
 export const REFERRAL_ATTRIBUTE_OPTIONS: {

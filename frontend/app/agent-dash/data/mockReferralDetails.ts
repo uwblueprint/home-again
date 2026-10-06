@@ -1,14 +1,8 @@
 import {
-  makeReferralRows,
+  getReferralRowById,
   type CaseAgent,
   type ReferralRow,
-  type ReferralStatus,
 } from "./mockReferrals";
-
-export type ReferralDetailField = {
-  label: string;
-  value: string;
-};
 
 export type FurnitureSelection = {
   name: string;
@@ -60,8 +54,6 @@ export type ReferralDetails = {
   };
 };
 
-const ROWS = makeReferralRows();
-
 function splitClientName(fullName: string) {
   const [firstName = "Jane", ...rest] = fullName.split(" ");
   return {
@@ -77,11 +69,6 @@ function toAgentDetails(agent: CaseAgent): CaseAgentDetails {
     email,
     phone: "(+) 1 647 123 4567",
   };
-}
-
-/** Look up a list row by id for navigation from the referrals table. */
-export function getReferralRowById(id: string): ReferralRow | undefined {
-  return ROWS.find((row) => row.id === id);
 }
 
 /** Build the read-only Referral Details payload for a row id. */
@@ -159,5 +146,3 @@ export function getReferralDetailsById(id: string): ReferralDetails | null {
     },
   };
 }
-
-export type { ReferralStatus };

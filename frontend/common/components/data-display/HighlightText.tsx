@@ -1,7 +1,3 @@
-import type { ReactNode } from "react";
-
-import { cn } from "@/common/lib/utils";
-
 type HighlightTextProps = {
   text: string;
   query?: string;
@@ -64,32 +60,4 @@ function splitByQuery(
   }
 
   return parts;
-}
-
-export type DataTableSearchEmptyStateProps = {
-  query: string;
-  className?: string;
-  children?: ReactNode;
-};
-
-export function DataTableSearchEmptyState({
-  query,
-  className,
-}: DataTableSearchEmptyStateProps) {
-  return (
-    <div
-      className={cn(
-        "flex min-h-[280px] flex-col items-center justify-center gap-xs rounded-xl border border-border px-xl py-2xl text-center",
-        className
-      )}
-      data-testid="data-table-search-empty"
-    >
-      <p className="text-heading-3 font-semibold text-muted-foreground">
-        Search not found
-      </p>
-      <p className="text-paragraph-small text-muted-foreground">
-        No results found for &apos;{query}&apos;
-      </p>
-    </div>
-  );
 }

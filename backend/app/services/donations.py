@@ -14,9 +14,12 @@ from ..schemas import DonationCreate, DonationUpdate
 logger = logging.getLogger(__name__)
 
 # Item statuses that mean an admin has finished reviewing that item.
+# Every status except PICKUP_PENDING: once an approved item moves downstream
+# (OFFERED, SCHEDULED, ...) the donation must not slide back to "pending review".
 REVIEWED_FURNITURE_STATUSES = {
-    FurnitureStatus.APPROVED.value,
-    FurnitureStatus.REJECTED.value,
+    status.value
+    for status in FurnitureStatus
+    if status is not FurnitureStatus.PICKUP_PENDING
 }
 
 

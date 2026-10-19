@@ -78,6 +78,21 @@ async def test_reject_item_records_reason(client):
     assert data["reviewed_at"] is not None
 
 
+async def test_cannot_review_an_item_that_moved_past_review(client):
+    donation = await create_donation(client, tag="past-review")
+    item = await create_item(client, donation["id"], status="DELIVERED")
+
+    approve = await client.post(f"/api/furniture/{item['id']}/approve")
+    assert approve.status_code == 400
+    reject = await client.post(
+        f"/api/furniture/{item['id']}/reject", json={"rejection_reason": "condition"}
+    )
+    assert reject.status_code == 400
+
+    resp = await client.get(f"/api/furniture/{item['id']}")
+    assert resp.json()["status"] == "DELIVERED"
+
+
 async def test_reject_requires_a_reason(client):
     donation = await create_donation(client, tag="noreason")
     item = await create_item(client, donation["id"])
@@ -291,6 +306,21 @@ async def test_detail_reviewed_when_all_items_reviewed(client):
     await client.post(
         f"/api/furniture/{second['id']}/reject", json={"rejection_reason": "condition"}
     )
+
+    resp = await client.get(f"/api/donations/{donation['id']}/detail")
+    assert resp.json()["review_status"] == "reviewed"
+
+
+async def test_detail_stays_reviewed_once_items_move_downstream(client):
+    donation = await create_donation(client, tag="downstream")
+    first = await create_item(client, donation["id"])
+    second = await create_item(client, donation["id"], name="Table")
+
+    await client.post(f"/api/furniture/{first['id']}/approve")
+    await client.post(
+        f"/api/furniture/{second['id']}/reject", json={"rejection_reason": "condition"}
+    )
+    await client.put(f"/api/furniture/{first['id']}", json={"status": "OFFERED"})
 
     resp = await client.get(f"/api/donations/{donation['id']}/detail")
     assert resp.json()["review_status"] == "reviewed"

@@ -89,6 +89,7 @@ async def update_furniture(
 
 async def approve_furniture(db: AsyncSession, furniture: Furniture) -> Furniture:
     """Mark an item approved, clearing any rejection recorded by an earlier review."""
+    _ensure_reviewable(furniture)
     furniture.status = FurnitureStatus.APPROVED.value
     furniture.rejection_reason = None
     furniture.rejection_details = None
@@ -100,6 +101,7 @@ async def reject_furniture(
     db: AsyncSession, furniture: Furniture, payload: FurnitureReject
 ) -> Furniture:
     """Mark an item rejected with a reason. Reason OTHER requires free-text details."""
+    _ensure_reviewable(furniture)
     _validate_rejection_fields(
         status=FurnitureStatus.REJECTED.value,
         rejection_reason=payload.rejection_reason,
@@ -175,6 +177,24 @@ async def replace_furniture_photos(
     for photo in created:
         await db.refresh(photo)
     return created
+
+
+# Statuses an admin can still approve or reject from. Once an item has moved on
+# (OFFERED, SCHEDULED, DELIVERED, CLOSED) re-reviewing it would rewind its
+# lifecycle, so the review endpoints refuse it.
+REVIEWABLE_FURNITURE_STATUSES = {
+    FurnitureStatus.PICKUP_PENDING.value,
+    FurnitureStatus.APPROVED.value,
+    FurnitureStatus.REJECTED.value,
+}
+
+
+def _ensure_reviewable(furniture: Furniture) -> None:
+    if furniture.status not in REVIEWABLE_FURNITURE_STATUSES:
+        raise ValueError(
+            f"Cannot review an item with status {furniture.status}; "
+            "it has already moved past review."
+        )
 
 
 def _validate_rejection_fields(

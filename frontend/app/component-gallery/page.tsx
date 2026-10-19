@@ -1140,8 +1140,8 @@ interface ReferralRow {
 
 const REFERRAL_STATUS_STYLES: Record<ReferralRow["status"], string> = {
   Pending: "bg-amber-100 text-amber-900",
-  Delivered: "bg-green-100 text-green-900",
-  Scheduled: "bg-blue-100 text-blue-900",
+  Delivered: "bg-lime-100 text-lime-900",
+  Scheduled: "bg-indigo-100 text-indigo-900",
   Rejected: "bg-red-100 text-red-900",
 };
 

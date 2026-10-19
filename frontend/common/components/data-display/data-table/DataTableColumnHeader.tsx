@@ -49,7 +49,7 @@ export function DataTableColumnHeader<TData, TValue>({
       className={cn(
         // `size="sm"` sets text-[0.8rem], smaller than the plain (unsortable)
         // headers' text-paragraph-small — override it back to match.
-        "-ml-2 h-8 text-paragraph-small font-medium text-foreground",
+        "-mx-1 h-auto px-1 py-0 text-paragraph-small font-medium text-foreground",
         className
       )}
     >

@@ -52,7 +52,7 @@ export function DataTableToolbar<TData>({
   );
 
   const filterControls = (
-    <div className="flex items-center gap-xs">
+    <div className="flex items-center gap-(--2xs)">
       {filters.map((filter) => (
         <DataTableFacetedFilter
           key={filter.columnId}
@@ -118,7 +118,7 @@ export function DataTableToolbar<TData>({
             ))}
           </SubTabsList>
         </SubTabs>
-        <div className="flex items-center gap-sm">
+        <div className="flex min-w-0 items-center gap-(--2xs)">
           {search}
           {filterControls}
         </div>

@@ -92,7 +92,7 @@ export function DataTable<TData, TValue>({
           enableSorting: false,
           enableHiding: false,
           header: () => null,
-          cell: () => <ChevronRight className="size-4 text-muted-foreground" />,
+          cell: () => <ChevronRight className="size-6 text-foreground" />,
         } satisfies ColumnDef<TData, TValue>,
       ]
     : columns;
@@ -182,7 +182,7 @@ export function DataTable<TData, TValue>({
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className="whitespace-nowrap px-xs py-3.5 text-paragraph-small text-foreground"
+                    className="h-12 whitespace-nowrap px-xs py-0 text-paragraph-small text-foreground"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
@@ -215,7 +215,7 @@ function DataTableSkeletonRows({ columns }: { columns: number }) {
           {Array.from({ length: columns }).map((_, colIndex) => (
             <TableCell
               key={`skeleton-${rowIndex}-${colIndex}`}
-              className="px-xs py-3.5"
+              className="h-12 px-xs py-0"
             >
               <div className="h-4 w-24 animate-pulse rounded bg-muted" />
             </TableCell>

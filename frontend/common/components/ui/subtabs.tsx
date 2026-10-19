@@ -27,7 +27,7 @@ function SubTabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
     <TabsPrimitive.Tab
       data-slot="subtabs-trigger"
       className={cn(
-        "relative inline-flex min-h-8 min-w-8 items-center justify-center gap-xs rounded-[var(--radius)] px-sm py-[var(--scale-hacks-5p5)] text-sm font-medium whitespace-nowrap text-foreground transition-colors [&:not([data-active])]:hover:bg-[var(--unofficial-outline-hover)] data-active:bg-background data-active:shadow-sm focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
+        "relative inline-flex min-h-8 min-w-8 items-center justify-center gap-xs rounded-[var(--radius)] px-sm py-[var(--scale-hacks-5p5)] text-paragraph-small font-medium whitespace-nowrap text-foreground transition-colors [&:not([data-active])]:hover:bg-[var(--unofficial-outline-hover)] data-active:bg-background data-active:shadow-sm focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
         className
       )}
       {...props}

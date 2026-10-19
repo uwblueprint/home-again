@@ -37,7 +37,12 @@ export function DataTableFacetedFilter<TData, TValue>({
   options,
   className,
 }: DataTableFacetedFilterProps<TData, TValue>) {
-  const selectedValues = (column?.getFilterValue() as string[] | undefined) ?? [];
+  // Guard rather than cast: subtabs can share this column, and another
+  // filter could write a non-array value (see DataTableToolbar).
+  const rawFilterValue = column?.getFilterValue();
+  const selectedValues = Array.isArray(rawFilterValue)
+    ? (rawFilterValue as string[])
+    : [];
 
   const toggleValue = (value: string) => {
     const next = selectedValues.includes(value)

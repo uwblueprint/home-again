@@ -251,5 +251,6 @@ Key rules, learned from the existing flows:
   `AddressForm`, `FileUpload`) and the presentational-forms rule.
 - `common/components/multi-step-layout/README.md` — the `MultiStepLayout` shell contract and how
   to migrate a flow onto it.
+- The Figma design system: <https://www.figma.com/design/UbiTqO5G1WotmW4URVdGwh/Home-Again-Design-System>
 - `common/components/data-display/data-table/README.md` — `DataTable` usage: sortable headers,
   filters, subtabs, row-click navigation, loading/error/empty states.

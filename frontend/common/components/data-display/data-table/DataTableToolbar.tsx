@@ -80,16 +80,20 @@ export function DataTableToolbar<TData>({
     // Stored as string[] (not a lone string) so this column can also be
     // targeted by a multi-select `filters` entry at the same time — see the
     // README's "Subtabs" section for why the shapes have to match. A tab
-    // click replaces the whole array with its one value; "All" shows active
-    // whenever zero or more-than-one values are selected (e.g. via filters,
-    // or another column filter entirely that happens to write a non-array
-    // value — hence the Array.isArray guard rather than a blind cast).
+    // click replaces the whole array with its one value. "All" shows active
+    // only when nothing is selected; with several values selected via
+    // `filters`, no tab is active (null) since none describes the view.
+    // Another column filter could write a non-array value — hence the
+    // Array.isArray guard rather than a blind cast.
     const rawFilterValue = column.getFilterValue();
     const filterValue = Array.isArray(rawFilterValue)
       ? (rawFilterValue as string[])
       : undefined;
-    const activeValue =
-      filterValue?.length === 1 ? filterValue[0] : ALL_SUBTAB_VALUE;
+    const activeValue = !filterValue?.length
+      ? ALL_SUBTAB_VALUE
+      : filterValue.length === 1
+        ? filterValue[0]
+        : null;
     const facets = column.getFacetedUniqueValues();
     const totalRows = column.getFacetedRowModel().rows.length;
 

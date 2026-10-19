@@ -37,7 +37,15 @@ export function DataTableColumnHeader<TData, TValue>({
       type="button"
       variant="ghost"
       size="sm"
-      onClick={() => column.toggleSorting(sortDirection === "asc")}
+      onClick={() =>
+        // Unsorted columns start in their first sort direction (respects
+        // `sortDescFirst`), then flip between asc and desc.
+        column.toggleSorting(
+          sortDirection
+            ? sortDirection === "asc"
+            : column.getFirstSortDir() === "desc"
+        )
+      }
       className={cn(
         // `size="sm"` sets text-[0.8rem], smaller than the plain (unsortable)
         // headers' text-paragraph-small (0.875rem) — force it back to match.

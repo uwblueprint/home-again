@@ -55,7 +55,22 @@ const columns: ColumnDef<Referral>[] = [
 ```
 
 One click toggles directly between ascending and descending — there's no dropdown and
-no column-hiding menu.
+no column-hiding menu. The first click uses the column's first sort direction, so set
+`sortDescFirst: true` for columns (like dates) that should start newest-first.
+
+**Dates:** keep the column's value as the display string so table search matches what
+users see, and sort on the underlying timestamp with a `sortingFn`:
+
+```tsx
+{
+  accessorKey: "creationDate", // "23 March 2026"
+  sortingFn: (a, b) => a.original.createdAt - b.original.createdAt,
+  sortDescFirst: true,
+  header: ({ column }) => (
+    <DataTableColumnHeader column={column} title="Creation Date" />
+  ),
+}
+```
 
 ---
 
@@ -175,9 +190,9 @@ checklist controlling the exact same field:
 When they share a column: clicking a tab **replaces** the filter with just that one
 value (`setFilterValue([value])`); checking a box in the Filter dropdown adds/removes
 just that value, leaving the rest alone. A tab shows as active only when the column's
-value is a single-element array matching it — pick more than one status via the Filter
-dropdown (or none) and the tabs fall back to showing "All" as active, since no single
-tab represents "several" or "none." If they target different columns instead, both
+value is a single-element array matching it. "All" is active only when nothing is
+selected; pick more than one status via the Filter dropdown and no tab shows as active,
+since no single tab represents "several." If they target different columns instead, both
 filters simply combine (a row must pass both).
 
 ---

@@ -1134,6 +1134,7 @@ interface ReferralRow {
   referralId: string;
   caseAgent: string;
   creationDate: string;
+  createdAt: number;
   status: "Pending" | "Delivered" | "Scheduled" | "Rejected";
 }
 
@@ -1180,11 +1181,11 @@ const REFERRAL_IDS = [
   "HLMZKFDWA",
 ];
 const CREATION_DATES = [
-  "23 March 2026",
-  "2 April 2026",
-  "15 April 2026",
-  "30 April 2026",
-  "9 May 2026",
+  { label: "23 March 2026", timestamp: new Date(2026, 2, 23).getTime() },
+  { label: "2 April 2026", timestamp: new Date(2026, 3, 2).getTime() },
+  { label: "15 April 2026", timestamp: new Date(2026, 3, 15).getTime() },
+  { label: "30 April 2026", timestamp: new Date(2026, 3, 30).getTime() },
+  { label: "9 May 2026", timestamp: new Date(2026, 4, 9).getTime() },
 ];
 
 function makeReferralRows(): ReferralRow[] {
@@ -1193,7 +1194,8 @@ function makeReferralRows(): ReferralRow[] {
     clientName: CLIENT_NAMES[i % CLIENT_NAMES.length],
     referralId: REFERRAL_IDS[i % REFERRAL_IDS.length],
     caseAgent: CASE_AGENTS[i % CASE_AGENTS.length],
-    creationDate: CREATION_DATES[i % CREATION_DATES.length],
+    creationDate: CREATION_DATES[i % CREATION_DATES.length].label,
+    createdAt: CREATION_DATES[i % CREATION_DATES.length].timestamp,
     status: REFERRAL_STATUSES[i % REFERRAL_STATUSES.length],
   }));
 }
@@ -1221,7 +1223,11 @@ const referralColumns: ColumnDef<ReferralRow>[] = [
     ),
   },
   {
+    // Value stays the display string so search matches what's shown;
+    // sort on the timestamp so dates order chronologically, newest first.
     accessorKey: "creationDate",
+    sortingFn: (a, b) => a.original.createdAt - b.original.createdAt,
+    sortDescFirst: true,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Creation Date" />
     ),

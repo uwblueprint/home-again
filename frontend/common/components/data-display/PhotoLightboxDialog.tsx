@@ -89,9 +89,7 @@ function PhotoLightboxDialog({
                 fill
                 unoptimized
                 sizes="604px"
-                // Contain, not cover: admins judge condition from these photos, so
-                // the edges of the item must not be cropped away.
-                className="object-contain"
+                className="object-cover"
               />
             </div>
 

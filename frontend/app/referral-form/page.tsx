@@ -36,6 +36,7 @@ import {
   useAgents,
   useCreateClient,
   useCreateReferral,
+  useReferrals,
   useUpdateClient,
 } from "@/common/hooks/useApi";
 import { useAuthStore } from "@/common/stores/authStore";
@@ -49,7 +50,16 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/common/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+} from "@/common/components/ui/alert-dialog";
 import { Button } from "@/common/components/ui/button";
+
+const RECENT_REFERRAL_MONTHS = 12;
 
 const EDIT_STEP_TITLES: Record<number, string> = {
   1: "Client Details",
@@ -172,6 +182,7 @@ export default function ReferralFormPage() {
   const createClient = useCreateClient();
   const updateClient = useUpdateClient();
   const createReferral = useCreateReferral();
+  const { data: referrals = [] } = useReferrals();
   const isSubmitting =
     createClient.isPending ||
     updateClient.isPending ||
@@ -180,6 +191,12 @@ export default function ReferralFormPage() {
   // Step 0: Find
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+
+  // Recent-referral warning, shown when moving from the Client step to the
+  // Referral step for an existing client with a referral in the last year.
+  const [showRecentReferralAlert, setShowRecentReferralAlert] = useState(false);
+  const [acknowledgedRecentReferralClientId, setAcknowledgedRecentReferralClientId] =
+    useState<string | null>(null);
 
   // Step 1: Client
   const [clientData, setClientData] = useState<ClientData>(EMPTY_CLIENT_DATA);
@@ -219,9 +236,19 @@ export default function ReferralFormPage() {
   const isReferralStepValid = Object.values(referralErrors).every((e) => !e);
   const isAgreementsStepValid = Object.values(agreementsData).every(Boolean);
 
+  const hasRecentReferral = useMemo(() => {
+    if (!selectedClient) return false;
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - RECENT_REFERRAL_MONTHS);
+    return referrals.some(
+      (referral) =>
+        referral.client_id === selectedClient.id &&
+        new Date(referral.created_at) >= cutoff
+    );
+  }, [referrals, selectedClient]);
+
   const isNextDisabled = (() => {
     if (stepIndex === 0 && substepIndex === 0) {
-      // The "choose" substep proceeds via its own buttons, not Next.
       return true;
     }
     switch (stepIndex) {
@@ -270,7 +297,25 @@ export default function ReferralFormPage() {
       return false;
     }
 
+    if (
+      stepIndex === 1 &&
+      selectedClient &&
+      hasRecentReferral &&
+      acknowledgedRecentReferralClientId !== selectedClient.id
+    ) {
+      setShowRecentReferralAlert(true);
+      return false;
+    }
+
     return true;
+  }
+
+  function handleAcknowledgeRecentReferral() {
+    if (selectedClient) {
+      setAcknowledgedRecentReferralClientId(selectedClient.id);
+    }
+    setShowRecentReferralAlert(false);
+    goToStep(2);
   }
 
   async function handleSubmit() {
@@ -609,6 +654,23 @@ export default function ReferralFormPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AlertDialog
+        open={showRecentReferralAlert}
+        onOpenChange={setShowRecentReferralAlert}
+      >
+        <AlertDialogContent>
+          <AlertDialogDescription>
+            This client has received furniture within the past 12 months.
+            This referral may be declined unless there is an extenuating
+            circumstance.
+          </AlertDialogDescription>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={handleAcknowledgeRecentReferral}>
+              I understand
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

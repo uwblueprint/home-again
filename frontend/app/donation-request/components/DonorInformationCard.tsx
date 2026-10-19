@@ -18,7 +18,28 @@ import {
   ToggleGroupItem,
 } from "@/common/components/ui/toggle-group";
 import { InformationBlock } from "@/common/components/data-display";
+import { FieldError } from "@/common/components/forms";
+import { EMAIL_REGEX, PHONE_REGEX } from "@/common/constants/validators";
 import type { DonorInformation } from "./types";
+
+type DonorErrors = Partial<Record<keyof DonorInformation, string>>;
+
+function validateDonor(draft: DonorInformation): DonorErrors {
+  const errors: DonorErrors = {};
+  if (!draft.first_name.trim()) errors.first_name = "Enter a first name.";
+  if (!draft.last_name.trim()) errors.last_name = "Enter a last name.";
+  const email = draft.email.trim();
+  if (!email) errors.email = "Enter an email address.";
+  else if (!EMAIL_REGEX.test(email))
+    errors.email = "Enter a valid email address.";
+  const phone = draft.phone.trim();
+  if (!phone) errors.phone = "Enter a phone number.";
+  else if (!PHONE_REGEX.test(phone))
+    errors.phone = "Enter a valid phone number.";
+  if (!draft.pickup_address.trim())
+    errors.pickup_address = "Enter a pickup address.";
+  return errors;
+}
 
 interface DonorInformationCardProps {
   donor: DonorInformation;
@@ -32,19 +53,25 @@ function DonorInformationCard({ donor, onSave }: DonorInformationCardProps) {
   const [open, setOpen] = useState(true);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<DonorInformation>(donor);
+  const [errors, setErrors] = useState<DonorErrors>({});
 
   const startEditing = () => {
     setDraft(donor);
+    setErrors({});
     setEditing(true);
     setOpen(true);
   };
 
   const cancel = () => {
     setDraft(donor);
+    setErrors({});
     setEditing(false);
   };
 
   const save = () => {
+    const nextErrors = validateDonor(draft);
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
     onSave(draft);
     setEditing(false);
   };
@@ -102,6 +129,7 @@ function DonorInformationCard({ donor, onSave }: DonorInformationCardProps) {
           {editing ? (
             <DonorInformationForm
               draft={draft}
+              errors={errors}
               setField={setField}
               onCancel={cancel}
               onSave={save}
@@ -159,11 +187,13 @@ function DonorInformationReadout({
 
 function DonorInformationForm({
   draft,
+  errors,
   setField,
   onCancel,
   onSave,
 }: {
   draft: DonorInformation;
+  errors: DonorErrors;
   setField: <K extends keyof DonorInformation>(
     key: K
   ) => (value: DonorInformation[K]) => void;
@@ -173,16 +203,26 @@ function DonorInformationForm({
   return (
     <div className="flex flex-col gap-lg">
       <div className="flex gap-3">
-        <FieldColumn htmlFor="donor-first" label="First name">
+        <FieldColumn
+          htmlFor="donor-first"
+          label="First name"
+          error={errors.first_name}
+        >
           <Input
             id="donor-first"
+            aria-invalid={Boolean(errors.first_name)}
             value={draft.first_name}
             onChange={(e) => setField("first_name")(e.target.value)}
           />
         </FieldColumn>
-        <FieldColumn htmlFor="donor-last" label="Last name">
+        <FieldColumn
+          htmlFor="donor-last"
+          label="Last name"
+          error={errors.last_name}
+        >
           <Input
             id="donor-last"
+            aria-invalid={Boolean(errors.last_name)}
             value={draft.last_name}
             onChange={(e) => setField("last_name")(e.target.value)}
           />
@@ -190,17 +230,27 @@ function DonorInformationForm({
       </div>
 
       <div className="flex gap-3">
-        <FieldColumn htmlFor="donor-email" label="Email Address">
+        <FieldColumn
+          htmlFor="donor-email"
+          label="Email Address"
+          error={errors.email}
+        >
           <Input
             id="donor-email"
+            aria-invalid={Boolean(errors.email)}
             type="email"
             value={draft.email}
             onChange={(e) => setField("email")(e.target.value)}
           />
         </FieldColumn>
-        <FieldColumn htmlFor="donor-phone" label="Phone number">
+        <FieldColumn
+          htmlFor="donor-phone"
+          label="Phone number"
+          error={errors.phone}
+        >
           <Input
             id="donor-phone"
+            aria-invalid={Boolean(errors.phone)}
             value={draft.phone}
             onChange={(e) => setField("phone")(e.target.value)}
           />
@@ -224,9 +274,14 @@ function DonorInformationForm({
         </FieldColumn>
       </div>
 
-      <FieldColumn htmlFor="donor-address" label="Pickup address">
+      <FieldColumn
+        htmlFor="donor-address"
+        label="Pickup address"
+        error={errors.pickup_address}
+      >
         <Input
           id="donor-address"
+          aria-invalid={Boolean(errors.pickup_address)}
           value={draft.pickup_address}
           onChange={(e) => setField("pickup_address")(e.target.value)}
         />
@@ -249,16 +304,19 @@ function DonorInformationForm({
 function FieldColumn({
   label,
   htmlFor,
+  error,
   children,
 }: {
   label: string;
   htmlFor?: string;
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="flex flex-1 flex-col gap-xs">
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
+      <FieldError message={error} />
     </div>
   );
 }

@@ -15,17 +15,23 @@ interface DatePickerProps {
   date?: Date;
   onDateChange: (date: Date | undefined) => void;
   placeholder?: string;
+  /** Days that can't be picked, e.g. `{ before: new Date() }` for past dates. */
+  disabled?: React.ComponentProps<typeof Calendar>["disabled"];
+  id?: string;
 }
 
 export function DatePicker({
   date,
   onDateChange,
   placeholder = "Pick a date",
+  disabled,
+  id,
 }: DatePickerProps) {
   return (
     <Popover>
       {/* w-94 (376px) matches the calendar popover: 7 × 48px days + gaps + padding */}
       <PopoverTrigger
+        id={id}
         data-empty={!date}
         className="flex min-h-9 w-94 items-center gap-xs rounded-lg border border-border bg-input px-sm py-[var(--scale-hacks-7p5)] text-left text-sm text-foreground shadow-[var(--shadow-xs)] transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 data-popup-open:border-[var(--unofficial-border-4)] data-popup-open:bg-accent data-popup-open:ring-3 data-popup-open:ring-ring data-[empty=true]:text-muted-foreground"
       >
@@ -42,6 +48,7 @@ export function DatePicker({
           mode="single"
           selected={date}
           onSelect={onDateChange}
+          disabled={disabled}
           defaultMonth={date}
           captionLayout="dropdown-months"
         />

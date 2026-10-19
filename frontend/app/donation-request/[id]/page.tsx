@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { notFound, useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { SidebarAppShell } from "@/common/components/ui/sidebar-app-shell";
@@ -21,6 +21,7 @@ import {
 
 export default function DonationRequestPage() {
   const router = useRouter();
+  const { id } = useParams<{ id: string }>();
   const [search, setSearch] = useState("");
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [scheduleMode, setScheduleMode] = useState<"schedule" | "edit">(
@@ -37,6 +38,10 @@ export default function DonationRequestPage() {
   );
   const updatePickup = useDonationRequestStore((state) => state.updatePickup);
   const confirmPickup = useDonationRequestStore((state) => state.confirmPickup);
+
+  // The store holds a single fixture until GET /donations/{id}/detail is wired
+  // up; any other id would otherwise silently render that fixture.
+  if (id !== request.id) notFound();
 
   const reviewStatus = deriveReviewStatus(request);
   const approvedCount = countApproved(request);

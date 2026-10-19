@@ -101,12 +101,12 @@ describe("deriveReviewStatus", () => {
     expect(deriveReviewStatus(request)).toBe("pending_review");
   });
 
-  it("treats downstream statuses as not-yet-reviewed, as the backend does", () => {
+  it("counts downstream statuses as reviewed, as the backend does", () => {
     const request = makeRequest([
       makeItem("a", "APPROVED"),
       makeItem("b", "OFFERED"),
     ]);
-    expect(deriveReviewStatus(request)).toBe("partially_reviewed");
+    expect(deriveReviewStatus(request)).toBe("reviewed");
   });
 
   it("ignores a pickup with no scheduled date", () => {

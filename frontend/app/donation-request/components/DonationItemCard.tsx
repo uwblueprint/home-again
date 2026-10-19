@@ -40,6 +40,11 @@ function DonationItemCard({
   const [rejectOpen, setRejectOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  // Re-opens Approve / Reject on an item that already has a decision.
+  const [changing, setChanging] = useState(false);
+
+  const isDecided = item.status === "APPROVED" || item.status === "REJECTED";
+  const isPending = item.status === "PICKUP_PENDING";
 
   const dialogItem: DonationItem = {
     title: item.name,
@@ -70,11 +75,7 @@ function DonationItemCard({
             </p>
           </div>
 
-          {item.status === "APPROVED" ? (
-            <ApprovedBadge />
-          ) : item.status === "REJECTED" ? (
-            <RejectedBadge />
-          ) : (
+          {isPending || changing ? (
             <div className="flex items-center gap-sm">
               <Button variant="secondary" onClick={() => setRejectOpen(true)}>
                 <X />
@@ -84,6 +85,30 @@ function DonationItemCard({
                 <Check />
                 Approve
               </Button>
+              {changing && (
+                <Button variant="ghost" onClick={() => setChanging(false)}>
+                  Cancel
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-sm">
+              {item.status === "REJECTED" ? (
+                <RejectedBadge />
+              ) : (
+                <ApprovedBadge />
+              )}
+              {/* Items that moved past review (OFFERED, …) can't be re-decided;
+                  the backend refuses it. */}
+              {isDecided && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setChanging(true)}
+                >
+                  Change
+                </Button>
+              )}
             </div>
           )}
         </div>
@@ -99,7 +124,7 @@ function DonationItemCard({
             label="Reason for Rejection"
             value={
               item.rejection_details?.trim()
-                ? item.rejection_details
+                ? `${reasonLabel(item.rejection_reason)}: ${item.rejection_details}`
                 : reasonLabel(item.rejection_reason)
             }
           />
@@ -110,15 +135,19 @@ function DonationItemCard({
         item={dialogItem}
         open={approveOpen}
         onOpenChange={setApproveOpen}
-        onConfirm={() => onApprove(item.id)}
+        onConfirm={() => {
+          onApprove(item.id);
+          setChanging(false);
+        }}
       />
       <RejectItemDialog
         item={dialogItem}
         open={rejectOpen}
         onOpenChange={setRejectOpen}
-        onConfirm={(reason, details) =>
-          onReject(item.id, reason as RejectionReason, details)
-        }
+        onConfirm={(reason, details) => {
+          onReject(item.id, reason as RejectionReason, details);
+          setChanging(false);
+        }}
       />
       <PhotoLightboxDialog
         open={lightboxOpen}

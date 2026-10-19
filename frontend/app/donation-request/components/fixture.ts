@@ -18,7 +18,7 @@ function samplePhotos() {
  */
 export const DONATION_REQUEST_FIXTURE: DonationRequest = {
   id: "donation-req-001",
-  request_id: "REQUEST ID",
+  request_id: "DR-2026-0042",
   submitted_at: "2026-03-14",
   donor: {
     first_name: "Katie",

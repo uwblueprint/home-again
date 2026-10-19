@@ -13,11 +13,30 @@ import {
 } from "@/common/components/ui/dialog";
 import { Button } from "@/common/components/ui/button";
 import { Label } from "@/common/components/ui/label";
-import { Input } from "@/common/components/ui/input";
+import { DatePicker } from "@/common/components/forms";
 import { Textarea } from "@/common/components/ui/textarea";
 import { Alert } from "@/common/components/ui/alert";
 
 const MAX_NOTE_LENGTH = 500;
+
+/** "yyyy-mm-dd" <-> local-midnight Date, so the picked day never shifts by TZ. */
+const toDate = (iso: string): Date | undefined => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  return match
+    ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+    : undefined;
+};
+const toIsoDate = (date: Date): string =>
+  [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+
+const startOfToday = () => {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+};
 
 interface SchedulePickupDialogProps {
   open: boolean;
@@ -78,13 +97,13 @@ function SchedulePickupDialog({
             <Label htmlFor="pickup-date">
               Date<span className="text-destructive"> *</span>
             </Label>
-            {/* No decorative calendar icon here: type="date" draws its own
-                picker indicator, so adding one renders two side by side. */}
-            <Input
+            <DatePicker
               id="pickup-date"
-              type="date"
-              value={date}
-              onChange={(event) => setDate(event.target.value)}
+              date={toDate(date)}
+              onDateChange={(picked) =>
+                setDate(picked ? toIsoDate(picked) : "")
+              }
+              disabled={{ before: startOfToday() }}
             />
           </div>
 

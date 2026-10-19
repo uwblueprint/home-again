@@ -63,7 +63,7 @@ describe("DonationItemCard", () => {
     expect(screen.getByText("Item condition not suitable")).toBeInTheDocument();
   });
 
-  it("prefers free-text details over the reason label when present", () => {
+  it("shows the reason label together with any free-text details", () => {
     renderCard(
       makeItem({
         status: "REJECTED",
@@ -71,7 +71,26 @@ describe("DonationItemCard", () => {
         rejection_details: "Too large for the van",
       })
     );
-    expect(screen.getByText("Too large for the van")).toBeInTheDocument();
+    expect(
+      screen.getByText("Other: Too large for the van")
+    ).toBeInTheDocument();
+  });
+
+  it("lets an admin change a decision on a reviewed item", () => {
+    renderCard(makeItem({ status: "APPROVED" }));
+    expect(screen.queryByRole("button", { name: "Reject" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Change" }));
+    expect(screen.getByRole("button", { name: "Reject" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByRole("button", { name: "Reject" })).toBeNull();
+  });
+
+  it("offers no review actions once an item has moved past review", () => {
+    renderCard(makeItem({ status: "OFFERED" }));
+    expect(screen.queryByRole("button", { name: "Change" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Approve" })).toBeNull();
   });
 
   it("opens the lightbox from the photo strip", () => {

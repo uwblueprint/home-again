@@ -33,6 +33,10 @@ function ReviewStatusIndicator({
     case "partially_reviewed":
       return <PartiallyReviewedBadge />;
     case "reviewed":
+      // Every item rejected: there is nothing to pick up, so skip scheduling.
+      if (approvedCount === 0) {
+        return <ApprovalsLabel approved={0} total={totalItems} />;
+      }
       return (
         <div className="flex items-center gap-md">
           <Button variant="outline" onClick={onSchedulePickup}>

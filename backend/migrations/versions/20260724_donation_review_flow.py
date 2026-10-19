@@ -16,6 +16,9 @@ Support the admin donation-request review flow:
   the donor form, so they belong at the donation level
 """
 
+import uuid
+from datetime import datetime, timezone
+
 import sqlalchemy as sa
 from alembic import op
 
@@ -46,7 +49,7 @@ def upgrade():
     # ------------------------------------------------------------------ #
     # Furniture photos — ordered photo set per item
     # ------------------------------------------------------------------ #
-    op.create_table(
+    furniture_photos = op.create_table(
         "furniture_photos",
         sa.Column("id", sa.String(36), primary_key=True),
         sa.Column(
@@ -62,20 +65,30 @@ def upgrade():
     )
 
     # Seed the new table from the existing single-image column so no photo is lost.
-    # gen_random_uuid() is built into Postgres 13+ (docker-compose runs 15).
-    op.execute("""
-        INSERT INTO furniture_photos
-            (id, furniture_id, url, position, created_at, updated_at)
-        SELECT
-            gen_random_uuid()::text,
-            id,
-            image_url,
-            0,
-            NOW(),
-            NOW()
-        FROM furniture
-        WHERE image_url IS NOT NULL AND image_url <> ''
-        """)
+    # Ids come from Python rather than gen_random_uuid(), so the migration needs
+    # no particular Postgres version or extension.
+    bind = op.get_bind()
+    rows = bind.execute(sa.text("""
+            SELECT id, image_url FROM furniture
+            WHERE image_url IS NOT NULL AND image_url <> ''
+            """)).fetchall()
+    if rows:
+        # Naive UTC, matching the models' timestamp defaults (app/models/base.py).
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        op.bulk_insert(
+            furniture_photos,
+            [
+                {
+                    "id": str(uuid.uuid4()),
+                    "furniture_id": furniture_id,
+                    "url": image_url,
+                    "position": 0,
+                    "created_at": now,
+                    "updated_at": now,
+                }
+                for furniture_id, image_url in rows
+            ],
+        )
 
     # ------------------------------------------------------------------ #
     # Pickup — scheduling and donor confirmation

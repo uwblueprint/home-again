@@ -173,6 +173,10 @@ class Donation(Base):
     city = Column(String(100), nullable=True)
     postal_code = Column(String(10), nullable=True)
     status = Column(String(50), nullable=True)  # See DonationStatus
+    # Household questions are asked once on the donor form, so they live at the
+    # donation level. Furniture carries its own copy for items routed onward.
+    smoking_household = Column(Boolean, nullable=True)
+    has_pets = Column(Boolean, nullable=True)
     created_at = Column(
         DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
     )
@@ -184,7 +188,10 @@ class Donation(Base):
 
     # Relationships
     donor = relationship("Donor", back_populates="donations")
-    furniture_items = relationship("Furniture", back_populates="donation")
+    # Ordered so the review screen renders its item cards the same way every load.
+    furniture_items = relationship(
+        "Furniture", back_populates="donation", order_by="Furniture.created_at"
+    )
     pickups = relationship("Pickup", back_populates="donation")
 
 
@@ -267,8 +274,14 @@ class Pickup(Base):
     __tablename__ = "pickups"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
-    route_id = Column(String(36), ForeignKey("routes.id"), nullable=False)
+    # Nullable: an admin schedules a pickup against a donation during review,
+    # before dispatch assigns it to a route.
+    route_id = Column(String(36), ForeignKey("routes.id"), nullable=True)
     donation_id = Column(String(36), ForeignKey("donations.id"), nullable=True)
+    scheduled_date = Column(DateTime, nullable=True)
+    note = Column(Text, nullable=True)
+    # Set when the donor has been sent — and the admin has confirmed — the date.
+    confirmed_at = Column(DateTime, nullable=True)
     created_at = Column(
         DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
     )
@@ -304,6 +317,11 @@ class Furniture(Base):
     smoking_household = Column(Boolean, nullable=False, default=False)
     has_pets = Column(Boolean, nullable=False, default=False)
     status = Column(String(50), nullable=False)  # See FurnitureStatus
+    # Set only when status is REJECTED. See FurnitureRejectionReason;
+    # rejection_details is required when the reason is OTHER.
+    rejection_reason = Column(String(50), nullable=True)
+    rejection_details = Column(Text, nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
     donation_id = Column(String(36), ForeignKey("donations.id"), nullable=True)
     referral_id = Column(String(36), ForeignKey("referrals.id"), nullable=True)
     pickup_id = Column(String(36), ForeignKey("pickups.id"), nullable=True)
@@ -321,6 +339,45 @@ class Furniture(Base):
     referral = relationship("Referral", back_populates="furniture_items")
     pickup = relationship("Pickup", back_populates="furniture_items")
     dropoff = relationship("Dropoff", back_populates="furniture", uselist=False)
+    photos = relationship(
+        "FurniturePhoto",
+        back_populates="furniture",
+        cascade="all, delete-orphan",
+        order_by="FurniturePhoto.position",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Furniture photo
+# ---------------------------------------------------------------------------
+
+
+class FurniturePhoto(Base):
+    """
+    One photo of a furniture item.
+
+    Donors upload several photos per item and the review UI shows them in order,
+    so photos live in their own table rather than on Furniture.image_url (which
+    stays as the single thumbnail).
+    """
+
+    __tablename__ = "furniture_photos"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    furniture_id = Column(String(36), ForeignKey("furniture.id"), nullable=False)
+    url = Column(String(500), nullable=False)
+    position = Column(Integer, nullable=False, default=0)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
+
+    # Relationships
+    furniture = relationship("Furniture", back_populates="photos")
 
 
 # ---------------------------------------------------------------------------

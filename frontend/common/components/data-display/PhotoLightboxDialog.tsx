@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -48,15 +48,26 @@ function PhotoLightboxDialog({
   const go = (delta: number) =>
     setIndex((prev) => (prev + delta + photos.length) % photos.length);
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (photos.length < 2) return;
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      go(-1);
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      go(1);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[986px]">
+      <DialogContent className="sm:max-w-[986px]" onKeyDown={handleKeyDown}>
         <DialogTitle className="sr-only">{title}</DialogTitle>
         {/* Padding mirrors the frame's dialog bands: a 48px strip above the
             content for the close button, 48px down each side, and a 68px
             footer strip. The arrows sit beside the image, not over it. */}
-        <div className="flex gap-lg px-[48px] pt-[48px] pb-[68px]">
-          <div className="flex flex-1 items-center gap-5">
+        <div className="flex gap-lg px-4xl pt-4xl pb-[68px]">
+          <div className="flex flex-1 items-center gap-lg">
             {photos.length > 1 && (
               <Button
                 type="button"
@@ -78,7 +89,9 @@ function PhotoLightboxDialog({
                 fill
                 unoptimized
                 sizes="604px"
-                className="object-cover"
+                // Contain, not cover: admins judge condition from these photos, so
+                // the edges of the item must not be cropped away.
+                className="object-contain"
               />
             </div>
 
@@ -98,7 +111,7 @@ function PhotoLightboxDialog({
           </div>
 
           {photos.length > 1 && (
-            <div className="flex shrink-0 flex-col items-center gap-3 px-5">
+            <div className="flex shrink-0 flex-col items-center gap-sm px-lg">
               {photos.map((photo, i) => (
                 <button
                   key={i}

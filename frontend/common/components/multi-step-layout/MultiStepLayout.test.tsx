@@ -15,6 +15,10 @@ jest.mock(
   "tailwind-merge",
   () => ({
     twMerge: (...values: string[]) => values.join(" "),
+    extendTailwindMerge:
+      () =>
+      (...values: string[]) =>
+        values.join(" "),
   }),
   { virtual: true }
 );

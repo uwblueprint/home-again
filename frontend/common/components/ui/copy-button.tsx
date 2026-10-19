@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ComponentProps } from "react";
+import { useEffect, useRef, useState, type ComponentProps } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
 
 import { cn } from "@/common/lib/utils";
@@ -29,12 +29,17 @@ function CopyButton({
   ...props
 }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
+  const resetTimer = useRef<number | undefined>(undefined);
+
+  // Don't flip state on an unmounted button if it goes away mid-timeout.
+  useEffect(() => () => window.clearTimeout(resetTimer.current), []);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(value);
       setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
+      window.clearTimeout(resetTimer.current);
+      resetTimer.current = window.setTimeout(() => setCopied(false), 2000);
     } catch {
       // Clipboard access can be denied (insecure context, permissions) — no-op.
     }

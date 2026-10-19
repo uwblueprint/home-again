@@ -4,12 +4,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/common/lib/utils";
 
-// NOTE: font size stays `text-sm` rather than the `text-paragraph-small` token.
-// tailwind-merge classifies our custom typography tokens as text *colors*, so
-// `cn("text-paragraph-small", "text-foreground")` silently drops the size. Switch
-// this once `cn()` is taught the custom font-size scale via extendTailwindMerge.
 const alertVariants = cva(
-  "flex items-start gap-xs rounded-lg border px-md py-sm text-sm",
+  "flex items-start gap-xs rounded-lg border px-md py-sm text-paragraph-small",
   {
     variants: {
       variant: {

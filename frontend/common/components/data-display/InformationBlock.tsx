@@ -20,14 +20,17 @@ function InformationBlock({
 }: InformationBlockProps) {
   return (
     <div
-      className={cn("flex flex-col items-start gap-sm self-stretch", className)}
+      className={cn(
+        "flex min-w-0 flex-col items-start gap-sm self-stretch",
+        className
+      )}
     >
       <div className="flex items-center gap-1.5">
         <p className="text-sm font-medium text-foreground">{label}</p>
         {labelAction}
       </div>
-      <div className="flex items-center gap-1.5">
-        <p className="min-w-0 break-words text-sm text-muted-foreground">
+      <div className="flex min-w-0 max-w-full items-center gap-1.5">
+        <p className="min-w-0 text-sm text-muted-foreground [overflow-wrap:anywhere]">
           {value}
         </p>
         {valueAction}

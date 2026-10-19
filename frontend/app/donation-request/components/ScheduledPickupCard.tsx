@@ -8,7 +8,7 @@ import {
   UnconfirmedBadge,
 } from "@/common/components/status-labels";
 import { InformationBlock } from "@/common/components/data-display";
-import { formatDate } from "@/common/utils/DateUtils";
+import { formatLongDate } from "@/common/utils/DateUtils";
 import type { DonationPickup } from "./types";
 
 interface ScheduledPickupCardProps {
@@ -39,7 +39,9 @@ function ScheduledPickupCard({
 
       <InformationBlock
         label="Date"
-        value={pickup.scheduled_date ? formatDate(pickup.scheduled_date) : "—"}
+        value={
+          pickup.scheduled_date ? formatLongDate(pickup.scheduled_date) : "—"
+        }
       />
 
       <div className="flex items-center gap-sm">

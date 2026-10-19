@@ -93,6 +93,31 @@ describe("pickup scheduling", () => {
   });
 });
 
+describe("pickup after review changes", () => {
+  it("drops the pickup once no item is approved", () => {
+    const [first, second] = itemIds();
+    store().approveItem(first);
+    store().rejectItem(second, "other");
+    store().schedulePickup("2026-03-26");
+    store().confirmPickup();
+
+    store().rejectItem(first, "other");
+
+    expect(pickup()).toBeNull();
+  });
+
+  it("keeps the pickup while an item is still approved", () => {
+    const [first, second] = itemIds();
+    store().approveItem(first);
+    store().approveItem(second);
+    store().schedulePickup("2026-03-26");
+
+    store().rejectItem(second, "other");
+
+    expect(pickup()?.scheduled_date).toBe("2026-03-26");
+  });
+});
+
 describe("donor edits", () => {
   it("patches only the supplied fields", () => {
     const before = store().request.donor;

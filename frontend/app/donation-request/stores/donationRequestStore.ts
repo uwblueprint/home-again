@@ -59,21 +59,30 @@ export const useDonationRequestStore = create<DonationRequestStore>((set) => ({
     })),
 
   rejectItem: (itemId, reason, details) =>
-    set((state) => ({
-      request: {
-        ...state.request,
-        furniture_items: state.request.furniture_items.map((item) =>
-          item.id === itemId
-            ? {
-                ...item,
-                status: "REJECTED",
-                rejection_reason: reason,
-                rejection_details: details ?? null,
-              }
-            : item
-        ),
-      },
-    })),
+    set((state) => {
+      const furniture_items = state.request.furniture_items.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              status: "REJECTED" as const,
+              rejection_reason: reason,
+              rejection_details: details ?? null,
+            }
+          : item
+      );
+      // With nothing approved there is nothing to pick up, so a pickup booked
+      // for the earlier approvals is dropped rather than left "Scheduled".
+      const hasApproved = furniture_items.some(
+        (item) => item.status === "APPROVED"
+      );
+      return {
+        request: {
+          ...state.request,
+          furniture_items,
+          pickup: hasApproved ? state.request.pickup : null,
+        },
+      };
+    }),
 
   updateDonor: (patch) =>
     set((state) => ({

@@ -100,7 +100,7 @@ export default function DonationRequestPage() {
         </main>
 
         <nav className="mt-auto flex w-full justify-end border-t border-border px-2xl py-lg">
-          <Button variant="outline" onClick={() => router.back()}>
+          <Button variant="secondary" onClick={() => router.back()}>
             Back
           </Button>
         </nav>

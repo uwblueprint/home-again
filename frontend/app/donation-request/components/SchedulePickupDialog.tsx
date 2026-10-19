@@ -12,8 +12,7 @@ import {
   DialogTitle,
 } from "@/common/components/ui/dialog";
 import { Button } from "@/common/components/ui/button";
-import { Label } from "@/common/components/ui/label";
-import { DatePicker } from "@/common/components/forms";
+import { DatePicker, FormField } from "@/common/components/forms";
 import { Textarea } from "@/common/components/ui/textarea";
 import { Alert } from "@/common/components/ui/alert";
 
@@ -79,7 +78,7 @@ function SchedulePickupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[739px]">
+      <DialogContent className="sm:max-w-[739px]" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>
             {mode === "edit" ? "Edit Pickup" : "Schedule Pickup"}
@@ -93,10 +92,7 @@ function SchedulePickupDialog({
             </Alert>
           )}
 
-          <div className="flex flex-col gap-xs">
-            <Label htmlFor="pickup-date">
-              Date<span className="text-destructive"> *</span>
-            </Label>
+          <FormField htmlFor="pickup-date" label="Date" required>
             <DatePicker
               id="pickup-date"
               date={toDate(date)}
@@ -105,10 +101,9 @@ function SchedulePickupDialog({
               }
               disabled={{ before: startOfToday() }}
             />
-          </div>
+          </FormField>
 
-          <div className="flex flex-col gap-xs">
-            <Label htmlFor="pickup-note">Add a note</Label>
+          <FormField htmlFor="pickup-note" label="Add a note">
             <Textarea
               id="pickup-note"
               placeholder="Add any details for this pickup."
@@ -119,10 +114,10 @@ function SchedulePickupDialog({
             <p className="self-end text-paragraph-mini text-muted-foreground">
               {note.length}/{MAX_NOTE_LENGTH} Characters
             </p>
-          </div>
+          </FormField>
         </DialogBody>
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>
+          <DialogClose render={<Button variant="secondary" />}>
             Cancel
           </DialogClose>
           <DialogClose

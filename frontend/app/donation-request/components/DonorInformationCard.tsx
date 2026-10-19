@@ -6,7 +6,6 @@ import { ChevronDown, SquarePen } from "lucide-react";
 import { cn } from "@/common/lib/utils";
 import { Button } from "@/common/components/ui/button";
 import { Input } from "@/common/components/ui/input";
-import { Label } from "@/common/components/ui/label";
 import { CopyButton } from "@/common/components/ui/copy-button";
 import {
   Collapsible,
@@ -18,7 +17,7 @@ import {
   ToggleGroupItem,
 } from "@/common/components/ui/toggle-group";
 import { InformationBlock } from "@/common/components/data-display";
-import { FieldError } from "@/common/components/forms";
+import { FormField } from "@/common/components/forms";
 import { EMAIL_REGEX, PHONE_REGEX } from "@/common/constants/validators";
 import type { DonorInformation } from "./types";
 
@@ -151,29 +150,23 @@ function DonorInformationReadout({
   yesNo: (value: boolean | null) => string;
 }) {
   return (
-    <div className="flex flex-col gap-lg">
-      <div className="flex gap-3">
-        <InformationBlock label="First name" value={donor.first_name} />
-        <InformationBlock label="Last name" value={donor.last_name} />
-      </div>
-      <div className="flex gap-3">
-        <InformationBlock
-          label="Email Address"
-          value={donor.email}
-          valueAction={<CopyButton value={donor.email} label="Copy email" />}
-        />
-        <InformationBlock label="Phone number" value={donor.phone} />
-      </div>
-      <div className="flex gap-3">
-        <InformationBlock
-          label="Does anyone in the household smoke?"
-          value={yesNo(donor.smoking_household)}
-        />
-        <InformationBlock
-          label="Are there any pets in the household?"
-          value={yesNo(donor.has_pets)}
-        />
-      </div>
+    <div className="grid grid-cols-2 gap-x-3 gap-y-lg">
+      <InformationBlock label="First name" value={donor.first_name} />
+      <InformationBlock label="Last name" value={donor.last_name} />
+      <InformationBlock
+        label="Email Address"
+        value={donor.email}
+        valueAction={<CopyButton value={donor.email} label="Copy email" />}
+      />
+      <InformationBlock label="Phone number" value={donor.phone} />
+      <InformationBlock
+        label="Does anyone in the household smoke?"
+        value={yesNo(donor.smoking_household)}
+      />
+      <InformationBlock
+        label="Are there any pets in the household?"
+        value={yesNo(donor.has_pets)}
+      />
       <InformationBlock
         label="Pickup address"
         value={donor.pickup_address}
@@ -202,8 +195,8 @@ function DonorInformationForm({
 }) {
   return (
     <div className="flex flex-col gap-lg">
-      <div className="flex gap-3">
-        <FieldColumn
+      <div className="grid grid-cols-2 gap-x-3 gap-y-lg">
+        <FormField
           htmlFor="donor-first"
           label="First name"
           error={errors.first_name}
@@ -214,8 +207,8 @@ function DonorInformationForm({
             value={draft.first_name}
             onChange={(e) => setField("first_name")(e.target.value)}
           />
-        </FieldColumn>
-        <FieldColumn
+        </FormField>
+        <FormField
           htmlFor="donor-last"
           label="Last name"
           error={errors.last_name}
@@ -226,11 +219,8 @@ function DonorInformationForm({
             value={draft.last_name}
             onChange={(e) => setField("last_name")(e.target.value)}
           />
-        </FieldColumn>
-      </div>
-
-      <div className="flex gap-3">
-        <FieldColumn
+        </FormField>
+        <FormField
           htmlFor="donor-email"
           label="Email Address"
           error={errors.email}
@@ -242,8 +232,8 @@ function DonorInformationForm({
             value={draft.email}
             onChange={(e) => setField("email")(e.target.value)}
           />
-        </FieldColumn>
-        <FieldColumn
+        </FormField>
+        <FormField
           htmlFor="donor-phone"
           label="Phone number"
           error={errors.phone}
@@ -254,38 +244,34 @@ function DonorInformationForm({
             value={draft.phone}
             onChange={(e) => setField("phone")(e.target.value)}
           />
-        </FieldColumn>
-      </div>
-
-      <div className="flex gap-3">
-        <FieldColumn label="Does anyone smoke in the household?">
+        </FormField>
+        <FormField label="Does anyone smoke in the household?">
           <YesNoToggle
             value={draft.smoking_household}
             onChange={setField("smoking_household")}
             name="smoking"
           />
-        </FieldColumn>
-        <FieldColumn label="Are there any pets in the household?">
+        </FormField>
+        <FormField label="Are there any pets in the household?">
           <YesNoToggle
             value={draft.has_pets}
             onChange={setField("has_pets")}
             name="pets"
           />
-        </FieldColumn>
+        </FormField>
+        <FormField
+          htmlFor="donor-address"
+          label="Pickup address"
+          error={errors.pickup_address}
+        >
+          <Input
+            id="donor-address"
+            aria-invalid={Boolean(errors.pickup_address)}
+            value={draft.pickup_address}
+            onChange={(e) => setField("pickup_address")(e.target.value)}
+          />
+        </FormField>
       </div>
-
-      <FieldColumn
-        htmlFor="donor-address"
-        label="Pickup address"
-        error={errors.pickup_address}
-      >
-        <Input
-          id="donor-address"
-          aria-invalid={Boolean(errors.pickup_address)}
-          value={draft.pickup_address}
-          onChange={(e) => setField("pickup_address")(e.target.value)}
-        />
-      </FieldColumn>
 
       {/* Figma's donor card uses a borderless Cancel next to an outlined Save —
           distinct from the dialogs, where Save is the filled primary action. */}
@@ -297,26 +283,6 @@ function DonorInformationForm({
           Save
         </Button>
       </div>
-    </div>
-  );
-}
-
-function FieldColumn({
-  label,
-  htmlFor,
-  error,
-  children,
-}: {
-  label: string;
-  htmlFor?: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-1 flex-col gap-xs">
-      <Label htmlFor={htmlFor}>{label}</Label>
-      {children}
-      <FieldError message={error} />
     </div>
   );
 }

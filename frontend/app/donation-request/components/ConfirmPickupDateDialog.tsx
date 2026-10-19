@@ -12,7 +12,7 @@ import {
 } from "@/common/components/ui/dialog";
 import { Button } from "@/common/components/ui/button";
 import { InformationBlock } from "@/common/components/data-display";
-import { formatDate } from "@/common/utils/DateUtils";
+import { formatLongDate } from "@/common/utils/DateUtils";
 
 interface ConfirmPickupDateDialogProps {
   open: boolean;
@@ -42,7 +42,10 @@ function ConfirmPickupDateDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
-          <InformationBlock label="Selected Date" value={formatDate(date)} />
+          <InformationBlock
+            label="Selected Date"
+            value={formatLongDate(date)}
+          />
         </DialogBody>
         <DialogFooter>
           <DialogClose render={<Button variant="outline" />}>

@@ -6,6 +6,7 @@ export { DataTable } from "./data-table/DataTable";
 export type {
   DataTableFilterConfig,
   DataTableFilterOption,
+  DataTableSubtabsConfig,
 } from "./data-table/DataTable";
 export { DataTableColumnHeader } from "./data-table/DataTableColumnHeader";
 export { DataTableFacetedFilter } from "./data-table/DataTableFacetedFilter";

@@ -76,20 +76,8 @@ describe("DonationItemCard", () => {
     ).toBeInTheDocument();
   });
 
-  it("lets an admin change a decision on a reviewed item", () => {
-    renderCard(makeItem({ status: "APPROVED" }));
-    expect(screen.queryByRole("button", { name: "Reject" })).toBeNull();
-
-    fireEvent.click(screen.getByRole("button", { name: "Change" }));
-    expect(screen.getByRole("button", { name: "Reject" })).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
-    expect(screen.queryByRole("button", { name: "Reject" })).toBeNull();
-  });
-
   it("offers no review actions once an item has moved past review", () => {
     renderCard(makeItem({ status: "OFFERED" }));
-    expect(screen.queryByRole("button", { name: "Change" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Approve" })).toBeNull();
   });
 

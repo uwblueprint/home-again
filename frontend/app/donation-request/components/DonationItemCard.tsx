@@ -40,10 +40,7 @@ function DonationItemCard({
   const [rejectOpen, setRejectOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-  // Re-opens Approve / Reject on an item that already has a decision.
-  const [changing, setChanging] = useState(false);
 
-  const isDecided = item.status === "APPROVED" || item.status === "REJECTED";
   const isPending = item.status === "PICKUP_PENDING";
 
   const dialogItem: DonationItem = {
@@ -75,7 +72,7 @@ function DonationItemCard({
             </p>
           </div>
 
-          {isPending || changing ? (
+          {isPending ? (
             <div className="flex items-center gap-sm">
               <Button variant="secondary" onClick={() => setRejectOpen(true)}>
                 <X />
@@ -85,11 +82,6 @@ function DonationItemCard({
                 <Check />
                 Approve
               </Button>
-              {changing && (
-                <Button variant="ghost" onClick={() => setChanging(false)}>
-                  Cancel
-                </Button>
-              )}
             </div>
           ) : (
             <div className="flex items-center gap-sm">
@@ -97,17 +89,6 @@ function DonationItemCard({
                 <RejectedBadge />
               ) : (
                 <ApprovedBadge />
-              )}
-              {/* Items that moved past review (OFFERED, …) can't be re-decided;
-                  the backend refuses it. */}
-              {isDecided && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setChanging(true)}
-                >
-                  Change
-                </Button>
               )}
             </div>
           )}
@@ -135,19 +116,15 @@ function DonationItemCard({
         item={dialogItem}
         open={approveOpen}
         onOpenChange={setApproveOpen}
-        onConfirm={() => {
-          onApprove(item.id);
-          setChanging(false);
-        }}
+        onConfirm={() => onApprove(item.id)}
       />
       <RejectItemDialog
         item={dialogItem}
         open={rejectOpen}
         onOpenChange={setRejectOpen}
-        onConfirm={(reason, details) => {
-          onReject(item.id, reason as RejectionReason, details);
-          setChanging(false);
-        }}
+        onConfirm={(reason, details) =>
+          onReject(item.id, reason as RejectionReason, details)
+        }
       />
       <PhotoLightboxDialog
         open={lightboxOpen}

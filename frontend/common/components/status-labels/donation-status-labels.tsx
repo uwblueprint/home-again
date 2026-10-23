@@ -84,3 +84,11 @@ export function ConfirmedBadge() {
     </Badge>
   );
 }
+
+export function PickedUpBadge() {
+  return (
+    <Badge className="rounded-[8px] font-normal border-transparent bg-purple-100 text-purple-900">
+      Picked up
+    </Badge>
+  );
+}

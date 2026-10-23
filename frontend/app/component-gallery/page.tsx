@@ -98,6 +98,7 @@ import {
   RejectedBadge,
   UnconfirmedBadge,
   ConfirmedBadge,
+  PickedUpBadge,
 } from "@/common/components/status-labels";
 import {
   ApproveItemDialog,
@@ -213,6 +214,7 @@ function StatusLabelsDemo() {
       <div className="flex flex-wrap gap-sm">
         <UnconfirmedBadge />
         <ConfirmedBadge />
+        <PickedUpBadge />
       </div>
     </div>
   );
@@ -1256,6 +1258,7 @@ const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "MultiStepLayout", Demo: MultiStepLayoutDemo },
   { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
   { name: "DataTable", Demo: DataTableDemo },
+  { name: "HistoryTable", Demo: DonationHistoryDemo },
   { name: "BigToggleButton", Demo: BigToggleButtonDemo },
 ];
 

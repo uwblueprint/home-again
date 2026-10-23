@@ -12,3 +12,8 @@ export { DataTableFacetedFilter } from "./data-table/DataTableFacetedFilter";
 export { SearchBar } from "./SearchBar";
 export { DataTableToolbar } from "./data-table/DataTableToolbar";
 export { DataTablePagination } from "./data-table/DataTablePagination";
+export {
+  DataTable as HistoryTable,
+  donationHistoryColumns,
+} from "./history-table/DataTable";
+export type { DonationHistoryRow } from "./history-table/DataTable";

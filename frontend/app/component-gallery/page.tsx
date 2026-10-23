@@ -20,6 +20,7 @@ import {
   SearchBar,
   DataTable,
   DataTableColumnHeader,
+  StockItemChip,
 } from "@/common/components/data-display";
 import {
   Avatar,
@@ -168,6 +169,19 @@ function AvatarDemo() {
 
 function BadgeDemo() {
   return <Badge variant="outline">Sample badge</Badge>;
+}
+
+function StockItemChipDemo() {
+  return (
+    <div className="flex flex-wrap items-center gap-sm">
+      <StockItemChip name="Bed frame" quantity={3} stock={8} />
+      <StockItemChip name="Nightstand" quantity={2} stock={1} />
+      <StockItemChip name="Dining table" quantity={1} stock={0} />
+      <StockItemChip stock={8} />
+      <StockItemChip stock={1} variant="partial" />
+      <StockItemChip stock={0} />
+    </div>
+  );
 }
 
 function BigToggleButtonDemo() {
@@ -481,7 +495,10 @@ const SAMPLE_DONATION_ITEM: DonationItem = {
 
 function DonationItemPreviewDemo() {
   return (
-    <DonationItemPreview {...SAMPLE_DONATION_ITEM} className="w-full max-w-md" />
+    <DonationItemPreview
+      {...SAMPLE_DONATION_ITEM}
+      className="w-full max-w-md"
+    />
   );
 }
 
@@ -1223,6 +1240,7 @@ function DataTableDemo() {
 const BASE_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "Avatar", Demo: AvatarDemo },
   { name: "Badge", Demo: BadgeDemo },
+  { name: "StockItemChip", Demo: StockItemChipDemo },
   { name: "StatusLabels", Demo: StatusLabelsDemo },
   { name: "Breadcrumb", Demo: BreadcrumbDemo },
   { name: "Button", Demo: ButtonDemo },

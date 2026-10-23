@@ -1258,7 +1258,6 @@ const COMPOSED_COMPONENTS: { name: string; Demo: () => ReactNode }[] = [
   { name: "MultiStepLayout", Demo: MultiStepLayoutDemo },
   { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
   { name: "DataTable", Demo: DataTableDemo },
-  { name: "HistoryTable", Demo: DonationHistoryDemo },
   { name: "BigToggleButton", Demo: BigToggleButtonDemo },
 ];
 

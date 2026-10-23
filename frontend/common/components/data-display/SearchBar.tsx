@@ -16,13 +16,13 @@ export function SearchBar({
   placeholder = "Search",
 }: SearchBarProps) {
   return (
-    <div className="relative w-full max-w-75">
-      <Search className="pointer-events-none absolute left-sm top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+    <div className="relative w-75 min-w-0 max-w-full shrink">
+      <Search className="pointer-events-none absolute left-md top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="pl-8"
+        className="h-10 rounded-xl pl-12"
       />
     </div>
   );

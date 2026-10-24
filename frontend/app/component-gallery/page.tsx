@@ -109,6 +109,7 @@ import {
   RejectedBadge,
   UnconfirmedBadge,
   ConfirmedBadge,
+  PriorityBadge,
 } from "@/common/components/status-labels";
 import {
   ApproveItemDialog,
@@ -244,6 +245,7 @@ function StatusLabelsDemo() {
       <div className="flex flex-wrap gap-sm">
         <UnconfirmedBadge />
         <ConfirmedBadge />
+        <PriorityBadge />
       </div>
     </div>
   );

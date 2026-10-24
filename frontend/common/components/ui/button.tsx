@@ -17,7 +17,11 @@ const buttonVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-neutral-200 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
-          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
+          // --muted resolves to a green brand token, not a neutral gray —
+          // use the neutral secondary-hover token instead so ghost buttons
+          // (pagination, dialog/sheet close, sidebar toggles, …) don't
+          // tint green on hover.
+          "hover:bg-(--unofficial-secondary-hover) hover:text-foreground aria-expanded:bg-(--unofficial-secondary-hover) aria-expanded:text-foreground",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive focus-visible:border-destructive/40 focus-visible:ring-destructive/20",
         link: "text-primary underline-offset-4 hover:underline",

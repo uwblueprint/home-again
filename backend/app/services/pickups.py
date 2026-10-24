@@ -1,6 +1,7 @@
 """Pickup service layer."""
 
 import logging
+from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy import select
@@ -11,6 +12,8 @@ from ..models import Donation, Pickup, Route
 from ..schemas import PickupCreate, PickupUpdate
 
 logger = logging.getLogger(__name__)
+
+MAX_NOTE_LENGTH = 500
 
 
 async def list_pickups(db: AsyncSession) -> list[Pickup]:
@@ -28,6 +31,7 @@ async def get_pickup(db: AsyncSession, pickup_id: str) -> Pickup | None:
 async def create_pickup(db: AsyncSession, payload: PickupCreate) -> Pickup:
     data = payload.model_dump()
     await _validate_fks(db, data)
+    _validate_note(data.get("note"))
     db_pickup = Pickup(**data)
     db.add(db_pickup)
     try:
@@ -47,6 +51,18 @@ async def update_pickup(
     if not data:
         raise ValueError("No update fields were provided.")
     await _validate_fks(db, data)
+    if "note" in data:
+        _validate_note(data["note"])
+
+    # Moving a confirmed pickup to a new date invalidates the donor's confirmation,
+    # so it drops back to unconfirmed and must be re-sent.
+    if (
+        "scheduled_date" in data
+        and pickup.confirmed_at
+        and data["scheduled_date"] != pickup.scheduled_date
+    ):
+        pickup.confirmed_at = None
+
     for key, value in data.items():
         setattr(pickup, key, value)
     try:
@@ -57,6 +73,32 @@ async def update_pickup(
         raise ValueError(f"Update failed: {str(e.orig)}") from e
     await db.refresh(pickup)
     return pickup
+
+
+async def confirm_pickup(db: AsyncSession, pickup: Pickup) -> Pickup:
+    """
+    Confirm the scheduled date — the point at which the donor is notified.
+
+    Idempotent: re-confirming an already-confirmed pickup keeps the original
+    timestamp rather than resetting it.
+    """
+    if not pickup.scheduled_date:
+        raise ValueError("Cannot confirm a pickup that has no scheduled date.")
+    if pickup.confirmed_at is None:
+        pickup.confirmed_at = datetime.now(timezone.utc).replace(tzinfo=None)
+    try:
+        await db.commit()
+    except IntegrityError as e:
+        await db.rollback()
+        logger.exception("IntegrityError confirming pickup %s: %s", pickup.id, e.orig)
+        raise ValueError(f"Unable to confirm pickup: {str(e.orig)}") from e
+    await db.refresh(pickup)
+    return pickup
+
+
+def _validate_note(note: str | None) -> None:
+    if note is not None and len(note) > MAX_NOTE_LENGTH:
+        raise ValueError(f"note must be {MAX_NOTE_LENGTH} characters or fewer.")
 
 
 async def delete_pickup(db: AsyncSession, pickup: Pickup) -> None:

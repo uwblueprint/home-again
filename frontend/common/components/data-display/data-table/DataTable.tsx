@@ -29,10 +29,11 @@ import {
 import {
   DataTableToolbar,
   type DataTableFilterConfig,
+  type DataTableSubtabsConfig,
 } from "./DataTableToolbar";
 import { DataTablePagination } from "./DataTablePagination";
 
-export type { DataTableFilterConfig } from "./DataTableToolbar";
+export type { DataTableFilterConfig, DataTableSubtabsConfig } from "./DataTableToolbar";
 export type { DataTableFilterOption } from "./DataTableFacetedFilter";
 
 /** Matches a row if any cell's stringified value contains the search term. */
@@ -58,6 +59,8 @@ interface DataTableProps<TData, TValue> {
   searchPlaceholder?: string;
   filters?: DataTableFilterConfig[];
   toolbarActions?: React.ReactNode;
+  /** Segmented tab bar on the left of the toolbar — rendered only when passed. */
+  subtabs?: DataTableSubtabsConfig;
   onRowClick?: (row: TData) => void;
   pageSize?: number;
   testId?: string;
@@ -72,6 +75,7 @@ export function DataTable<TData, TValue>({
   searchPlaceholder,
   filters,
   toolbarActions,
+  subtabs,
   onRowClick,
   pageSize = 10,
   testId = "data-table",
@@ -88,7 +92,7 @@ export function DataTable<TData, TValue>({
           enableSorting: false,
           enableHiding: false,
           header: () => null,
-          cell: () => <ChevronRight className="size-4 text-muted-foreground" />,
+          cell: () => <ChevronRight className="size-6 text-foreground" />,
         } satisfies ColumnDef<TData, TValue>,
       ]
     : columns;
@@ -120,6 +124,7 @@ export function DataTable<TData, TValue>({
         searchPlaceholder={searchPlaceholder}
         filters={filters}
         actions={toolbarActions}
+        subtabs={subtabs}
       />
 
       <Table>
@@ -129,7 +134,7 @@ export function DataTable<TData, TValue>({
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
-                  className="h-auto px-xs py-3.5 text-paragraph-small font-medium text-foreground"
+                  className="h-auto px-xs py-xs text-paragraph-small font-medium text-foreground"
                 >
                   {header.isPlaceholder
                     ? null
@@ -177,7 +182,7 @@ export function DataTable<TData, TValue>({
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className="whitespace-nowrap px-xs py-3.5 text-paragraph-small text-foreground"
+                    className="h-12 whitespace-nowrap px-xs py-0 text-paragraph-small text-foreground"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
@@ -210,7 +215,7 @@ function DataTableSkeletonRows({ columns }: { columns: number }) {
           {Array.from({ length: columns }).map((_, colIndex) => (
             <TableCell
               key={`skeleton-${rowIndex}-${colIndex}`}
-              className="px-xs py-3.5"
+              className="h-12 px-xs py-0"
             >
               <div className="h-4 w-24 animate-pulse rounded bg-muted" />
             </TableCell>

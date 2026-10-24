@@ -61,6 +61,8 @@ function DialogContent({
         )}
         {...props}
       >
+        {/* z-10: DialogHeader is `relative` and renders after this button, so
+            without it the header paints over the X and swallows its clicks. */}
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
@@ -68,7 +70,7 @@ function DialogContent({
               <Button
                 type="button"
                 variant="ghost"
-                className="absolute top-md right-md text-muted-foreground hover:bg-[var(--unofficial-outline-hover)]"
+                className="absolute top-md right-md z-10 text-muted-foreground hover:bg-[var(--unofficial-outline-hover)]"
                 size="icon-sm"
               />
             }

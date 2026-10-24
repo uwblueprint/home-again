@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..database import get_db
 from ..models import Donation
 from ..schemas import Donation as DonationSchema
-from ..schemas import DonationCreate, DonationUpdate
+from ..schemas import DonationCreate, DonationDetail, DonationUpdate
 from ..services import donations_service
 
 router = APIRouter()
@@ -39,6 +39,17 @@ async def create_donation(payload: DonationCreate, db: AsyncSession = Depends(ge
 @router.get("/{donation_id}", response_model=DonationSchema)
 async def get_donation(donation: Donation = Depends(get_donation_or_404)):
     return donation
+
+
+@router.get("/{donation_id}/detail", response_model=DonationDetail)
+async def get_donation_detail(donation_id: str, db: AsyncSession = Depends(get_db)):
+    """Donation with donor, items, item photos and pickup — one call for the review screen."""
+    donation = await donations_service.get_donation_detail(db, donation_id)
+    if not donation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Donation not found"
+        )
+    return donations_service.build_donation_detail(donation)
 
 
 @router.put("/{donation_id}", response_model=DonationSchema)

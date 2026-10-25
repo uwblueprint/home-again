@@ -117,6 +117,7 @@ import {
   RejectItemDialog,
   type DonationItem,
 } from "@/app/donation-request/components";
+import { ReferralCard } from "@/common/components";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
 
@@ -1409,6 +1410,77 @@ function AdminHeaderDemo() {
   );
 }
 
+function ReferralCardDemo() {
+  const sharedProps = {
+    clientName: "Jane Doe",
+    referralId: "WCYIECNIE",
+    submittedAt: "23 March 2026",
+    agents: [
+      { firstName: "Winnie", lastName: "Xu", role: "Primary agent" },
+      { firstName: "Alex", lastName: "Lee", role: "Secondary agent" },
+    ],
+    items: [
+      { id: "bed", name: "Bed frame", quantity: 1, stock: 1 },
+      { id: "nightstand", name: "Nightstand", quantity: 2, stock: 1 },
+    ],
+  };
+
+  return (
+    <div className="flex w-full flex-col gap-md">
+      <div className="space-y-xs">
+        <p className="text-paragraph-small font-medium text-muted-foreground">
+          Pending — review actions and priority
+        </p>
+        <ReferralCard
+          {...sharedProps}
+          status="pending"
+          isPriority
+          priorityDescription="Client has an urgent housing need"
+          hasUnfulfillableItems
+          onReject={() => undefined}
+          onWaitlist={() => undefined}
+          onViewDetails={() => undefined}
+        />
+      </div>
+
+      <div className="space-y-xs">
+        <p className="text-paragraph-small font-medium text-muted-foreground">
+          Pending review — review link
+        </p>
+        <ReferralCard
+          {...sharedProps}
+          status="pending-review"
+          onViewDetails={() => undefined}
+        />
+      </div>
+
+      <div className="space-y-xs">
+        <p className="text-paragraph-small font-medium text-muted-foreground">
+          Waitlisted — previous submission
+        </p>
+        <ReferralCard
+          {...sharedProps}
+          status="waitlisted"
+          previousSubmissionAt="10 March 2026"
+          onViewDetails={() => undefined}
+        />
+      </div>
+
+      <div className="space-y-xs">
+        <p className="text-paragraph-small font-medium text-muted-foreground">
+          Rejected — rejection reason
+        </p>
+        <ReferralCard
+          {...sharedProps}
+          status="rejected"
+          rejectionReason="The requested items are not available in the service area."
+          onViewDetails={() => undefined}
+        />
+      </div>
+    </div>
+  );
+}
+
 // ─── registry ─────────────────────────────────────────────────────────────────
 // To add a base component: add an entry to BASE_COMPONENTS.
 // To add a composed component: add an entry to COMPOSED_COMPONENTS.
@@ -1462,6 +1534,7 @@ const COMPOSED_COMPONENTS: {
   { name: "BigToggleButton", Demo: BigToggleButtonDemo },
   { name: "PhotoStrip + Lightbox", Demo: PhotoStripDemo },
   { name: "AdminHeader", Demo: AdminHeaderDemo },
+  { name: "ReferralCard", Demo: ReferralCardDemo, fullWidth: true },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

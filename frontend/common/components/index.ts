@@ -4,10 +4,7 @@ export * from "./feedback";
 export * from "./multi-step-layout";
 export * from "./agents";
 export * from "./status-labels";
-export {
-  default as ReferralCard,
-  WaitingListReferralCard,
-} from "./ReferralCard";
+export { default as ReferralCard } from "./ReferralCard";
 export type {
   ReferralCardAgent,
   ReferralCardItem,

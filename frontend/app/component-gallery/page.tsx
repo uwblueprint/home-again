@@ -117,7 +117,11 @@ import {
   RejectItemDialog,
   type DonationItem,
 } from "@/app/donation-request/components";
-import { ReferralCard } from "@/common/components";
+import {
+  ReferralCard,
+  ReferralCardAgent,
+  ReferralCardItem,
+} from "@/common/components";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
 
@@ -1410,73 +1414,124 @@ function AdminHeaderDemo() {
   );
 }
 
+function ReferralCardDemoRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-xs">
+      <p className="text-paragraph-small font-medium text-muted-foreground">
+        {label}
+      </p>
+      {children}
+    </div>
+  );
+}
+
 function ReferralCardDemo() {
-  const sharedProps = {
+  const noop = () => undefined;
+
+  const DEMO_AGENTS: ReferralCardAgent[] = [
+    { firstName: "Winnie", lastName: "Xu", role: "primary" },
+    { firstName: "Alex", lastName: "Lee", role: "secondary" },
+  ];
+
+  // One chip per stock state: available, available, partial, unavailable.
+  const DEMO_ITEMS: ReferralCardItem[] = [
+    { id: "bed", name: "Bed frame", quantity: 1, stock: 8 },
+    { id: "mattress", name: "Mattress", quantity: 2, stock: 3 },
+    { id: "nightstand", name: "Nightstand", quantity: 2, stock: 1 },
+    { id: "table", name: "Dining table", quantity: 1, stock: 0 },
+  ];
+  const shared = {
     clientName: "Jane Doe",
-    referralId: "WCYIECNIE",
-    submittedAt: "23 March 2026",
-    agents: [
-      { firstName: "Winnie", lastName: "Xu", role: "Primary agent" },
-      { firstName: "Alex", lastName: "Lee", role: "Secondary agent" },
-    ],
-    items: [
-      { id: "bed", name: "Bed frame", quantity: 1, stock: 1 },
-      { id: "nightstand", name: "Nightstand", quantity: 2, stock: 1 },
-    ],
+    referralId: "REFERRAL ID",
+    submittedAt: "10/24/2026",
+    agents: DEMO_AGENTS,
   };
 
   return (
-    <div className="flex w-full flex-col gap-md">
-      <div className="space-y-xs">
-        <p className="text-paragraph-small font-medium text-muted-foreground">
-          Pending — review actions and priority
-        </p>
+    <div className="flex w-full flex-col gap-lg">
+      <ReferralCardDemoRow label="Pending review — priority, every stock state">
         <ReferralCard
-          {...sharedProps}
-          status="pending"
-          isPriority
-          priorityDescription="Client has an urgent housing need"
-          hasUnfulfillableItems
-          onReject={() => undefined}
-          onWaitlist={() => undefined}
-          onViewDetails={() => undefined}
-        />
-      </div>
-
-      <div className="space-y-xs">
-        <p className="text-paragraph-small font-medium text-muted-foreground">
-          Pending review — review link
-        </p>
-        <ReferralCard
-          {...sharedProps}
+          {...shared}
           status="pending-review"
-          onViewDetails={() => undefined}
+          isPriority
+          items={DEMO_ITEMS}
+          onViewDetails={noop}
         />
-      </div>
+      </ReferralCardDemoRow>
 
-      <div className="space-y-xs">
-        <p className="text-paragraph-small font-medium text-muted-foreground">
-          Waitlisted — previous submission
-        </p>
+      <ReferralCardDemoRow label="Partially reviewed — some items already decided">
         <ReferralCard
-          {...sharedProps}
-          status="waitlisted"
-          previousSubmissionAt="10 March 2026"
-          onViewDetails={() => undefined}
+          {...shared}
+          referralId="LK29XPW1A"
+          status="partially-reviewed"
+          onViewDetails={noop}
         />
-      </div>
+      </ReferralCardDemoRow>
 
-      <div className="space-y-xs">
-        <p className="text-paragraph-small font-medium text-muted-foreground">
-          Rejected — rejection reason
-        </p>
+      <ReferralCardDemoRow label="Reviewed - 2/4 approved, scheduling incomplete">
         <ReferralCard
-          {...sharedProps}
+          {...shared}
+          referralId="ZP03VBN7C"
+          status="reviewed"
+          approvedCount={2}
+          totalCount={4}
+          hasIncompleteScheduling
+          onViewDetails={noop}
+        />
+      </ReferralCardDemoRow>
+
+      <ReferralCardDemoRow label="Reviewed - nothing approved (red label)">
+        <ReferralCard
+          {...shared}
+          referralId="BV55ROA9X"
+          status="reviewed"
+          approvedCount={0}
+          totalCount={3}
+          onViewDetails={noop}
+        />
+      </ReferralCardDemoRow>
+
+      <ReferralCardDemoRow label="Pending - Reject / Waitlist actions, previous submission">
+        <ReferralCard
+          {...shared}
+          referralId="CN84TYU2M"
+          status="pending"
+          previousSubmissionAt="2026-01-02"
+          onReject={noop}
+          onWaitlist={noop}
+          onViewDetails={noop}
+        />
+      </ReferralCardDemoRow>
+
+      <ReferralCardDemoRow label="Pending - priority with actions and error">
+        <ReferralCard
+          {...shared}
+          referralId="EW16JKS4P"
+          status="pending"
+          errorMsg="This request has items that can't be fully fulfilled right now."
+          isPriority
+          onReject={noop}
+          onWaitlist={noop}
+          onViewDetails={noop}
+        />
+      </ReferralCardDemoRow>
+
+      <ReferralCardDemoRow label="Rejected - reason and previous submission">
+        <ReferralCard
+          {...shared}
+          referralId="AX90FGH3R"
           status="rejected"
-          rejectionReason="The requested items are not available in the service area."
-          onViewDetails={() => undefined}
+          previousSubmissionAt="2026-01-02"
+          rejectionReason="Submitted a referral this year already"
+          onViewDetails={noop}
         />
-      </div>
+      </ReferralCardDemoRow>
     </div>
   );
 }

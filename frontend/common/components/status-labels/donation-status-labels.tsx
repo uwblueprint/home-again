@@ -95,3 +95,38 @@ export function ConfirmedBadge() {
     </Badge>
   );
 }
+
+export function PickedUpBadge() {
+  return (
+    <Badge className="rounded-[8px] font-normal border-transparent bg-purple-100 text-purple-900">
+      Picked up
+    </Badge>
+  );
+}
+
+export function DonationStatusBadge({
+  status,
+}: {
+  status: DonationHistoryStatus;
+}) {
+  switch (status) {
+    case "confirmed":
+      return <ConfirmedBadge />;
+    case "rejected":
+      return <RejectedBadge />;
+    case "approved":
+      return <ApprovedBadge />;
+    case "picked_up":
+      return <PickedUpBadge />;
+    case "unconfirmed":
+    default:
+      return <UnconfirmedBadge />;
+  }
+}
+
+export type DonationHistoryStatus =
+  | "unconfirmed"
+  | "confirmed"
+  | "approved"
+  | "picked_up"
+  | "rejected";

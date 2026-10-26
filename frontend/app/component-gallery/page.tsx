@@ -22,6 +22,9 @@ import {
   DataTableColumnHeader,
   PhotoStrip,
   PhotoLightboxDialog,
+  HistoryTable,
+  donationHistoryColumns,
+  type DonationHistoryRow,  
 } from "@/common/components/data-display";
 import {
   Alert,
@@ -109,6 +112,7 @@ import {
   RejectedBadge,
   UnconfirmedBadge,
   ConfirmedBadge,
+  PickedUpBadge,
 } from "@/common/components/status-labels";
 import {
   ApproveItemDialog,
@@ -244,7 +248,47 @@ function StatusLabelsDemo() {
       <div className="flex flex-wrap gap-sm">
         <UnconfirmedBadge />
         <ConfirmedBadge />
+        <PickedUpBadge />
       </div>
+    </div>
+  );
+}
+
+  function DonationHistoryDemo() {
+  const [data] = useState<DonationHistoryRow[]>([
+    {
+      donationDate: "2026-10-02",
+      donationId: "DON-1042",
+      items: ["Sofa", "Coffee table", "Floor lamp"],
+      status: "scheduled",
+    },
+    {
+      donationDate: "2026-09-25",
+      donationId: "DON-1038",
+      items: ["Queen bed frame", "Mattress"],
+      status: "picked_up",
+    },
+    {
+      donationDate: "2026-09-18",
+      donationId: "DON-1031",
+      items: ["Dining table", "Six chairs"],
+      status: "confirmed",
+    },
+    {
+      donationDate: "2026-09-10",
+      donationId: "DON-1024",
+      items: ["Dresser"],
+      status: "unconfirmed",
+    },
+  ]);
+
+  return (
+    <div className="w-full">
+      <HistoryTable
+        columns={donationHistoryColumns}
+        data={data}
+        searchPlaceholder="Search donations"
+      />
     </div>
   );
 }
@@ -1444,6 +1488,7 @@ const COMPOSED_COMPONENTS: {
   { name: "MultiStepLayout", Demo: MultiStepLayoutDemo },
   { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
   { name: "DataTable", Demo: DataTableDemo, fullWidth: true },
+  { name: "HistoryTable", Demo: DonationHistoryDemo },
   { name: "BigToggleButton", Demo: BigToggleButtonDemo },
   { name: "PhotoStrip + Lightbox", Demo: PhotoStripDemo },
   { name: "AdminHeader", Demo: AdminHeaderDemo },

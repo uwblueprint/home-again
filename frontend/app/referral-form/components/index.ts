@@ -30,3 +30,4 @@ export type {
   AgentData,
   AgreementsData,
 } from "./types";
+export { RequestedItemCard } from "./RequestedItemCard";

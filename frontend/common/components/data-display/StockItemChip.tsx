@@ -26,7 +26,7 @@ export function StockItemChip({
     variant ??
     (stock <= 0
       ? "unavailable"
-      : hasItemDetails && stock < quantity
+      : quantity !== undefined && stock < quantity
         ? "partial"
         : "available");
 

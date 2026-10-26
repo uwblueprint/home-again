@@ -117,6 +117,9 @@ import {
   RejectItemDialog,
   type DonationItem,
 } from "@/app/donation-request/components";
+import {
+  RequestedItemCard
+} from "@/app/referral-form/components";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
 
@@ -1409,6 +1412,18 @@ function AdminHeaderDemo() {
   );
 }
 
+function RequestedItemCardDemo() {
+  return (
+    <RequestedItemCard
+      className="w-80"
+      quantity={1}
+      furniture="Bed Frame"
+      stock={8}
+      description="Specification here"
+    />
+  );
+}
+
 // ─── registry ─────────────────────────────────────────────────────────────────
 // To add a base component: add an entry to BASE_COMPONENTS.
 // To add a composed component: add an entry to COMPOSED_COMPONENTS.
@@ -1451,6 +1466,7 @@ const COMPOSED_COMPONENTS: {
   { name: "DonationItemPreview", Demo: DonationItemPreviewDemo },
   { name: "ApproveItemDialog", Demo: ApproveItemDialogDemo },
   { name: "RejectItemDialog", Demo: RejectItemDialogDemo },
+  { name: "RequestedItemCard", Demo: RequestedItemCardDemo },
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
   { name: "DatePicker", Demo: DatePickerDemo },
   { name: "FurnitureItemCard", Demo: FurnitureItemCardDemo },

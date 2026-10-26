@@ -20,6 +20,7 @@ import {
   SearchBar,
   DataTable,
   DataTableColumnHeader,
+  DonationCountBadge,
 } from "@/common/components/data-display";
 import {
   Avatar,
@@ -95,7 +96,6 @@ import {
   PendingReviewBadge,
   PartiallyReviewedBadge,
   ApprovalsLabel,
-  DonationCountBadge,
   ApprovedBadge,
   RejectedBadge,
   UnconfirmedBadge,

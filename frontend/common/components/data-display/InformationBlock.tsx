@@ -7,6 +7,8 @@ interface InformationBlockProps {
   value: ReactNode;
   className?: string;
   labelAction?: ReactNode;
+  /** Rendered beside the value (e.g. a copy button). Sits outside the value <p>. */
+  valueAction?: ReactNode;
 }
 
 function InformationBlock({
@@ -14,11 +16,12 @@ function InformationBlock({
   value,
   className,
   labelAction,
+  valueAction,
 }: InformationBlockProps) {
   return (
     <div
       className={cn(
-        "flex flex-col items-start gap-sm self-stretch",
+        "flex min-w-0 flex-col items-start gap-sm self-stretch",
         className
       )}
     >
@@ -26,9 +29,12 @@ function InformationBlock({
         <p className="text-sm font-medium text-foreground">{label}</p>
         {labelAction}
       </div>
-      <p className="min-w-0 break-words text-sm text-muted-foreground">
-        {value}
-      </p>
+      <div className="flex min-w-0 max-w-full items-center gap-1.5">
+        <p className="min-w-0 text-sm text-muted-foreground [overflow-wrap:anywhere]">
+          {value}
+        </p>
+        {valueAction}
+      </div>
     </div>
   );
 }

@@ -90,8 +90,9 @@ export const referralColumns: ColumnDef<ReferralRow>[] = [
   referralIdColumn,
   caseAgentsColumn,
   {
-    id: "creationDate",
-    accessorFn: (row) => row.createdAt,
+    accessorKey: "creationDate",
+    sortingFn: (a, b) => a.original.createdAt - b.original.createdAt,
+    sortDescFirst: true,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Creation Date" />
     ),
@@ -126,10 +127,7 @@ export const referralHistoryColumns: ColumnDef<ReferralRow>[] = [
   {
     id: "completionDate",
     header: "Completion Date",
-    cell: ({ row }) =>
-      row.original.status === "Delivered" || row.original.status === "Rejected"
-        ? row.original.creationDate
-        : "—",
+    cell: ({ row }) => row.original.completionDate ?? "—",
   },
   {
     accessorKey: "status",
@@ -154,8 +152,10 @@ export const clientColumns: ColumnDef<ClientRow>[] = [
     cell: highlighted((row) => row.clientId),
   },
   {
-    id: "mostRecentReferral",
-    accessorFn: (row) => row.mostRecentReferralAt,
+    accessorKey: "mostRecentReferral",
+    sortingFn: (a, b) =>
+      a.original.mostRecentReferralAt - b.original.mostRecentReferralAt,
+    sortDescFirst: true,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Most recent referral" />
     ),

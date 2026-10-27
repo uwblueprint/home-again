@@ -24,7 +24,10 @@ export type ReferralRow = {
   creationDate: string;
   createdAt: number;
   status: ReferralStatus;
+  /** Short date shown next to the status badge (e.g. "Mar 15"). */
   statusDate?: string;
+  /** Full date when the referral was delivered or rejected. */
+  completionDate?: string;
   isPriority: boolean;
   attributes: ReferralAttribute[];
 };
@@ -147,9 +150,14 @@ function makeReferralRows(): ReferralRow[] {
     const hasSecondary = index % 3 !== 1;
     const isPriority = status !== "Pending" && index % 4 === 0;
     const created = new Date(now - index * 86_400_000);
+    // Status/completion dates land a few days after creation.
+    const resolved = new Date(
+      created.getTime() + ((index % 5) + 2) * 86_400_000
+    );
+    const isComplete = status === "Delivered" || status === "Rejected";
     const statusDate =
-      status === "Delivered" || status === "Scheduled"
-        ? formatStatusDate(new Date(now - (index + 8) * 86_400_000))
+      status === "Delivered" || status === "Scheduled" || status === "Rejected"
+        ? formatStatusDate(resolved)
         : undefined;
 
     // Most referrals belong to the signed-in agent; a subset are other agents only.
@@ -170,6 +178,7 @@ function makeReferralRows(): ReferralRow[] {
       createdAt: created.getTime(),
       status,
       statusDate,
+      completionDate: isComplete ? formatCreationDate(resolved) : undefined,
       isPriority,
       attributes: buildAttributes(status, isPriority, hasSecondary, index),
     };

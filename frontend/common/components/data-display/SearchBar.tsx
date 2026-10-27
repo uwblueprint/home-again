@@ -19,13 +19,13 @@ export function SearchBar({
   className,
 }: SearchBarProps) {
   return (
-    <div className={cn("relative w-full max-w-75", className)}>
-      <Search className="pointer-events-none absolute left-sm top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+    <div className={cn("relative w-75 min-w-0 max-w-full shrink", className)}>
+      <Search className="pointer-events-none absolute left-md top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="pl-8"
+        className="h-10 rounded-xl pl-12"
       />
     </div>
   );

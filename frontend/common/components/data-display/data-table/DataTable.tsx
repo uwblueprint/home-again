@@ -32,10 +32,14 @@ import {
   DataTableToolbar,
   type DataTableFilterConfig,
   type DataTableSortOption,
+  type DataTableSubtabsConfig,
 } from "./DataTableToolbar";
 import { DataTablePagination } from "./DataTablePagination";
 
-export type { DataTableFilterConfig } from "./DataTableToolbar";
+export type {
+  DataTableFilterConfig,
+  DataTableSubtabsConfig,
+} from "./DataTableToolbar";
 export type { DataTableFilterOption } from "./DataTableFacetedFilter";
 
 declare module "@tanstack/react-table" {
@@ -78,6 +82,8 @@ interface DataTableProps<TData, TValue> {
   header?: ReactNode;
   toolbarLeading?: ReactNode;
   toolbarActions?: React.ReactNode;
+  /** Segmented tab bar on the left of the toolbar — rendered only when passed. */
+  subtabs?: DataTableSubtabsConfig;
   onRowClick?: (row: TData) => void;
   /** Highlights this query in cells without filtering rows. */
   highlightQuery?: string;
@@ -100,6 +106,7 @@ export function DataTable<TData, TValue>({
   header,
   toolbarLeading,
   toolbarActions,
+  subtabs,
   onRowClick,
   highlightQuery,
   pageSize = 10,
@@ -128,7 +135,7 @@ export function DataTable<TData, TValue>({
           enableSorting: false,
           enableHiding: false,
           header: () => null,
-          cell: () => <ChevronRight className="size-4 text-muted-foreground" />,
+          cell: () => <ChevronRight className="size-6 text-foreground" />,
         } satisfies ColumnDef<TData, TValue>,
       ]
     : columns;
@@ -187,6 +194,7 @@ export function DataTable<TData, TValue>({
           onSortReset={sortOptions ? handleSortReset : undefined}
           leading={toolbarLeading}
           actions={toolbarActions}
+          subtabs={subtabs}
         />
       )}
 
@@ -314,7 +322,7 @@ function DataTableSkeletonRows({ columns }: { columns: number }) {
           {Array.from({ length: columns }).map((_, colIndex) => (
             <TableCell
               key={`skeleton-${rowIndex}-${colIndex}`}
-              className="px-xs py-3.5"
+              className="h-12 px-xs py-0"
             >
               <div className="h-4 w-24 animate-pulse rounded bg-muted" />
             </TableCell>

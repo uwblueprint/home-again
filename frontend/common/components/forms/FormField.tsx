@@ -7,7 +7,8 @@ import { FieldError } from "./FieldError";
 
 interface FormFieldProps {
   label: string;
-  htmlFor: string;
+  /** Omit for controls without a single labelable element (e.g. toggle groups). */
+  htmlFor?: string;
   error?: string;
   required?: boolean;
   className?: string;
@@ -26,8 +27,11 @@ function FormField({
     <div className={cn("flex flex-col gap-1.5", className)}>
       <Label htmlFor={htmlFor}>
         <span>
-          {label}{required ? (
-            <span className="text-destructive" aria-hidden>*</span>
+          {label}
+          {required ? (
+            <span className="text-destructive" aria-hidden>
+              *
+            </span>
           ) : null}
         </span>
       </Label>

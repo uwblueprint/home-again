@@ -9,6 +9,7 @@ import { Checkbox } from "@/common/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/common/components/ui/dropdown-menu";
 
@@ -25,8 +26,10 @@ interface DataTableFacetedFilterProps<TData, TValue> {
 }
 
 /**
- * Filter dropdown for a single column, matching the Figma "Filter" control:
- * list-filter icon, "Select all that apply" heading, checkboxes, and Clear.
+ * Filter dropdown for a single column, matching the "Filter Menu" component
+ * in the design system (Figma: Home Again Design System, node 527:869).
+ * Multi-select — check as many options as apply; the column's `filterFn`
+ * must expect a `string[]` filter value (see `Array.includes`-style checks).
  */
 export function DataTableFacetedFilter<TData, TValue>({
   column,
@@ -34,18 +37,18 @@ export function DataTableFacetedFilter<TData, TValue>({
   options,
   className,
 }: DataTableFacetedFilterProps<TData, TValue>) {
-  const selectedValues = new Set(
-    (column?.getFilterValue() as string[] | undefined) ?? []
-  );
+  // Guard rather than cast: subtabs can share this column, and another
+  // filter could write a non-array value (see DataTableToolbar).
+  const rawFilterValue = column?.getFilterValue();
+  const selectedValues = Array.isArray(rawFilterValue)
+    ? (rawFilterValue as string[])
+    : [];
 
   const toggleValue = (value: string) => {
-    const next = new Set(selectedValues);
-    if (next.has(value)) {
-      next.delete(value);
-    } else {
-      next.add(value);
-    }
-    column?.setFilterValue(next.size ? Array.from(next) : undefined);
+    const next = selectedValues.includes(value)
+      ? selectedValues.filter((v) => v !== value)
+      : [...selectedValues, value];
+    column?.setFilterValue(next.length ? next : undefined);
   };
 
   return (
@@ -53,55 +56,48 @@ export function DataTableFacetedFilter<TData, TValue>({
       <DropdownMenuTrigger
         render={
           <Button
-            variant="outline"
-            className={cn("gap-2 border-border", className)}
+            variant="secondary"
+            className={cn(
+              "h-10 gap-(--2xs) rounded-xl border border-border px-sm",
+              selectedValues.length > 0 && "bg-accent",
+              className
+            )}
           >
-            <ListFilter className="size-4" />
+            <ListFilter className="size-5" />
             {title}
           </Button>
         }
       />
       <DropdownMenuContent
-        align="end"
-        side="bottom"
-        collisionAvoidance={{ side: "none", fallbackAxisSide: "none" }}
-        className="min-w-56 p-md"
+        align="start"
+        className="flex w-50 flex-col gap-xs p-md"
       >
-        <p className="mb-sm text-paragraph-small text-muted-foreground">
+        <p className="px-xs pb-xs text-paragraph-small font-normal text-muted-foreground">
           Select all that apply
         </p>
-
-        <div className="flex flex-col gap-xs">
-          {options.map((option) => {
-            const checked = selectedValues.has(option.value);
-            return (
-              <label
-                key={option.value}
-                className="flex cursor-pointer items-center gap-sm rounded-md px-xs py-xs hover:bg-accent"
-              >
-                <Checkbox
-                  checked={checked}
-                  onCheckedChange={() => toggleValue(option.value)}
-                />
-                <span className="text-paragraph-small text-foreground">
-                  {option.label}
-                </span>
-              </label>
-            );
-          })}
-        </div>
-
-        {selectedValues.size > 0 ? (
-          <div className="mt-sm flex justify-end">
-            <button
-              type="button"
-              onClick={() => column?.setFilterValue(undefined)}
-              className="cursor-pointer text-paragraph-small text-foreground underline"
+        {options.map((option) => {
+          const isSelected = selectedValues.includes(option.value);
+          return (
+            <DropdownMenuItem
+              key={option.value}
+              role="menuitemcheckbox"
+              aria-checked={isSelected}
+              closeOnClick={false}
+              onClick={() => toggleValue(option.value)}
             >
-              Clear
-            </button>
-          </div>
-        ) : null}
+              <Checkbox checked={isSelected} tabIndex={-1} aria-hidden />
+              <span>{option.label}</span>
+            </DropdownMenuItem>
+          );
+        })}
+        {selectedValues.length > 0 && (
+          <DropdownMenuItem
+            onClick={() => column?.setFilterValue(undefined)}
+            className="justify-end text-right text-paragraph-small text-foreground underline"
+          >
+            Clear
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

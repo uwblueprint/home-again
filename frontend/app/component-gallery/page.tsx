@@ -22,9 +22,6 @@ import {
   DataTableColumnHeader,
   PhotoStrip,
   PhotoLightboxDialog,
-  HistoryTable,
-  donationHistoryColumns,
-  type DonationHistoryRow,  
 } from "@/common/components/data-display";
 import {
   Alert,
@@ -122,6 +119,7 @@ import {
 } from "@/app/donation-request/components";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
+import { donationHistoryColumns, HistoryTable } from "../admin-donors/components";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
 

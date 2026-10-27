@@ -15,8 +15,3 @@ export { DataTableToolbar } from "./data-table/DataTableToolbar";
 export { DataTablePagination } from "./data-table/DataTablePagination";
 export { PhotoStrip, type PhotoStripPhoto } from "./PhotoStrip";
 export { PhotoLightboxDialog } from "./PhotoLightboxDialog";
-export {
-  DataTable as HistoryTable,
-  donationHistoryColumns,
-} from "./history-table/DataTable";
-export type { DonationHistoryRow } from "./history-table/DataTable";

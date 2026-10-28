@@ -122,27 +122,27 @@ export function ReferralCard(props: ReferralCardProps) {
       )}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-md">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex min-w-0 items-baseline gap-2">
-            <p className="min-w-0 truncate text-xl font-semibold text-foreground">
-              {clientName}
-            </p>
-            <span className="text-base font-medium text-foreground uppercase">
-              {referralId}
-            </span>
-          </div>
-          <ReferralStatusBadge {...props} />
-          {showPriority ? (
-            <Badge className="h-6 gap-1.5 rounded-full border-transparent bg-red-50 px-sm font-medium text-orange-600 uppercase">
-              <span
-                aria-hidden="true"
-                className="size-1.5 rounded-full bg-orange-600"
-              />
-              Priority
-            </Badge>
-          ) : null}
-        </div>
         <div className="flex flex-col gap-sm">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex min-w-0 items-baseline gap-2">
+              <p className="min-w-0 truncate text-xl font-semibold text-foreground">
+                {clientName}
+              </p>
+              <span className="text-base font-medium text-foreground uppercase">
+                {referralId}
+              </span>
+            </div>
+            <ReferralStatusBadge {...props} />
+            {showPriority ? (
+              <Badge className="h-6 gap-1.5 rounded-full border-transparent bg-red-50 px-sm font-medium text-orange-600 uppercase">
+                <span
+                  aria-hidden="true"
+                  className="size-1.5 rounded-full bg-orange-600"
+                />
+                Priority
+              </Badge>
+            ) : null}
+          </div>
           <div className="flex flex-wrap items-center gap-sm text-paragraph-small">
             <TooltipProvider>
               <div

@@ -146,7 +146,7 @@ export function ReferralCard(props: ReferralCardProps) {
           <div className="flex flex-wrap items-center gap-sm text-paragraph-small">
             <TooltipProvider>
               <div
-                className="flex items-center py-2.25 px-xs gap-2.5"
+                className="flex items-center px-xs gap-2.5"
                 role="group"
                 aria-label="Assigned agents"
               >

@@ -61,6 +61,9 @@ home-again/
 │   ├── tests/                 # Integration tests
 │   └── server.py              # Uvicorn entry point
 │
+├── scripts/
+│   └── seed_first_staff.py    # First staff account seeding script
+│
 ├── db-init/                   # Database initialization scripts
 ├── hooks/                     # Git hooks (post-merge)
 ├── docs/                      # Documentation

@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronRight, X } from "lucide-react";
+import { Check, ChevronRight, CircleAlert, X } from "lucide-react";
 import { AgentHover, type AgentHoverProps } from "@/common/components/agents";
 import {
   ApprovalsLabel,
@@ -123,15 +123,16 @@ export function ReferralCard(props: ReferralCardProps) {
     >
       <div className="flex min-w-0 flex-1 flex-col gap-md">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-xl truncate font-semibold text-foreground">
-            {clientName}
-          </p>
-          <span className="text-base font-medium leading-6 text-foreground uppercase">
-            {referralId}
-          </span>
+          <div className="flex min-w-0 items-baseline gap-2">
+            <p className="min-w-0 truncate text-xl font-semibold text-foreground">
+              {clientName}
+            </p>
+            <span className="text-base font-medium text-foreground uppercase">
+              {referralId}
+            </span>
+          </div>
           <ReferralStatusBadge {...props} />
           {showPriority ? (
-            // TODO: switch to priority badge component when exists
             <Badge className="h-6 gap-1.5 rounded-full border-transparent bg-red-50 px-sm font-medium text-orange-600 uppercase">
               <span
                 aria-hidden="true"
@@ -145,7 +146,7 @@ export function ReferralCard(props: ReferralCardProps) {
           <div className="flex flex-wrap items-center gap-sm text-paragraph-small">
             <TooltipProvider>
               <div
-                className="flex items-center gap-2.5"
+                className="flex items-center py-2.25 px-xs gap-2.5"
                 role="group"
                 aria-label="Assigned agents"
               >
@@ -170,7 +171,10 @@ export function ReferralCard(props: ReferralCardProps) {
             ) : null}
           </div>
           {errorMsg ? (
-            <p className="text-(--unofficial-destructive-text)">{errorMsg}</p>
+            <div className="flex flex-row gap-sm items-center text-(--unofficial-destructive-text)">
+              <CircleAlert className="size-4 " />
+              <p className="font-medium leading-5 text-sm">{errorMsg}</p>
+            </div>
           ) : null}
         </div>
 

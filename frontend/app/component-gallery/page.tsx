@@ -24,6 +24,9 @@ import {
   PhotoLightboxDialog,
   DonationCountBadge,
   StockItemChip,
+  ReferralCard,
+  ReferralCardAgent,
+  ReferralCardItem,
 } from "@/common/components/data-display";
 import {
   Alert,
@@ -118,11 +121,6 @@ import {
   RejectItemDialog,
   type DonationItem,
 } from "@/app/donation-request/components";
-import {
-  ReferralCard,
-  ReferralCardAgent,
-  ReferralCardItem,
-} from "@/common/components";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
 

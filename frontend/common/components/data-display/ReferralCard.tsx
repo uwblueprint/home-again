@@ -13,7 +13,7 @@ import { Button } from "@/common/components/ui/button";
 import { Card } from "@/common/components/ui/card";
 import { TooltipProvider } from "@/common/components/ui/tooltip";
 import { cn } from "@/common/lib/utils";
-import { StockItemChip } from "./data-display";
+import { StockItemChip } from "./StockItemChip";
 
 // TYPES
 type ReferralCardStateProps =
@@ -97,7 +97,7 @@ function ReferralStatusBadge(props: ReferralCardStateProps) {
 }
 
 // CARD
-export default function ReferralCard(props: ReferralCardProps) {
+export function ReferralCard(props: ReferralCardProps) {
   const {
     clientName,
     referralId,

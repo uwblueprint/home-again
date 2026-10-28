@@ -75,6 +75,7 @@ home-again/
 │   ├── GIT.md                 # Git workflow and Jira integration
 │   ├── ONBOARDING.md          # Developer onboarding
 │   ├── SCHEMA.md              # Entity reference (fields, types, relationships)
+│   ├── AUTH.md                # Authentication reference and related scripts
 │   └── TECH_DEBT.md           # Technical debt inventory and remediation
 ├── docker-compose.yml         # Multi-container setup
 └── setup.sh                   # Project setup script

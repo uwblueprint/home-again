@@ -4,12 +4,12 @@ import { useState } from "react";
 
 import { Button } from "@/common/components/ui/button";
 import {
-  ReferralDialogSummaryProps,
   RejectReferralDialog,
   WaitlistReferralDialog,
+  type ReferralDialogReferral,
 } from "./components";
 
-const REFERRAL: ReferralDialogSummaryProps = {
+const REFERRAL: ReferralDialogReferral = {
   clientName: "John Doe",
   referralId: "WCYIECNIE",
   submittedAt: "2025-09-20",
@@ -55,7 +55,7 @@ export default function ReferralRequestPage() {
         onOpenChange={setRejectOpen}
         referral={REFERRAL}
         onConfirm={(reason, details) =>
-          setResult(`Rejected — ${reason}${details ? `: ${details}` : ""}`)
+          setResult(`Rejected: ${reason}${details ? `: ${details}` : ""}`)
         }
         onCancel={() => setResult("Reject cancelled")}
       />
@@ -67,7 +67,7 @@ export default function ReferralRequestPage() {
         isPriority
         priorityReason="Client is currently in a shelter, needs furniture before move-out date on 10/01."
         onConfirm={(isPriority) =>
-          setResult(`Waitlisted — priority: ${isPriority ? "yes" : "no"}`)
+          setResult(`Waitlisted, priority: ${isPriority ? "yes" : "no"}`)
         }
         onCancel={() => setResult("Waitlist cancelled")}
       />

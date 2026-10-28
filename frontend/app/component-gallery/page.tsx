@@ -22,6 +22,7 @@ import {
   DataTableColumnHeader,
   PhotoStrip,
   PhotoLightboxDialog,
+  DonationCountBadge,
   StockItemChip,
 } from "@/common/components/data-display";
 import {
@@ -255,6 +256,9 @@ function StatusLabelsDemo() {
       <div className="flex flex-wrap gap-sm">
         <ApprovalsLabel approved={0} total={4} />
         <ApprovalsLabel approved={1} total={4} />
+      </div>
+      <div className="flex flex-wrap gap-sm">
+        <DonationCountBadge count={6} />
       </div>
       <div className="flex flex-wrap gap-sm">
         <ApprovedBadge />

@@ -12,6 +12,9 @@ out
 .env.local
 .env
 .env.*
+# Keep committed templates (frontend and backend)
+!.env.example
+!**/.env.example
 
 # Python
 __pycache__

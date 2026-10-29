@@ -3,17 +3,14 @@
 import { useState } from "react";
 
 import { Button } from "@/common/components/ui/button";
-import {
-  RejectReferralDialog,
-  WaitlistReferralDialog,
-  type ReferralDialogReferral,
-} from "./components";
+import { RejectReferralDialog, WaitlistReferralDialog } from "./components";
+import type { ReferralDialogReferral } from "./components/ReferralDialogLayout";
 
 const REFERRAL: ReferralDialogReferral = {
   clientName: "John Doe",
   referralId: "WCYIECNIE",
-  submittedAt: "2025-09-20",
-  previousSubmissionAt: "2025-01-02",
+  submittedAt: "09/20/25",
+  previousSubmissionAt: "01/02/2025",
   agents: [
     {
       firstName: "Kim",
@@ -32,9 +29,13 @@ const REFERRAL: ReferralDialogReferral = {
   ],
 };
 
+const PRIORITY_REASON =
+  "Client is currently in a shelter, needs furniture before move-out date on 10/01.";
+
 export default function ReferralRequestPage() {
   const [rejectOpen, setRejectOpen] = useState(false);
   const [waitlistOpen, setWaitlistOpen] = useState(false);
+  const [isPriority, setIsPriority] = useState(true);
   const [result, setResult] = useState("No action yet");
 
   return (
@@ -47,7 +48,7 @@ export default function ReferralRequestPage() {
       </div>
 
       <p className="text-paragraph-small text-muted-foreground">
-        Last action: {result}
+        Last action: {result} (priority: {isPriority ? "yes" : "no"})
       </p>
 
       <RejectReferralDialog
@@ -64,11 +65,12 @@ export default function ReferralRequestPage() {
         open={waitlistOpen}
         onOpenChange={setWaitlistOpen}
         referral={REFERRAL}
-        isPriority
-        priorityReason="Client is currently in a shelter, needs furniture before move-out date on 10/01."
-        onConfirm={(isPriority) =>
-          setResult(`Waitlisted, priority: ${isPriority ? "yes" : "no"}`)
-        }
+        isPriority={isPriority}
+        priorityReason={PRIORITY_REASON}
+        onConfirm={(next) => {
+          setIsPriority(next);
+          setResult(`Waitlisted, priority: ${next ? "yes" : "no"}`);
+        }}
         onCancel={() => setResult("Waitlist cancelled")}
       />
     </main>

@@ -66,16 +66,16 @@ export default function WaitlistReferralDialog({
     >
       <Separator />
 
-      <section className="flex flex-col gap-sm">
-        <h3 className="text-paragraph-regular font-semibold text-foreground">
+      <section className="flex flex-col gap-2.5">
+        <p className="text-paragraph-regular font-semibold text-foreground">
           Confirm Priority
-        </h3>
+        </p>
         {priorityReason ? (
-          <p className="text-paragraph-small text-muted-foreground">
+          <p className="text-sm font-normal text-muted-foreground">
             Priority Reason: {priorityReason}
           </p>
         ) : null}
-        <label className="flex cursor-pointer items-center gap-sm text-paragraph-small text-foreground">
+        <label className="flex cursor-pointer items-center gap-sm text-base font-medium text-foreground">
           <Checkbox
             checked={confirmedPriority}
             onCheckedChange={(checked) =>

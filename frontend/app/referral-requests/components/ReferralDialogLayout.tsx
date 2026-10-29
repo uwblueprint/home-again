@@ -94,7 +94,7 @@ function ReferralSummary({
   agents,
 }: ReferralDialogReferral) {
   return (
-    <div className="flex flex-col gap-md">
+    <div className="flex flex-col gap-lg">
       <div className="flex items-start justify-between gap-md">
         <div className="flex min-w-0 flex-col gap-1">
           <p className="text-lg font-semibold leading-7 text-foreground truncate">
@@ -114,14 +114,15 @@ function ReferralSummary({
 
       {agents.length > 0 ? (
         <Collapsible defaultOpen={false}>
-          <CollapsibleTrigger className="group/agents flex cursor-pointer items-center gap-xs text-paragraph-small font-medium text-foreground">
+          <CollapsibleTrigger className="flex cursor-pointer items-center gap-xs text-base font-medium text-foreground">
             Case agents
             <ChevronDown
               aria-hidden="true"
-              className="size-4 transition-transform group-data-panel-open/agents:rotate-180"
+              className="size-6"
+              strokeWidth={1.75}
             />
           </CollapsibleTrigger>
-          <CollapsiblePanel className="duration-300 ease-in-out">
+          <CollapsiblePanel>
             <ul
               className="grid grid-cols-1 gap-md pt-md sm:grid-cols-2"
               aria-label="Case agents"
@@ -159,22 +160,23 @@ export default function ReferralDialogLayout({
       onOpenChangeComplete={onOpenChangeComplete}
     >
       {trigger && <DialogTrigger render={trigger as ReactElement} />}
-      {/* Anchored near the top instead of vertically centered, so expanding
-          "Case agents" grows the dialog downward rather than shifting it up. */}
-      <DialogContent className="sm:max-w-lg top-5xl translate-y-0 overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+      <DialogContent className="top-5xl translate-y-0 gap-0 overflow-y-auto sm:max-w-160">
+        <div aria-hidden className="h-12 shrink-0" />
+        <DialogHeader className="px-2xl! pt-2!">
+          <DialogTitle className="text-xl leading-6 font-semibold text-black">
+            {title}
+          </DialogTitle>
           {description ? (
-            <DialogDescription className="text-black leading-4">
+            <DialogDescription className="text-xs leading-4 text-black">
               {description}
             </DialogDescription>
           ) : null}
         </DialogHeader>
-        <DialogBody>
+        <DialogBody className="flex flex-col gap-lg px-2xl py-sm">
           <ReferralSummary {...referral} />
           {children}
         </DialogBody>
-        <DialogFooter>{footer}</DialogFooter>
+        <DialogFooter className="gap-2 px-2xl py-xl">{footer}</DialogFooter>
       </DialogContent>
     </Dialog>
   );

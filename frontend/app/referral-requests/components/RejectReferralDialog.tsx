@@ -108,7 +108,12 @@ export default function RejectReferralDialog({
       }
     >
       <div className="flex flex-col gap-1">
-        <Label htmlFor="reject-referral-reason">Reason for rejection</Label>
+        <Label
+          htmlFor="reject-referral-reason"
+          className="text-sm font-medium leading-5"
+        >
+          Reason for rejection
+        </Label>
         <Select
           items={reasons}
           value={reason}
@@ -135,7 +140,10 @@ export default function RejectReferralDialog({
 
       {needsDetails && (
         <div className="flex flex-col gap-1">
-          <Label htmlFor="reject-referral-details">
+          <Label
+            htmlFor="reject-referral-details"
+            className="text-sm font-medium leading-5"
+          >
             Please indicate reason below
             <span className="text-destructive"> *</span>
           </Label>

@@ -17,6 +17,7 @@ import {
   RejectedBadge,
 } from "@/common/components/status-labels";
 import { cn } from "@/common/lib/utils";
+import { MAX_PHOTOS } from "@/app/donate/components/FurnitureItemCard";
 
 export type DonationItemStatus = "pending" | "approved" | "rejected";
 
@@ -42,7 +43,7 @@ export default function DonationItemCard({
   className,
 }: DonationItemCardProps) {
   const [galleryOpen, setGalleryOpen] = useState(false);
-  const visiblePhotos = photos.slice(0, 5);
+  const visiblePhotos = photos.slice(0, MAX_PHOTOS);
 
   return (
     <>

@@ -15,7 +15,7 @@ import { useFilePreviewUrls } from "@/common/hooks/useFilePreviewUrls";
 
 // Constants
 
-const MAX_PHOTOS = 5;
+export const MAX_PHOTOS = 5;
 
 // Props
 

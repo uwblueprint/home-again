@@ -15,8 +15,13 @@ from ..schemas import ReferralCreate, ReferralUpdate
 logger = logging.getLogger(__name__)
 
 
-async def list_referrals(db: AsyncSession) -> list[Referral]:
-    result = await db.execute(select(Referral).order_by(Referral.created_at.desc()))
+async def list_referrals(
+    db: AsyncSession, client_id: str | None = None
+) -> list[Referral]:
+    query = select(Referral).order_by(Referral.created_at.desc())
+    if client_id:
+        query = query.where(Referral.client_id == client_id)
+    result = await db.execute(query)
     return result.scalars().all()
 
 

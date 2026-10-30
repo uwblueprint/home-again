@@ -65,7 +65,12 @@ def get_current_user(
             key,
             algorithms=["ES256"],
             audience=settings.SUPABASE_JWT_AUDIENCE,
+            options={"require": ["exp", "sub", "aud"]},
         )
         return CurrentUser(id=UUID(claims["sub"]), email=claims.get("email"))
+    except jwt.PyJWKClientConnectionError as exc:
+        raise HTTPException(
+            status_code=503, detail="Auth service unavailable"
+        ) from exc
     except (jwt.PyJWTError, KeyError, ValueError) as exc:
         raise _unauthorized("Invalid token") from exc

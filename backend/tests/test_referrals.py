@@ -101,6 +101,16 @@ async def test_list_referrals_newest_first(client):
     assert ids.index(r2["id"]) < ids.index(r1["id"])
 
 
+async def test_list_referrals_filtered_by_client(client):
+    c1 = await create_client(client, first_name="FilterRefA")
+    c2 = await create_client(client, first_name="FilterRefB")
+    r1 = await create_referral(client, c1["id"])
+    await create_referral(client, c2["id"])
+    resp = await client.get("/api/referrals", params={"client_id": c1["id"]})
+    assert resp.status_code == 200
+    assert [r["id"] for r in resp.json()] == [r1["id"]]
+
+
 async def test_get_referral(client):
     c = await create_client(client, first_name="GetRef")
     created = await create_referral(client, c["id"])

@@ -22,7 +22,11 @@ import {
   DataTableColumnHeader,
   PhotoStrip,
   PhotoLightboxDialog,
+  DonationCountBadge,
   StockItemChip,
+  ReferralCard,
+  ReferralCardAgent,
+  ReferralCardItem,
 } from "@/common/components/data-display";
 import {
   Alert,
@@ -110,6 +114,7 @@ import {
   RejectedBadge,
   UnconfirmedBadge,
   ConfirmedBadge,
+  PriorityBadge,
 } from "@/common/components/status-labels";
 import {
   ApproveItemDialog,
@@ -255,12 +260,18 @@ function StatusLabelsDemo() {
         <ApprovalsLabel approved={1} total={4} />
       </div>
       <div className="flex flex-wrap gap-sm">
+        <DonationCountBadge count={6} />
+      </div>
+      <div className="flex flex-wrap gap-sm">
         <ApprovedBadge />
         <RejectedBadge />
       </div>
       <div className="flex flex-wrap gap-sm">
         <UnconfirmedBadge />
         <ConfirmedBadge />
+        <div className="flex flex-wrap gap-sm">
+          <PriorityBadge />
+        </div>
       </div>
     </div>
   );
@@ -1424,6 +1435,128 @@ function RequestedItemCardDemo() {
   );
 }
 
+function ReferralCardDemoRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-xs">
+      <p className="text-paragraph-small font-medium text-muted-foreground">
+        {label}
+      </p>
+      {children}
+    </div>
+  );
+}
+
+function ReferralCardDemo() {
+  const noop = () => undefined;
+
+  const DEMO_AGENTS: ReferralCardAgent[] = [
+    { firstName: "Winnie", lastName: "Xu", role: "primary" },
+    { firstName: "Alex", lastName: "Lee", role: "secondary" },
+  ];
+
+  // One chip per stock state: available, available, partial, unavailable.
+  const DEMO_ITEMS: ReferralCardItem[] = [
+    { id: "bed", name: "Bed frame", quantity: 1, stock: 8 },
+    { id: "mattress", name: "Mattress", quantity: 2, stock: 3 },
+    { id: "nightstand", name: "Nightstand", quantity: 2, stock: 1 },
+    { id: "table", name: "Dining table", quantity: 1, stock: 0 },
+  ];
+  const shared = {
+    clientName: "Jane Doe",
+    referralId: "REFERRAL ID",
+    submittedAt: "10/24/2026",
+    agents: DEMO_AGENTS,
+  };
+
+  return (
+    <div className="flex w-full flex-col gap-lg">
+      <ReferralCardDemoRow label="Pending review — priority, every stock state">
+        <ReferralCard
+          {...shared}
+          status="pending-review"
+          isPriority
+          items={DEMO_ITEMS}
+          onViewDetails={noop}
+        />
+      </ReferralCardDemoRow>
+
+      <ReferralCardDemoRow label="Partially reviewed — some items already decided">
+        <ReferralCard
+          {...shared}
+          referralId="LK29XPW1A"
+          status="partially-reviewed"
+          onViewDetails={noop}
+        />
+      </ReferralCardDemoRow>
+
+      <ReferralCardDemoRow label="Reviewed - 2/4 approved, scheduling incomplete">
+        <ReferralCard
+          {...shared}
+          referralId="ZP03VBN7C"
+          status="reviewed"
+          approvedCount={2}
+          totalCount={4}
+          hasIncompleteScheduling
+          onViewDetails={noop}
+        />
+      </ReferralCardDemoRow>
+
+      <ReferralCardDemoRow label="Reviewed - nothing approved (red label)">
+        <ReferralCard
+          {...shared}
+          referralId="BV55ROA9X"
+          status="reviewed"
+          approvedCount={0}
+          totalCount={3}
+          onViewDetails={noop}
+        />
+      </ReferralCardDemoRow>
+
+      <ReferralCardDemoRow label="Pending - Reject / Waitlist actions, previous submission">
+        <ReferralCard
+          {...shared}
+          referralId="CN84TYU2M"
+          status="pending"
+          previousSubmissionAt="2026-01-02"
+          onReject={noop}
+          onWaitlist={noop}
+          onViewDetails={noop}
+        />
+      </ReferralCardDemoRow>
+
+      <ReferralCardDemoRow label="Pending - priority with actions and error">
+        <ReferralCard
+          {...shared}
+          referralId="EW16JKS4P"
+          status="pending"
+          errorMsg="This request has items that can't be fully fulfilled right now."
+          isPriority
+          onReject={noop}
+          onWaitlist={noop}
+          onViewDetails={noop}
+        />
+      </ReferralCardDemoRow>
+
+      <ReferralCardDemoRow label="Rejected - reason and previous submission">
+        <ReferralCard
+          {...shared}
+          referralId="AX90FGH3R"
+          status="rejected"
+          previousSubmissionAt="2026-01-02"
+          rejectionReason="Submitted a referral this year already"
+          onViewDetails={noop}
+        />
+      </ReferralCardDemoRow>
+    </div>
+  );
+}
+
 // ─── registry ─────────────────────────────────────────────────────────────────
 // To add a base component: add an entry to BASE_COMPONENTS.
 // To add a composed component: add an entry to COMPOSED_COMPONENTS.
@@ -1478,6 +1611,7 @@ const COMPOSED_COMPONENTS: {
   { name: "BigToggleButton", Demo: BigToggleButtonDemo },
   { name: "PhotoStrip + Lightbox", Demo: PhotoStripDemo },
   { name: "AdminHeader", Demo: AdminHeaderDemo },
+  { name: "ReferralCard", Demo: ReferralCardDemo, fullWidth: true },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

@@ -2,6 +2,7 @@
 
 import { Input, InputError } from "@/common/components/ui/input";
 import { Checkbox } from "@/common/components/ui/checkbox";
+import { cn } from "@/common/lib/utils";
 import {
   REFERRAL_REASONS,
   type ReferralData,
@@ -29,6 +30,11 @@ type ReferralStepProps = {
   errors?: ReferralStepErrors;
   /** Hide the in-page heading — the edit Dialog renders its own. */
   hideHeading?: boolean;
+  /**
+   * The client has a referral on record, so the "received furniture before"
+   * answer and date come from the system and can't be changed.
+   */
+  isPreviousReferralLocked?: boolean;
 };
 
 export default function ReferralStep({
@@ -36,6 +42,7 @@ export default function ReferralStep({
   onChange,
   errors = {},
   hideHeading = false,
+  isPreviousReferralLocked = false,
 }: ReferralStepProps) {
   function patch(updates: Partial<ReferralData>) {
     onChange({ ...data, ...updates });
@@ -58,15 +65,26 @@ export default function ReferralStep({
         </div>
       )}
       <div className="self-stretch space-y-2">
-        <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-4 py-3 text-sm font-medium text-foreground">
+        <label
+          className={cn(
+            "flex items-center gap-2 rounded-lg border border-border px-4 py-3 text-sm font-medium text-foreground",
+            isPreviousReferralLocked ? "cursor-not-allowed" : "cursor-pointer"
+          )}
+        >
           <Checkbox
             checked={data.hasReceivedFurnitureBefore}
+            disabled={isPreviousReferralLocked}
             onCheckedChange={(checked) =>
               patch({ hasReceivedFurnitureBefore: checked === true })
             }
           />
           Has the client received furniture before?
         </label>
+        {isPreviousReferralLocked ? (
+          <p className="text-sm text-muted-foreground">
+            Filled in from this client&apos;s referral history.
+          </p>
+        ) : null}
         {data.hasReceivedFurnitureBefore ? (
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1">
@@ -80,6 +98,7 @@ export default function ReferralStep({
                 id="last-furniture-referral-date"
                 type="date"
                 value={data.lastFurnitureReferralDate}
+                disabled={isPreviousReferralLocked}
                 onChange={(e) =>
                   patch({ lastFurnitureReferralDate: e.target.value })
                 }

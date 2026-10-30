@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     # Supabase (optional, for auth if using Supabase)
     SUPABASE_URL: str = ""
     SUPABASE_KEY: str = ""
+    # Public JWKS endpoint used to verify access-token signatures.
+    SUPABASE_JWKS_URL: str = ""
+    # Expected "aud" claim in access tokens (Supabase uses "authenticated").
+    SUPABASE_JWT_AUDIENCE: str = "authenticated"
 
     # API
     API_HOST: str = "0.0.0.0"

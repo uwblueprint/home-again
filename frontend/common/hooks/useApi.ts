@@ -244,6 +244,28 @@ export function useReferrals() {
 }
 
 /**
+ * Fetch a single client's referrals, newest first
+ *
+ * Only runs once a client ID is provided.
+ */
+export function useClientReferrals(clientId: string | null | undefined) {
+  return useQuery({
+    queryKey: ["referrals", { clientId }],
+    queryFn: async () => {
+      if (!clientId) {
+        throw new Error("Client ID is required");
+      }
+      const response = await apiClient.get<Referral[]>("/referrals", {
+        params: { client_id: clientId },
+      });
+      return response.data;
+    },
+    enabled: Boolean(clientId),
+    staleTime: 1000 * 60 * 2,
+  });
+}
+
+/**
  * Fetch all agents
  */
 export function useAgents() {

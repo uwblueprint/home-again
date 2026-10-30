@@ -27,6 +27,7 @@ import {
   ReferralCard,
   ReferralCardAgent,
   ReferralCardItem,
+  RequestedItemCard,
 } from "@/common/components/data-display";
 import {
   Alert,
@@ -122,9 +123,6 @@ import {
   RejectItemDialog,
   type DonationItem,
 } from "@/app/donation-request/components";
-import {
-  RequestedItemCard
-} from "@/app/referral-form/components";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
 

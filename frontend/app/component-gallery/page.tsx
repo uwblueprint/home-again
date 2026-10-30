@@ -214,7 +214,9 @@ function StatusLabelsDemo() {
       <div className="flex flex-wrap gap-sm">
         <UnconfirmedBadge />
         <ConfirmedBadge />
-        <PriorityBadge />
+        <div className="flex flex-wrap gap-sm">
+          <PriorityBadge />
+        </div>
       </div>
     </div>
   );

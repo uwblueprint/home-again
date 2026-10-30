@@ -27,6 +27,7 @@ import {
   ReferralCard,
   ReferralCardAgent,
   ReferralCardItem,
+  RequestedItemCard,
 } from "@/common/components/data-display";
 import {
   Alert,
@@ -1420,6 +1421,18 @@ function AdminHeaderDemo() {
   );
 }
 
+function RequestedItemCardDemo() {
+  return (
+    <RequestedItemCard
+      className="w-80"
+      quantity={1}
+      furniture="Bed Frame"
+      stock={8}
+      description="Specification here"
+    />
+  );
+}
+
 function ReferralCardDemoRow({
   label,
   children,
@@ -1584,6 +1597,7 @@ const COMPOSED_COMPONENTS: {
   { name: "DonationItemPreview", Demo: DonationItemPreviewDemo },
   { name: "ApproveItemDialog", Demo: ApproveItemDialogDemo },
   { name: "RejectItemDialog", Demo: RejectItemDialogDemo },
+  { name: "RequestedItemCard", Demo: RequestedItemCardDemo },
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
   { name: "DatePicker", Demo: DatePickerDemo },
   { name: "FurnitureItemCard", Demo: FurnitureItemCardDemo },

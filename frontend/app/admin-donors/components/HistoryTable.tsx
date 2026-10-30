@@ -32,12 +32,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/common/components/ui/table";
-import { DataTablePagination } from "./DataTablePagination";
 import {
   DonationStatusBadge,
   type DonationHistoryStatus,
 } from "@/common/components/status-labels";
-import { DonationCountBadge } from "@/common/components";
+import { DataTablePagination, DonationCountBadge } from "@/common/components";
 
 
 export interface DonationHistoryRow {

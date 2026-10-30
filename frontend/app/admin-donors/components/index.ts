@@ -1,5 +1,5 @@
 export {
-  DataTable as HistoryTable,
+  HistoryTable,
   donationHistoryColumns,
 } from "./HistoryTable";
 export type { DonationHistoryRow } from "./HistoryTable";

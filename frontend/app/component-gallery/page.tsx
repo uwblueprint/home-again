@@ -124,7 +124,7 @@ import {
 } from "@/app/donation-request/components";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
-import { donationHistoryColumns, HistoryTable } from "../admin-donors/components";
+import { HistoryTable, donationHistoryColumns } from "../admin-donors/components";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
 
@@ -303,12 +303,7 @@ function StatusLabelsDemo() {
 
   return (
     <div className="w-full">
-      <HistoryTable
-        columns={donationHistoryColumns}
-        data={data}
-        searchPlaceholder="Search donations"
-        count={data.length}
-      />
+      <HistoryTable data={data ?? []} />
     </div>
   );
 }

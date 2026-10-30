@@ -20,6 +20,9 @@ function createMockItem(
     furnitureType: null,
     hasStains: null,
     photos: [],
+    mattressSize: null,
+    chairCount: null,
+    otherDescription: null,
     ...overrides,
   };
 }

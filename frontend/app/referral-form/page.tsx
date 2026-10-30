@@ -34,6 +34,7 @@ import {
 import type { Client, CreateReferralInput } from "@/common/types";
 import {
   useAgents,
+  useClientReferrals,
   useCreateClient,
   useCreateReferral,
   useUpdateClient,
@@ -49,7 +50,16 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/common/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+} from "@/common/components/ui/alert-dialog";
 import { Button } from "@/common/components/ui/button";
+
+const RECENT_REFERRAL_MONTHS = 12;
 
 const EDIT_STEP_TITLES: Record<number, string> = {
   1: "Client Details",
@@ -181,6 +191,26 @@ export default function ReferralFormPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
+  // Only fetched once an existing client is chosen; newest first.
+  const { data: clientReferrals = [] } = useClientReferrals(selectedClient?.id);
+  // Pending/declined referrals don't mean the client received furniture.
+  const lastReferralDate =
+    clientReferrals
+      .find(
+        (referral) =>
+          referral.status === "approved" || referral.status === "completed"
+      )
+      ?.created_at.slice(0, 10) ?? null;
+
+  // Recent-referral warning, shown when moving from the Client step to the
+  // Referral step for an existing client with a referral in the last
+  // RECENT_REFERRAL_MONTHS months.
+  const [showRecentReferralAlert, setShowRecentReferralAlert] = useState(false);
+  const [
+    acknowledgedRecentReferralClientId,
+    setAcknowledgedRecentReferralClientId,
+  ] = useState<string | null>(null);
+
   // Step 1: Client
   const [clientData, setClientData] = useState<ClientData>(EMPTY_CLIENT_DATA);
   const [clientTouched, setClientTouched] = useState<
@@ -190,6 +220,19 @@ export default function ReferralFormPage() {
   // Step 2: Referral
   const [referralData, setReferralData] =
     useState<ReferralData>(EMPTY_REFERRAL_DATA);
+  // A referral on record overrides the manual "received furniture before"
+  // answer so it can't be edited.
+  const effectiveReferralData = useMemo<ReferralData>(
+    () =>
+      lastReferralDate
+        ? {
+            ...referralData,
+            hasReceivedFurnitureBefore: true,
+            lastFurnitureReferralDate: lastReferralDate,
+          }
+        : referralData,
+    [referralData, lastReferralDate]
+  );
 
   // Step 3: Agent
   const [agentData, setAgentData] = useState<AgentData>(EMPTY_AGENT_DATA);
@@ -219,9 +262,15 @@ export default function ReferralFormPage() {
   const isReferralStepValid = Object.values(referralErrors).every((e) => !e);
   const isAgreementsStepValid = Object.values(agreementsData).every(Boolean);
 
+  const hasRecentReferral = useMemo(() => {
+    if (!lastReferralDate) return false;
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - RECENT_REFERRAL_MONTHS);
+    return new Date(lastReferralDate) >= cutoff;
+  }, [lastReferralDate]);
+
   const isNextDisabled = (() => {
     if (stepIndex === 0 && substepIndex === 0) {
-      // The "choose" substep proceeds via its own buttons, not Next.
       return true;
     }
     switch (stepIndex) {
@@ -270,7 +319,25 @@ export default function ReferralFormPage() {
       return false;
     }
 
+    if (
+      stepIndex === 1 &&
+      selectedClient &&
+      hasRecentReferral &&
+      acknowledgedRecentReferralClientId !== selectedClient.id
+    ) {
+      setShowRecentReferralAlert(true);
+      return false;
+    }
+
     return true;
+  }
+
+  function handleAcknowledgeRecentReferral() {
+    if (selectedClient) {
+      setAcknowledgedRecentReferralClientId(selectedClient.id);
+    }
+    setShowRecentReferralAlert(false);
+    goToStep(2);
   }
 
   async function handleSubmit() {
@@ -369,6 +436,20 @@ export default function ReferralFormPage() {
     }
   }
 
+  function handleReferralChange(next: ReferralData) {
+    // Keep the manual answer intact while it's overridden by the record, so
+    // switching to a client without history doesn't inherit the locked values.
+    setReferralData(
+      lastReferralDate
+        ? {
+            ...next,
+            hasReceivedFurnitureBefore: referralData.hasReceivedFurnitureBefore,
+            lastFurnitureReferralDate: referralData.lastFurnitureReferralDate,
+          }
+        : next
+    );
+  }
+
   function handleAddNewClient() {
     setSelectedClient(null);
     setSearchQuery("");
@@ -400,8 +481,9 @@ export default function ReferralFormPage() {
 
   const renderReferralStep = (hideHeading: boolean) => (
     <ReferralStep
-      data={referralData}
-      onChange={setReferralData}
+      data={effectiveReferralData}
+      onChange={handleReferralChange}
+      isPreviousReferralLocked={Boolean(lastReferralDate)}
       errors={attempted[2] ? referralErrors : {}}
       hideHeading={hideHeading}
     />
@@ -506,7 +588,7 @@ export default function ReferralFormPage() {
         content = (
           <ReviewStep
             client={clientData}
-            referral={referralData}
+            referral={effectiveReferralData}
             agent={agentData}
             currentAgent={currentAgent}
             secondaryAgent={
@@ -609,6 +691,23 @@ export default function ReferralFormPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AlertDialog
+        open={showRecentReferralAlert}
+        onOpenChange={setShowRecentReferralAlert}
+      >
+        <AlertDialogContent>
+          <AlertDialogDescription>
+            This client has received furniture within the past{" "}
+            {RECENT_REFERRAL_MONTHS} months. This referral may be declined
+            unless there is an extenuating circumstance.
+          </AlertDialogDescription>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={handleAcknowledgeRecentReferral}>
+              I understand
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

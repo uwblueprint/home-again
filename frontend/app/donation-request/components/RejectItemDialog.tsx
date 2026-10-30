@@ -62,6 +62,10 @@ function RejectItemDialog({
 }: RejectItemDialogProps) {
   const [reason, setReason] = useState<string | null>(null);
   const [details, setDetails] = useState("");
+  // Height of the open reason list. The list floats in a portal, so a spacer of
+  // the same height pushes the rest of the dialog down instead of being covered.
+  const [listOpen, setListOpen] = useState(false);
+  const [listHeight, setListHeight] = useState(0);
 
   const requiresDetails = (value: string | null) => {
     const match = reasons.find((r) => r.value === value);
@@ -97,6 +101,7 @@ function RejectItemDialog({
             <Select
               items={reasons}
               value={reason}
+              onOpenChange={setListOpen}
               onValueChange={(value) => {
                 if (!value) return;
                 const next = value as string;
@@ -109,7 +114,11 @@ function RejectItemDialog({
               <SelectTrigger id="reject-reason" className="w-full">
                 <SelectValue placeholder="Select a reason" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent
+                ref={(node: HTMLDivElement | null) => {
+                  if (node) setListHeight(node.offsetHeight);
+                }}
+              >
                 {reasons.map((r) => (
                   <SelectItem key={r.value} value={r.value}>
                     {r.label}
@@ -117,6 +126,10 @@ function RejectItemDialog({
                 ))}
               </SelectContent>
             </Select>
+            {/* The column's gap-1 matches the list's 4px sideOffset. */}
+            {listOpen && listHeight > 0 && (
+              <div aria-hidden style={{ height: listHeight }} />
+            )}
           </div>
 
           {needsDetails && (

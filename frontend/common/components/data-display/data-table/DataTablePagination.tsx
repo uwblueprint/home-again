@@ -1,7 +1,5 @@
 "use client";
 
-import type { Table } from "@tanstack/react-table";
-
 import {
   Pagination,
   PaginationContent,
@@ -12,8 +10,12 @@ import {
   PaginationPrevious,
 } from "@/common/components/ui/pagination";
 
-interface DataTablePaginationProps<TData> {
-  table: Table<TData>;
+interface DataTablePaginationProps {
+  pageIndex: number;
+  pageCount: number;
+  pageSize: number;
+  totalRows: number;
+  onPageChange: (pageIndex: number) => void;
 }
 
 function getPageNumbers(current: number, total: number): (number | "...")[] {
@@ -37,15 +39,17 @@ function getPageNumbers(current: number, total: number): (number | "...")[] {
   return result;
 }
 
-export function DataTablePagination<TData>({
-  table,
-}: DataTablePaginationProps<TData>) {
-  const { pageIndex, pageSize } = table.getState().pagination;
-  const totalRows = table.getFilteredRowModel().rows.length;
-  const pageCount = table.getPageCount();
-
+export function DataTablePagination({
+  pageIndex,
+  pageCount,
+  pageSize,
+  totalRows,
+  onPageChange,
+}: DataTablePaginationProps) {
   const startRow = totalRows === 0 ? 0 : pageIndex * pageSize + 1;
   const endRow = Math.min(totalRows, (pageIndex + 1) * pageSize);
+  const canPrevious = pageIndex > 0;
+  const canNext = pageIndex < pageCount - 1;
 
   return (
     <div className="flex w-full items-center justify-between">
@@ -56,8 +60,8 @@ export function DataTablePagination<TData>({
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              disabled={!table.getCanPreviousPage()}
-              onClick={() => table.previousPage()}
+              disabled={!canPrevious}
+              onClick={() => canPrevious && onPageChange(pageIndex - 1)}
             />
           </PaginationItem>
           {getPageNumbers(pageIndex + 1, pageCount).map((page, i) =>
@@ -69,7 +73,7 @@ export function DataTablePagination<TData>({
               <PaginationItem key={page}>
                 <PaginationLink
                   isActive={page === pageIndex + 1}
-                  onClick={() => table.setPageIndex(page - 1)}
+                  onClick={() => onPageChange(page - 1)}
                 >
                   {page}
                 </PaginationLink>
@@ -78,8 +82,8 @@ export function DataTablePagination<TData>({
           )}
           <PaginationItem>
             <PaginationNext
-              disabled={!table.getCanNextPage()}
-              onClick={() => table.nextPage()}
+              disabled={!canNext}
+              onClick={() => canNext && onPageChange(pageIndex + 1)}
             />
           </PaginationItem>
         </PaginationContent>

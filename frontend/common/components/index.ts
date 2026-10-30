@@ -3,3 +3,4 @@ export * from "./data-display";
 export * from "./feedback";
 export * from "./multi-step-layout";
 export * from "./agents";
+export * from "./status-labels";

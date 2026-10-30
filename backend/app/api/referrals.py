@@ -24,8 +24,10 @@ async def get_referral_or_404(
 
 
 @router.get("", response_model=list[ReferralSchema])
-async def list_referrals(db: AsyncSession = Depends(get_db)):
-    return await referrals_service.list_referrals(db)
+async def list_referrals(
+    client_id: str | None = None, db: AsyncSession = Depends(get_db)
+):
+    return await referrals_service.list_referrals(db, client_id=client_id)
 
 
 @router.post("", response_model=ReferralSchema, status_code=status.HTTP_201_CREATED)

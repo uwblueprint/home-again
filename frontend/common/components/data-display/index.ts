@@ -11,7 +11,17 @@ export type {
 export { DataTableColumnHeader } from "./data-table/DataTableColumnHeader";
 export { DataTableFacetedFilter } from "./data-table/DataTableFacetedFilter";
 export { SearchBar } from "./SearchBar";
+export { HighlightText } from "./HighlightText";
+export { DonationCountBadge } from "./DonationCountBadge";
+export { StockItemChip } from "./StockItemChip";
 export { DataTableToolbar } from "./data-table/DataTableToolbar";
 export { DataTablePagination } from "./data-table/DataTablePagination";
 export { PhotoStrip, type PhotoStripPhoto } from "./PhotoStrip";
 export { PhotoLightboxDialog } from "./PhotoLightboxDialog";
+export { RequestedItemCard } from "./RequestedItemCard";
+export { ReferralCard } from "./ReferralCard";
+export type {
+  ReferralCardAgent,
+  ReferralCardItem,
+  ReferralStatus,
+} from "./ReferralCard";

@@ -307,6 +307,7 @@ function StatusLabelsDemo() {
         columns={donationHistoryColumns}
         data={data}
         searchPlaceholder="Search donations"
+        count={data.length}
       />
     </div>
   );

@@ -37,6 +37,7 @@ import {
   DonationStatusBadge,
   type DonationHistoryStatus,
 } from "@/common/components/status-labels";
+import { DonationCountBadge } from "@/common/components";
 
 
 export interface DonationHistoryRow {
@@ -122,6 +123,7 @@ interface DataTableProps<TData, TValue> {
   onRowClick?: (row: TData) => void;
   pageSize?: number;
   testId?: string;
+  count: number;
 }
 
 export function DataTable<TData, TValue>({
@@ -133,6 +135,7 @@ export function DataTable<TData, TValue>({
   onRowClick,
   pageSize = 10,
   testId = "data-table",
+  count,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([
     { id: "donationDate", desc: true },
@@ -178,6 +181,7 @@ export function DataTable<TData, TValue>({
       <h2 className="text-[20px] font-semibold tracking-[0] text-[#0A0A0A]">
         Donation History
       </h2>
+      <DonationCountBadge count={count}/>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

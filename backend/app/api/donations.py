@@ -10,6 +10,8 @@ from ..schemas import DonationCreate, DonationDetail, DonationUpdate
 from ..services import donations_service
 
 router = APIRouter()
+# Anonymous donation form submission (mounted on public_router).
+public_router = APIRouter()
 
 
 async def get_donation_or_404(
@@ -28,7 +30,9 @@ async def list_donations(db: AsyncSession = Depends(get_db)):
     return await donations_service.list_donations(db)
 
 
-@router.post("", response_model=DonationSchema, status_code=status.HTTP_201_CREATED)
+@public_router.post(
+    "", response_model=DonationSchema, status_code=status.HTTP_201_CREATED
+)
 async def create_donation(payload: DonationCreate, db: AsyncSession = Depends(get_db)):
     try:
         return await donations_service.create_donation(db, payload)

@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api import router as api_router
+from .api import public_router, router as api_router
 from .config import get_settings
 
 settings = get_settings()
@@ -19,21 +19,33 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifecycle."""
-    # Startup
+    current = get_settings()
+    if not current.DEBUG and not current.SUPABASE_JWKS_URL.strip():
+        raise RuntimeError(
+            "SUPABASE_JWKS_URL must be set when DEBUG is False "
+            "(production deploys need JWKS to verify tokens)"
+        )
+
     print("Application starting up...")
     yield
-    # Shutdown
     print("Application shutting down...")
 
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
 
+    # Docs/OpenAPI list every endpoint and schema. Keep them in DEBUG for
+    # local/CI (e.g. openapi-typescript); disable in production.
+    docs_enabled = settings.DEBUG
+
     app = FastAPI(
         title="Home Again Furniture Bank API",
         description="REST API for the Home Again Furniture Bank system",
         version="1.0.0",
         lifespan=lifespan,
+        docs_url="/docs" if docs_enabled else None,
+        redoc_url="/redoc" if docs_enabled else None,
+        openapi_url="/openapi.json" if docs_enabled else None,
     )
 
     # Configure CORS
@@ -45,12 +57,10 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Include routers
+    # Protected CRUD API
     app.include_router(api_router, prefix="/api")
 
-    # Health check endpoint
-    @app.get("/health")
-    async def health_check():
-        return {"status": "healthy"}
+    # Public endpoints (no login)
+    app.include_router(public_router)
 
     return app

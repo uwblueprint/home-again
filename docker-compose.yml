@@ -30,7 +30,7 @@ services:
       - DATABASE_URL=postgresql://hafb_user:hafb_password@db:5432/hafb
       - API_HOST=0.0.0.0
       - API_PORT=8000
-      - DEBUG=False
+      - DEBUG=True
       - SECRET_KEY=dev-secret-change-in-production
     depends_on:
       db:

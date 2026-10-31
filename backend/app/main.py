@@ -19,10 +19,15 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifecycle."""
-    # Startup
+    current = get_settings()
+    if not current.DEBUG and not current.SUPABASE_JWKS_URL.strip():
+        raise RuntimeError(
+            "SUPABASE_JWKS_URL must be set when DEBUG is False "
+            "(production deploys need JWKS to verify tokens)"
+        )
+
     print("Application starting up...")
     yield
-    # Shutdown
     print("Application shutting down...")
 
 

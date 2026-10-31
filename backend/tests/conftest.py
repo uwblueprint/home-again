@@ -1,6 +1,14 @@
 """Shared pytest fixtures for integration tests."""
 
+import os
 from uuid import uuid4
+
+# Satisfy prod startup check (DEBUG=False + empty JWKS raises in lifespan).
+# Auth tests still override get_current_user / get_jwks_client as needed.
+os.environ.setdefault(
+    "SUPABASE_JWKS_URL",
+    "https://example.test/auth/v1/.well-known/jwks.json",
+)
 
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -8,9 +16,12 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.auth import CurrentUser, get_current_user
+from app.config import get_settings
 from app.database import get_db
 from app.main import create_app
 from app.models.base import Base
+
+get_settings.cache_clear()
 
 DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 

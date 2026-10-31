@@ -15,6 +15,7 @@ from fastapi.routing import APIRoute
 # Doc routes only exist when settings.DEBUG is True.
 PUBLIC_ROUTES: set[tuple[str, str]] = {
     ("GET", "/health"),
+    ("POST", "/api/donations"),
     ("GET", "/docs"),
     ("GET", "/docs/oauth2-redirect"),
     ("GET", "/redoc"),
@@ -60,3 +61,11 @@ async def test_public_health_allows_anonymous(unauthenticated_client):
     response = await client.get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "healthy"}
+
+
+@pytest.mark.asyncio
+async def test_public_create_donation_allows_anonymous(unauthenticated_client):
+    """POST /api/donations is public — missing body is 422, not 401."""
+    client, _app = unauthenticated_client
+    response = await client.post("/api/donations", json={})
+    assert response.status_code == 422

@@ -70,7 +70,7 @@ function AgentContact({ agent }: { agent: ReferralDialogAgent }) {
     <li className="flex min-w-0 flex-col gap-xs">
       <div className="flex items-center gap-sm">
         <Avatar>
-          <AvatarFallback className="bg-(--unofficial-accent-2)">
+          <AvatarFallback className="bg-(--unofficial-accent-2) text-sm leading-5">
             {initials}
           </AvatarFallback>
         </Avatar>
@@ -114,17 +114,17 @@ function ReferralSummary({
 
       {agents.length > 0 ? (
         <Collapsible defaultOpen={false}>
-          <CollapsibleTrigger className="flex cursor-pointer items-center gap-xs text-base font-medium text-foreground">
+          <CollapsibleTrigger className="group/agents flex cursor-pointer items-center gap-xs text-base font-medium text-foreground">
             Case agents
             <ChevronDown
               aria-hidden="true"
-              className="size-6"
+              className="size-6 transition-transform duration-300 ease-in-out group-data-panel-open/agents:rotate-180"
               strokeWidth={1.75}
             />
           </CollapsibleTrigger>
-          <CollapsiblePanel>
+          <CollapsiblePanel className="h-(--collapsible-panel-height) overflow-hidden transition-[height,opacity] duration-300 ease-in-out data-starting-style:h-0 data-starting-style:opacity-0 data-ending-style:h-0 data-ending-style:opacity-0">
             <ul
-              className="grid grid-cols-1 gap-md pt-md sm:grid-cols-2"
+              className="grid grid-cols-1 gap-y-md pt-md sm:grid-cols-2 sm:gap-x-6xl"
               aria-label="Case agents"
             >
               {agents.map((agent) => (

@@ -5,6 +5,7 @@ import { ChevronRight } from "lucide-react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
+  type OnChangeFn,
   type VisibilityState,
   type Row,
   type RowData,
@@ -55,18 +56,22 @@ export type DataTableSortOptionConfig = DataTableSortOption & {
   sorting: SortingState;
 };
 
-/** Matches a row if any cell's stringified value contains the search term. */
+/**
+ * Matches if this column's stringified value contains the search term.
+ * TanStack runs it once per searchable column and keeps the row if any match,
+ * so a row matches when any searchable cell does. Every column with a value is
+ * searchable (see `getColumnCanGlobalFilter` below) unless its def sets
+ * `enableGlobalFilter: false` — e.g. a hidden sort-only column.
+ */
 function globalSubstringFilter<TData>(
   row: Row<TData>,
-  _columnId: string,
+  columnId: string,
   filterValue: string
 ) {
   const search = filterValue.trim().toLowerCase();
-  return row.getAllCells().some((cell) =>
-    String(cell.getValue() ?? "")
-      .toLowerCase()
-      .includes(search)
-  );
+  return String(row.getValue(columnId) ?? "")
+    .toLowerCase()
+    .includes(search);
 }
 
 interface DataTableProps<TData, TValue> {
@@ -92,6 +97,46 @@ interface DataTableProps<TData, TValue> {
   hideToolbar?: boolean;
   hidePagination?: boolean;
   testId?: string;
+  /**
+   * Controlled sorting state. Pass with `onSortingChange` to own sorting from
+   * outside the table (e.g. a sort control rendered elsewhere); omit both to
+   * let the table manage it.
+   */
+  sorting?: SortingState;
+  onSortingChange?: OnChangeFn<SortingState>;
+  /**
+   * Controlled search query. Pass with `onGlobalFilterChange` to own search
+   * from outside the table (e.g. with `hideToolbar` and your own `SearchBar`);
+   * omit both to let the table manage it.
+   */
+  globalFilter?: string;
+  onGlobalFilterChange?: OnChangeFn<string>;
+}
+
+function isSameSorting(a: SortingState, b: SortingState) {
+  return (
+    a.length === b.length &&
+    a.every((entry, i) => entry.id === b[i].id && entry.desc === b[i].desc)
+  );
+}
+
+/**
+ * State that's controlled when the caller passes a value and internal when
+ * they don't (TanStack's controlled-state pattern). Changes always reach the
+ * caller's handler; internal state only updates while uncontrolled.
+ */
+function useControllableState<T>(
+  controlledValue: T | undefined,
+  onChange: OnChangeFn<T> | undefined,
+  initialValue: T
+): [T, OnChangeFn<T>] {
+  const [internalValue, setInternalValue] = useState(initialValue);
+  const isControlled = controlledValue !== undefined;
+  const setValue: OnChangeFn<T> = (updater) => {
+    if (!isControlled) setInternalValue(updater);
+    onChange?.(updater);
+  };
+  return [isControlled ? controlledValue : internalValue, setValue];
 }
 
 export function DataTable<TData, TValue>({
@@ -114,18 +159,25 @@ export function DataTable<TData, TValue>({
   hideToolbar = false,
   hidePagination = false,
   testId = "data-table",
+  sorting: sortingProp,
+  onSortingChange,
+  globalFilter: globalFilterProp,
+  onGlobalFilterChange,
 }: DataTableProps<TData, TValue>) {
-  const [sortValue, setSortValue] = useState<string | null>(
-    sortOptions?.[0]?.value ?? null
-  );
-  const [sorting, setSorting] = useState<SortingState>(
+  const [sorting, setSorting] = useControllableState<SortingState>(
+    sortingProp,
+    onSortingChange,
     sortOptions?.[0]?.sorting ?? []
   );
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     initialColumnVisibility
   );
-  const [globalFilter, setGlobalFilter] = useState("");
+  const [globalFilter, setGlobalFilter] = useControllableState(
+    globalFilterProp,
+    onGlobalFilterChange,
+    ""
+  );
 
   const tableColumns = onRowClick
     ? [
@@ -149,6 +201,11 @@ export function DataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: globalSubstringFilter,
+    // TanStack's default only searches columns whose first row holds a
+    // string/number; search every column with a value instead, so a column
+    // isn't skipped because its first cell is empty. Columns still opt out
+    // with `enableGlobalFilter: false`.
+    getColumnCanGlobalFilter: () => true,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -159,19 +216,23 @@ export function DataTable<TData, TValue>({
     meta: { globalFilter: highlightQuery ?? globalFilter },
   });
 
+  // The checked option is whichever matches the current sorting (none if no
+  // option does), so it stays right when sorting changes some other way: a
+  // sortable column header, or a parent controlling `sorting`.
+  const activeSortValue =
+    sortOptions?.find((option) => isSameSorting(option.sorting, sorting))
+      ?.value ?? null;
+
   const handleSortChange = (value: string) => {
     const option = sortOptions?.find((item) => item.value === value);
-    if (!option) return;
-    setSortValue(value);
-    setSorting(option.sorting);
+    if (option) setSorting(option.sorting);
   };
 
-  const handleSortReset = () => {
-    setSortValue(null);
-    setSorting([]);
-  };
+  const handleSortReset = () => setSorting([]);
 
   const hasRows = table.getRowModel().rows.length > 0;
+  // Hidden columns (e.g. filter- or sort-only ones) don't render cells.
+  const visibleColumnCount = table.getVisibleLeafColumns().length;
   const trimmedSearch = globalFilter.trim();
   const showSearchEmpty = !loading && !error && !hasRows && !!trimmedSearch;
   const { pageIndex } = table.getState().pagination;
@@ -189,7 +250,7 @@ export function DataTable<TData, TValue>({
           searchPlaceholder={searchPlaceholder}
           filters={filters}
           sortOptions={sortOptions}
-          sortValue={sortValue}
+          sortValue={activeSortValue}
           onSortChange={sortOptions ? handleSortChange : undefined}
           onSortReset={sortOptions ? handleSortReset : undefined}
           leading={toolbarLeading}
@@ -224,11 +285,11 @@ export function DataTable<TData, TValue>({
             </TableHeader>
             <TableBody>
               {loading ? (
-                <DataTableSkeletonRows columns={tableColumns.length} />
+                <DataTableSkeletonRows columns={visibleColumnCount} />
               ) : error ? (
                 <TableRow>
                   <TableCell
-                    colSpan={tableColumns.length}
+                    colSpan={visibleColumnCount}
                     className="h-24 text-center text-destructive"
                   >
                     {error.message || "Error loading data"}
@@ -273,7 +334,7 @@ export function DataTable<TData, TValue>({
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={tableColumns.length}
+                    colSpan={visibleColumnCount}
                     className="h-24 text-center text-muted-foreground"
                   >
                     {emptyStateMessage}

@@ -66,6 +66,19 @@ export interface Donor {
   updated_at: string;
 }
 
+/**
+ * A donor as returned by `GET /donors`: the donor plus how many donations
+ * they've made and when they last donated. Mirrors the backend's separate
+ * `DonorListItem` schema — only the list endpoint returns these, so they
+ * aren't on `Donor` (which `GET /donors/:id`, create and update return
+ * without them).
+ */
+export interface DonorListItem extends Donor {
+  donation_count: number;
+  /** ISO date of their most recent donation; null if they have none. */
+  last_donated_at: string | null;
+}
+
 export interface Client {
   id: string;
   first_name: string;

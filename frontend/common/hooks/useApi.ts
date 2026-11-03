@@ -24,6 +24,7 @@ import type {
   CreateDonorInput,
   CreateReferralInput,
   Donor,
+  DonorListItem,
   Furniture,
   Referral,
   UpdateAgencyInput,
@@ -75,7 +76,7 @@ export function useDonors() {
   return useQuery({
     queryKey: ["donors"],
     queryFn: async () => {
-      const response = await apiClient.get<Donor[]>("/donors");
+      const response = await apiClient.get<DonorListItem[]>("/donors");
       return response.data;
     },
     staleTime: 1000 * 60 * 5,

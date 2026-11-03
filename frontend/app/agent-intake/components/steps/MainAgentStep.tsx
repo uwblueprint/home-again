@@ -52,15 +52,14 @@ export default function MainAgentStep() {
   const { mainAgent, setMainAgent } = useIntakeFormStore();
   const { registerValidator } = useIntakeContext();
   const user = useAuthStore((state) => state.user);
-  const hasLockedIdentity = Boolean(
-    user?.firstName || user?.lastName || user?.email
-  );
+  const authEmail = user?.email || "";
+  const hasLockedIdentity = Boolean(authEmail);
 
   const [form, setForm] = useState<MainAgentFormData>(() => ({
     ...mainAgent,
-    firstName: user?.firstName || mainAgent.firstName || AUTH_STUB.firstName,
-    lastName: user?.lastName || mainAgent.lastName || AUTH_STUB.lastName,
-    email: user?.email || mainAgent.email || AUTH_STUB.email,
+    firstName: mainAgent.firstName || AUTH_STUB.firstName,
+    lastName: mainAgent.lastName || AUTH_STUB.lastName,
+    email: authEmail || mainAgent.email || AUTH_STUB.email,
   }));
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<
@@ -68,17 +67,9 @@ export default function MainAgentStep() {
   >({});
 
   useEffect(() => {
-    if (!hasLockedIdentity) {
-      return;
-    }
-
-    setForm((current) => ({
-      ...current,
-      firstName: user?.firstName || current.firstName,
-      lastName: user?.lastName || current.lastName,
-      email: user?.email || current.email,
-    }));
-  }, [hasLockedIdentity, user?.email, user?.firstName, user?.lastName]);
+    if (!hasLockedIdentity) return;
+    setForm((current) => ({ ...current, email: authEmail || current.email }));
+  }, [hasLockedIdentity, authEmail]);
 
   useEffect(() => {
     setMainAgent(form);

@@ -4,36 +4,27 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 
 import { Button } from "@/common/components/ui/button";
-import { HOME_PAGE } from "@/common/constants";
+import { HOME_PAGE, LOGIN_PAGE } from "@/common/constants";
 import {
   canAccessAgentDash,
   useAuthStore,
   type User,
 } from "@/common/stores/authStore";
-import { CURRENT_AGENT_ID } from "../data/mockReferrals";
 
-/**
- * Temporary stub until real auth/login is wired up. Matches the primary mock
- * case agent so "My Referrals" is meaningful.
- */
-function makeDevAgent(isAdminAgent: boolean): User {
-  return {
-    id: CURRENT_AGENT_ID,
-    email: "wanyun.xue@agency.com",
-    firstName: "Wanyun",
-    lastName: "Xue",
-    role: "agency",
-    isAdminAgent,
-  };
-}
-
-/** Renders agent-dash content only for signed-in agency agents. */
+/** Renders agent-dash content only for signed-in users. Role checks come later. */
 export function AgentDashAuthGate({ children }: { children: ReactNode }) {
-  const user = useAuthStore((state) => state.user);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const setUser = useAuthStore((state) => state.setUser);
+  const user: User | null = useAuthStore((state) => state.user);
+  const loading = useAuthStore((state) => state.loading);
 
-  if (isAuthenticated && canAccessAgentDash(user)) {
+  if (loading) {
+    return (
+      <div className="flex min-h-svh items-center justify-center bg-muted/30 px-xl text-paragraph-regular text-muted-foreground">
+        Checking sign-in…
+      </div>
+    );
+  }
+
+  if (canAccessAgentDash(user)) {
     return <>{children}</>;
   }
 
@@ -41,24 +32,20 @@ export function AgentDashAuthGate({ children }: { children: ReactNode }) {
     <div className="flex min-h-svh flex-col items-center justify-center gap-lg bg-muted/30 px-xl text-center">
       <div className="flex max-w-md flex-col gap-sm">
         <h1 className="text-heading-3 font-semibold text-foreground">
-          Agent access required
+          Sign in required
         </h1>
         <p className="text-paragraph-regular text-muted-foreground">
-          The agent dashboard is only available when you are signed in as an
-          agency agent.
+          The agent dashboard is only available when you are signed in.
         </p>
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-sm">
-        <Button type="button" onClick={() => setUser(makeDevAgent(false))}>
-          Sign in as agent
-        </Button>
         <Button
           type="button"
-          variant="secondary"
-          onClick={() => setUser(makeDevAgent(true))}
+          nativeButton={false}
+          render={<Link href={LOGIN_PAGE} />}
         >
-          Sign in as admin agent
+          Go to login
         </Button>
         <Button
           type="button"

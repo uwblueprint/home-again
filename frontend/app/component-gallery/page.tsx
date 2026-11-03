@@ -125,6 +125,7 @@ import {
   RejectItemDialog,
   type DonationItem,
 } from "@/app/donation-request/components";
+import { DonorsTable, type DonorListRow } from "@/app/admin-donors/components";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
 
@@ -1356,6 +1357,68 @@ function DataTableDemo() {
   );
 }
 
+const DONOR_FIRST_NAMES = [
+  "Jane",
+  "Robert",
+  "Priya",
+  "Émile",
+  "Grace",
+  "Omar",
+  "Mei",
+  "Lucas",
+  "Fatima",
+  "Noah",
+];
+const DONOR_LAST_NAMES = [
+  "Smith",
+  "Chen",
+  "Patel",
+  "Tremblay",
+  "Okafor",
+  "Haddad",
+  "Wong",
+  "Martin",
+  "Ali",
+  "Roy",
+];
+
+function makeDonorRows(): DonorListRow[] {
+  return Array.from({ length: 25 }, (_, i) => {
+    const firstName = DONOR_FIRST_NAMES[i % DONOR_FIRST_NAMES.length];
+    const lastName =
+      DONOR_LAST_NAMES[(i * 3 + Math.floor(i / 10)) % DONOR_LAST_NAMES.length];
+    const donationCount = (i * 7) % 13;
+    return {
+      id: `donor-${i}`,
+      firstName,
+      lastName,
+      email: `${lastName.toLowerCase()}${i}@example.com`,
+      // One donor without a phone, to show the "—" placeholder.
+      phone: i === 7 ? null : `647 555 ${String(1000 + i * 37).slice(-4)}`,
+      donationCount,
+      // Donors with no donations (two of them) have no date and sort last.
+      lastDonatedAt:
+        donationCount === 0 ? null : new Date(2026, 0, 1 + i * 9).toISOString(),
+    };
+  });
+}
+
+function DonorsTableDemo() {
+  const [data] = useState(makeDonorRows);
+  const [selectedRow, setSelectedRow] = useState<DonorListRow | null>(null);
+
+  return (
+    <div className="w-full space-y-md">
+      <DonorsTable data={data} onRowClick={setSelectedRow} />
+      {selectedRow && (
+        <p className="text-paragraph-small text-muted-foreground">
+          Selected: {selectedRow.firstName} {selectedRow.lastName}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function AlertDemo() {
   return (
     <div className="flex w-full max-w-md flex-col gap-sm">
@@ -1632,6 +1695,7 @@ const COMPOSED_COMPONENTS: {
   { name: "MultiStepLayout", Demo: MultiStepLayoutDemo },
   { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
   { name: "DataTable", Demo: DataTableDemo, fullWidth: true },
+  { name: "DonorsTable", Demo: DonorsTableDemo, fullWidth: true },
   { name: "BigToggleButton", Demo: BigToggleButtonDemo },
   { name: "PhotoStrip + Lightbox", Demo: PhotoStripDemo },
   { name: "AdminHeader", Demo: AdminHeaderDemo },

@@ -99,6 +99,17 @@ Built in — pass `searchPlaceholder` to customize the placeholder text (default
 <DataTable columns={columns} data={referrals} searchPlaceholder="Search referrals" />
 ```
 
+Hidden columns are searched too. To keep a column out of search (e.g. a hidden
+sort-only timestamp, or a count), set `enableGlobalFilter: false` on it:
+
+```tsx
+{
+  id: "createdAt",
+  accessorFn: (row) => Date.parse(row.createdAt),
+  enableGlobalFilter: false,
+}
+```
+
 ---
 
 ## Filters (`filters` prop)
@@ -256,6 +267,48 @@ take priority over `data`), and `emptyStateMessage` covers the zero-rows case.
 
 Automatic — pass `pageSize` to change the page size (defaults to 10). No other setup
 needed.
+
+---
+
+## Search and sort outside the table (controlled state)
+
+By default the table owns its search query and sorting. To render those
+controls somewhere else (e.g. beside a page title, above the card), pass
+`hideToolbar` and control the state yourself with `globalFilter` /
+`onGlobalFilterChange` and `sorting` / `onSortingChange` (TanStack's
+controlled-state pattern; each pair is optional and independent). The table
+still filters, sorts and paginates, and goes back to page 1 when either
+changes. `SortDropdown` is the toolbar's Sort button on its own:
+
+```tsx
+import {
+  DataTable,
+  SearchBar,
+  SortDropdown,
+} from "@/common/components/data-display";
+
+const [search, setSearch] = useState("");
+const [sortField, setSortField] = useState("createdAt");
+
+<SearchBar value={search} onChange={setSearch} />
+<SortDropdown options={SORT_OPTIONS} value={sortField} onChange={setSortField} />
+<DataTable
+  columns={columns}
+  data={rows}
+  hideToolbar
+  globalFilter={search}
+  sorting={[{ id: sortField, desc: true }]}
+/>
+```
+
+`SortDropdown` / `SortMenu` can also show ↑/↓ direction toggles: pass
+`direction` (`"asc" | "desc"`) and `onDirectionChange`. See
+`app/admin-donors/components/DonorsTable.tsx` for a full example.
+
+The change handlers are optional: with `hideToolbar` and plain-text headers
+nothing inside the table changes search or sort, so the example omits them.
+Without `onSortingChange`, header clicks on a controlled table do nothing. Keep `data` referentially stable (memoize any mapping): a new array
+resets the table to page 1.
 
 ---
 

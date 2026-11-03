@@ -92,6 +92,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
   SortMenu,
+  type SortDirection,
 } from "@/common/components/ui";
 import {
   SelectAndCombo,
@@ -921,13 +922,36 @@ function SortMenuDemo() {
   ];
   const [value, setValue] = useState<string | null>("date_newest");
 
+  // With ↑/↓ direction arrows (opt-in via direction + onDirectionChange).
+  const directionOptions = [
+    { value: "recency", label: "Recency" },
+    { value: "name", label: "Name" },
+  ];
+  const [directionValue, setDirectionValue] = useState<string | null>(
+    "recency"
+  );
+  const [direction, setDirection] = useState<SortDirection>("desc");
+
   return (
-    <SortMenu
-      options={options}
-      value={value}
-      onChange={setValue}
-      onReset={() => setValue(null)}
-    />
+    <div className="flex flex-wrap items-start gap-md">
+      <SortMenu
+        options={options}
+        value={value}
+        onChange={setValue}
+        onReset={() => setValue(null)}
+      />
+      <SortMenu
+        options={directionOptions}
+        value={directionValue}
+        onChange={setDirectionValue}
+        onReset={() => {
+          setDirectionValue("recency");
+          setDirection("desc");
+        }}
+        direction={direction}
+        onDirectionChange={setDirection}
+      />
+    </div>
   );
 }
 

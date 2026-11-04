@@ -7,6 +7,7 @@ import { create } from "zustand";
 import type { Session, User } from "@supabase/supabase-js";
 
 import { LOGIN_PAGE } from "@/common/constants";
+import { config } from "@/common/constants/config";
 import { supabase } from "@/common/lib/supabaseClient";
 
 export type { User };
@@ -35,6 +36,13 @@ export function getToken(): string | null {
   return useAuthStore.getState().session?.access_token ?? null;
 }
 
+/** True when the stored session past its expires_at (unix seconds). */
+export function isSessionExpired(): boolean {
+  const expiresAt = useAuthStore.getState().session?.expires_at;
+  if (expiresAt == null) return false;
+  return expiresAt * 1000 <= Date.now();
+}
+
 let started = false;
 
 function applySession(session: Session | null) {
@@ -59,13 +67,26 @@ export function initAuthListener(): void {
   });
 }
 
+/**
+ * Dev only: fake signed-in agent so /agent-dash is reachable before the login UI exists.
+ * Sets no session, so getToken() stays null and no fake token is sent to the API.
+ * TODO: remove once the sign-in UI ticket lands.
+ */
+export function devSignIn(): void {
+  if (!config.isDevelopment) return;
+  useAuthStore.setState({
+    user: { id: "dev-agent", email: "dev.agent@agency.com" } as User,
+    session: null,
+    loading: false,
+  });
+}
+
 /** Session present. Staff vs agent roles are a later ticket. */
 export function canAccessAgentDash(user: User | null | undefined): boolean {
   return Boolean(user);
 }
 
-export function isAgencyAdminAgent(user: User | null | undefined): boolean {
-  const meta =
-    user?.app_metadata?.is_admin_agent ?? user?.user_metadata?.is_admin_agent;
-  return Boolean(meta);
+/** Role checks land in a later ticket; keep call sites compiling. */
+export function isAgencyAdminAgent(_user: User | null | undefined): boolean {
+  return false;
 }

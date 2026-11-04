@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/common/components/ui/button";
 import { HOME_PAGE } from "@/common/constants";
 
-/** Destination for signOut() / 401 redirects. Sign-in UI is a later ticket. */
+/** Destination for signOut() / expired-token redirects. Sign-in UI is a later ticket. */
 export default function LoginPage() {
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-lg px-xl text-center">

@@ -1,7 +1,11 @@
 import axios from "axios";
 
 import { config } from "@/common/constants/config";
-import { getToken, useAuthStore } from "@/common/stores/authStore";
+import {
+  getToken,
+  isSessionExpired,
+  useAuthStore,
+} from "@/common/stores/authStore";
 
 const apiClient = axios.create({
   baseURL: config.api.baseUrl,
@@ -17,7 +21,7 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && isSessionExpired()) {
       await useAuthStore.getState().signOut();
     }
     return Promise.reject(error);

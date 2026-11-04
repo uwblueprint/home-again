@@ -5,8 +5,10 @@ import Link from "next/link";
 
 import { Button } from "@/common/components/ui/button";
 import { HOME_PAGE, LOGIN_PAGE } from "@/common/constants";
+import { config } from "@/common/constants/config";
 import {
   canAccessAgentDash,
+  devSignIn,
   useAuthStore,
   type User,
 } from "@/common/stores/authStore";
@@ -47,6 +49,11 @@ export function AgentDashAuthGate({ children }: { children: ReactNode }) {
         >
           Go to login
         </Button>
+        {config.isDevelopment && (
+          <Button type="button" variant="secondary" onClick={devSignIn}>
+            Sign in as agent (dev)
+          </Button>
+        )}
         <Button
           type="button"
           variant="secondary"

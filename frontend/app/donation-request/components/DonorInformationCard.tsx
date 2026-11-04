@@ -18,23 +18,18 @@ import {
 } from "@/common/components/ui/toggle-group";
 import { InformationBlock } from "@/common/components/data-display";
 import { FormField } from "@/common/components/forms";
-import { EMAIL_REGEX, PHONE_REGEX } from "@/common/constants/validators";
+import { validateDonorContact } from "@/common/constants/validators";
 import type { DonorInformation } from "./types";
 
 type DonorErrors = Partial<Record<keyof DonorInformation, string>>;
 
 function validateDonor(draft: DonorInformation): DonorErrors {
-  const errors: DonorErrors = {};
-  if (!draft.first_name.trim()) errors.first_name = "Enter a first name.";
-  if (!draft.last_name.trim()) errors.last_name = "Enter a last name.";
-  const email = draft.email.trim();
-  if (!email) errors.email = "Enter an email address.";
-  else if (!EMAIL_REGEX.test(email))
-    errors.email = "Enter a valid email address.";
-  const phone = draft.phone.trim();
-  if (!phone) errors.phone = "Enter a phone number.";
-  else if (!PHONE_REGEX.test(phone))
-    errors.phone = "Enter a valid phone number.";
+  const errors: DonorErrors = validateDonorContact({
+    first_name: draft.first_name,
+    last_name: draft.last_name,
+    email: draft.email,
+    phone: draft.phone,
+  });
   if (!draft.pickup_address.trim())
     errors.pickup_address = "Enter a pickup address.";
   return errors;

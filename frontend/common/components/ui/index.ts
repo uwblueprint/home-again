@@ -33,6 +33,7 @@ export {
 export { Button } from "./button";
 export {
   Card,
+  CardAction,
   CardHeader,
   CardFooter,
   CardTitle,

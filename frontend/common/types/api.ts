@@ -40,6 +40,14 @@ export interface CreateDonorInput {
   phone?: string;
 }
 
+/** Mirrors backend `DonorUpdate`: only the fields being changed are sent. */
+export interface UpdateDonorInput {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+}
+
 export interface CreateClientInput {
   first_name: string;
   last_name: string;

@@ -10,6 +10,11 @@ os.environ.setdefault(
     "https://example.test/auth/v1/.well-known/jwks.json",
 )
 
+# Always run tests in production mode, even if a developer's backend/.env sets
+# ENV=DEVELOPMENT; otherwise tokenless requests would pass and hide auth bugs.
+# Real environment variables take precedence over the .env file.
+os.environ["ENV"] = "PRODUCTION"
+
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine

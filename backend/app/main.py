@@ -25,6 +25,16 @@ async def lifespan(app: FastAPI):
             "SUPABASE_JWKS_URL must be set when DEBUG is False "
             "(production deploys need JWKS to verify tokens)"
         )
+    if current.is_development:
+        if not current.DEBUG:
+            raise RuntimeError(
+                "ENV=DEVELOPMENT disables token checks and requires DEBUG=True; "
+                "it must never be set in production"
+            )
+        print(
+            "WARNING: ENV=DEVELOPMENT, requests without a bearer token act as "
+            f"dev user {current.DEV_USER_ID}. Never use this in production."
+        )
 
     print("Application starting up...")
     yield

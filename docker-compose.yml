@@ -31,6 +31,8 @@ services:
       - API_HOST=0.0.0.0
       - API_PORT=8000
       - DEBUG=True
+      # Local only: requests without a token act as a dev user (docs/ONBOARDING.md).
+      - ENV=DEVELOPMENT
       - SECRET_KEY=dev-secret-change-in-production
     depends_on:
       db:

@@ -7,6 +7,7 @@ Ending furniture poverty for good — one delivery at a time.
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Key Features](#key-features)
+- [Database security and Postgres tests](#database-security-and-postgres-tests)
 - [Core Domains](#core-domains)
 - [Design System Variables](#design-system-variables)
 - [Documentation](#documentation)
@@ -86,8 +87,39 @@ home-again/
 - **Fully implemented backend**: All 11 resources have complete CRUD — Admin, Agency, Agent, Donor, Donation, Client, Furniture, Referral, Route, Pickup, Dropoff.
 - **Four-layer architecture**: models → schemas → services → routers. Services own all business logic; routers only translate HTTP. See [docs/BACKEND_GUIDE.md](docs/BACKEND_GUIDE.md).
 - **Type-safe**: TypeScript types in `frontend/common/types/` match Pydantic schemas; use `common/lib/apiClient.ts` and `common/hooks/useApi.ts` for all API calls.
-- **Tested**: 132 integration tests using in-memory SQLite — no external services needed to run `pytest`.
+- **Tested**: Backend integration tests use in-memory SQLite. Postgres security tests run separately when `TEST_DATABASE_URL` is configured.
 - **Documented**: [docs/SCHEMA.md](docs/SCHEMA.md) for the full entity reference; [docs/BACKEND_GUIDE.md](docs/BACKEND_GUIDE.md) for implementation patterns.
+
+## Database security and Postgres tests
+
+Every new table in the `public` schema must enable Row Level Security (RLS) in
+the Alembic migration that creates it:
+
+```python
+op.execute('ALTER TABLE public."new_table" ENABLE ROW LEVEL SECURITY')
+```
+
+Public tables have no RLS policies, so ordinary Supabase API roles cannot read
+or modify their rows through the REST API. Do not use `FORCE ROW LEVEL SECURITY`:
+the backend and Alembic connect as the table owner (`postgres` in Supabase),
+which retains access without policies. FastAPI remains responsible for checking
+application permissions.
+
+Run the usual SQLite suite from `backend/` with `python -m pytest -m "not postgres"`.
+To also run the Postgres checks, configure a local test server connection:
+
+```bash
+cd backend
+TEST_DATABASE_URL=postgresql://hafb_user:hafb_password@localhost:5432/postgres python -m pytest
+```
+
+The test role must have `CREATEDB`. The fixtures create a uniquely named database,
+apply all Alembic migrations, and remove that database afterward; the database
+named in the connection URL is only used to create and remove the test database.
+Without `TEST_DATABASE_URL`, Postgres tests are skipped. Use `python -m pytest -m postgres`
+with the variable set to run only these checks. They check every public
+table for RLS, prove that unsecured tables are detected, verify migration rollback,
+and exercise backend reads and writes against Postgres.
 
 ## Core Domains
 

@@ -25,15 +25,15 @@ export const donationHistoryColumns: ColumnDef<DonationHistoryRow>[] = [
     enableSorting: true,
     sortingFn: "datetime",
     cell: ({ getValue }) => {
-      const date = getValue<string>();
+    const value = getValue<string>();
+    if (!value) return "-";
+    const date = new Date(value);
 
-      return date
-        ? new Intl.DateTimeFormat("en-CA", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          }).format(new Date(date))
-        : "—";
+    return date.toLocaleDateString("en-CA", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
     },
   },
   {

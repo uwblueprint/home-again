@@ -124,7 +124,6 @@ import {
 } from "@/app/donation-request/components";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
-import { HistoryTable, donationHistoryColumns } from "../admin-donors/components";
 
 // ─── section / row helpers ────────────────────────────────────────────────────
 
@@ -269,41 +268,6 @@ function StatusLabelsDemo() {
         <ConfirmedBadge />
         <PickedUpBadge />
       </div>
-    </div>
-  );
-}
-
-  function DonationHistoryDemo() {
-  const [data] = useState<DonationHistoryRow[]>([
-    {
-      donationDate: "2026-10-02",
-      donationId: "DON-1042",
-      items: ["Sofa", "Coffee table", "Floor lamp"],
-      status: "scheduled",
-    },
-    {
-      donationDate: "2026-09-25",
-      donationId: "DON-1038",
-      items: ["Queen bed frame", "Mattress"],
-      status: "picked_up",
-    },
-    {
-      donationDate: "2026-09-18",
-      donationId: "DON-1031",
-      items: ["Dining table", "Six chairs"],
-      status: "confirmed",
-    },
-    {
-      donationDate: "2026-09-10",
-      donationId: "DON-1024",
-      items: ["Dresser"],
-      status: "unconfirmed",
-    },
-  ]);
-
-  return (
-    <div className="w-full">
-      <HistoryTable data={data ?? []} />
     </div>
   );
 }

@@ -13,6 +13,10 @@ export function HistoryTable({ data }: HistoryTableProps) {
     <DataTable
       columns={donationHistoryColumns}
       data={data ?? []}
+      onRowClick={(row) => {
+        console.log(row);
+        //TODO: implement functionality
+      }}
       header={
         <div className="flex flex-col items-start gap-sm">
           <h2 className="text-heading-4 font-semibold text-foreground">
@@ -29,6 +33,7 @@ export function HistoryTable({ data }: HistoryTableProps) {
         },
       ]}
       hideToolbar
+      
     />
   );
 }

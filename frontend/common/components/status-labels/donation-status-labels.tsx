@@ -104,11 +104,17 @@ export function PickedUpBadge() {
   );
 }
 
+interface DonationStatusBadgeProps {
+  status: DonationHistoryStatus;
+  approved?: number;
+  total?: number;
+}
+
 export function DonationStatusBadge({
   status,
-}: {
-  status: DonationHistoryStatus;
-}) {
+  approved = 0,
+  total = 0,
+}: DonationStatusBadgeProps) {
   switch (status) {
     case "confirmed":
       return <ConfirmedBadge />;
@@ -118,6 +124,14 @@ export function DonationStatusBadge({
       return <ApprovedBadge />;
     case "picked_up":
       return <PickedUpBadge />;
+    case "scheduled_by":
+      return <ScheduledBadge />
+    case "pending_review":
+      return <PendingReviewBadge />
+    case "partially_reviewed":
+      return <PartiallyReviewedBadge />
+    case "approved_fraction":
+      return <ApprovalsLabel approved={approved} total={total}/>
     case "unconfirmed":
     default:
       return <UnconfirmedBadge />;
@@ -129,4 +143,8 @@ export type DonationHistoryStatus =
   | "confirmed"
   | "approved"
   | "picked_up"
-  | "rejected";
+  | "rejected"
+  | "approved_fraction"
+  | "scheduled_by"
+  | "pending_review"
+  | "partially_reviewed"

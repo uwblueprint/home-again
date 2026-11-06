@@ -19,6 +19,17 @@ interface AuthStore {
   signOut: () => Promise<void>;
 }
 
+let hadSession = false;
+let redirectingToLogin = false;
+
+function redirectToLogin(): void {
+  if (redirectingToLogin) return;
+  if (typeof window === "undefined") return;
+  if (window.location.pathname === LOGIN_PAGE) return;
+  redirectingToLogin = true;
+  window.location.assign(LOGIN_PAGE);
+}
+
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   session: null,
@@ -26,8 +37,9 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   signOut: async () => {
     await supabase.auth.signOut();
+    hadSession = false;
     set({ user: null, session: null, loading: false });
-    window.location.assign(LOGIN_PAGE);
+    redirectToLogin();
   },
 }));
 
@@ -36,21 +48,22 @@ export function getToken(): string | null {
   return useAuthStore.getState().session?.access_token ?? null;
 }
 
-/** True when the stored session past its expires_at (unix seconds). */
-export function isSessionExpired(): boolean {
-  const expiresAt = useAuthStore.getState().session?.expires_at;
-  if (expiresAt == null) return false;
-  return expiresAt * 1000 <= Date.now();
-}
-
 let started = false;
 
 function applySession(session: Session | null) {
+  const lostSession = !session && hadSession;
+  hadSession = Boolean(session);
+
   useAuthStore.setState({
     session,
     user: session?.user ?? null,
     loading: false,
   });
+
+  // Session was live and Supabase cleared it (failed refresh, remote revoke, etc.).
+  if (lostSession) {
+    redirectToLogin();
+  }
 }
 
 /** Subscribe once; keeps user/session in sync on login, logout, and refresh. */

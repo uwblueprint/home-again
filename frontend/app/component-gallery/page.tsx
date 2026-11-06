@@ -1590,7 +1590,6 @@ const COMPOSED_COMPONENTS: {
   { name: "MultiStepLayout", Demo: MultiStepLayoutDemo },
   { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
   { name: "DataTable", Demo: DataTableDemo, fullWidth: true },
-  { name: "HistoryTable", Demo: DonationHistoryDemo },
   { name: "BigToggleButton", Demo: BigToggleButtonDemo },
   { name: "PhotoStrip + Lightbox", Demo: PhotoStripDemo },
   { name: "AdminHeader", Demo: AdminHeaderDemo },

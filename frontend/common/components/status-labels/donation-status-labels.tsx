@@ -133,8 +133,9 @@ export function DonationStatusBadge({
     case "approved_fraction":
       return <ApprovalsLabel approved={approved} total={total}/>
     case "unconfirmed":
-    default:
       return <UnconfirmedBadge />;
+    default:
+      return null;
   }
 }
 

@@ -21,6 +21,7 @@ interface AuthStore {
 
 let hadSession = false;
 let redirectingToLogin = false;
+let signingOut = false;
 
 function redirectToLogin(): void {
   if (redirectingToLogin) return;
@@ -36,10 +37,16 @@ export const useAuthStore = create<AuthStore>((set) => ({
   loading: true,
 
   signOut: async () => {
-    await supabase.auth.signOut();
-    hadSession = false;
-    set({ user: null, session: null, loading: false });
-    redirectToLogin();
+    if (signingOut) return;
+    signingOut = true;
+    try {
+      await supabase.auth.signOut();
+      hadSession = false;
+      set({ user: null, session: null, loading: false });
+      redirectToLogin();
+    } catch {
+      signingOut = false;
+    }
   },
 }));
 

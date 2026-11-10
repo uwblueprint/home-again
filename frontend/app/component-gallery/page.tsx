@@ -124,7 +124,12 @@ import {
   RejectItemDialog,
   type DonationItem,
 } from "@/app/donation-request/components";
-import { DonorsTable, type DonorListRow } from "@/app/admin-donors/components";
+import {
+  DonorProfileCard,
+  DonorsTable,
+  type DonorListRow,
+} from "@/app/admin-donors/components";
+import type { Donor, UpdateDonorInput } from "@/common/types";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
 
@@ -1483,6 +1488,34 @@ function AdminHeaderDemo() {
   );
 }
 
+const SAMPLE_DONOR: Donor = {
+  id: "donor-demo",
+  name: "Katie Sun",
+  first_name: "Katie",
+  last_name: "Sun",
+  email: "katiesun@uwblueprint.org",
+  phone: "647-909-9581",
+  address: null,
+  city: null,
+  postal_code: null,
+  country: null,
+  smoking_household: null,
+  donation_type: null,
+  is_anonymous: false,
+  created_at: "2026-07-02T00:00:00Z",
+  updated_at: "2026-07-02T00:00:00Z",
+};
+
+function DonorProfileCardDemo() {
+  const [donor, setDonor] = useState(SAMPLE_DONOR);
+  // Stands in for the PUT round-trip so the saving state is visible.
+  const save = async (patch: UpdateDonorInput) => {
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    setDonor((prev) => ({ ...prev, ...patch }));
+  };
+  return <DonorProfileCard donor={donor} onSave={save} className="w-full" />;
+}
+
 function RequestedItemCardDemo() {
   return (
     <RequestedItemCard
@@ -1673,6 +1706,7 @@ const COMPOSED_COMPONENTS: {
   { name: "PhotoStrip + Lightbox", Demo: PhotoStripDemo },
   { name: "AdminHeader", Demo: AdminHeaderDemo },
   { name: "ReferralCard", Demo: ReferralCardDemo, fullWidth: true },
+  { name: "DonorProfileCard", Demo: DonorProfileCardDemo, fullWidth: true },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

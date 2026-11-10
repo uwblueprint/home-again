@@ -9,10 +9,14 @@ export function ReviewedBadge() {
   );
 }
 
-export function PendingReviewBadge() {
+export function PendingReviewBadge({
+  text = "Pending Review",
+}: {
+  text?: string;
+}) {
   return (
     <Badge className="rounded-lg font-normal border-transparent bg-amber-100 text-amber-900">
-      Pending Review
+      {text}
     </Badge>
   );
 }

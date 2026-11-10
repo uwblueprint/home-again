@@ -44,9 +44,7 @@ export function AgentDashShell({ children }: { children: ReactNode }) {
   const user = useAuthStore((state) => state.user);
   const [findQuery, setFindQuery] = useState("");
   const searchTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const initials = user
-    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
-    : "";
+  const initials = (user?.email?.slice(0, 2) ?? "").toUpperCase();
 
   useEffect(() => () => clearTimeout(searchTimer.current), []);
 

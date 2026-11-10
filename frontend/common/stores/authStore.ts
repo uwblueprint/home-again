@@ -1,52 +1,92 @@
 /**
- * Authentication Store
- *
- * Manages global authentication state including:
- * - Current user information
- * - Auth token
- * - Login/logout status
- *
- * Uses Zustand for minimal boilerplate and optimal performance.
- * @see https://zustand.docs.pmnd.rs/
+ * Supabase auth state for the app and API client.
+ * getToken() feeds the axios interceptor; the backend verifies that JWT via JWKS.
  */
 
 import { create } from "zustand";
+import type { Session, User } from "@supabase/supabase-js";
 
-export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: "admin" | "agency";
-  region?: string;
-  /** Agency admin privileges (e.g. add agents). Only meaningful when role is "agency". */
-  isAdminAgent?: boolean;
-}
+import { LOGIN_PAGE } from "@/common/constants";
+import { config } from "@/common/constants/config";
+import { supabase } from "@/common/lib/supabaseClient";
+
+export type { User };
 
 interface AuthStore {
   user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  setUser: (user: User | null) => void;
-  setToken: (token: string | null) => void;
-  logout: () => void;
+  session: Session | null;
+  loading: boolean;
+  signOut: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
-  token: null,
-  isAuthenticated: false,
-  setUser: (user) => set({ user, isAuthenticated: !!user }),
-  setToken: (token) => set({ token }),
-  logout: () => set({ user: null, token: null, isAuthenticated: false }),
+  session: null,
+  loading: true,
+
+  signOut: async () => {
+    await supabase.auth.signOut();
+    set({ user: null, session: null, loading: false });
+    window.location.assign(LOGIN_PAGE);
+  },
 }));
 
-/** Agent dashboard is limited to signed-in agency agents. */
-export function canAccessAgentDash(user: User | null | undefined): boolean {
-  return Boolean(user && user.role === "agency");
+/** For the API interceptor (non-React). */
+export function getToken(): string | null {
+  return useAuthStore.getState().session?.access_token ?? null;
 }
 
-/** Agency admin agents can manage other agents (e.g. Add new agent). */
-export function isAgencyAdminAgent(user: User | null | undefined): boolean {
-  return Boolean(user && user.role === "agency" && user.isAdminAgent);
+/** True when the stored session past its expires_at (unix seconds). */
+export function isSessionExpired(): boolean {
+  const expiresAt = useAuthStore.getState().session?.expires_at;
+  if (expiresAt == null) return false;
+  return expiresAt * 1000 <= Date.now();
+}
+
+let started = false;
+
+function applySession(session: Session | null) {
+  useAuthStore.setState({
+    session,
+    user: session?.user ?? null,
+    loading: false,
+  });
+}
+
+/** Subscribe once; keeps user/session in sync on login, logout, and refresh. */
+export function initAuthListener(): void {
+  if (started) return;
+  started = true;
+
+  void supabase.auth.getSession().then(({ data: { session } }) => {
+    applySession(session);
+  });
+
+  supabase.auth.onAuthStateChange((_event, session) => {
+    applySession(session);
+  });
+}
+
+/**
+ * Dev only: fake signed-in agent so /agent-dash is reachable before the login UI exists.
+ * Sets no session, so getToken() stays null and no fake token is sent to the API.
+ * TODO: remove once the sign-in UI ticket lands.
+ */
+export function devSignIn(): void {
+  if (!config.isDevelopment) return;
+  useAuthStore.setState({
+    user: { id: "dev-agent", email: "dev.agent@agency.com" } as User,
+    session: null,
+    loading: false,
+  });
+}
+
+/** Session present. Staff vs agent roles are a later ticket. */
+export function canAccessAgentDash(user: User | null | undefined): boolean {
+  return Boolean(user);
+}
+
+/** Role checks land in a later ticket; keep call sites compiling. */
+export function isAgencyAdminAgent(_user: User | null | undefined): boolean {
+  return false;
 }

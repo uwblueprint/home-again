@@ -1,5 +1,9 @@
 # Authentication
 
+## Local development without a token
+
+With `ENV=DEVELOPMENT` in `backend/.env`, requests that send no bearer token act as `DEV_USER_ID` instead of returning 401, so the API works locally before sign-in exists. Tokens that are sent are still verified, and the backend refuses to start in this mode unless `DEBUG=True`. See [ONBOARDING.md](./ONBOARDING.md#authentication-in-local-development).
+
 ## Create the first staff account
 
 Use [`scripts/seed_first_staff.py`](../scripts/seed_first_staff.py) to create the first HAFB staff account in **hafb-dev**, before another staff member is available to invite them. The script finds or creates a Supabase Auth user and creates or updates the linked `admins` row. The row's `supabase_user_id` contains the Auth user ID; its own `id` is separate.

@@ -9,6 +9,16 @@ const isHttpUrl = (value: string) => {
     return false;
   }
 };
+if (
+  config.isDevelopment &&
+  config.supabase.url &&
+  !isHttpUrl(config.supabase.url)
+) {
+  console.warn(
+    "NEXT_PUBLIC_SUPABASE_URL is not a valid URL; Supabase auth is disabled."
+  );
+}
+
 export const supabase = createClient(
   isHttpUrl(config.supabase.url) ? config.supabase.url : fallbackUrl,
   config.supabase.anonKey || "public-anon-key"

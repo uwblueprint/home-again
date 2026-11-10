@@ -14,12 +14,10 @@ logger = logging.getLogger(__name__)
 
 async def list_donors(db: AsyncSession) -> list[DonorListItem]:
     """
-    All donors with their donation count and latest donation date, ordered
-    by name.
+    All donors with their donation count and latest donation date, by name.
 
-    One query: an outer join so donors with no donations still appear (count
-    0, no last donation), grouped by donor. Every donation counts regardless
-    of status.
+    Outer join so donors with no donations still appear. Donations of any
+    status count.
     """
     donation_count = func.count(Donation.id).label("donation_count")
     last_donated_at = func.max(Donation.created_at).label("last_donated_at")

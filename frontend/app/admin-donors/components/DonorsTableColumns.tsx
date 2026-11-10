@@ -4,7 +4,7 @@ import type {
   VisibilityState,
 } from "@tanstack/react-table";
 
-import type { SortDirection } from "@/common/components/ui/sort-menu";
+import { DataTableColumnHeader } from "@/common/components/data-display";
 import { formatReviewPhoneNumber } from "@/common/constants/validators";
 
 /**
@@ -19,11 +19,6 @@ export interface DonorListRow {
   email: string | null;
   phone: string | null;
   donationCount: number;
-  /**
-   * When the donor last donated, as an ISO date string; null if they never
-   * have. Drives "Recency".
-   */
-  lastDonatedAt: string | null;
 }
 
 const MISSING_VALUE = "—";
@@ -51,26 +46,26 @@ const compareNames: SortingFn<DonorListRow> = (a, b, columnId) =>
 
 function nameColumn(
   key: "firstName" | "lastName",
-  header: string
+  title: string
 ): ColumnDef<DonorListRow> {
   return {
     id: key,
     accessorFn: (row) => present(row[key]),
-    header,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={title} />
+    ),
     cell: ({ getValue }) => textCell(getValue<string | undefined>()),
     sortingFn: compareNames,
+    // A-Z on first click. Explicit because TanStack otherwise guesses from the
+    // first row's value, and a missing name (undefined) would make it Z-A.
+    sortDescFirst: false,
     // Missing names go last in either direction (and never reach compareNames).
     sortUndefined: "last",
-    // Searched through `fullName`, which contains both names.
+    // Searched through `fullName` instead.
     enableGlobalFilter: false,
   };
 }
 
-/**
- * Column ids double as sort fields. `lastDonatedAt` and `fullName` are hidden:
- * one only sorts ("Recency"), the other is how names are searched (so "Jane
- * Smith" matches across the two name columns).
- */
 export const donorColumns: ColumnDef<DonorListRow>[] = [
   nameColumn("firstName", "First Name"),
   nameColumn("lastName", "Last Name"),
@@ -91,24 +86,15 @@ export const donorColumns: ColumnDef<DonorListRow>[] = [
   },
   {
     accessorKey: "donationCount",
-    header: "Donation Count",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Donation Count" />
+    ),
     sortingFn: "basic",
-    // A count isn't something you search for; "3" would otherwise match
-    // every donor with three donations.
+    sortDescFirst: true,
+    // Otherwise searching "3" matches every donor with three donations.
     enableGlobalFilter: false,
   },
-  {
-    id: "lastDonatedAt",
-    accessorFn: (row) => {
-      const time = row.lastDonatedAt ? Date.parse(row.lastDonatedAt) : NaN;
-      return Number.isNaN(time) ? undefined : time;
-    },
-    header: "Last donation",
-    sortingFn: "basic",
-    // Donors who've never donated go last in either direction.
-    sortUndefined: "last",
-    enableGlobalFilter: false,
-  },
+  // Hidden; lets "Jane Smith" match across the two name columns.
   {
     id: "fullName",
     accessorFn: (row) =>
@@ -118,37 +104,6 @@ export const donorColumns: ColumnDef<DonorListRow>[] = [
   },
 ];
 
-/** Columns that exist for sorting/search only and never render. */
 export const donorHiddenColumns: VisibilityState = {
-  lastDonatedAt: false,
   fullName: false,
-};
-
-export type DonorSortField =
-  | "lastDonatedAt"
-  | "firstName"
-  | "lastName"
-  | "donationCount";
-
-interface DonorSortOption {
-  value: DonorSortField;
-  label: string;
-  /** Direction applied when the option is picked; the ↑/↓ arrows override it. */
-  defaultDirection: SortDirection;
-}
-
-export const donorSortOptions: DonorSortOption[] = [
-  { value: "lastDonatedAt", label: "Recency", defaultDirection: "desc" },
-  { value: "firstName", label: "First Name", defaultDirection: "asc" },
-  { value: "lastName", label: "Last Name", defaultDirection: "asc" },
-  { value: "donationCount", label: "Donation Count", defaultDirection: "desc" },
-];
-
-/** Initial sort, and what Reset goes back to: Recency, most recent first. */
-export const DEFAULT_DONOR_SORT: {
-  field: DonorSortField;
-  direction: SortDirection;
-} = {
-  field: donorSortOptions[0].value,
-  direction: donorSortOptions[0].defaultDirection,
 };

@@ -1,12 +1,6 @@
 "use client";
 
-import { ArrowDown, ArrowUp, type LucideIcon } from "lucide-react";
-
 import { RadioGroup, RadioGroupItem } from "@/common/components/ui/radio-group";
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@/common/components/ui/toggle-group";
 import { cn } from "@/common/lib/utils";
 
 type SortMenuOption = {
@@ -16,8 +10,6 @@ type SortMenuOption = {
   label: string;
   disabled?: boolean;
 };
-
-type SortDirection = "asc" | "desc";
 
 type SortMenuProps = {
   /** Options rendered as radio buttons. */
@@ -32,25 +24,8 @@ type SortMenuProps = {
   label?: string;
   /** Text for the reset action. @default "Reset" */
   resetLabel?: string;
-  /**
-   * Current sort direction (controlled). Pass together with
-   * `onDirectionChange` to show ↑ (ascending) / ↓ (descending) toggles beside
-   * the heading; the toggles are hidden when either is omitted.
-   */
-  direction?: SortDirection;
-  /** Fired with the newly chosen direction. */
-  onDirectionChange?: (direction: SortDirection) => void;
   className?: string;
 };
-
-const DIRECTION_OPTIONS: {
-  value: SortDirection;
-  label: string;
-  Icon: LucideIcon;
-}[] = [
-  { value: "asc", label: "Ascending", Icon: ArrowUp },
-  { value: "desc", label: "Descending", Icon: ArrowDown },
-];
 
 /**
  * Generic single-select sort panel. Renders a labelled radio group plus an
@@ -65,15 +40,8 @@ function SortMenu({
   onReset,
   label = "Sort by",
   resetLabel = "Reset",
-  direction,
-  onDirectionChange,
   className,
 }: SortMenuProps) {
-  const showDirection = direction !== undefined && onDirectionChange;
-  const heading = label ? (
-    <p className="text-paragraph-small text-muted-foreground">{label}</p>
-  ) : null;
-
   return (
     <div
       data-slot="sort-menu"
@@ -82,37 +50,9 @@ function SortMenu({
         className
       )}
     >
-      {showDirection ? (
-        <div className="flex items-center gap-sm">
-          {heading}
-          <ToggleGroup
-            aria-label="Sort direction"
-            value={[direction]}
-            onValueChange={(next) => {
-              // Pressing the active arrow would leave nothing selected;
-              // a sort always has a direction, so ignore that.
-              const [nextDirection] = next;
-              if (nextDirection === "asc" || nextDirection === "desc") {
-                onDirectionChange(nextDirection);
-              }
-            }}
-            className="ml-auto gap-(--2xs)"
-          >
-            {DIRECTION_OPTIONS.map((option) => (
-              <ToggleGroupItem
-                key={option.value}
-                value={option.value}
-                aria-label={option.label}
-                className="size-6 min-w-6 p-0"
-              >
-                <option.Icon className="size-4" />
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-        </div>
-      ) : (
-        heading
-      )}
+      {label ? (
+        <p className="text-paragraph-small text-muted-foreground">{label}</p>
+      ) : null}
       <RadioGroup
         value={value}
         onValueChange={(next) => {
@@ -148,4 +88,4 @@ function SortMenu({
 }
 
 export { SortMenu };
-export type { SortDirection, SortMenuOption, SortMenuProps };
+export type { SortMenuOption, SortMenuProps };

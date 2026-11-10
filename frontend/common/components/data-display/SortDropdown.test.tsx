@@ -58,21 +58,4 @@ describe("SortDropdown", () => {
     expect(onReset).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("value")).toHaveTextContent("none");
   });
-
-  it("passes the direction arrows through to the menu", () => {
-    const onDirectionChange = jest.fn();
-    render(
-      <SortDropdown
-        options={options}
-        value="recency"
-        onChange={jest.fn()}
-        direction="desc"
-        onDirectionChange={onDirectionChange}
-      />
-    );
-    openMenu();
-
-    fireEvent.click(screen.getByRole("button", { name: "Ascending" }));
-    expect(onDirectionChange).toHaveBeenCalledWith("asc");
-  });
 });

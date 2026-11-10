@@ -181,14 +181,10 @@ class Donor(DonorBase):
 
 class DonorListItem(Donor):
     """
-    A donor as returned by `GET /donors`, with how many donations they've made
-    and when they last donated.
+    A donor as returned by `GET /donors`, with donation stats.
 
-    Kept separate from `Donor` on purpose: `Donor` is also the response for
-    POST/PUT/GET `/donors/{id}` and is nested in `DonationDetail.donor`, all
-    of which serialize straight from the ORM row, which has neither. Adding
-    these fields to `Donor` would fail validation there (or, with a
-    default, wrongly report 0). Only `list_donors` computes these.
+    Separate from `Donor` because the other donor responses serialize straight
+    from the ORM row, which doesn't have these fields.
     """
 
     donation_count: int

@@ -23,11 +23,8 @@ function ToggleGroupItem({ className, ...props }: TogglePrimitive.Props) {
   return (
     <TogglePrimitive
       data-slot="toggle-group-item"
-      // Padding is written `px-(--sm)` rather than `px-sm` (same value) so
-      // tailwind-merge recognises it and a caller's padding (e.g. `p-0` on an
-      // icon-only item) replaces it instead of both applying.
       className={cn(
-        "inline-flex min-w-9 cursor-pointer items-center justify-center rounded-md border border-border bg-background px-(--sm) py-(--scale-hacks-6) text-paragraph-small font-medium text-foreground transition-colors outline-none select-none hover:bg-accent focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 data-pressed:border-transparent data-pressed:bg-primary data-pressed:text-primary-foreground",
+        "inline-flex min-w-9 cursor-pointer items-center justify-center rounded-md border border-border bg-background px-sm py-(--scale-hacks-6) text-paragraph-small font-medium text-foreground transition-colors outline-none select-none hover:bg-accent focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 data-pressed:border-transparent data-pressed:bg-primary data-pressed:text-primary-foreground",
         className
       )}
       {...props}

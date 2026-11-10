@@ -92,7 +92,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
   SortMenu,
-  type SortDirection,
 } from "@/common/components/ui";
 import {
   SelectAndCombo,
@@ -923,36 +922,13 @@ function SortMenuDemo() {
   ];
   const [value, setValue] = useState<string | null>("date_newest");
 
-  // With ↑/↓ direction arrows (opt-in via direction + onDirectionChange).
-  const directionOptions = [
-    { value: "recency", label: "Recency" },
-    { value: "name", label: "Name" },
-  ];
-  const [directionValue, setDirectionValue] = useState<string | null>(
-    "recency"
-  );
-  const [direction, setDirection] = useState<SortDirection>("desc");
-
   return (
-    <div className="flex flex-wrap items-start gap-md">
-      <SortMenu
-        options={options}
-        value={value}
-        onChange={setValue}
-        onReset={() => setValue(null)}
-      />
-      <SortMenu
-        options={directionOptions}
-        value={directionValue}
-        onChange={setDirectionValue}
-        onReset={() => {
-          setDirectionValue("recency");
-          setDirection("desc");
-        }}
-        direction={direction}
-        onDirectionChange={setDirection}
-      />
-    </div>
+    <SortMenu
+      options={options}
+      value={value}
+      onChange={setValue}
+      onReset={() => setValue(null)}
+    />
   );
 }
 
@@ -1396,9 +1372,6 @@ function makeDonorRows(): DonorListRow[] {
       // One donor without a phone, to show the "—" placeholder.
       phone: i === 7 ? null : `647 555 ${String(1000 + i * 37).slice(-4)}`,
       donationCount,
-      // Donors with no donations (two of them) have no date and sort last.
-      lastDonatedAt:
-        donationCount === 0 ? null : new Date(2026, 0, 1 + i * 9).toISOString(),
     };
   });
 }

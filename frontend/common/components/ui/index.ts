@@ -87,7 +87,7 @@ export { Input, InputError } from "./input";
 export { Label } from "./label";
 export { RadioGroup, RadioGroupItem } from "./radio-group";
 export { SortMenu } from "./sort-menu";
-export type { SortDirection, SortMenuOption, SortMenuProps } from "./sort-menu";
+export type { SortMenuOption, SortMenuProps } from "./sort-menu";
 export {
   Pagination,
   PaginationContent,

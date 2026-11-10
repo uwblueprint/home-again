@@ -9,9 +9,7 @@ const BASE = process.env.NEXT_PUBLIC_API_URL;
 const createdDonors = new Map<string, Donor>();
 
 export const donorsHandlers = [
-  // Only the list includes donation_count / last_donated_at (backend
-  // `DonorListItem`), derived from the donations fixture like the backend's
-  // join.
+  // Donation stats derived from the donations fixture, like the backend's join.
   http.get(`${BASE}/donors`, () => {
     const list: DonorListItem[] = [
       ...donors,

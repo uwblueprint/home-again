@@ -12,11 +12,7 @@ import { SortMenu, type SortMenuProps } from "@/common/components/ui/sort-menu";
 
 type SortDropdownProps = Omit<SortMenuProps, "className">;
 
-/**
- * The "Sort" outline button that opens a `SortMenu` in a dropdown. Takes the
- * same props as `SortMenu` (selection, reset, optional ↑/↓ direction), so it
- * can sit in `DataTableToolbar` or anywhere else a list needs a sort control.
- */
+/** The "Sort" button that opens a `SortMenu`; takes the same props. */
 export function SortDropdown(sortMenuProps: SortDropdownProps) {
   return (
     <DropdownMenu>

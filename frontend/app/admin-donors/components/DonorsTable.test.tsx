@@ -11,13 +11,11 @@ function makeRow(overrides: Partial<DonorListRow> = {}): DonorListRow {
     email: "jane@example.com",
     phone: "647 123 4567",
     donationCount: 1,
-    lastDonatedAt: "2026-01-01T12:00:00Z",
     ...overrides,
   };
 }
 
-// Last donated on different days, so Recency has a clear order:
-// Carla (most recent) → Ben → Ava → Dan.
+// Given out of name order, so header sorts visibly change the order.
 const donors: DonorListRow[] = [
   makeRow({
     id: "ava",
@@ -25,7 +23,6 @@ const donors: DonorListRow[] = [
     lastName: "Zhou",
     email: "ava@example.com",
     donationCount: 5,
-    lastDonatedAt: "2026-02-01T12:00:00Z",
   }),
   makeRow({
     id: "ben",
@@ -33,7 +30,6 @@ const donors: DonorListRow[] = [
     lastName: "Young",
     email: "ben@example.com",
     donationCount: 0,
-    lastDonatedAt: "2026-03-01T12:00:00Z",
   }),
   makeRow({
     id: "carla",
@@ -41,7 +37,6 @@ const donors: DonorListRow[] = [
     lastName: "Xu",
     email: "carla@example.com",
     donationCount: 12,
-    lastDonatedAt: "2026-04-01T12:00:00Z",
   }),
   makeRow({
     id: "dan",
@@ -49,7 +44,6 @@ const donors: DonorListRow[] = [
     lastName: "Wong",
     email: "dan@example.com",
     donationCount: 2,
-    lastDonatedAt: "2026-01-01T12:00:00Z",
   }),
 ];
 
@@ -60,10 +54,6 @@ function makeMany(count: number): DonorListRow[] {
       firstName: `First${i}`,
       lastName: `Last${i}`,
       email: `donor${i}@example.com`,
-      // Most recent first by index, so Recency keeps index order.
-      lastDonatedAt: new Date(
-        Date.UTC(2026, 0, 1) - i * 86_400_000
-      ).toISOString(),
     })
   );
 }
@@ -84,13 +74,8 @@ function rowText(rowIndex: number) {
     .map((cell) => cell.textContent);
 }
 
-function openSortMenu() {
-  fireEvent.click(screen.getByRole("button", { name: "Sort" }));
-}
-
-function pickSort(label: string) {
-  openSortMenu();
-  fireEvent.click(screen.getByRole("radio", { name: label }));
+function clickHeader(title: string) {
+  fireEvent.click(screen.getByRole("button", { name: title }));
 }
 
 function search(value: string) {
@@ -101,18 +86,20 @@ function search(value: string) {
 
 describe("DonorsTable", () => {
   describe("layout", () => {
-    it("renders the title, search, sort and columns", () => {
+    it("renders the title, search and columns inside the table card", () => {
       render(<DonorsTable data={donors} />);
+      const card = screen.getByTestId("donors-data-table");
 
       expect(
-        screen.getByRole("heading", { name: "Donors" })
+        within(card).getByRole("heading", { name: "Donors" })
       ).toBeInTheDocument();
       expect(
-        screen.getByPlaceholderText("Search for donor")
+        within(card).getByPlaceholderText("Search for donor")
       ).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Sort" })).toBeInTheDocument();
+      // Sorting is on the headers; there's no Sort dropdown.
+      expect(screen.queryByRole("button", { name: "Sort" })).toBeNull();
 
-      // Sort/search-only columns (Recency, full name) never render.
+      // The search-only full name column never renders.
       expect(
         screen.getAllByRole("columnheader").map((th) => th.textContent)
       ).toEqual([
@@ -124,13 +111,14 @@ describe("DonorsTable", () => {
       ]);
     });
 
-    it("keeps search and sort outside the table card", () => {
+    it("makes only the name and donation count headers sortable", () => {
       render(<DonorsTable data={donors} />);
-      const card = screen.getByTestId("donors-data-table");
-      expect(
-        within(card).queryByPlaceholderText("Search for donor")
-      ).toBeNull();
-      expect(within(card).queryByRole("button", { name: "Sort" })).toBeNull();
+      for (const title of ["First Name", "Last Name", "Donation Count"]) {
+        expect(screen.getByRole("button", { name: title })).toBeInTheDocument();
+      }
+      for (const title of ["Email", "Phone number"]) {
+        expect(screen.queryByRole("button", { name: title })).toBeNull();
+      }
     });
 
     it("renders a row's values, with the phone's international code", () => {
@@ -172,72 +160,32 @@ describe("DonorsTable", () => {
   });
 
   describe("sorting", () => {
-    it("starts on Recency, most recent donation first", () => {
+    it("starts in the order given", () => {
       render(<DonorsTable data={donors} />);
-      expect(firstNames()).toEqual(["Carla", "Ben", "Ava", "Dan"]);
-
-      openSortMenu();
-      expect(screen.getByRole("radio", { name: "Recency" })).toBeChecked();
-      expect(
-        screen.getByRole("button", { name: "Descending" })
-      ).toHaveAttribute("aria-pressed", "true");
+      expect(firstNames()).toEqual(["Ava", "Ben", "Carla", "Dan"]);
     });
 
     it.each([
-      ["First Name", "Ascending", ["Ava", "Ben", "Carla", "Dan"]],
+      ["First Name", ["Ava", "Ben", "Carla", "Dan"]],
       // Last names: Wong, Xu, Young, Zhou.
-      ["Last Name", "Ascending", ["Dan", "Carla", "Ben", "Ava"]],
-      // Counts: 12, 5, 2, 0.
-      ["Donation Count", "Descending", ["Carla", "Ava", "Dan", "Ben"]],
-    ])(
-      "applies %s's default direction (%s)",
-      (label, pressedArrow, expected) => {
-        render(<DonorsTable data={donors} />);
-        pickSort(label);
-
-        expect(firstNames()).toEqual(expected);
-        expect(screen.getByRole("radio", { name: label })).toBeChecked();
-        expect(
-          screen.getByRole("button", { name: pressedArrow })
-        ).toHaveAttribute("aria-pressed", "true");
-      }
-    );
-
-    it("reverses the current option with the arrows", () => {
+      ["Last Name", ["Dan", "Carla", "Ben", "Ava"]],
+      // First click high-low. Counts: 12, 5, 2, 0.
+      ["Donation Count", ["Carla", "Ava", "Dan", "Ben"]],
+    ])("sorts by %s, then reverses on a second click", (title, expected) => {
       render(<DonorsTable data={donors} />);
-      openSortMenu();
 
-      fireEvent.click(screen.getByRole("button", { name: "Ascending" }));
-      expect(firstNames()).toEqual(["Dan", "Ava", "Ben", "Carla"]);
+      clickHeader(title);
+      expect(firstNames()).toEqual(expected);
 
-      fireEvent.click(screen.getByRole("button", { name: "Descending" }));
-      expect(firstNames()).toEqual(["Carla", "Ben", "Ava", "Dan"]);
+      clickHeader(title);
+      expect(firstNames()).toEqual([...expected].reverse());
     });
 
-    it("applies the new option's default direction after the arrows were used", () => {
+    it("replaces the previous column's sort", () => {
       render(<DonorsTable data={donors} />);
-      openSortMenu();
-      fireEvent.click(screen.getByRole("button", { name: "Ascending" }));
-
-      fireEvent.click(screen.getByRole("radio", { name: "Donation Count" }));
-      expect(firstNames()).toEqual(["Carla", "Ava", "Dan", "Ben"]);
-      expect(
-        screen.getByRole("button", { name: "Descending" })
-      ).toHaveAttribute("aria-pressed", "true");
-    });
-
-    it("resets to Recency, most recent donation first", () => {
-      render(<DonorsTable data={donors} />);
-      pickSort("First Name");
-      fireEvent.click(screen.getByRole("button", { name: "Descending" }));
+      clickHeader("Donation Count");
+      clickHeader("Last Name");
       expect(firstNames()).toEqual(["Dan", "Carla", "Ben", "Ava"]);
-
-      fireEvent.click(screen.getByRole("button", { name: "Reset" }));
-      expect(firstNames()).toEqual(["Carla", "Ben", "Ava", "Dan"]);
-      expect(screen.getByRole("radio", { name: "Recency" })).toBeChecked();
-      expect(
-        screen.getByRole("button", { name: "Descending" })
-      ).toHaveAttribute("aria-pressed", "true");
     });
 
     it("sorts names ignoring case and accents", () => {
@@ -251,7 +199,7 @@ describe("DonorsTable", () => {
           ]}
         />
       );
-      pickSort("First Name");
+      clickHeader("First Name");
       expect(firstNames()).toEqual(["adam", "Bea", "Émile", "zoe"]);
     });
 
@@ -265,10 +213,12 @@ describe("DonorsTable", () => {
           ]}
         />
       );
-      pickSort("First Name");
+      // Also checks the first click is A-Z even though the first row's name
+      // is missing (TanStack would otherwise guess Z-A from it).
+      clickHeader("First Name");
       expect(firstNames()).toEqual(["Al", "Bea", "—"]);
 
-      fireEvent.click(screen.getByRole("button", { name: "Descending" }));
+      clickHeader("First Name");
       expect(firstNames()).toEqual(["Bea", "Al", "—"]);
     });
 
@@ -281,54 +231,8 @@ describe("DonorsTable", () => {
           ]}
         />
       );
-      pickSort("First Name");
+      clickHeader("First Name");
       expect(firstNames()).toEqual(["Al", "Zed"]);
-    });
-
-    it("puts donors who've never donated last in both directions", () => {
-      render(
-        <DonorsTable
-          data={[
-            makeRow({ id: "1", firstName: "Never", lastDonatedAt: null }),
-            makeRow({
-              id: "2",
-              firstName: "Old",
-              lastDonatedAt: "2025-01-01T12:00:00Z",
-            }),
-            makeRow({
-              id: "3",
-              firstName: "New",
-              lastDonatedAt: "2026-01-01T12:00:00Z",
-            }),
-          ]}
-        />
-      );
-      expect(firstNames()).toEqual(["New", "Old", "Never"]);
-
-      openSortMenu();
-      fireEvent.click(screen.getByRole("button", { name: "Ascending" }));
-      expect(firstNames()).toEqual(["Old", "New", "Never"]);
-    });
-
-    it("orders Recency by time, not by the date string", () => {
-      render(
-        <DonorsTable
-          data={[
-            // Lexically "…00Z" > "…00.500Z", but .500 is later.
-            makeRow({
-              id: "1",
-              firstName: "Earlier",
-              lastDonatedAt: "2026-01-01T12:00:00Z",
-            }),
-            makeRow({
-              id: "2",
-              firstName: "Later",
-              lastDonatedAt: "2026-01-01T12:00:00.500Z",
-            }),
-          ]}
-        />
-      );
-      expect(firstNames()).toEqual(["Later", "Earlier"]);
     });
   });
 
@@ -344,32 +248,22 @@ describe("DonorsTable", () => {
       expect(firstNames()).toEqual(expected);
     });
 
-    it("doesn't match donation counts or creation dates", () => {
-      // No phones, so digits can only come from the count or date.
+    it("doesn't match donation counts", () => {
+      // No phones, so digits can only come from the count.
       render(
         <DonorsTable data={donors.map((row) => ({ ...row, phone: null }))} />
       );
       search("12"); // Carla's donation count
       expect(screen.getByText("No results found for '12'")).toBeVisible();
-
-      // Recency sorts on epoch milliseconds; a slice of one shouldn't match.
-      const epochDigits = String(Date.parse(donors[0].lastDonatedAt!)).slice(
-        0,
-        6
-      );
-      search(epochDigits);
-      expect(
-        screen.getByText(`No results found for '${epochDigits}'`)
-      ).toBeVisible();
     });
 
     it("keeps the chosen sort while searching", () => {
       render(<DonorsTable data={donors} />);
-      pickSort("First Name");
+      clickHeader("Last Name");
       search("a"); // every email has "a" ("example.com")
-      expect(firstNames()).toEqual(["Ava", "Ben", "Carla", "Dan"]);
-      search("an");
-      expect(firstNames()).toEqual(["Dan"]);
+      expect(firstNames()).toEqual(["Dan", "Carla", "Ben", "Ava"]);
+      search("n"); // Ben Young, Dan Wong
+      expect(firstNames()).toEqual(["Dan", "Ben"]);
     });
 
     it("goes back to page 1 when the query changes", async () => {

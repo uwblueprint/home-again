@@ -67,11 +67,8 @@ export interface Donor {
 }
 
 /**
- * A donor as returned by `GET /donors`: the donor plus how many donations
- * they've made and when they last donated. Mirrors the backend's separate
- * `DonorListItem` schema — only the list endpoint returns these, so they
- * aren't on `Donor` (which `GET /donors/:id`, create and update return
- * without them).
+ * A donor as returned by `GET /donors`, with donation stats. Other donor
+ * endpoints return a plain `Donor` (see the backend `DonorListItem`).
  */
 export interface DonorListItem extends Donor {
   donation_count: number;

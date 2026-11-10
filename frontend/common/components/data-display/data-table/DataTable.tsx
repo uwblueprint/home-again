@@ -5,7 +5,6 @@ import { ChevronRight } from "lucide-react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
-  type OnChangeFn,
   type VisibilityState,
   type Row,
   type RowData,
@@ -57,11 +56,8 @@ export type DataTableSortOptionConfig = DataTableSortOption & {
 };
 
 /**
- * Matches if this column's stringified value contains the search term.
- * TanStack runs it once per searchable column and keeps the row if any match,
- * so a row matches when any searchable cell does. Every column with a value is
- * searchable (see `getColumnCanGlobalFilter` below) unless its def sets
- * `enableGlobalFilter: false` — e.g. a hidden sort-only column.
+ * Case-insensitive substring match on one column's value. TanStack calls it
+ * per searchable column and keeps the row if any column matches.
  */
 function globalSubstringFilter<TData>(
   row: Row<TData>,
@@ -97,20 +93,6 @@ interface DataTableProps<TData, TValue> {
   hideToolbar?: boolean;
   hidePagination?: boolean;
   testId?: string;
-  /**
-   * Controlled sorting state. Pass with `onSortingChange` to own sorting from
-   * outside the table (e.g. a sort control rendered elsewhere); omit both to
-   * let the table manage it.
-   */
-  sorting?: SortingState;
-  onSortingChange?: OnChangeFn<SortingState>;
-  /**
-   * Controlled search query. Pass with `onGlobalFilterChange` to own search
-   * from outside the table (e.g. with `hideToolbar` and your own `SearchBar`);
-   * omit both to let the table manage it.
-   */
-  globalFilter?: string;
-  onGlobalFilterChange?: OnChangeFn<string>;
 }
 
 function isSameSorting(a: SortingState, b: SortingState) {
@@ -118,25 +100,6 @@ function isSameSorting(a: SortingState, b: SortingState) {
     a.length === b.length &&
     a.every((entry, i) => entry.id === b[i].id && entry.desc === b[i].desc)
   );
-}
-
-/**
- * State that's controlled when the caller passes a value and internal when
- * they don't (TanStack's controlled-state pattern). Changes always reach the
- * caller's handler; internal state only updates while uncontrolled.
- */
-function useControllableState<T>(
-  controlledValue: T | undefined,
-  onChange: OnChangeFn<T> | undefined,
-  initialValue: T
-): [T, OnChangeFn<T>] {
-  const [internalValue, setInternalValue] = useState(initialValue);
-  const isControlled = controlledValue !== undefined;
-  const setValue: OnChangeFn<T> = (updater) => {
-    if (!isControlled) setInternalValue(updater);
-    onChange?.(updater);
-  };
-  return [isControlled ? controlledValue : internalValue, setValue];
 }
 
 export function DataTable<TData, TValue>({
@@ -159,25 +122,15 @@ export function DataTable<TData, TValue>({
   hideToolbar = false,
   hidePagination = false,
   testId = "data-table",
-  sorting: sortingProp,
-  onSortingChange,
-  globalFilter: globalFilterProp,
-  onGlobalFilterChange,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useControllableState<SortingState>(
-    sortingProp,
-    onSortingChange,
+  const [sorting, setSorting] = useState<SortingState>(
     sortOptions?.[0]?.sorting ?? []
   );
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     initialColumnVisibility
   );
-  const [globalFilter, setGlobalFilter] = useControllableState(
-    globalFilterProp,
-    onGlobalFilterChange,
-    ""
-  );
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const tableColumns = onRowClick
     ? [
@@ -201,10 +154,8 @@ export function DataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: globalSubstringFilter,
-    // TanStack's default only searches columns whose first row holds a
-    // string/number; search every column with a value instead, so a column
-    // isn't skipped because its first cell is empty. Columns still opt out
-    // with `enableGlobalFilter: false`.
+    // TanStack's default skips a column whose first cell isn't a string or
+    // number (e.g. empty). Columns opt out with `enableGlobalFilter: false`.
     getColumnCanGlobalFilter: () => true,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -217,8 +168,7 @@ export function DataTable<TData, TValue>({
   });
 
   // The checked option is whichever matches the current sorting (none if no
-  // option does), so it stays right when sorting changes some other way: a
-  // sortable column header, or a parent controlling `sorting`.
+  // option does), so it stays right after a sortable column header is clicked.
   const activeSortValue =
     sortOptions?.find((option) => isSameSorting(option.sorting, sorting))
       ?.value ?? null;

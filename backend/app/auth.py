@@ -26,10 +26,10 @@ class CurrentUser:
 
 
 @lru_cache
-def get_jwks_client() -> PyJWKClient:
-    """Shared PyJWKClient; created on first use so unset URL does not break import."""
-    settings = get_settings()
-    return PyJWKClient(settings.SUPABASE_JWKS_URL)
+def get_jwks_client() -> PyJWKClient | None:
+    """Shared PyJWKClient, or None when SUPABASE_JWKS_URL is unset (local dev)."""
+    url = get_settings().SUPABASE_JWKS_URL
+    return PyJWKClient(url) if url else None
 
 
 def _unauthorized(detail: str) -> HTTPException:
@@ -42,7 +42,7 @@ def _unauthorized(detail: str) -> HTTPException:
 
 def get_current_user(
     authorization: str | None = Header(None),
-    jwks_client: PyJWKClient = Depends(get_jwks_client),
+    jwks_client: PyJWKClient | None = Depends(get_jwks_client),
 ) -> CurrentUser:
     """
     FastAPI dependency: verify a Supabase access token and return the user.
@@ -65,6 +65,12 @@ def get_current_user(
     scheme, _, token = authorization.partition(" ")
     if scheme.lower() != "bearer" or not token:
         raise _unauthorized("Malformed authorization header")
+
+    if jwks_client is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Auth not configured: SUPABASE_JWKS_URL is unset",
+        )
 
     try:
         key = jwks_client.get_signing_key_from_jwt(token).key

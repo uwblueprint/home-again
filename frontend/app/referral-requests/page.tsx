@@ -18,7 +18,11 @@ import {
   WaitlistReferralDialog,
 } from "./components";
 import type { ClientReferral, ReferralTab, ReviewFilter } from "./types";
-import { matchesQuery, matchesReviewFilter } from "./utils";
+import {
+  matchesQuery,
+  matchesReviewFilter,
+  sortBySubmissionDate,
+} from "./utils";
 
 function toDialogReferral(referral: ClientReferral) {
   return {
@@ -41,6 +45,7 @@ export default function ClientReferralsPage() {
   const [tab, setTab] = useState<ReferralTab>("new");
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
   const [query, setQuery] = useState("");
+  const [sortDescending, setSortDescending] = useState(true);
   const [page, setPage] = useState(1);
   const [waitlistTarget, setWaitlistTarget] = useState<ClientReferral | null>(
     null
@@ -75,15 +80,14 @@ export default function ClientReferralsPage() {
       .length,
   };
 
-  const filtered = useMemo(
-    () =>
-      byTab[tab].filter(
-        (r) =>
-          matchesQuery(r, query) &&
-          (tab !== "waitlisted" || matchesReviewFilter(r, reviewFilter))
-      ),
-    [byTab, tab, query, reviewFilter]
-  );
+  const filtered = useMemo(() => {
+    const matchingReferrals = byTab[tab].filter(
+      (r) =>
+        matchesQuery(r, query) &&
+        (tab !== "waitlisted" || matchesReviewFilter(r, reviewFilter))
+    );
+    return sortBySubmissionDate(matchingReferrals, sortDescending);
+  }, [byTab, tab, query, reviewFilter, sortDescending]);
 
   // Design paginates the waitlisted tab only.
   const paginated = tab === "waitlisted";
@@ -99,11 +103,12 @@ export default function ClientReferralsPage() {
 
   const handleWaitlist = async (
     referral: ClientReferral,
-    isPriority: boolean
+    isPriority: boolean,
+    priorityDescription?: string
   ) => {
     setActionError(null);
     try {
-      await waitlist(referral.id, isPriority);
+      await waitlist(referral.id, isPriority, priorityDescription);
       setWaitlistTarget(null);
     } catch {
       setActionError("Unable to waitlist this referral. Please try again.");
@@ -165,6 +170,10 @@ export default function ClientReferralsPage() {
               setQuery(value);
               setPage(1);
             }}
+            onSort={() => {
+              setSortDescending((descending) => !descending);
+              setPage(1);
+            }}
           />
         </div>
         {tab === "waitlisted" && (
@@ -215,8 +224,13 @@ export default function ClientReferralsPage() {
           }}
           referral={toDialogReferral(waitlistTarget)}
           isPriority={waitlistTarget.isPriority}
+          priorityReason={waitlistTarget.priorityDescription}
           onConfirm={(isPriority) =>
-            void handleWaitlist(waitlistTarget, isPriority)
+            void handleWaitlist(
+              waitlistTarget,
+              isPriority,
+              waitlistTarget.priorityDescription
+            )
           }
         />
       ) : null}

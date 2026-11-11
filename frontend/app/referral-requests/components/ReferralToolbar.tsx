@@ -1,18 +1,16 @@
-import { ArrowUpDown, ListFilter, Search } from "lucide-react";
+import { ArrowUpDown, Search } from "lucide-react";
 import { Button } from "@/common/components/ui/button";
 import { Input } from "@/common/components/ui/input";
 
 interface ReferralToolbarProps {
   query: string;
   onQueryChange: (value: string) => void;
-  onFilter?: () => void; // TODO: define filter options and behavior
-  onSort?: () => void; // TODO: define sort options and behavior
+  onSort: () => void;
 }
 
 export function ReferralToolbar({
   query,
   onQueryChange,
-  onFilter,
   onSort,
 }: ReferralToolbarProps) {
   return (
@@ -30,11 +28,12 @@ export function ReferralToolbar({
           className="w-80 pl-9"
         />
       </div>
-      <Button type="button" variant="outline" onClick={onFilter}>
-        <ListFilter aria-hidden="true" />
-        Filter
-      </Button>
-      <Button type="button" variant="outline" onClick={onSort}>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onSort}
+        aria-label="Toggle submission date sort order"
+      >
         <ArrowUpDown aria-hidden="true" />
         Sort
       </Button>

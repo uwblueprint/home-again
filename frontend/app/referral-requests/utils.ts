@@ -1,4 +1,9 @@
-import type { ClientReferral, ReferralTab, ReviewFilter } from "./types";
+import type {
+  ClientReferral,
+  ReferralTab,
+  ReviewFilter,
+} from "./types";
+import type { AgentRecord, Client, Referral } from "@/common/types";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -23,41 +28,45 @@ export const unfulfillableMsg = (count: number) =>
  * Nested client/agent shapes and stock/review data are assumptions - adjust
  * once the list endpoint's response is confirmed.
  */
-export function toClientReferral(raw: any): ClientReferral {
+export function toClientReferral(
+  raw: Referral,
+  clients: Client[],
+  agents: AgentRecord[]
+): ClientReferral {
   const tab: ReferralTab =
-    raw.status === "rejected" || raw.status === "declined"
+    raw.status === "declined"
       ? "rejected"
-      : raw.status === "waitlisted"
+      : raw.status === "approved"
         ? "waitlisted"
         : "new";
 
-  const toAgent = (a: any, role: string) =>
-    a
+  const toAgent = (id: string | null, role: "primary" | "secondary") => {
+    const agent = id ? agents.find((item) => item.id === id) : undefined;
+    return agent
       ? {
-          firstName: a.first_name,
-          lastName: a.last_name,
+          firstName: agent.first_name,
+          lastName: agent.last_name,
           role,
-          imageUrl: a.image_url,
         }
       : null;
+  };
+
+  const client = clients.find((item) => item.id === raw.client_id);
 
   return {
     id: raw.id,
     tab,
-    clientName: raw.client
-      ? `${raw.client.first_name} ${raw.client.last_name}`
-      : "Client",
+    clientName: client ? `${client.first_name} ${client.last_name}` : "Client",
     referralId: raw.id,
     submittedAt: formatDate(raw.created_at),
     isPriority: Boolean(raw.is_priority),
+    priorityDescription: raw.priority_description ?? undefined,
     agents: [
-      toAgent(raw.agent, "Primary Agent"),
-      toAgent(raw.secondary_agent, "Secondary Agent"),
+      toAgent(raw.agent_id, "primary"),
+      toAgent(raw.secondary_agent_id, "secondary"),
     ].filter(Boolean) as ClientReferral["agents"],
-    // TODO: join requested_items with inventory stock
     items: [],
     reviewStatus: tab === "waitlisted" ? "pending-review" : undefined,
-    rejectionReason: raw.rejection_reason ?? undefined,
   };
 }
 
@@ -68,4 +77,21 @@ export function matchesQuery(r: ClientReferral, query: string) {
 
 export function matchesReviewFilter(r: ClientReferral, filter: ReviewFilter) {
   return filter === "all" || r.reviewStatus === filter;
+}
+
+function submissionTimestamp(value: string) {
+  const [month, day, year] = value.split("/").map(Number);
+  if (!month || !day || !year) return 0;
+  return Date.UTC(year + (year < 70 ? 2000 : 1900), month - 1, day);
+}
+
+export function sortBySubmissionDate(
+  referrals: ClientReferral[],
+  descending: boolean
+) {
+  return [...referrals].sort((a, b) => {
+    const difference =
+      submissionTimestamp(a.submittedAt) - submissionTimestamp(b.submittedAt);
+    return descending ? -difference : difference;
+  });
 }

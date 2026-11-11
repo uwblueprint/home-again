@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchReferrals, updateReferralStatus } from "../api";
+import { fetchReferralData, updateReferral } from "../api";
 import { MOCK_REFERRALS } from "../mockData";
 import type { ClientReferralsData, ReferralStatusUpdate } from "../types";
 import { toClientReferral } from "../utils";
@@ -27,8 +27,13 @@ export function useClientReferrals() {
       }
 
       try {
-        const raw = await fetchReferrals();
-        return { referrals: raw.map(toClientReferral), isMock: false };
+        const { referrals, clients, agents } = await fetchReferralData();
+        return {
+          referrals: referrals.map((referral) =>
+            toClientReferral(referral, clients, agents)
+          ),
+          isMock: false,
+        };
       } catch (err) {
         // Dev-only fallback so the UI can be built before the endpoint is confirmed.
         if (process.env.NODE_ENV === "production") throw err;
@@ -41,16 +46,26 @@ export function useClientReferrals() {
     mutationFn: async ({
       id,
       target,
-      rejectionReason,
       isPriority,
+      priorityDescription,
     }: MoveVars) => {
       const isMock =
         qc.getQueryData<ClientReferralsData>(CLIENT_REFERRALS_KEY)?.isMock;
       if (isMock) return; // no backend in mock mode
-      await updateReferralStatus(id, { target, rejectionReason, isPriority });
+      await updateReferral(id, {
+        target,
+        isPriority,
+        priorityDescription,
+      });
     },
     // Optimistic: the card jumps to its new tab immediately.
-    onMutate: async ({ id, target, rejectionReason, isPriority }) => {
+    onMutate: async ({
+      id,
+      target,
+      rejectionReason,
+      isPriority,
+      priorityDescription,
+    }) => {
       await qc.cancelQueries({ queryKey: CLIENT_REFERRALS_KEY });
       const previous =
         qc.getQueryData<ClientReferralsData>(CLIENT_REFERRALS_KEY);
@@ -68,6 +83,10 @@ export function useClientReferrals() {
                       target === "waitlisted" && isPriority !== undefined
                         ? isPriority
                         : r.isPriority,
+                    priorityDescription:
+                      target === "waitlisted"
+                        ? priorityDescription ?? r.priorityDescription
+                        : r.priorityDescription,
                     reviewStatus:
                       target === "waitlisted" ? "pending-review" : undefined,
                     rejectionReason:
@@ -94,8 +113,17 @@ export function useClientReferrals() {
     isMock: query.data?.isMock ?? false,
     isLoading: query.isLoading,
     isError: query.isError,
-    waitlist: (id: string, isPriority: boolean) =>
-      move.mutateAsync({ id, target: "waitlisted", isPriority }),
+    waitlist: (
+      id: string,
+      isPriority: boolean,
+      priorityDescription?: string
+    ) =>
+      move.mutateAsync({
+        id,
+        target: "waitlisted",
+        isPriority,
+        priorityDescription,
+      }),
     reject: (id: string, reason: string) =>
       move.mutateAsync({
         id,

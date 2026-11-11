@@ -15,11 +15,11 @@ export const REVIEW_FILTERS: { key: ReviewFilter; label: string }[] = [
   { key: "reviewed", label: "Reviewed" },
 ];
 
-/**
- * docs/SCHEMA.md lists ReferralStatus as pending | approved | completed | declined.
- * Update these two values once the backend enum supports waitlist / reject.
- */
-export const API_STATUS: Record<MoveTarget, string> = {
-  waitlisted: "waitlisted",
-  rejected: "rejected",
+/** The current backend models waitlisted as approved and rejected as declined. */
+export const API_STATUS: Record<
+  MoveTarget,
+  "approved" | "declined"
+> = {
+  waitlisted: "approved",
+  rejected: "declined",
 };

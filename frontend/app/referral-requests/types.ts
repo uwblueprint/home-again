@@ -15,6 +15,7 @@ export interface ClientReferral {
   previousSubmissionAt?: string;
   agents: ReferralCardAgent[];
   isPriority: boolean;
+  priorityDescription?: string;
   errorMsg?: string;
   items: ReferralCardItem[];
   reviewStatus?: ReviewStatus;
@@ -35,4 +36,5 @@ export type ReferralStatusUpdate = {
   target: MoveTarget;
   rejectionReason?: string;
   isPriority?: boolean;
+  priorityDescription?: string;
 };

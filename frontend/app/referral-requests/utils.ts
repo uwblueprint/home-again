@@ -1,21 +1,13 @@
-import type {
-  ClientReferral,
-  ReferralTab,
-  ReviewFilter,
-} from "./types";
+import type { ClientReferral, ReferralTab, ReviewFilter } from "./types";
 import type { AgentRecord, Client, Referral } from "@/common/types";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** MM/DD/YY (submitted) or MM/DD/YYYY (previous submission), matching the design. */
-export function formatDate(iso?: string | null, fullYear = false): string {
+export function formatDate(iso?: string | null): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  const year = fullYear
-    ? d.getUTCFullYear()
-    : String(d.getUTCFullYear()).slice(-2);
-  return `${pad(d.getUTCMonth() + 1)}/${pad(d.getUTCDate())}/${year}`;
+  return `${pad(d.getUTCMonth() + 1)}/${pad(d.getUTCDate())}/${d.getUTCFullYear()}`;
 }
 
 export const unfulfillableMsg = (count: number) =>
@@ -23,10 +15,45 @@ export const unfulfillableMsg = (count: number) =>
     ? `${count} items that can't be fully fulfilled right now.`
     : undefined;
 
+function toReferralItems(rawItems: unknown[]) {
+  return rawItems.flatMap((item, index) => {
+    if (!item || typeof item !== "object") return [];
+
+    const value = item as Record<string, unknown>;
+    if (typeof value.name !== "string") return [];
+
+    return [
+      {
+        id: typeof value.id === "string" ? value.id : `requested-item-${index}`,
+        name: value.name,
+        quantity: typeof value.quantity === "number" ? value.quantity : 1,
+        stock: typeof value.stock === "number" ? value.stock : 0,
+      },
+    ];
+  });
+}
+
+function getReviewSummary(rawItems: unknown[]) {
+  const reviewableItems = rawItems.filter(
+    (item): item is Record<string, unknown> =>
+      Boolean(item) &&
+      typeof item === "object" &&
+      typeof (item as Record<string, unknown>).name === "string"
+  );
+  const reviewedItems = reviewableItems.filter(
+    (item) => item.reviewed === true
+  );
+
+  return {
+    totalCount: reviewableItems.length,
+    reviewedCount: reviewedItems.length,
+    approvedCount: reviewedItems.filter((item) => item.approved === true)
+      .length,
+  };
+}
+
 /**
- * Backend Referral (docs/SCHEMA.md) -> view model.
- * Nested client/agent shapes and stock/review data are assumptions - adjust
- * once the list endpoint's response is confirmed.
+ * Backend Referral -> view model used by the referral cards.
  */
 export function toClientReferral(
   raw: Referral,
@@ -52,6 +79,15 @@ export function toClientReferral(
   };
 
   const client = clients.find((item) => item.id === raw.client_id);
+  const review = getReviewSummary(raw.requested_items);
+  const reviewStatus =
+    tab !== "waitlisted" || review.reviewedCount === 0
+      ? tab === "waitlisted"
+        ? "pending-review"
+        : undefined
+      : review.reviewedCount < review.totalCount
+        ? "partially-reviewed"
+        : "reviewed";
 
   return {
     id: raw.id,
@@ -59,14 +95,18 @@ export function toClientReferral(
     clientName: client ? `${client.first_name} ${client.last_name}` : "Client",
     referralId: raw.id,
     submittedAt: formatDate(raw.created_at),
+    submittedAtIso: raw.created_at,
     isPriority: Boolean(raw.is_priority),
     priorityDescription: raw.priority_description ?? undefined,
     agents: [
       toAgent(raw.agent_id, "primary"),
       toAgent(raw.secondary_agent_id, "secondary"),
     ].filter(Boolean) as ClientReferral["agents"],
-    items: [],
-    reviewStatus: tab === "waitlisted" ? "pending-review" : undefined,
+    items: toReferralItems(raw.requested_items),
+    reviewStatus,
+    approvedCount:
+      reviewStatus === "reviewed" ? review.approvedCount : undefined,
+    totalCount: reviewStatus === "reviewed" ? review.totalCount : undefined,
   };
 }
 
@@ -79,19 +119,13 @@ export function matchesReviewFilter(r: ClientReferral, filter: ReviewFilter) {
   return filter === "all" || r.reviewStatus === filter;
 }
 
-function submissionTimestamp(value: string) {
-  const [month, day, year] = value.split("/").map(Number);
-  if (!month || !day || !year) return 0;
-  return Date.UTC(year + (year < 70 ? 2000 : 1900), month - 1, day);
-}
-
 export function sortBySubmissionDate(
   referrals: ClientReferral[],
   descending: boolean
 ) {
   return [...referrals].sort((a, b) => {
     const difference =
-      submissionTimestamp(a.submittedAt) - submissionTimestamp(b.submittedAt);
+      Date.parse(a.submittedAtIso) - Date.parse(b.submittedAtIso);
     return descending ? -difference : difference;
   });
 }

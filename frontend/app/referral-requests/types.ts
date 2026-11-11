@@ -5,13 +5,13 @@ export type ReferralTab = "new" | "waitlisted" | "rejected";
 export type ReviewStatus = "pending-review" | "partially-reviewed" | "reviewed";
 export type ReviewFilter = "all" | ReviewStatus;
 
-
 export interface ClientReferral {
   id: string;
   tab: ReferralTab;
   clientName: string;
   referralId: string;
   submittedAt: string;
+  submittedAtIso: string;
   previousSubmissionAt?: string;
   agents: ReferralCardAgent[];
   isPriority: boolean;
@@ -27,7 +27,6 @@ export interface ClientReferral {
 
 export interface ClientReferralsData {
   referrals: ClientReferral[];
-  isMock: boolean;
 }
 
 export type MoveTarget = "waitlisted" | "rejected";

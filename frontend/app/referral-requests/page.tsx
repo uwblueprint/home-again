@@ -3,14 +3,8 @@
 import { useMemo, useState } from "react";
 import { PAGE_SIZE, REVIEW_FILTERS, TABS } from "./constants";
 import { useClientReferrals } from "./hooks";
-import {
-  DataTablePagination,
-} from "@/common/components/data-display";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-} from "@/common/components/ui/tabs";
+import { DataTablePagination } from "@/common/components/data-display";
+import { Tabs, TabsList, TabsTrigger } from "@/common/components/ui/tabs";
 import {
   ReferralList,
   ReferralToolbar,
@@ -89,8 +83,7 @@ export default function ClientReferralsPage() {
     return sortBySubmissionDate(matchingReferrals, sortDescending);
   }, [byTab, tab, query, reviewFilter, sortDescending]);
 
-  // Design paginates the waitlisted tab only.
-  const paginated = tab === "waitlisted";
+  const paginated = filtered.length > PAGE_SIZE;
   const visible = paginated
     ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
     : filtered;

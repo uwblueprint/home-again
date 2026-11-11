@@ -33,6 +33,7 @@ export function ReferralList({
           agents: r.agents,
           isPriority: r.isPriority,
           errorMsg: r.errorMsg,
+          items: r.items,
           onViewDetails: () => onViewDetails(r),
         };
 
@@ -69,7 +70,6 @@ export function ReferralList({
               approvedCount={r.approvedCount ?? 0}
               totalCount={r.totalCount ?? 0}
               hasIncompleteScheduling={r.hasIncompleteScheduling}
-              items={r.items}
             />
           );
         }
@@ -79,7 +79,6 @@ export function ReferralList({
             key={r.id}
             {...common}
             status={r.reviewStatus ?? "pending-review"}
-            items={r.items}
           />
         );
       })}

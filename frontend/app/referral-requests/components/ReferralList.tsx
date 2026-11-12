@@ -60,7 +60,7 @@ export function ReferralList({
           );
         }
 
-        // waitlisted
+        // Waitlisted cards use the review state derived from item flags.
         if (r.reviewStatus === "reviewed") {
           return (
             <ReferralCard

@@ -15,6 +15,7 @@ type ReferralUpdate = {
 };
 
 export async function fetchReferralData() {
+  // Referrals store client and agent IDs, so load the related records together.
   const [referralsResponse, clientsResponse, agentsResponse] =
     await Promise.all([
       apiClient.get<Referral[]>("/referrals"),

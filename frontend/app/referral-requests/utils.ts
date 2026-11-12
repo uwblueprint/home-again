@@ -61,6 +61,7 @@ export function toClientReferral(
   agents: AgentRecord[]
 ): ClientReferral {
   const tab: ReferralTab =
+    // Completed referrals stay in the waitlist because there is no completed tab.
     raw.status === "declined"
       ? "rejected"
       : raw.status === "approved" || raw.status === "completed"
@@ -79,6 +80,7 @@ export function toClientReferral(
   };
 
   const client = clients.find((item) => item.id === raw.client_id);
+  // Review status comes from item review flags until the API exposes this field.
   const review = getReviewSummary(raw.requested_items);
   const reviewStatus =
     tab !== "waitlisted" || review.reviewedCount === 0
@@ -112,6 +114,7 @@ export function toClientReferral(
 
 export function matchesQuery(r: ClientReferral, query: string) {
   const q = query.trim().toLowerCase();
+  // Search uses display values so users can search what they see on the card.
   const searchableText = [
     r.clientName,
     r.referralId,

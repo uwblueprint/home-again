@@ -83,6 +83,7 @@ export default function ClientReferralsPage() {
     return sortBySubmissionDate(matchingReferrals, sortDescending);
   }, [byTab, tab, query, reviewFilter, sortDescending]);
 
+  // Show pagination only when the results need more than one page.
   const paginated = filtered.length > PAGE_SIZE;
   const visible = paginated
     ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -115,6 +116,7 @@ export default function ClientReferralsPage() {
   ) => {
     setActionError(null);
     try {
+      // "Other" uses the text entered by the reviewer as the reason.
       const rejectionReason =
         reason === "other" ? (details?.trim() ?? "") : reason;
       await reject(referral.id, rejectionReason);

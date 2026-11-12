@@ -118,6 +118,7 @@ REFERRALS = tuple(
             is_priority=True,
             priority_description="Time-sensitive placement.",
             items=[
+                # Review flags provide waitlist states for local UI testing.
                 {
                     "id": "crib",
                     "name": "Crib",

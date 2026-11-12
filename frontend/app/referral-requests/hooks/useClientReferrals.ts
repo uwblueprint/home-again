@@ -39,6 +39,7 @@ export function useClientReferrals() {
       });
     },
 
+    // Update the cache first. Restore it if the API request fails.
     onMutate: async ({
       id,
       target,

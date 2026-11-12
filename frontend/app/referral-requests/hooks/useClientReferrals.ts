@@ -38,7 +38,7 @@ export function useClientReferrals() {
         priorityDescription,
       });
     },
-    // Optimistic: the card jumps to its new tab immediately.
+
     onMutate: async ({
       id,
       target,

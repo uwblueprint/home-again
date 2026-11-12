@@ -11,7 +11,6 @@ export type {
 export { DataTableColumnHeader } from "./data-table/DataTableColumnHeader";
 export { DataTableFacetedFilter } from "./data-table/DataTableFacetedFilter";
 export { SearchBar } from "./SearchBar";
-export { SortDropdown, type SortDropdownProps } from "./SortDropdown";
 export { HighlightText } from "./HighlightText";
 export { DonationCountBadge } from "./DonationCountBadge";
 export { StockItemChip } from "./StockItemChip";

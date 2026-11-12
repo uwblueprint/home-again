@@ -1,9 +1,19 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { ArrowUpDown } from "lucide-react";
 import type { Table } from "@tanstack/react-table";
 
-import type { SortMenuOption } from "@/common/components/ui/sort-menu";
+import { Button } from "@/common/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/common/components/ui/dropdown-menu";
+import {
+  SortMenu,
+  type SortMenuOption,
+} from "@/common/components/ui/sort-menu";
 import {
   SubTabs,
   SubTabsList,
@@ -14,7 +24,6 @@ import {
   type DataTableFilterOption,
 } from "./DataTableFacetedFilter";
 import { SearchBar } from "../SearchBar";
-import { SortDropdown } from "../SortDropdown";
 
 export interface DataTableFilterConfig {
   columnId: string;
@@ -81,12 +90,25 @@ export function DataTableToolbar<TData>({
         />
       ))}
       {sortOptions && onSortChange ? (
-        <SortDropdown
-          options={sortOptions}
-          value={sortValue}
-          onChange={onSortChange}
-          onReset={onSortReset}
-        />
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="outline" className="gap-2 border-border">
+                <ArrowUpDown className="size-4" />
+                Sort
+              </Button>
+            }
+          />
+          <DropdownMenuContent align="end" className="min-w-56 p-0">
+            <SortMenu
+              options={sortOptions}
+              value={sortValue}
+              onChange={onSortChange}
+              onReset={onSortReset}
+              className="border-0 shadow-none"
+            />
+          </DropdownMenuContent>
+        </DropdownMenu>
       ) : null}
       {actions}
     </div>

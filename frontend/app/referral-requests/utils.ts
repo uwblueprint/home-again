@@ -63,7 +63,7 @@ export function toClientReferral(
   const tab: ReferralTab =
     raw.status === "declined"
       ? "rejected"
-      : raw.status === "approved"
+      : raw.status === "approved" || raw.status === "completed"
         ? "waitlisted"
         : "new";
 
@@ -112,7 +112,20 @@ export function toClientReferral(
 
 export function matchesQuery(r: ClientReferral, query: string) {
   const q = query.trim().toLowerCase();
-  return !q || `${r.clientName} ${r.referralId}`.toLowerCase().includes(q);
+  const searchableText = [
+    r.clientName,
+    r.referralId,
+    r.submittedAt,
+    ...r.agents.flatMap((agent) => [
+      agent.firstName,
+      agent.lastName,
+      `${agent.firstName} ${agent.lastName}`,
+    ]),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return !q || searchableText.includes(q);
 }
 
 export function matchesReviewFilter(r: ClientReferral, filter: ReviewFilter) {

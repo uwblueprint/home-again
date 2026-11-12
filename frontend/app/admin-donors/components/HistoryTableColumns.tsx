@@ -25,15 +25,15 @@ export const donationHistoryColumns: ColumnDef<DonationHistoryRow>[] = [
     enableSorting: true,
     sortingFn: "datetime",
     cell: ({ getValue }) => {
-    const value = getValue<string>();
-    if (!value) return "-";
-    const date = new Date(value);
+      const value = getValue<string>();
+      if (!value) return "-";
+      const date = new Date(value);
 
-    return date.toLocaleDateString("en-CA", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+      return date.toLocaleDateString("en-CA", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
     },
   },
   {
@@ -68,9 +68,7 @@ export const donationHistoryColumns: ColumnDef<DonationHistoryRow>[] = [
     header: "Status",
     enableSorting: false,
     cell: ({ getValue }) => (
-      <DonationStatusBadge
-        status={getValue<DonationHistoryStatus>()}
-      />
+      <DonationStatusBadge status={getValue<DonationHistoryStatus>()} />
     ),
   },
 ];

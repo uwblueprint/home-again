@@ -6,17 +6,16 @@ import {
 
 interface HistoryTableProps {
   data: DonationHistoryRow[];
+  /** Makes rows clickable and adds the row chevron. */
+  onRowClick?: (row: DonationHistoryRow) => void;
 }
 
-export function HistoryTable({ data }: HistoryTableProps) {
+export function HistoryTable({ data, onRowClick }: HistoryTableProps) {
   return (
     <DataTable
       columns={donationHistoryColumns}
       data={data ?? []}
-      onRowClick={(row) => {
-        console.log(row);
-        //TODO: implement functionality
-      }}
+      onRowClick={onRowClick}
       header={
         <div className="flex flex-col items-start gap-sm">
           <h2 className="text-heading-4 font-semibold text-foreground">
@@ -33,7 +32,6 @@ export function HistoryTable({ data }: HistoryTableProps) {
         },
       ]}
       hideToolbar
-      
     />
   );
 }

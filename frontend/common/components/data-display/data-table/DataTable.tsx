@@ -55,18 +55,19 @@ export type DataTableSortOptionConfig = DataTableSortOption & {
   sorting: SortingState;
 };
 
-/** Matches a row if any cell's stringified value contains the search term. */
+/**
+ * Case-insensitive substring match on one column's value. TanStack calls it
+ * per searchable column and keeps the row if any column matches.
+ */
 function globalSubstringFilter<TData>(
   row: Row<TData>,
-  _columnId: string,
+  columnId: string,
   filterValue: string
 ) {
   const search = filterValue.trim().toLowerCase();
-  return row.getAllCells().some((cell) =>
-    String(cell.getValue() ?? "")
-      .toLowerCase()
-      .includes(search)
-  );
+  return String(row.getValue(columnId) ?? "")
+    .toLowerCase()
+    .includes(search);
 }
 
 interface DataTableProps<TData, TValue> {
@@ -94,6 +95,13 @@ interface DataTableProps<TData, TValue> {
   testId?: string;
 }
 
+function isSameSorting(a: SortingState, b: SortingState) {
+  return (
+    a.length === b.length &&
+    a.every((entry, i) => entry.id === b[i].id && entry.desc === b[i].desc)
+  );
+}
+
 export function DataTable<TData, TValue>({
   columns,
   data,
@@ -115,9 +123,6 @@ export function DataTable<TData, TValue>({
   hidePagination = false,
   testId = "data-table",
 }: DataTableProps<TData, TValue>) {
-  const [sortValue, setSortValue] = useState<string | null>(
-    sortOptions?.[0]?.value ?? null
-  );
   const [sorting, setSorting] = useState<SortingState>(
     sortOptions?.[0]?.sorting ?? []
   );
@@ -149,6 +154,9 @@ export function DataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: globalSubstringFilter,
+    // TanStack's default skips a column whose first cell isn't a string or
+    // number (e.g. empty). Columns opt out with `enableGlobalFilter: false`.
+    getColumnCanGlobalFilter: () => true,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -159,19 +167,22 @@ export function DataTable<TData, TValue>({
     meta: { globalFilter: highlightQuery ?? globalFilter },
   });
 
+  // The checked option is whichever matches the current sorting (none if no
+  // option does), so it stays right after a sortable column header is clicked.
+  const activeSortValue =
+    sortOptions?.find((option) => isSameSorting(option.sorting, sorting))
+      ?.value ?? null;
+
   const handleSortChange = (value: string) => {
     const option = sortOptions?.find((item) => item.value === value);
-    if (!option) return;
-    setSortValue(value);
-    setSorting(option.sorting);
+    if (option) setSorting(option.sorting);
   };
 
-  const handleSortReset = () => {
-    setSortValue(null);
-    setSorting([]);
-  };
+  const handleSortReset = () => setSorting([]);
 
   const hasRows = table.getRowModel().rows.length > 0;
+  // Hidden columns (e.g. filter- or sort-only ones) don't render cells.
+  const visibleColumnCount = table.getVisibleLeafColumns().length;
   const trimmedSearch = globalFilter.trim();
   const showSearchEmpty = !loading && !error && !hasRows && !!trimmedSearch;
   const { pageIndex } = table.getState().pagination;
@@ -189,7 +200,7 @@ export function DataTable<TData, TValue>({
           searchPlaceholder={searchPlaceholder}
           filters={filters}
           sortOptions={sortOptions}
-          sortValue={sortValue}
+          sortValue={activeSortValue}
           onSortChange={sortOptions ? handleSortChange : undefined}
           onSortReset={sortOptions ? handleSortReset : undefined}
           leading={toolbarLeading}
@@ -224,11 +235,11 @@ export function DataTable<TData, TValue>({
             </TableHeader>
             <TableBody>
               {loading ? (
-                <DataTableSkeletonRows columns={tableColumns.length} />
+                <DataTableSkeletonRows columns={visibleColumnCount} />
               ) : error ? (
                 <TableRow>
                   <TableCell
-                    colSpan={tableColumns.length}
+                    colSpan={visibleColumnCount}
                     className="h-24 text-center text-destructive"
                   >
                     {error.message || "Error loading data"}
@@ -273,7 +284,7 @@ export function DataTable<TData, TValue>({
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={tableColumns.length}
+                    colSpan={visibleColumnCount}
                     className="h-24 text-center text-muted-foreground"
                   >
                     {emptyStateMessage}

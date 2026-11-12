@@ -96,7 +96,22 @@ Built in — pass `searchPlaceholder` to customize the placeholder text (default
 (case-insensitive substring match); no per-column config needed.
 
 ```tsx
-<DataTable columns={columns} data={referrals} searchPlaceholder="Search referrals" />
+<DataTable
+  columns={columns}
+  data={referrals}
+  searchPlaceholder="Search referrals"
+/>
+```
+
+Hidden columns are searched too. To keep a column out of search (e.g. a hidden
+sort-only timestamp, or a count), set `enableGlobalFilter: false` on it:
+
+```tsx
+{
+  id: "createdAt",
+  accessorFn: (row) => Date.parse(row.createdAt),
+  enableGlobalFilter: false,
+}
 ```
 
 ---

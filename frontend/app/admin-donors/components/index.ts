@@ -1,5 +1,11 @@
 export {
-  HistoryTable,
+  DonorProfileCard,
+  type DonorProfileCardProps,
+} from "./DonorProfileCard";
+export { DonorsTable } from "./DonorsTable";
+export type { DonorListRow } from "./DonorsTableColumns";
+export { HistoryTable } from "./HistoryTable";
+export {
   donationHistoryColumns,
-} from "./HistoryTable";
-export type { DonationHistoryRow } from "./HistoryTable";
+  type DonationHistoryRow,
+} from "./HistoryTableColumns";

@@ -16,6 +16,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """Application settings."""
 
+    # Environment. "DEVELOPMENT" lets requests without a bearer token act as
+    # DEV_USER_ID (local dev only; see docs/ONBOARDING.md). Anything else,
+    # including the default, requires a valid token on protected routes.
+    ENV: str = "PRODUCTION"
+    # Supabase user ID tokenless requests act as when ENV=DEVELOPMENT. Set it to
+    # the supabase_user_id of a seeded admins/agents row to exercise role checks.
+    DEV_USER_ID: str = "00000000-0000-0000-0000-000000000001"
+    DEV_USER_EMAIL: str = "dev@example.com"
+
     # Database
     DATABASE_URL: str = "postgresql://user:password@localhost:5432/hafb"
 
@@ -44,6 +53,10 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
+
+    @property
+    def is_development(self) -> bool:
+        return self.ENV.strip().upper() == "DEVELOPMENT"
 
 
 @lru_cache()

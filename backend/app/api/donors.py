@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..database import get_db
 from ..models import Donor
 from ..schemas import Donor as DonorSchema
-from ..schemas import DonorCreate, DonorUpdate
+from ..schemas import DonorCreate, DonorListItem, DonorUpdate
 from ..services import donor_service
 
 router = APIRouter()
@@ -21,7 +21,7 @@ async def get_donor_or_404(donor_id: str, db: AsyncSession = Depends(get_db)) ->
     return donor
 
 
-@router.get("", response_model=list[DonorSchema])
+@router.get("", response_model=list[DonorListItem])
 async def list_donors(db: AsyncSession = Depends(get_db)):
     return await donor_service.list_donors(db)
 

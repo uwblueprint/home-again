@@ -29,7 +29,7 @@ function ScheduledPickupCard({
   const isConfirmed = Boolean(pickup.confirmed_at);
 
   return (
-    <div className="flex w-full flex-col gap-lg rounded-xl border border-[var(--unofficial-border-3)] bg-background px-2xl py-xl shadow-[var(--shadow-sm)]">
+    <div className="flex w-full flex-col gap-lg rounded-xl border border-(--unofficial-border-3) bg-background px-2xl py-xl shadow-(--shadow-sm)">
       <div className="flex items-center justify-between">
         <p className="text-heading-4 font-semibold text-foreground">
           Scheduled Pickup

@@ -1,39 +1,46 @@
-import axios from "axios";
+import axios, { type AxiosInstance } from "axios";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+import { config } from "@/common/constants/config";
+import { getToken, useAuthStore } from "@/common/stores/authStore";
 
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+export type TokenGetter = () => string | null;
 
-// Request interceptor — attach auth token if available
-apiClient.interceptors.request.use(
-  (config) => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("auth_token");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+export type ApiClientOptions = {
+  getToken: TokenGetter;
+  /** Clear auth and send the user to /login when the backend rejects the token. */
+  onUnauthorized?: () => void | Promise<void>;
+};
+
+export function createApiClient(options: ApiClientOptions): AxiosInstance {
+  const client = axios.create({
+    baseURL: config.api.baseUrl,
+    headers: { "Content-Type": "application/json" },
+  });
+
+  client.interceptors.request.use((requestConfig) => {
+    const token = options.getToken();
+    if (token) {
+      requestConfig.headers.Authorization = `Bearer ${token}`;
+    }
+    return requestConfig;
+  });
+
+  client.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      if (error.response?.status === 401) {
+        await options.onUnauthorized?.();
       }
+      return Promise.reject(error);
     }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+  );
 
-// Response interceptor — handle 401 (unauthorized)
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (typeof window !== "undefined" && error.response?.status === 401) {
-      localStorage.removeItem("auth_token");
-      // TODO: redirect to login page once auth flow is implemented
-    }
-    return Promise.reject(error);
-  }
-);
+  return client;
+}
+
+const apiClient = createApiClient({
+  getToken,
+  onUnauthorized: () => useAuthStore.getState().signOut(),
+});
 
 export default apiClient;

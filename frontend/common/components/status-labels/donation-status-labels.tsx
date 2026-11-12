@@ -9,10 +9,14 @@ export function ReviewedBadge() {
   );
 }
 
-export function PendingReviewBadge() {
+export function PendingReviewBadge({
+  text = "Pending Review",
+}: {
+  text?: string;
+}) {
   return (
     <Badge className="rounded-lg font-normal border-transparent bg-amber-100 text-amber-900">
-      Pending Review
+      {text}
     </Badge>
   );
 }
@@ -125,13 +129,13 @@ export function DonationStatusBadge({
     case "picked_up":
       return <PickedUpBadge />;
     case "scheduled_by":
-      return <ScheduledBadge />
+      return <ScheduledBadge />;
     case "pending_review":
-      return <PendingReviewBadge />
+      return <PendingReviewBadge />;
     case "partially_reviewed":
-      return <PartiallyReviewedBadge />
+      return <PartiallyReviewedBadge />;
     case "approved_fraction":
-      return <ApprovalsLabel approved={approved} total={total}/>
+      return <ApprovalsLabel approved={approved} total={total} />;
     case "unconfirmed":
       return <UnconfirmedBadge />;
     default:
@@ -148,4 +152,4 @@ export type DonationHistoryStatus =
   | "approved_fraction"
   | "scheduled_by"
   | "pending_review"
-  | "partially_reviewed"
+  | "partially_reviewed";

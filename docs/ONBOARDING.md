@@ -65,7 +65,13 @@ python3 server.py
 
 Backend runs at http://localhost:8000. API docs at http://localhost:8000/docs. Stop with `Ctrl+C`.
 
-**Environment variables**: The backend reads from `backend/.env`. See `docker-compose.yml` for the required variables and reference values — create `backend/.env` with those values for local development.
+**Environment variables**: The backend reads from `backend/.env`. Copy the example and adjust `DATABASE_URL` for your machine:
+
+```bash
+cp .env.example .env
+```
+
+The example sets `ENV=DEVELOPMENT` so you can call the API without logging in. See [Authentication in local development](#authentication-in-local-development).
 
 **Deactivating the venv when done:**
 ```bash
@@ -81,6 +87,19 @@ createdb hafb_test
 cd backend
 alembic upgrade head
 ```
+
+## Authentication in local development
+
+Every `/api` route requires a Supabase login token in production. Locally, set `ENV=DEVELOPMENT` in `backend/.env` (already in `.env.example`, and set for you in `docker-compose.yml`) so you don't need Supabase:
+
+- **No token sent** (the default, since there's no sign-in UI yet): the request acts as the dev user `DEV_USER_ID`. The frontend, `curl` and Swagger at `/docs` all work without logging in.
+- **Token sent**: it's verified as normal, so a real Supabase login still behaves like production.
+- **Safety**: development mode requires `DEBUG=True`; the backend refuses to start with `ENV=DEVELOPMENT` and `DEBUG=False`, and prints a warning on startup. Any other `ENV` value, including the default, requires a token. **Never set `ENV=DEVELOPMENT` on a deployed environment.**
+- **Tests** always run with `ENV=PRODUCTION` (forced in `tests/conftest.py`), whatever your `.env` says.
+
+**Role checks**: the dev user only gets past routes that require login. Routes that require staff or an agency admin also need a matching row in your local database. To act as one, set `DEV_USER_ID` to the `supabase_user_id` of an `admins` or `agents` row and restart the backend.
+
+**Frontend**: point `NEXT_PUBLIC_API_URL` at your local backend (`http://localhost:8000/api`, the default). To work without any backend, use the mock API instead (`NEXT_PUBLIC_API_URL=https://mock.api.placeholder`; see [VERCEL.md](./VERCEL.md)).
 
 ## Quick Tour
 
@@ -160,6 +179,11 @@ lsof -i :3000                             # Check port conflict
 pip install --upgrade -r requirements.txt  # Ensure deps are current
 lsof -i :8000                              # Check port conflict
 ```
+
+### API returns 401 "Missing bearer token" locally
+
+- Check `backend/.env` has `ENV=DEVELOPMENT` and `DEBUG=True`, then restart the backend (settings are read at startup)
+- 401 "Invalid token" means a token *was* sent and failed verification; clear the frontend's session (sign out) or remove the `Authorization` header
 
 ### Database connection error
 

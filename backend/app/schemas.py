@@ -179,6 +179,19 @@ class Donor(DonorBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+class DonorListItem(Donor):
+    """
+    A donor as returned by `GET /donors`, with donation stats.
+
+    Separate from `Donor` because the other donor responses serialize straight
+    from the ORM row, which doesn't have these fields.
+    """
+
+    donation_count: int
+    # When their most recent donation was created; None if they have none.
+    last_donated_at: Optional[datetime]
+
+
 # ============ Donation Schemas ============
 
 

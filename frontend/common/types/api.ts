@@ -99,3 +99,5 @@ export interface CreateReferralInput {
   notes_and_instructions?: string | null;
   status: "pending" | "approved" | "completed" | "declined";
 }
+
+export type UpdateReferralInput = Partial<CreateReferralInput>;

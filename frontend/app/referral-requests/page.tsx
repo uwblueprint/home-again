@@ -1,78 +1,257 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { PAGE_SIZE, REVIEW_FILTERS, TABS } from "./constants";
+import { useClientReferrals } from "./hooks";
+import { DataTablePagination } from "@/common/components/data-display";
+import { Tabs, TabsList, TabsTrigger } from "@/common/components/ui/tabs";
+import {
+  ReferralList,
+  ReferralToolbar,
+  RejectReferralDialog,
+  WaitlistReferralDialog,
+} from "./components";
+import type { ClientReferral, ReferralTab, ReviewFilter } from "./types";
+import {
+  matchesQuery,
+  matchesReviewFilter,
+  sortBySubmissionDate,
+} from "./utils";
 
-import { Button } from "@/common/components/ui/button";
-import { RejectReferralDialog, WaitlistReferralDialog } from "./components";
-import type { ReferralDialogReferral } from "./components/ReferralDialogLayout";
+function toDialogReferral(referral: ClientReferral) {
+  return {
+    clientName: referral.clientName,
+    referralId: referral.referralId,
+    submittedAt: referral.submittedAt,
+    previousSubmissionAt: referral.previousSubmissionAt,
+    agents: referral.agents.map((agent) => ({
+      firstName: agent.firstName,
+      lastName: agent.lastName,
+      role: agent.role,
+    })),
+  };
+}
 
-const REFERRAL: ReferralDialogReferral = {
-  clientName: "John Doe",
-  referralId: "WCYIECNIE",
-  submittedAt: "09/20/25",
-  previousSubmissionAt: "01/02/2025",
-  agents: [
-    {
-      firstName: "Kim",
-      lastName: "Soo",
-      role: "primary",
-      email: "kim@agency.com",
-      phone: "(+1) 647 123 4567",
-    },
-    {
-      firstName: "Wendy",
-      lastName: "Xu",
-      role: "secondary",
-      email: "wendy@agency.com",
-      phone: "(+1) 647 123 4567",
-    },
-  ],
-};
+export default function ClientReferralsPage() {
+  const { referrals, isLoading, isError, waitlist, reject } =
+    useClientReferrals();
 
-const PRIORITY_REASON =
-  "Client is currently in a shelter, needs furniture before move-out date on 10/01.";
+  const [tab, setTab] = useState<ReferralTab>("new");
+  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
+  const [query, setQuery] = useState("");
+  const [sortDescending, setSortDescending] = useState(true);
+  const [page, setPage] = useState(1);
+  const [waitlistTarget, setWaitlistTarget] = useState<ClientReferral | null>(
+    null
+  );
+  const [rejectTarget, setRejectTarget] = useState<ClientReferral | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-export default function ReferralRequestPage() {
-  const [rejectOpen, setRejectOpen] = useState(false);
-  const [waitlistOpen, setWaitlistOpen] = useState(false);
-  const [isPriority, setIsPriority] = useState(true);
-  const [result, setResult] = useState("No action yet");
+  const byTab = useMemo(
+    () => ({
+      new: referrals.filter((r) => r.tab === "new"),
+      waitlisted: referrals.filter((r) => r.tab === "waitlisted"),
+      rejected: referrals.filter((r) => r.tab === "rejected"),
+    }),
+    [referrals]
+  );
+
+  const tabCounts = {
+    new: byTab.new.length,
+    waitlisted: byTab.waitlisted.length,
+    rejected: byTab.rejected.length,
+  };
+
+  const reviewCounts: Record<ReviewFilter, number> = {
+    all: byTab.waitlisted.length,
+    "pending-review": byTab.waitlisted.filter(
+      (r) => r.reviewStatus === "pending-review"
+    ).length,
+    "partially-reviewed": byTab.waitlisted.filter(
+      (r) => r.reviewStatus === "partially-reviewed"
+    ).length,
+    reviewed: byTab.waitlisted.filter((r) => r.reviewStatus === "reviewed")
+      .length,
+  };
+
+  const filtered = useMemo(() => {
+    const matchingReferrals = byTab[tab].filter(
+      (r) =>
+        matchesQuery(r, query) &&
+        (tab !== "waitlisted" || matchesReviewFilter(r, reviewFilter))
+    );
+    return sortBySubmissionDate(matchingReferrals, sortDescending);
+  }, [byTab, tab, query, reviewFilter, sortDescending]);
+
+  // Show pagination only when the results need more than one page.
+  const paginated = filtered.length > PAGE_SIZE;
+  const visible = paginated
+    ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+    : filtered;
+
+  const changeTab = (next: ReferralTab) => {
+    setTab(next);
+    setReviewFilter("all");
+    setPage(1);
+  };
+
+  const handleWaitlist = async (
+    referral: ClientReferral,
+    isPriority: boolean,
+    priorityDescription?: string
+  ) => {
+    setActionError(null);
+    try {
+      await waitlist(referral.id, isPriority, priorityDescription);
+      setWaitlistTarget(null);
+    } catch {
+      setActionError("Unable to waitlist this referral. Please try again.");
+    }
+  };
+
+  const handleReject = async (
+    referral: ClientReferral,
+    reason: string,
+    details?: string
+  ) => {
+    setActionError(null);
+    try {
+      // "Other" uses the text entered by the reviewer as the reason.
+      const rejectionReason =
+        reason === "other" ? (details?.trim() ?? "") : reason;
+      await reject(referral.id, rejectionReason);
+      setRejectTarget(null);
+    } catch {
+      setActionError("Unable to reject this referral. Please try again.");
+    }
+  };
 
   return (
-    <main className="mx-auto flex w-full max-w-[1174px] flex-col gap-lg px-2xl py-lg">
-      <div className="flex gap-sm">
-        <Button variant="secondary" onClick={() => setRejectOpen(true)}>
-          Reject
-        </Button>
-        <Button onClick={() => setWaitlistOpen(true)}>Waitlist</Button>
+    <div className="mx-auto flex max-w-275 flex-col px-xl py-xl">
+      <div className="flex flex-col gap-5">
+        <p className="text-black text-3xl font-semibold leading-8">
+          Client Referrals
+        </p>
+        {isError && (
+          <p role="alert" className="text-paragraph-small text-destructive">
+            Unable to load referrals.
+          </p>
+        )}
+        {actionError && (
+          <p role="alert" className="text-paragraph-small text-destructive">
+            {actionError}
+          </p>
+        )}
+
+        <div className="flex items-center justify-between">
+          <Tabs
+            value={tab}
+            onValueChange={(value) => {
+              const nextTab = TABS.find((item) => item.key === value)?.key;
+              if (nextTab) changeTab(nextTab);
+            }}
+          >
+            <TabsList aria-label="Referral status">
+              {TABS.map(({ key, label }) => (
+                <TabsTrigger key={key} value={key}>
+                  {label} ({tabCounts[key]})
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+          <ReferralToolbar
+            query={query}
+            onQueryChange={(value) => {
+              setQuery(value);
+              setPage(1);
+            }}
+            onSort={() => {
+              setSortDescending((descending) => !descending);
+              setPage(1);
+            }}
+          />
+        </div>
+        {tab === "waitlisted" && (
+          <Tabs
+            value={reviewFilter}
+            onValueChange={(value) => {
+              const nextFilter = REVIEW_FILTERS.find(
+                (filter) => filter.key === value
+              )?.key;
+              if (nextFilter) {
+                setReviewFilter(nextFilter);
+                setPage(1);
+              }
+            }}
+          >
+            <TabsList variant="segmented" aria-label="Review status">
+              {REVIEW_FILTERS.map(({ key, label }) => (
+                <TabsTrigger key={key} value={key}>
+                  {label} ({reviewCounts[key]})
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        )}
       </div>
+      {isLoading ? (
+        <p className="py-12 text-center text-paragraph-regular text-muted-foreground">
+          Loading...
+        </p>
+      ) : (
+        <div className="py-2xl">
+          <ReferralList
+            referrals={visible}
+            onWaitlist={setWaitlistTarget}
+            onReject={setRejectTarget}
+            onViewDetails={() => {
+              /* TODO: navigate to referral details */
+            }}
+          />
+        </div>
+      )}
 
-      <p className="text-paragraph-small text-muted-foreground">
-        Last action: {result} (priority: {isPriority ? "yes" : "no"})
-      </p>
+      {waitlistTarget ? (
+        <WaitlistReferralDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setWaitlistTarget(null);
+          }}
+          referral={toDialogReferral(waitlistTarget)}
+          isPriority={waitlistTarget.isPriority}
+          priorityReason={waitlistTarget.priorityDescription}
+          onConfirm={(isPriority) =>
+            void handleWaitlist(
+              waitlistTarget,
+              isPriority,
+              waitlistTarget.priorityDescription
+            )
+          }
+        />
+      ) : null}
 
-      <RejectReferralDialog
-        open={rejectOpen}
-        onOpenChange={setRejectOpen}
-        referral={REFERRAL}
-        onConfirm={(reason, details) =>
-          setResult(`Rejected: ${reason}${details ? `: ${details}` : ""}`)
-        }
-        onCancel={() => setResult("Reject cancelled")}
-      />
+      {rejectTarget ? (
+        <RejectReferralDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setRejectTarget(null);
+          }}
+          referral={toDialogReferral(rejectTarget)}
+          onConfirm={(reason, details) =>
+            void handleReject(rejectTarget, reason, details)
+          }
+        />
+      ) : null}
 
-      <WaitlistReferralDialog
-        open={waitlistOpen}
-        onOpenChange={setWaitlistOpen}
-        referral={REFERRAL}
-        isPriority={isPriority}
-        priorityReason={PRIORITY_REASON}
-        onConfirm={(next) => {
-          setIsPriority(next);
-          setResult(`Waitlisted, priority: ${next ? "yes" : "no"}`);
-        }}
-        onCancel={() => setResult("Waitlist cancelled")}
-      />
-    </main>
+      {paginated && (
+        <DataTablePagination
+          pageIndex={page - 1}
+          pageCount={Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))}
+          pageSize={PAGE_SIZE}
+          totalRows={filtered.length}
+          onPageChange={(nextPage) => setPage(nextPage + 1)}
+        />
+      )}
+    </div>
   );
 }

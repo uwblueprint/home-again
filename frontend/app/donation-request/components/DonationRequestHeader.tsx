@@ -3,6 +3,7 @@
 import { CalendarDays } from "lucide-react";
 
 import { Button } from "@/common/components/ui/button";
+import { Skeleton } from "@/common/components/ui/skeleton";
 import {
   ApprovalsLabel,
   PartiallyReviewedBadge,
@@ -80,4 +81,19 @@ function DonationRequestHeader(props: DonationRequestHeaderProps) {
   );
 }
 
-export { DonationRequestHeader };
+/** Placeholder for `DonationRequestHeader` while the request loads. */
+function DonationRequestHeaderSkeleton() {
+  return (
+    <div className="flex items-start justify-between gap-lg">
+      <div className="flex flex-col gap-sm">
+        <h1 className="text-heading-2 font-semibold text-foreground">
+          Donation Request
+        </h1>
+        <Skeleton className="h-4 w-56" />
+      </div>
+      <Skeleton className="mt-1 h-5 w-28 rounded-lg" />
+    </div>
+  );
+}
+
+export { DonationRequestHeader, DonationRequestHeaderSkeleton };

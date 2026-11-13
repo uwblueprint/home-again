@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, X } from "lucide-react";
 
 import { Button } from "@/common/components/ui/button";
+import { Skeleton } from "@/common/components/ui/skeleton";
 import {
   ApprovedBadge,
   RejectedBadge,
@@ -137,4 +138,26 @@ function DonationItemCard({
   );
 }
 
-export { DonationItemCard };
+/** Placeholder for `DonationItemCard` while the request loads. */
+function DonationItemCardSkeleton() {
+  return (
+    <div className="flex w-full items-start justify-between gap-lg rounded-xl border border-[var(--unofficial-border-3)] bg-background px-2xl py-xl">
+      <div className="flex flex-col gap-lg">
+        <div className="flex flex-col gap-3">
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+        <div className="flex items-center gap-sm">
+          <Skeleton className="h-9 w-24" />
+          <Skeleton className="h-9 w-28" />
+        </div>
+      </div>
+      <div className="flex gap-sm">
+        <Skeleton className="size-24 rounded-lg" />
+        <Skeleton className="size-24 rounded-lg" />
+      </div>
+    </div>
+  );
+}
+
+export { DonationItemCard, DonationItemCardSkeleton };

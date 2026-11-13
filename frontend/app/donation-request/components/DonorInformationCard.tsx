@@ -7,6 +7,7 @@ import { cn } from "@/common/lib/utils";
 import { Button } from "@/common/components/ui/button";
 import { Input } from "@/common/components/ui/input";
 import { CopyButton } from "@/common/components/ui/copy-button";
+import { Skeleton } from "@/common/components/ui/skeleton";
 import {
   Collapsible,
   CollapsiblePanel,
@@ -306,4 +307,23 @@ function YesNoToggle({
   );
 }
 
-export { DonorInformationCard };
+/** Placeholder for `DonorInformationCard` while the request loads. */
+function DonorInformationCardSkeleton() {
+  return (
+    <div className="w-full rounded-xl border border-[var(--unofficial-border-3)] bg-background px-2xl py-xl shadow-[var(--shadow-sm)]">
+      <p className="text-heading-4 font-semibold text-foreground">
+        Donor Information
+      </p>
+      <div className="grid grid-cols-2 gap-x-3 gap-y-lg pt-lg">
+        {Array.from({ length: 4 }, (_, i) => (
+          <div key={i} className="flex flex-col gap-1.5">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export { DonorInformationCard, DonorInformationCardSkeleton };

@@ -127,4 +127,11 @@ describe("HistoryTable", () => {
     expect(screen.getByText("0 total donations made")).toBeInTheDocument();
     expect(screen.getByText("No results found")).toBeInTheDocument();
   });
+
+  it("shows skeleton rows instead of a count or empty state while loading", () => {
+    render(<HistoryTable data={[]} loading />);
+    expect(screen.getByText("Donation History")).toBeInTheDocument();
+    expect(screen.queryByText(/total donations? made/)).not.toBeInTheDocument();
+    expect(screen.queryByText("No results found")).not.toBeInTheDocument();
+  });
 });

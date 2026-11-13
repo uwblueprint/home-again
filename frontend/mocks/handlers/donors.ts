@@ -1,6 +1,7 @@
 import { http, HttpResponse } from "msw";
+import { donations } from "../fixtures/donations";
 import { donors } from "../fixtures/donors";
-import type { Donor } from "@/common/types";
+import type { Donor, DonorListItem } from "@/common/types";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL;
 
@@ -8,11 +9,20 @@ const BASE = process.env.NEXT_PUBLIC_API_URL;
 const createdDonors = new Map<string, Donor>();
 
 export const donorsHandlers = [
+  // Donation stats derived from the donations fixture, like the backend's join.
   http.get(`${BASE}/donors`, () => {
-    return HttpResponse.json([
+    const list: DonorListItem[] = [
       ...donors,
       ...Array.from(createdDonors.values()),
-    ]);
+    ].map((donor) => {
+      const own = donations.filter((d) => d.donor_id === donor.id);
+      const latest = own.reduce<string | null>(
+        (max, d) => (max === null || d.created_at > max ? d.created_at : max),
+        null
+      );
+      return { ...donor, donation_count: own.length, last_donated_at: latest };
+    });
+    return HttpResponse.json(list);
   }),
 
   http.get(`${BASE}/donors/:id`, ({ params }) => {

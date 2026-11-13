@@ -77,3 +77,76 @@ async def test_delete_donor(client):
 async def test_delete_donor_not_found(client):
     resp = await client.delete("/api/donors/nonexistent-id")
     assert resp.status_code == 404
+
+
+async def create_donation(client, donor_id, **overrides):
+    payload = {"donor_id": donor_id, "status": "pending", **overrides}
+    resp = await client.post("/api/donations", json=payload)
+    assert resp.status_code == 201, resp.text
+    return resp.json()
+
+
+async def list_donors(client):
+    resp = await client.get("/api/donors")
+    assert resp.status_code == 200, resp.text
+    return resp.json()
+
+
+def find_in_list(donors, donor_id):
+    matches = [d for d in donors if d["id"] == donor_id]
+    assert len(matches) == 1, f"expected donor {donor_id} exactly once"
+    return matches[0]
+
+
+async def test_list_donors_without_donations(client):
+    donor = await create_donor(client, email="count_zero@example.com")
+    listed = find_in_list(await list_donors(client), donor["id"])
+    assert listed["donation_count"] == 0
+    assert listed["last_donated_at"] is None
+
+
+async def test_list_donors_counts_each_donors_donations(client):
+    busy = await create_donor(client, email="count_busy@example.com")
+    other = await create_donor(client, email="count_other@example.com")
+    for status in ("pending", "completed", "cancelled"):
+        await create_donation(client, busy["id"], status=status)
+    await create_donation(client, other["id"])
+
+    donors = await list_donors(client)
+    # Every donation counts regardless of status, and each donor appears once
+    # (the join doesn't duplicate donors with several donations).
+    assert find_in_list(donors, busy["id"])["donation_count"] == 3
+    assert find_in_list(donors, other["id"])["donation_count"] == 1
+
+
+async def test_list_donors_last_donated_at_is_latest_donation(client):
+    donor = await create_donor(client, email="last_several@example.com")
+    other = await create_donor(client, email="last_other@example.com")
+    await create_donation(client, donor["id"])
+    latest = await create_donation(client, donor["id"], status="cancelled")
+    other_latest = await create_donation(client, other["id"])
+
+    donors = await list_donors(client)
+    # Every donation counts as activity regardless of status, and another
+    # donor's later donation doesn't leak in.
+    assert find_in_list(donors, donor["id"])["last_donated_at"] == latest["created_at"]
+    assert (
+        find_in_list(donors, other["id"])["last_donated_at"]
+        == other_latest["created_at"]
+    )
+
+
+async def test_list_donors_keeps_donor_fields(client):
+    donor = await create_donor(
+        client, email="count_fields@example.com", first_name="Fiona"
+    )
+    listed = find_in_list(await list_donors(client), donor["id"])
+    assert {k: listed[k] for k in donor} == donor
+
+
+async def test_donor_detail_has_no_list_fields(client):
+    donor = await create_donor(client, email="count_detail@example.com")
+    detail = (await client.get(f"/api/donors/{donor['id']}")).json()
+    for body in (donor, detail):
+        assert "donation_count" not in body
+        assert "last_donated_at" not in body

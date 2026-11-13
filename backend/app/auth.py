@@ -26,10 +26,10 @@ class CurrentUser:
 
 
 @lru_cache
-def get_jwks_client() -> PyJWKClient:
-    """Shared PyJWKClient; created on first use so unset URL does not break import."""
-    settings = get_settings()
-    return PyJWKClient(settings.SUPABASE_JWKS_URL)
+def get_jwks_client() -> PyJWKClient | None:
+    """Shared PyJWKClient, or None when SUPABASE_JWKS_URL is unset (local dev)."""
+    url = get_settings().SUPABASE_JWKS_URL
+    return PyJWKClient(url) if url else None
 
 
 def _unauthorized(detail: str) -> HTTPException:
@@ -42,22 +42,36 @@ def _unauthorized(detail: str) -> HTTPException:
 
 def get_current_user(
     authorization: str | None = Header(None),
-    jwks_client: PyJWKClient = Depends(get_jwks_client),
+    jwks_client: PyJWKClient | None = Depends(get_jwks_client),
 ) -> CurrentUser:
     """
     FastAPI dependency: verify a Supabase access token and return the user.
 
     Plain ``def`` (not async) so FastAPI runs blocking JWKS fetches in a
     threadpool. Override ``get_jwks_client`` in tests to supply a fake key source.
+
+    With ``ENV=DEVELOPMENT``, a request with no Authorization header acts as
+    ``DEV_USER_ID`` so local development works without Supabase. A token that
+    is sent is still fully verified.
     """
+    settings = get_settings()
     if not authorization:
+        if settings.is_development:
+            return CurrentUser(
+                id=UUID(settings.DEV_USER_ID), email=settings.DEV_USER_EMAIL
+            )
         raise _unauthorized("Missing bearer token")
 
     scheme, _, token = authorization.partition(" ")
     if scheme.lower() != "bearer" or not token:
         raise _unauthorized("Malformed authorization header")
 
-    settings = get_settings()
+    if jwks_client is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Auth not configured: SUPABASE_JWKS_URL is unset",
+        )
+
     try:
         key = jwks_client.get_signing_key_from_jwt(token).key
         claims = jwt.decode(

@@ -6,6 +6,7 @@ import {
   ApprovalsLabel,
   PartiallyReviewedBadge,
   PendingReviewBadge,
+  PriorityBadge,
   RejectedBadge,
 } from "@/common/components/status-labels";
 import { Badge } from "@/common/components/ui/badge";
@@ -74,12 +75,7 @@ const DEFAULT_DETAILS_LABEL: Record<ReferralStatus, string> = {
 function ReferralStatusBadge(props: ReferralCardStateProps) {
   switch (props.status) {
     case "pending":
-      // TODO: switch to pending badge
-      return (
-        <Badge className="rounded-lg font-normal border-transparent bg-amber-100 text-amber-900">
-          Pending
-        </Badge>
-      );
+      return <PendingReviewBadge text="Pending" />;
     case "pending-review":
       return <PendingReviewBadge />;
     case "partially-reviewed":
@@ -133,15 +129,7 @@ export function ReferralCard(props: ReferralCardProps) {
               </span>
             </div>
             <ReferralStatusBadge {...props} />
-            {showPriority ? (
-              <Badge className="h-6 gap-1.5 rounded-full border-transparent bg-red-50 px-sm font-medium text-orange-600 uppercase">
-                <span
-                  aria-hidden="true"
-                  className="size-1.5 rounded-full bg-orange-600"
-                />
-                Priority
-              </Badge>
-            ) : null}
+            {showPriority ? <PriorityBadge /> : null}
           </div>
           <div className="flex flex-wrap items-center gap-sm text-paragraph-small">
             <TooltipProvider>

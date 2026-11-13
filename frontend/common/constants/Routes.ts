@@ -19,3 +19,4 @@ export const AGENT_DASH_REFERRAL = (id: string) =>
 export const REFERRAL_FORM = "/referral-form";
 export const ADMIN_DONORS = "/admin/donors";
 export const ADMIN_DONOR = (id: string) => `/admin/donors/${id}`;
+export const DONATION_REQUEST = (id: string) => `/donation-request/${id}`;

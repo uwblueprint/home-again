@@ -150,3 +150,47 @@ async def test_donor_detail_has_no_list_fields(client):
     for body in (donor, detail):
         assert "donation_count" not in body
         assert "last_donated_at" not in body
+
+
+FURNITURE_BASE = {
+    "name": "Sofa",
+    "image_url": "https://example.com/sofa.jpg",
+    "description": "No stains",
+    "colour": "brown",
+    "category": "living room",
+    "smoking_household": False,
+    "has_pets": False,
+    "status": "PICKUP_PENDING",
+}
+
+
+async def test_list_donor_donations_newest_first_with_items(client):
+    donor = await create_donor(client, email="history_donor@example.com")
+    other = await create_donor(client, email="history_other@example.com")
+    first = await create_donation(client, donor["id"])
+    second = await create_donation(client, donor["id"])
+    await create_donation(client, other["id"])
+    resp = await client.post(
+        "/api/furniture", json={**FURNITURE_BASE, "donation_id": first["id"]}
+    )
+    assert resp.status_code == 201, resp.text
+
+    resp = await client.get(f"/api/donors/{donor['id']}/donations")
+    assert resp.status_code == 200, resp.text
+    data = resp.json()
+    assert [d["id"] for d in data] == [second["id"], first["id"]]
+    assert [item["name"] for item in data[1]["furniture_items"]] == ["Sofa"]
+    assert data[1]["review_status"] == "pending_review"
+    assert data[1]["donor"]["id"] == donor["id"]
+
+
+async def test_list_donor_donations_empty(client):
+    donor = await create_donor(client, email="no_donations@example.com")
+    resp = await client.get(f"/api/donors/{donor['id']}/donations")
+    assert resp.status_code == 200
+    assert resp.json() == []
+
+
+async def test_list_donor_donations_unknown_donor(client):
+    resp = await client.get("/api/donors/nonexistent/donations")
+    assert resp.status_code == 404

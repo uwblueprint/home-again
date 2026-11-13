@@ -132,20 +132,22 @@ export function ReferralCard(props: ReferralCardProps) {
             {showPriority ? <PriorityBadge /> : null}
           </div>
           <div className="flex flex-wrap items-center gap-sm text-paragraph-small">
-            <TooltipProvider>
-              <div
-                className="flex items-center px-xs gap-2.5"
-                role="group"
-                aria-label="Assigned agents"
-              >
-                {agents.map((agent) => (
-                  <AgentHover
-                    key={`${agent.role}-${agent.firstName}-${agent.lastName}`}
-                    {...agent}
-                  />
-                ))}
-              </div>
-            </TooltipProvider>
+            {agents.length > 0 ? (
+              <TooltipProvider>
+                <div
+                  className="flex items-center px-xs gap-2.5"
+                  role="group"
+                  aria-label="Assigned agents"
+                >
+                  {agents.map((agent) => (
+                    <AgentHover
+                      key={`${agent.role}-${agent.firstName}-${agent.lastName}`}
+                      {...agent}
+                    />
+                  ))}
+                </div>
+              </TooltipProvider>
+            ) : null}
             <span className="text-foreground">Submitted {submittedAt}</span>
             {previousSubmissionAt ? (
               <>
@@ -166,12 +168,6 @@ export function ReferralCard(props: ReferralCardProps) {
           ) : null}
         </div>
 
-        {props.status === "rejected" ? (
-          <p className="text-paragraph-small text-foreground">
-            Reason for rejection: {props.rejectionReason}
-          </p>
-        ) : null}
-
         {items && items.length > 0 ? (
           <ul className="flex flex-wrap gap-xs" aria-label="Requested items">
             {items.map((item) => (
@@ -184,6 +180,12 @@ export function ReferralCard(props: ReferralCardProps) {
               </li>
             ))}
           </ul>
+        ) : null}
+
+        {props.status === "rejected" ? (
+          <p className="text-paragraph-small text-foreground">
+            Reason for rejection: {props.rejectionReason}
+          </p>
         ) : null}
 
         {props.status === "reviewed" && props.hasIncompleteScheduling ? (

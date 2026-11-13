@@ -1,8 +1,11 @@
-import { DataTable, DonationCountBadge } from "@/common/components";
+import {
+  DataTable,
+  DonationCountBadge,
+} from "@/common/components/data-display";
 import {
   donationHistoryColumns,
   type DonationHistoryRow,
-} from "./HistoryTableColumns";
+} from "@/app/admin-donors/components/HistoryTableColumns";
 
 interface HistoryTableProps {
   data: DonationHistoryRow[];

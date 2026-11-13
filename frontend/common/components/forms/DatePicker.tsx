@@ -39,7 +39,7 @@ export function DatePicker({
         {date ? format(date, "MMMM d, yyyy") : placeholder}
       </PopoverTrigger>
       <PopoverContent
-        className="w-(--anchor-width) border border-border p-md shadow-[var(--shadow-md)] ring-0"
+        className="w-(--anchor-width) max-w-(--available-width) border border-border p-md shadow-[var(--shadow-md)] ring-0"
         align="start"
         sideOffset={8}
       >

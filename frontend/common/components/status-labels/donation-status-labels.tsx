@@ -107,3 +107,49 @@ export function PickedUpBadge() {
     </Badge>
   );
 }
+
+type DonationStatusBadgeProps =
+  | {
+      status: "approved_fraction";
+      /** Items approved, out of `total`, e.g. "2/3 Approved". */
+      approved: number;
+      total: number;
+    }
+  | {
+      status: Exclude<DonationHistoryStatus, "approved_fraction">;
+      /** Formatted pickup date for the "scheduled_by" badge, e.g. "Mar 26". */
+      scheduledDate?: string;
+    };
+
+export function DonationStatusBadge(props: DonationStatusBadgeProps) {
+  switch (props.status) {
+    case "approved_fraction":
+      return <ApprovalsLabel approved={props.approved} total={props.total} />;
+    case "confirmed":
+      return <ConfirmedBadge />;
+    case "rejected":
+      return <RejectedBadge />;
+    case "picked_up":
+      return <PickedUpBadge />;
+    case "scheduled_by":
+      return <ScheduledBadge date={props.scheduledDate} />;
+    case "pending_review":
+      return <PendingReviewBadge />;
+    case "partially_reviewed":
+      return <PartiallyReviewedBadge />;
+    case "unconfirmed":
+      return <UnconfirmedBadge />;
+    default:
+      return null;
+  }
+}
+
+export type DonationHistoryStatus =
+  | "unconfirmed"
+  | "confirmed"
+  | "approved_fraction"
+  | "picked_up"
+  | "rejected"
+  | "scheduled_by"
+  | "pending_review"
+  | "partially_reviewed";

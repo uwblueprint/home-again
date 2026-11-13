@@ -10,12 +10,15 @@ import {
   DonationStatusBadge,
   type DonationHistoryStatus,
 } from "@/common/components/status-labels";
+import { formatLongDate, formatShortDate } from "@/common/utils/DateUtils";
 
 export interface DonationHistoryRow {
   donationDate: string;
   donationId: string;
   items: string[];
   status: DonationHistoryStatus;
+  approvedCount: number;
+  scheduledDate?: string;
 }
 
 export const donationHistoryColumns: ColumnDef<DonationHistoryRow>[] = [
@@ -24,17 +27,7 @@ export const donationHistoryColumns: ColumnDef<DonationHistoryRow>[] = [
     header: "Donation Date",
     enableSorting: true,
     sortingFn: "datetime",
-    cell: ({ getValue }) => {
-      const value = getValue<string>();
-      if (!value) return "-";
-      const date = new Date(value);
-
-      return date.toLocaleDateString("en-CA", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
-    },
+    cell: ({ getValue }) => formatLongDate(getValue<string>()),
   },
   {
     accessorKey: "donationId",
@@ -53,7 +46,7 @@ export const donationHistoryColumns: ColumnDef<DonationHistoryRow>[] = [
 
       return (
         <Tooltip>
-          <TooltipTrigger className="block max-w-[240px] truncate text-left">
+          <TooltipTrigger className="block max-w-60 truncate text-left">
             {text}
           </TooltipTrigger>
           <TooltipContent className="bg-secondary text-secondary-foreground [&_svg]:bg-secondary [&_svg]:fill-secondary">
@@ -67,8 +60,25 @@ export const donationHistoryColumns: ColumnDef<DonationHistoryRow>[] = [
     accessorKey: "status",
     header: "Status",
     enableSorting: false,
-    cell: ({ getValue }) => (
-      <DonationStatusBadge status={getValue<DonationHistoryStatus>()} />
-    ),
+    cell: ({ row }) => {
+      const { status, approvedCount, items, scheduledDate } = row.original;
+      if (status === "approved_fraction") {
+        return (
+          <DonationStatusBadge
+            status={status}
+            approved={approvedCount}
+            total={items.length}
+          />
+        );
+      }
+      return (
+        <DonationStatusBadge
+          status={status}
+          scheduledDate={
+            scheduledDate ? formatShortDate(scheduledDate) : undefined
+          }
+        />
+      );
+    },
   },
 ];

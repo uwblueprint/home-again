@@ -17,7 +17,7 @@ export function HistoryTable({ data, onRowClick }: HistoryTableProps) {
   return (
     <DataTable
       columns={donationHistoryColumns}
-      data={data ?? []}
+      data={data}
       onRowClick={onRowClick}
       header={
         <div className="flex flex-col items-start gap-sm">

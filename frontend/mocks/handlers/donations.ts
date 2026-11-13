@@ -1,4 +1,5 @@
 import { http, HttpResponse } from "msw";
+import { donationDetails } from "../fixtures/donationDetails";
 import { donations } from "../fixtures/donations";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL;
@@ -6,6 +7,14 @@ const BASE = process.env.NEXT_PUBLIC_API_URL;
 export const donationsHandlers = [
   http.get(`${BASE}/donations`, () => {
     return HttpResponse.json(donations);
+  }),
+
+  http.get(`${BASE}/donations/:id/detail`, ({ params }) => {
+    const detail = donationDetails.find((d) => d.id === params.id);
+    if (detail) {
+      return HttpResponse.json(detail);
+    }
+    return HttpResponse.json({ detail: "Donation not found" }, { status: 404 });
   }),
 
   http.get(`${BASE}/donations/:id`, ({ params }) => {

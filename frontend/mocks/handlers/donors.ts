@@ -1,18 +1,20 @@
 import { http, HttpResponse } from "msw";
 import { donations } from "../fixtures/donations";
+import { donationDetails } from "../fixtures/donationDetails";
 import { donors } from "../fixtures/donors";
 import type { Donor, DonorListItem } from "@/common/types";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL;
 
-// In-memory store for donors created during the session
+// In-memory store for donors created or edited during the session
 const createdDonors = new Map<string, Donor>();
 
 export const donorsHandlers = [
   // Donation stats derived from the donations fixture, like the backend's join.
   http.get(`${BASE}/donors`, () => {
+    // Session edits replace their fixture donor rather than listing it twice.
     const list: DonorListItem[] = [
-      ...donors,
+      ...donors.filter((donor) => !createdDonors.has(donor.id)),
       ...Array.from(createdDonors.values()),
     ].map((donor) => {
       const own = donations.filter((d) => d.donor_id === donor.id);
@@ -39,6 +41,28 @@ export const donorsHandlers = [
       ...donors[0],
       id,
     });
+  }),
+
+  http.get(`${BASE}/donors/:id/donations`, ({ params }) => {
+    return HttpResponse.json(
+      donationDetails.filter((d) => d.donor_id === params.id)
+    );
+  }),
+
+  http.put(`${BASE}/donors/:id`, async ({ params, request }) => {
+    const id = params.id as string;
+    const existing = createdDonors.get(id) ?? donors.find((d) => d.id === id);
+    if (!existing) {
+      return HttpResponse.json({ detail: "Donor not found" }, { status: 404 });
+    }
+    const body = (await request.json()) as Partial<Donor>;
+    const updated: Donor = {
+      ...existing,
+      ...body,
+      updated_at: new Date().toISOString(),
+    };
+    createdDonors.set(id, updated);
+    return HttpResponse.json(updated);
   }),
 
   http.post(`${BASE}/donors`, async ({ request }) => {

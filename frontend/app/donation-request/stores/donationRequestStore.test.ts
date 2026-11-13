@@ -127,3 +127,15 @@ describe("donor edits", () => {
     expect(store().request.donor.first_name).toBe(before.first_name);
   });
 });
+
+describe("loading a request", () => {
+  it("replaces the request under review", () => {
+    const next = {
+      ...store().request,
+      id: "donation-xyz",
+      furniture_items: [],
+    };
+    store().loadRequest(next);
+    expect(store().request).toBe(next);
+  });
+});

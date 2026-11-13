@@ -12,13 +12,14 @@ import { DONATION_REQUEST_FIXTURE } from "@/app/donation-request/components/fixt
 /**
  * Client-side store backing the donation-request review screen.
  *
- * The database is not provisioned yet, so every action mutates local state
- * instead of calling the API. Field names match the backend review schema
- * (PR: donation request review schema), so these actions map one-to-one onto
- * the future endpoints (approve, reject, schedule pickup, confirm).
+ * Seeded from GET /donations/{id}/detail via `loadRequest`. The review
+ * actions only change local state until they're wired to the backend.
  */
 interface DonationRequestStore {
   request: DonationRequest;
+
+  /** Replaces the request being reviewed, e.g. with freshly fetched data. */
+  loadRequest: (request: DonationRequest) => void;
 
   approveItem: (itemId: string) => void;
   rejectItem: (
@@ -40,6 +41,8 @@ const genId = () =>
 
 export const useDonationRequestStore = create<DonationRequestStore>((set) => ({
   request: DONATION_REQUEST_FIXTURE,
+
+  loadRequest: (request) => set({ request }),
 
   approveItem: (itemId) =>
     set((state) => ({

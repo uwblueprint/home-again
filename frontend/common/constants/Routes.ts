@@ -17,3 +17,5 @@ export const AGENT_DASH_SEARCH = "/agent-dash/search";
 export const AGENT_DASH_REFERRAL = (id: string) =>
   `/agent-dash/referrals/${id}`;
 export const REFERRAL_FORM = "/referral-form";
+export const ADMIN_DONORS = "/admin/donors";
+export const ADMIN_DONOR = (id: string) => `/admin/donors/${id}`;

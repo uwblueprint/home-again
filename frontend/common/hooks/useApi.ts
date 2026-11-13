@@ -23,12 +23,14 @@ import type {
   CreateClientInput,
   CreateDonorInput,
   CreateReferralInput,
+  DonationDetail,
   Donor,
   DonorListItem,
   Furniture,
   Referral,
   UpdateAgencyInput,
   UpdateClientInput,
+  UpdateDonorInput,
 } from "@/common/types";
 
 /**
@@ -95,6 +97,67 @@ export function useDonor(donorId?: string | null) {
       return response.data;
     },
     enabled: Boolean(donorId),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+/**
+ * Update a donor's contact details
+ *
+ * Caches the saved donor before resolving, so its view shows the new values
+ * as soon as the save completes.
+ */
+export function useUpdateDonor(donorId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: UpdateDonorInput) => {
+      const response = await apiClient.put<Donor>(
+        `/donors/${donorId}`,
+        payload
+      );
+      return response.data;
+    },
+    onSuccess: (donor) => {
+      queryClient.setQueryData(["donor", donorId], donor);
+      queryClient.invalidateQueries({ queryKey: ["donors"] });
+    },
+  });
+}
+
+/**
+ * Fetch a donor's donations, newest first, each with its items and review
+ * status
+ */
+export function useDonorDonations(donorId?: string | null) {
+  return useQuery({
+    queryKey: ["donor", donorId, "donations"],
+    queryFn: async () => {
+      if (!donorId) throw new Error("Donor ID is required");
+      const response = await apiClient.get<DonationDetail[]>(
+        `/donors/${donorId}/donations`
+      );
+      return response.data;
+    },
+    enabled: Boolean(donorId),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+/**
+ * Fetch a donation with its donor, items and pickup, for the review screen
+ */
+export function useDonationDetail(donationId?: string | null) {
+  return useQuery({
+    queryKey: ["donation", donationId, "detail"],
+    queryFn: async () => {
+      if (!donationId) throw new Error("Donation ID is required");
+      const response = await apiClient.get<DonationDetail>(
+        `/donations/${donationId}/detail`
+      );
+      return response.data;
+    },
+    enabled: Boolean(donationId),
     staleTime: 1000 * 60 * 5,
   });
 }

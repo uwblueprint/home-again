@@ -554,7 +554,6 @@ class ReferralItem(BaseModel):
     status: ReferralItemStatus
     rejection_reason: Optional[str] = None
     reviewed_at: Optional[datetime] = None
-    furniture_id: Optional[str] = None
     position: int
     created_at: datetime
     updated_at: datetime

@@ -168,6 +168,57 @@ export interface Referral {
   status: "pending" | "approved" | "completed" | "declined";
   created_at: string;
   updated_at: string;
+  /** Derived from the items server-side, never stored. */
+  review_status: ReferralReviewStatus;
+  /** Units approved, for "Approved n/m". */
+  approved_count: number;
+  item_count: number;
+  /** One per requested unit, in request order. */
+  items: ReferralItem[];
+}
+
+/**
+ * Mirrors backend `ReferralReviewStatus`: where a referral is, from review
+ * through delivery.
+ */
+export type ReferralReviewStatus =
+  | "pending_review"
+  | "partially_reviewed"
+  | "approved"
+  | "partially_approved"
+  | "rejected"
+  | "waitlisted"
+  | "scheduled"
+  | "delivered";
+
+/** Mirrors backend `ReferralItemStatus`. */
+export type ReferralItemStatus =
+  | "PENDING_REVIEW"
+  | "APPROVED"
+  | "WAITLISTED"
+  | "REJECTED"
+  | "SCHEDULED"
+  | "DELIVERED"
+  | "CANCELLED";
+
+/**
+ * Mirrors backend `ReferralItem`: one requested unit ("Sofa × 2" is two). Not
+ * tied to a specific donated piece; a drop-off only lowers the type's count.
+ */
+export interface ReferralItem {
+  id: string;
+  referral_id: string;
+  name: string;
+  size: string | null;
+  notes: string | null;
+  status: ReferralItemStatus;
+  rejection_reason: string | null;
+  reviewed_at: string | null;
+  /** The inventory type asked for, when the request matches one. */
+  inventory_id: string | null;
+  position: number;
+  created_at: string;
+  updated_at: string;
 }
 
 /** Mirrors backend `Inventory`: an item type the forms offer, with its count. */

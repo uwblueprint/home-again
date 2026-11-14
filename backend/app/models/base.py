@@ -525,6 +525,8 @@ class ReferralItem(Base):
     furniture_id = Column(
         String(36), ForeignKey("furniture.id"), nullable=True, unique=True
     )
+    # The inventory type asked for. Null when the request doesn't match one.
+    inventory_id = Column(String(64), ForeignKey("inventory.id"), nullable=True)
     # Order within the referral, following requested_items.
     position = Column(Integer, nullable=False, default=0)
     created_at = Column(
@@ -538,6 +540,7 @@ class ReferralItem(Base):
 
     referral = relationship("Referral", back_populates="items")
     furniture = relationship("Furniture")
+    inventory = relationship("Inventory")
 
 
 # ---------------------------------------------------------------------------

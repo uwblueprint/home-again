@@ -87,3 +87,35 @@ export interface DonationRequest {
   furniture_items: DonationRequestItem[];
   pickup: DonationPickup | null;
 }
+
+/** Options in the list's Filter menu. A request can match several. */
+export type DonationRequestOutcome =
+  | "fully_approved"
+  | "fully_rejected"
+  | "partially_approved"
+  | "scheduled"
+  | "unscheduled";
+
+/**
+ * One row of the donation-requests list: a flattened summary of a
+ * DonationRequest, built with `toDonationRequestRow`.
+ */
+export interface DonationRequestRow {
+  id: string;
+  donorName: string;
+  requestId: string;
+  /** ISO date (yyyy-mm-dd) the request was submitted. */
+  submittedAt: string;
+  /** Item names with counts, e.g. "2 Bed Frame, 2 Mattress". */
+  items: string;
+  /** Derived review status (see `deriveReviewStatus`). */
+  status: ReviewStatus;
+  /** Approved items, for the Reviewed "n/m Approved" label. */
+  approvedCount: number;
+  /** Total items in the request. */
+  itemCount: number;
+  /** ISO date of the scheduled pickup, or null if none is booked. */
+  scheduledDate: string | null;
+  /** Which Filter menu options this request matches. */
+  outcomes: DonationRequestOutcome[];
+}

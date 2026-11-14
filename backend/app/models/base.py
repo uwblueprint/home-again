@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     Column,
     Date,
     DateTime,
@@ -298,6 +299,48 @@ class Pickup(Base):
 
 
 # ---------------------------------------------------------------------------
+# Inventory
+# ---------------------------------------------------------------------------
+
+
+class Inventory(Base):
+    """
+    One type of item Home Again gives out (e.g. "Mattress Only", Queen), with
+    how many are available.
+
+    The donate and referral forms both offer these types, so a donated piece
+    (Furniture.inventory_id) and a client's request can be matched. Furniture
+    rows are individual donated pieces; this table counts them by type.
+    """
+
+    __tablename__ = "inventory"
+    __table_args__ = (
+        CheckConstraint("quantity >= 0", name="inventory_quantity_non_negative"),
+    )
+
+    # Readable slug ("mattress-only-queen"), matching the referral form's item
+    # ids so seeded rows keep the same id in every environment.
+    id = Column(String(64), primary_key=True)
+    name = Column(String(255), nullable=False)
+    # Only set for items that come in sizes (mattresses, box springs, frames).
+    size = Column(String(50), nullable=True)
+    category = Column(String(100), nullable=False)
+    quantity = Column(Integer, nullable=False, default=0)
+    # Display order within the forms.
+    position = Column(Integer, nullable=False, default=0)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
+
+    furniture_items = relationship("Furniture", back_populates="inventory")
+
+
+# ---------------------------------------------------------------------------
 # Furniture
 # ---------------------------------------------------------------------------
 
@@ -325,6 +368,9 @@ class Furniture(Base):
     donation_id = Column(String(36), ForeignKey("donations.id"), nullable=True)
     referral_id = Column(String(36), ForeignKey("referrals.id"), nullable=True)
     pickup_id = Column(String(36), ForeignKey("pickups.id"), nullable=True)
+    # Which inventory type this piece is. Null for items that don't match one
+    # (e.g. "Other") or that predate the inventory table.
+    inventory_id = Column(String(64), ForeignKey("inventory.id"), nullable=True)
     created_at = Column(
         DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
     )
@@ -335,6 +381,7 @@ class Furniture(Base):
     )
 
     # Relationships
+    inventory = relationship("Inventory", back_populates="furniture_items")
     donation = relationship("Donation", back_populates="furniture_items")
     referral = relationship("Referral", back_populates="furniture_items")
     pickup = relationship("Pickup", back_populates="furniture_items")

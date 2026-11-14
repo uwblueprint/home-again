@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from ..enums import DonationReviewStatus, FurnitureStatus
+from ..enums import DonationReviewStatus, DonationStatus, FurnitureStatus
 from ..models import Donation, Donor, Furniture, Pickup
 from ..schemas import DonationCreate, DonationUpdate
 
@@ -125,14 +125,32 @@ def get_active_pickup(donation: Donation) -> Pickup | None:
     return max(scheduled or pickups, key=lambda pickup: pickup.created_at)
 
 
+def count_approved(donation: Donation) -> int:
+    """
+    Items that passed review. Downstream statuses (OFFERED, SCHEDULED, ...) only
+    follow an approval, so they count too; only REJECTED and unreviewed items
+    don't.
+    """
+    return sum(
+        1
+        for item in donation.furniture_items or []
+        if item.status in REVIEWED_FURNITURE_STATUSES
+        and item.status != FurnitureStatus.REJECTED.value
+    )
+
+
 def compute_review_status(donation: Donation) -> DonationReviewStatus:
     """
-    Derive how far along the admin's review is.
+    Derive where the donation request is, from review through to pickup.
 
     Never stored: recomputing keeps the badge honest when an item is re-reviewed
     or a scheduled pickup is removed. Requires furniture_items and pickups to be
     loaded — use get_donation_detail.
     """
+    # Picked up is final, whatever the items say.
+    if donation.status == DonationStatus.COMPLETED.value:
+        return DonationReviewStatus.PICKED_UP
+
     items = donation.furniture_items or []
     reviewed = [item for item in items if item.status in REVIEWED_FURNITURE_STATUSES]
 
@@ -142,12 +160,21 @@ def compute_review_status(donation: Donation) -> DonationReviewStatus:
     if len(reviewed) < len(items):
         return DonationReviewStatus.PARTIALLY_REVIEWED
 
+    approved = count_approved(donation)
+    if approved == 0:
+        return DonationReviewStatus.REJECTED
+
     # Scheduling only outranks a *finished* review; a pickup booked while items
     # are still outstanding must not hide that they need attention.
     pickup = get_active_pickup(donation)
     if pickup and pickup.scheduled_date:
+        if pickup.confirmed_at:
+            return DonationReviewStatus.CONFIRMED
         return DonationReviewStatus.SCHEDULED
-    return DonationReviewStatus.REVIEWED
+
+    if approved == len(items):
+        return DonationReviewStatus.APPROVED
+    return DonationReviewStatus.PARTIALLY_APPROVED
 
 
 def build_donation_detail(donation: Donation) -> dict:
@@ -158,6 +185,8 @@ def build_donation_detail(donation: Donation) -> dict:
             for column in donation.__table__.columns
         },
         "review_status": compute_review_status(donation),
+        "approved_count": count_approved(donation),
+        "item_count": len(donation.furniture_items or []),
         "donor": donation.donor,
         "furniture_items": donation.furniture_items,
         "pickup": get_active_pickup(donation),

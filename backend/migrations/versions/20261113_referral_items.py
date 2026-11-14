@@ -57,13 +57,6 @@ def upgrade():
         sa.Column("status", sa.String(50), nullable=False),
         sa.Column("rejection_reason", sa.Text(), nullable=True),
         sa.Column("reviewed_at", sa.DateTime(), nullable=True),
-        sa.Column(
-            "furniture_id",
-            sa.String(36),
-            sa.ForeignKey("furniture.id", name="referral_items_furniture_id_fkey"),
-            nullable=True,
-            unique=True,
-        ),
         sa.Column("position", sa.Integer(), nullable=False, server_default="0"),
         sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=True),

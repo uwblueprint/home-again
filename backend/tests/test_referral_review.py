@@ -1,6 +1,34 @@
 """Tests for referral items and the referral's derived review status."""
 
+import pytest_asyncio
+from sqlalchemy import delete
 from test_referrals import create_client, create_referral
+
+from app.models import Inventory
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def stock(db_session):
+    """Plenty of the requested types, so scheduling isn't blocked on stock."""
+    await db_session.execute(
+        delete(Inventory).where(Inventory.id.in_(["sofa-couch", "mattress-only-queen"]))
+    )
+    db_session.add_all(
+        [
+            Inventory(
+                id="sofa-couch", name="Sofa/Couch", category="Seating", quantity=100
+            ),
+            Inventory(
+                id="mattress-only-queen",
+                name="Mattress Only",
+                size="Queen",
+                category="Bed",
+                quantity=100,
+            ),
+        ]
+    )
+    await db_session.commit()
+
 
 ITEMS = [
     {"item": "Sofa/Couch", "quantity": 2},
@@ -133,3 +161,105 @@ async def test_deleting_a_referral_deletes_its_items(client):
     referral = await new_referral(client)
     resp = await client.delete(f"/api/referrals/{referral['id']}")
     assert resp.status_code == 204
+
+
+# ── Drop-offs ─────────────────────────────────────────────────────────────────
+
+
+async def new_route(client):
+    resp = await client.post("/api/routes", json={"date": "2026-06-15T09:00:00"})
+    assert resp.status_code == 201, resp.text
+    return resp.json()
+
+
+async def schedule(client, referral, index, route):
+    return await client.post(
+        "/api/dropoffs",
+        json={
+            "route_id": route["id"],
+            "referral_item_id": referral["items"][index]["id"],
+        },
+    )
+
+
+async def test_scheduling_a_dropoff_moves_the_item_to_scheduled(client):
+    referral = await new_referral(client)
+    route = await new_route(client)
+    for index in range(3):
+        await review(client, referral, index, "approve")
+
+    resp = await schedule(client, referral, 0, route)
+    assert resp.status_code == 201, resp.text
+    dropoff = resp.json()
+    assert dropoff["referral_id"] == referral["id"]
+    assert dropoff["furniture_id"] is None
+
+    data = await status_of(client, referral)
+    assert data["items"][0]["status"] == "SCHEDULED"
+    # Two units still have no drop-off.
+    assert data["review_status"] == "approved"
+
+
+async def test_scheduled_then_delivered_once_every_unit_is_out(client):
+    referral = await new_referral(client)
+    route = await new_route(client)
+    await review(client, referral, 0, "approve")
+    await review(client, referral, 1, "approve")
+    await review(client, referral, 2, "reject")
+
+    dropoffs = []
+    for index in range(2):
+        resp = await schedule(client, referral, index, route)
+        assert resp.status_code == 201, resp.text
+        dropoffs.append(resp.json())
+    assert (await status_of(client, referral))["review_status"] == "scheduled"
+
+    for dropoff in dropoffs:
+        resp = await client.post(f"/api/dropoffs/{dropoff['id']}/deliver")
+        assert resp.status_code == 200, resp.text
+        assert resp.json()["status"] == "DELIVERED"
+    assert (await status_of(client, referral))["review_status"] == "delivered"
+
+
+async def test_only_reviewed_units_can_be_scheduled(client):
+    referral = await new_referral(client)
+    route = await new_route(client)
+    resp = await schedule(client, referral, 0, route)
+    assert resp.status_code == 400
+
+
+async def test_a_unit_gets_one_dropoff(client):
+    referral = await new_referral(client)
+    route = await new_route(client)
+    await review(client, referral, 0, "approve")
+    assert (await schedule(client, referral, 0, route)).status_code == 201
+    assert (await schedule(client, referral, 0, route)).status_code == 400
+
+
+async def test_cancelling_a_dropoff_puts_the_item_back_to_approved(client):
+    referral = await new_referral(client)
+    route = await new_route(client)
+    await review(client, referral, 0, "approve")
+    dropoff = (await schedule(client, referral, 0, route)).json()
+
+    resp = await client.delete(f"/api/dropoffs/{dropoff['id']}")
+    assert resp.status_code == 204
+    data = await status_of(client, referral)
+    assert data["items"][0]["status"] == "APPROVED"
+
+
+async def test_a_delivered_dropoff_cant_be_cancelled(client):
+    referral = await new_referral(client)
+    route = await new_route(client)
+    await review(client, referral, 0, "approve")
+    dropoff = (await schedule(client, referral, 0, route)).json()
+    await client.post(f"/api/dropoffs/{dropoff['id']}/deliver")
+
+    resp = await client.delete(f"/api/dropoffs/{dropoff['id']}")
+    assert resp.status_code == 400
+
+
+async def test_a_dropoff_needs_something_to_deliver(client):
+    route = await new_route(client)
+    resp = await client.post("/api/dropoffs", json={"route_id": route["id"]})
+    assert resp.status_code == 422

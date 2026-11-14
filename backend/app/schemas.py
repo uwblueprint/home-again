@@ -571,6 +571,10 @@ class DonationDetail(Donation):
     """
 
     review_status: DonationReviewStatus
+    # For the "Approved 2/4" label. Approved includes items that have moved
+    # downstream of approval (OFFERED, SCHEDULED, ...).
+    approved_count: int = 0
+    item_count: int = 0
     donor: Optional[Donor] = None
     furniture_items: list[FurnitureDetail] = []
     pickup: Optional[Pickup] = None

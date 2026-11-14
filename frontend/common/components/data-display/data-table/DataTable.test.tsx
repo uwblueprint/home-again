@@ -107,6 +107,25 @@ describe("DataTable", () => {
     expect(screen.getByRole("radio", { name: "Status" })).not.toBeChecked();
   });
 
+  it.each([
+    ["inside", true],
+    ["outside", false],
+  ] as const)(
+    "renders the toolbar %s the table card",
+    (toolbarPlacement, inCard) => {
+      render(
+        <DataTable
+          columns={columns}
+          data={makeData(1)}
+          toolbarPlacement={toolbarPlacement}
+        />
+      );
+      const card = screen.getByTestId("data-table");
+      expect(screen.getByPlaceholderText("Search")).toBeInTheDocument();
+      expect(!!within(card).queryByPlaceholderText("Search")).toBe(inCard);
+    }
+  );
+
   it("renders loading skeletons only for visible columns", () => {
     render(
       <DataTable

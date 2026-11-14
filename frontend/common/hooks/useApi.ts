@@ -23,9 +23,12 @@ import type {
   CreateClientInput,
   CreateDonorInput,
   CreateReferralInput,
+  DonationDetail,
+  DonationSubmissionInput,
   Donor,
   DonorListItem,
   Furniture,
+  InventoryItem,
   Referral,
   UpdateAgencyInput,
   UpdateClientInput,
@@ -342,6 +345,51 @@ export function useCreateReferral() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["referrals"] });
+    },
+  });
+}
+
+/**
+ * The item types the donate and referral forms offer, with their counts, in
+ * form order. Rarely changes, so it stays fresh for 5 minutes.
+ */
+export function useInventory() {
+  return useQuery({
+    queryKey: ["inventory"],
+    queryFn: async () => {
+      const response = await apiClient.get<InventoryItem[]>("/inventory");
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+/** Every donation with its donor, items and derived status, newest first. */
+export function useDonationDetails() {
+  return useQuery({
+    queryKey: ["donations", "details"],
+    queryFn: async () => {
+      const response =
+        await apiClient.get<DonationDetail[]>("/donations/details");
+      return response.data;
+    },
+  });
+}
+
+/** Submit the whole donate form: the donation and its items in one request. */
+export function useSubmitDonation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: DonationSubmissionInput) => {
+      const response = await apiClient.post<DonationDetail>(
+        "/donations/submissions",
+        payload
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["donations"] });
     },
   });
 }

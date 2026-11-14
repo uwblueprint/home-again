@@ -28,4 +28,3 @@ export {
   summarizeItems,
   toDonationRequestRow,
 } from "./listRow";
-export { DONATION_REQUEST_ROWS } from "./listFixture";

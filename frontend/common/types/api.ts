@@ -67,6 +67,28 @@ export interface CreateClientInput {
 
 export type UpdateClientInput = Partial<CreateClientInput>;
 
+/** One item on the donate form; see backend `DonationSubmissionItem`. */
+export interface DonationSubmissionItemInput {
+  /** The donate form's type, e.g. "Sofa" or "Mattress". */
+  furniture_type: string;
+  size?: string | null;
+  has_stains: boolean;
+  chair_count?: number | null;
+  other_description?: string | null;
+}
+
+/** The whole donate form; POST /donations/submissions. */
+export interface DonationSubmissionInput {
+  donor_id: string;
+  address_line_1: string;
+  address_line_2?: string | null;
+  city: string;
+  postal_code?: string | null;
+  smoking_household: boolean;
+  has_pets: boolean;
+  items: DonationSubmissionItemInput[];
+}
+
 export interface CreateReferralInput {
   client_id: string;
   requested_items: unknown[];

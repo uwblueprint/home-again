@@ -11,20 +11,26 @@ import {
 } from "lucide-react"
 
 import FurnitureItemCard from "@/common/components/forms/FurnitureItemCard"
+import {
+  FALLBACK_CATALOG,
+  type Item,
+  type ReferralCatalog,
+  type SubOption,
+} from "@/app/referral-form/catalog"
 import SummaryList from "./SummaryList"
 import { cn } from "@/common/lib/utils"
 
-export type Item = {
-  id: string
-  label: string
-  category: string
-}
+
+export type { Item }
+
+/** The bundled item list; the form itself uses its `catalog` prop. */
+export const ITEMS = FALLBACK_CATALOG.items
 
 export type FurnitureFormData = {
   selected: Record<string, boolean>
   quantities: Record<string, number>
   notes: Record<string, string>
-  subOptions: Record<string, { id: string; label: string; quantity: number }[]>
+  subOptions: Record<string, SubOption[]>
 }
 
 type FurnitureFormProps = {
@@ -34,151 +40,18 @@ type FurnitureFormProps = {
   showSummary?: boolean
   onValidityChange?: (isValid: boolean) => void
   onDataChange?: (data: FurnitureFormData) => void
+  /** Items, sizes and categories to offer; see useReferralCatalog. */
+  catalog?: ReferralCatalog
 }
 
-const CATEGORIES = [
-  "Seating",
-  "Storage and Shelving",
-  "Bed",
-  "Electronics",
-  "Tables",
-]
 
-export const ITEMS: Item[] = [
-  { id: "sofa-couch", label: "Sofa/Couch", category: "Seating" },
-  { id: "love-seat", label: "Love Seat", category: "Seating" },
-  {
-    id: "rocker-glider-recliner",
-    label: "Rocker/Glider/Recliner",
-    category: "Seating",
-  },
-  {
-    id: "kitchen-dining-chair",
-    label: "Kitchen/Dining Chair",
-    category: "Seating",
-  },
-  {
-    id: "upholstered-arm-chair",
-    label: "Upholstered Arm Chair",
-    category: "Seating",
-  },
-  { id: "desk-chair", label: "Desk Chair", category: "Seating" },
-  { id: "dresser", label: "Dresser", category: "Storage and Shelving" },
-  {
-    id: "youth-small-dresser",
-    label: "Youth/Small Dresser",
-    category: "Storage and Shelving",
-  },
-  {
-    id: "night-stand",
-    label: "Night Stand",
-    category: "Storage and Shelving",
-  },
-  { id: "armoire", label: "Armoire", category: "Storage and Shelving" },
-  { id: "bookcase", label: "Bookcase", category: "Storage and Shelving" },
-  {
-    id: "microwave-stand",
-    label: "Microwave Stand",
-    category: "Storage and Shelving",
-  },
-  { id: "tv-stand", label: "TV Stand", category: "Storage and Shelving" },
-  {
-    id: "laundry-basket",
-    label: "Laundry Basket",
-    category: "Storage and Shelving",
-  },
-  { id: "hangers", label: "Hangers", category: "Storage and Shelving" },
-  {
-    id: "box-spring-only",
-    label: "Box Spring Only",
-    category: "Bed",
-  },
-  {
-    id: "mattress-only",
-    label: "Mattress Only",
-    category: "Bed",
-  },
-  {
-    id: "metal-bed-frame",
-    label: "Metal Bed Frame",
-    category: "Bed",
-  },
-  {
-    id: "captains-bed",
-    label: "Captain's/Mate's Bed",
-    category: "Bed",
-  },
 
-  { id: "toaster", label: "Toaster", category: "Electronics" },
-  { id: "radio", label: "Radio", category: "Electronics" },
-  {
-    id: "table-lamp",
-    label: "Table Lamp",
-    category: "Electronics",
-  },
-  {
-    id: "coffee-maker",
-    label: "Coffee Maker",
-    category: "Electronics",
-  },
-  {
-    id: "microwave",
-    label: "Microwave",
-    category: "Electronics",
-  },
-  {
-    id: "flatscreen-tv",
-    label: "Flatscreen T.V.",
-    category: "Electronics",
-  },
-  {
-    id: "clock",
-    label: "Clock",
-    category: "Electronics",
-  },
-  {
-    id: "dining-kitchen-table",
-    label: "Dining/Kitchen Table",
-    category: "Tables",
-  },
-  {
-    id: "side-end-table",
-    label: "Side/End Table",
-    category: "Tables",
-  },
-  {
-    id: "coffee-table",
-    label: "Coffee Table",
-    category: "Tables",
-  },
-  { id: "desk", label: "Desk", category: "Tables" },
-]
 
-const SUB_OPTIONS: Record<
-  string,
-  { id: string; label: string; quantity: number }[]
-> = {
-  "box-spring-only": [
-    { id: "twin", label: "Twin", quantity: 0 },
-    { id: "double", label: "Double", quantity: 0 },
-    { id: "queen", label: "Queen", quantity: 0 },
-  ],
-  "mattress-only": [
-    { id: "twin", label: "Twin", quantity: 0 },
-    { id: "double", label: "Double", quantity: 0 },
-    { id: "queen", label: "Queen", quantity: 0 },
-  ],
-  "metal-bed-frame": [
-    { id: "tw-db", label: "TW/DB", quantity: 0 },
-    { id: "db-qn", label: "DB/QN", quantity: 0 },
-  ],
-}
+const buildDefaults = (items: Item[], value: number) =>
+  Object.fromEntries(items.map((item) => [item.id, value]))
 
-const buildDefaults = (value: number) =>
-  Object.fromEntries(ITEMS.map((item) => [item.id, value]))
-
-const buildDefaultNotes = () =>
-  Object.fromEntries(ITEMS.map((item) => [item.id, ""]))
+const buildDefaultNotes = (items: Item[]) =>
+  Object.fromEntries(items.map((item) => [item.id, ""]))
 
 const cloneSubOptions = (
   source: Record<string, { id: string; label: string; quantity: number }[]>
@@ -191,13 +64,14 @@ const cloneSubOptions = (
   )
 
 const normalizeFurnitureData = (
+  catalog: ReferralCatalog,
   data?: FurnitureFormData
 ): FurnitureFormData => ({
   selected: { ...(data?.selected ?? {}) },
-  quantities: { ...buildDefaults(0), ...(data?.quantities ?? {}) },
-  notes: { ...buildDefaultNotes(), ...(data?.notes ?? {}) },
+  quantities: { ...buildDefaults(catalog.items, 0), ...(data?.quantities ?? {}) },
+  notes: { ...buildDefaultNotes(catalog.items), ...(data?.notes ?? {}) },
   subOptions: {
-    ...cloneSubOptions(SUB_OPTIONS),
+    ...cloneSubOptions(catalog.subOptions),
     ...(data?.subOptions
       ? cloneSubOptions(data.subOptions)
       : {}),
@@ -219,8 +93,14 @@ export default function FurnitureForm({
   showSummary = true,
   onValidityChange,
   onDataChange,
+  catalog = FALLBACK_CATALOG,
 }: FurnitureFormProps) {
-  const initialData = useMemo(() => normalizeFurnitureData(data), [data])
+  const initialData = useMemo(
+    () => normalizeFurnitureData(catalog, data),
+    // Only the first catalog seeds state; later ones are merged in below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data]
+  )
   const [selected, setSelected] = useState<Record<string, boolean>>(
     initialData.selected
   )
@@ -232,33 +112,51 @@ export default function FurnitureForm({
     initialData.notes
   )
 
-  const [activeCategory, setActiveCategory] = useState<string>(CATEGORIES[0])
+  const [activeCategory, setActiveCategory] = useState<string>(
+    catalog.categories[0]
+  )
   const [search, setSearch] = useState("")
+
+  // The catalog can arrive after the form mounts (bundled list first, then
+  // inventory). Add any sized items it brings without touching chosen sizes.
+  useEffect(() => {
+    setSubOptions((prev) => {
+      const missing = Object.entries(catalog.subOptions).filter(
+        ([itemId]) => !prev[itemId]
+      )
+      if (!missing.length) return prev
+      return { ...prev, ...cloneSubOptions(Object.fromEntries(missing)) }
+    })
+  }, [catalog])
+
+  const currentCategory = catalog.categories.includes(activeCategory)
+    ? activeCategory
+    : catalog.categories[0]
 
   const isSearchActive = search.trim().length > 0
 
   const filteredItems = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase()
-    return ITEMS.filter((item) => {
+    return catalog.items.filter((item) => {
       const matchesSearch = normalizedSearch
         ? item.label.toLowerCase().includes(normalizedSearch)
         : true
       const matchesCategory = normalizedSearch
         ? true
-        : item.category === activeCategory
+        : item.category === currentCategory
       return matchesSearch && matchesCategory
     })
-  }, [activeCategory, search])
+  }, [catalog, currentCategory, search])
 
   const hasSizeError = useMemo(() => {
-    return ITEMS.some((item) => {
+    return catalog.items.some((item) => {
       if (!selected[item.id]) return false
       const subs = subOptions[item.id]
       if (!subs?.length) return false
       const total = subs.reduce((sum, sub) => sum + (sub.quantity ?? 0), 0)
       return total === 0
     })
-  }, [selected, subOptions])
+  }, [catalog, selected, subOptions])
 
   useEffect(() => {
     onValidityChange?.(!hasSizeError)
@@ -334,9 +232,9 @@ export default function FurnitureForm({
           </div>
         ) : null}
         <div className="flex w-full flex-wrap items-center border-b border-neutral-200 pb-2">
-          {CATEGORIES.map((cat) => {
-            const Icon = CATEGORY_ICONS[cat]
-            const isActive = activeCategory === cat
+          {catalog.categories.map((cat) => {
+            const Icon = CATEGORY_ICONS[cat] ?? Package
+            const isActive = currentCategory === cat
             const isActiveCategory = isActive && !isSearchActive
             return (
               <button
@@ -408,7 +306,7 @@ export default function FurnitureForm({
             Summary
           </h3>
           <SummaryList
-            items={ITEMS}
+            items={catalog.items}
             selected={selected}
             quantities={quantities}
             notes={notes}

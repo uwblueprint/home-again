@@ -1,19 +1,21 @@
-import { DONATION_REQUEST_FIXTURE } from "./fixture";
+import { donationRequests } from "@/mocks/fixtures/donationRequests";
+import type { DonationDetail, FurnitureStatus } from "@/common/types";
 import {
   deriveOutcomes,
   summarizeItems,
   toDonationRequestRow,
 } from "./listRow";
-import type { DonationRequest, ItemReviewStatus } from "./types";
+
+const BASE = donationRequests[0];
 
 function withItems(
-  items: [name: string, status: ItemReviewStatus][],
+  items: [name: string, status: FurnitureStatus][],
   scheduledDate: string | null = null
-): DonationRequest {
+): DonationDetail {
   return {
-    ...DONATION_REQUEST_FIXTURE,
+    ...BASE,
     furniture_items: items.map(([name, status], i) => ({
-      ...DONATION_REQUEST_FIXTURE.furniture_items[0],
+      ...BASE.furniture_items[0],
       id: `item-${i}`,
       name,
       status,
@@ -21,9 +23,13 @@ function withItems(
     pickup: scheduledDate
       ? {
           id: "p",
+          route_id: null,
+          donation_id: BASE.id,
           scheduled_date: scheduledDate,
           note: null,
           confirmed_at: null,
+          created_at: BASE.created_at,
+          updated_at: BASE.created_at,
         }
       : null,
   };
@@ -31,91 +37,74 @@ function withItems(
 
 describe("summarizeItems", () => {
   it("counts repeated names in first-seen order", () => {
-    const request = withItems([
-      ["Bed Frame", "APPROVED"],
-      ["Mattress", "APPROVED"],
-      ["Bed Frame", "APPROVED"],
-      ["Mattress", "APPROVED"],
-    ]);
-    expect(summarizeItems(request)).toBe("2 Bed Frame, 2 Mattress");
+    expect(
+      summarizeItems(["Bed Frame", "Mattress", "Bed Frame", "Mattress"])
+    ).toBe("2 Bed Frame, 2 Mattress");
   });
 
-  it("is empty with no items", () => {
-    expect(summarizeItems(withItems([]))).toBe("");
+  it("is empty for no items", () => {
+    expect(summarizeItems([])).toBe("");
   });
 });
 
 describe("deriveOutcomes", () => {
-  it.each<[string, [string, ItemReviewStatus][], string[]]>([
-    [
-      "all approved",
-      [
+  it("is fully approved when every item passed review", () => {
+    const outcomes = deriveOutcomes(
+      withItems([
         ["Sofa", "APPROVED"],
         ["Chair", "OFFERED"],
-      ],
-      ["fully_approved", "unscheduled"],
-    ],
-    [
-      "all rejected",
-      [
-        ["Sofa", "REJECTED"],
-        ["Chair", "REJECTED"],
-      ],
-      ["fully_rejected", "unscheduled"],
-    ],
-    [
-      "a mix",
-      [
-        ["Sofa", "APPROVED"],
-        ["Chair", "REJECTED"],
-      ],
-      ["partially_approved", "unscheduled"],
-    ],
-    [
-      "still pending",
-      [
-        ["Sofa", "APPROVED"],
-        ["Chair", "PICKUP_PENDING"],
-      ],
-      ["unscheduled"],
-    ],
-    ["no items", [], ["unscheduled"]],
-  ])("handles %s", (_case, items, expected) => {
-    expect(deriveOutcomes(withItems(items))).toEqual(expected);
+      ])
+    );
+    expect(outcomes).toEqual(["fully_approved", "unscheduled"]);
   });
 
-  it("marks a request with a pickup date as scheduled", () => {
-    const request = withItems([["Sofa", "APPROVED"]], "2026-04-02");
-    expect(deriveOutcomes(request)).toEqual(["fully_approved", "scheduled"]);
+  it("is fully rejected when every item was rejected", () => {
+    expect(deriveOutcomes(withItems([["Sofa", "REJECTED"]]))).toEqual([
+      "fully_rejected",
+      "unscheduled",
+    ]);
+  });
+
+  it("is partially approved for a mix, and scheduled with a pickup date", () => {
+    const outcomes = deriveOutcomes(
+      withItems(
+        [
+          ["Sofa", "APPROVED"],
+          ["Chair", "REJECTED"],
+        ],
+        "2026-04-02T00:00:00"
+      )
+    );
+    expect(outcomes).toEqual(["partially_approved", "scheduled"]);
+  });
+
+  it("matches no review outcome while items are pending", () => {
+    expect(deriveOutcomes(withItems([["Sofa", "PICKUP_PENDING"]]))).toEqual([
+      "unscheduled",
+    ]);
   });
 });
 
 describe("toDonationRequestRow", () => {
-  it("counts approved items out of the total", () => {
-    const row = toDonationRequestRow(
-      withItems([
-        ["Sofa", "APPROVED"],
-        ["Chair", "REJECTED"],
-        ["Chair", "APPROVED"],
-        ["Lamp", "REJECTED"],
-      ])
-    );
-    expect(row.status).toBe("reviewed");
-    expect([row.approvedCount, row.itemCount]).toEqual([2, 4]);
-  });
-
-  it("flattens the request", () => {
-    const request = withItems(
-      [
-        ["Sofa", "APPROVED"],
-        ["Sofa", "APPROVED"],
-      ],
-      "2026-04-02"
-    );
-    expect(toDonationRequestRow(request)).toEqual({
-      id: "donation-req-001",
+  it("flattens the donation using the backend's status and counts", () => {
+    const donation: DonationDetail = {
+      ...withItems(
+        [
+          ["Sofa", "APPROVED"],
+          ["Sofa", "APPROVED"],
+        ],
+        "2026-04-02T00:00:00"
+      ),
+      id: "3f2a9c1e-0000-4000-8000-000000000000",
+      created_at: "2026-03-14T09:30:00",
+      review_status: "scheduled",
+      approved_count: 2,
+      item_count: 2,
+    };
+    expect(toDonationRequestRow(donation)).toEqual({
+      id: "3f2a9c1e-0000-4000-8000-000000000000",
       donorName: "Katie Sun",
-      requestId: "DR-2026-0042",
+      requestId: "3F2A9C1E",
       submittedAt: "2026-03-14",
       items: "2 Sofa",
       status: "scheduled",
@@ -124,5 +113,10 @@ describe("toDonationRequestRow", () => {
       scheduledDate: "2026-04-02",
       outcomes: ["fully_approved", "scheduled"],
     });
+  });
+
+  it("shows a dash when the donor is missing", () => {
+    const row = toDonationRequestRow({ ...BASE, donor: null });
+    expect(row.donorName).toBe("—");
   });
 });

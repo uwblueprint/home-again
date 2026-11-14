@@ -6,15 +6,18 @@ import { useParams, useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import {
   DonationFormProvider,
+  toDonationSubmission,
   useDonationForm,
   validateItems,
 } from "@/app/donate/context/DonationFormContext";
+import { useSubmitDonation } from "@/common/hooks/useApi";
 import DonationLayout from "@/app/donate/DonationLayout";
 import StepFurnitureDetails from "@/app/donate/components/StepFurnitureDetails";
 import StepSchedulePickup from "@/app/donate/components/StepSchedulePickup";
 import StepDonationSummary from "@/app/donate/components/StepDonationSummary";
 import { validatePickupAddress } from "@/app/donate/components/PickupAddressForm";
 import { Button } from "@/common/components/ui/button";
+import { DONATE_REQUEST_SUBMITTED } from "@/common/constants";
 
 // For UUID Validation: Enforces 36-character format: xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx
 const UUID_REGEX =
@@ -23,8 +26,10 @@ const UUID_REGEX =
 function DonationFlowPageInner() {
   const router = useRouter();
   const { formState, addItem, setFormState } = useDonationForm();
+  const submitDonation = useSubmitDonation();
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const errorRef = useRef<HTMLParagraphElement>(null);
 
   // Clear error automatically once all items are valid
@@ -60,9 +65,18 @@ function DonationFlowPageInner() {
     }
     if (currentStep < 3) {
       setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
-    } else {
-      router.push("/donate/request-submitted");
+      return;
     }
+
+    // DonationLayout has already checked the summary step.
+    if (submitDonation.isPending) return;
+
+    setSubmitError(null);
+    submitDonation.mutate(toDonationSubmission(formState), {
+      onSuccess: () => router.push(DONATE_REQUEST_SUBMITTED),
+      onError: () =>
+        setSubmitError("We couldn't submit your donation. Please try again."),
+    });
   }
 
   const handleBack =
@@ -98,6 +112,7 @@ function DonationFlowPageInner() {
       currentStep={currentStep}
       onNext={handleNext}
       onBack={handleBack}
+      isSubmitting={submitDonation.isPending}
       leftAction={leftAction}
     >
       {currentStep === 1 && (
@@ -111,7 +126,16 @@ function DonationFlowPageInner() {
         </>
       )}
       {currentStep === 2 && <StepSchedulePickup />}
-      {currentStep === 3 && <StepDonationSummary />}
+      {currentStep === 3 && (
+        <>
+          <StepDonationSummary />
+          {submitError && (
+            <p role="alert" className="text-sm text-destructive">
+              {submitError}
+            </p>
+          )}
+        </>
+      )}
     </DonationLayout>
   );
 }

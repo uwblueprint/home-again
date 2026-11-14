@@ -4,12 +4,11 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
-  DONATION_REQUEST_ROWS,
   OUTCOME_FILTER_OPTIONS,
   donationRequestColumns,
   donationRequestHiddenColumns,
+  toDonationRequestRow,
   type DonationRequestRow,
-  type ReviewStatus,
 } from "@/app/donation-request/components";
 import { DataTable } from "@/common/components/data-display";
 import { AdminHeader } from "@/common/components/layout";
@@ -17,11 +16,17 @@ import { AdminSidebar } from "@/common/components/ui/admin-sidebar";
 import { SidebarAppShell } from "@/common/components/ui/sidebar-app-shell";
 import { Tabs, TabsList, TabsTrigger } from "@/common/components/ui/tabs";
 import { DONATION_REQUEST } from "@/common/constants";
+import { useDonationDetails } from "@/common/hooks/useApi";
+import type { DonationReviewStatus } from "@/common/types";
 
 type TabValue = "all" | "pending" | "partially_reviewed" | "reviewed";
 
 /** Tabs in display order, with the review statuses each one shows. */
-const TABS: { value: TabValue; label: string; statuses?: ReviewStatus[] }[] = [
+const TABS: {
+  value: TabValue;
+  label: string;
+  statuses?: DonationReviewStatus[];
+}[] = [
   { value: "all", label: "All" },
   { value: "pending", label: "Pending", statuses: ["pending_review"] },
   {
@@ -29,8 +34,19 @@ const TABS: { value: TabValue; label: string; statuses?: ReviewStatus[] }[] = [
     label: "Partially Reviewed",
     statuses: ["partially_reviewed"],
   },
-  // A scheduled request has finished review, so it lives under Reviewed.
-  { value: "reviewed", label: "Reviewed", statuses: ["reviewed", "scheduled"] },
+  // Everything past review, including requests already scheduled or picked up.
+  {
+    value: "reviewed",
+    label: "Reviewed",
+    statuses: [
+      "approved",
+      "partially_approved",
+      "rejected",
+      "scheduled",
+      "confirmed",
+      "picked_up",
+    ],
+  },
 ];
 
 const SORT_OPTIONS = [
@@ -61,10 +77,9 @@ export default function DonationRequestsPage() {
   const [headerSearch, setHeaderSearch] = useState("");
   const [tab, setTab] = useState<TabValue>("all");
 
-  // Swap for the API's requests mapped through toDonationRequestRow once
-  // GET /donations is wired up.
-  const rows = DONATION_REQUEST_ROWS;
+  const { data, isLoading, error } = useDonationDetails();
   // Memoized: a new array would send the table back to page 1 on every render.
+  const rows = useMemo(() => (data ?? []).map(toDonationRequestRow), [data]);
   const visibleRows = useMemo(() => rowsForTab(rows, tab), [rows, tab]);
 
   return (
@@ -84,6 +99,8 @@ export default function DonationRequestsPage() {
           <DataTable
             columns={donationRequestColumns}
             data={visibleRows}
+            loading={isLoading}
+            error={error}
             initialColumnVisibility={donationRequestHiddenColumns}
             toolbarPlacement="outside"
             searchPlaceholder="Search for donation"

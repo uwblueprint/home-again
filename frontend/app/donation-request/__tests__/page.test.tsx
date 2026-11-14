@@ -1,10 +1,16 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 
+import { donationRequests } from "@/mocks/fixtures/donationRequests";
 import DonationRequestsPage from "../page";
 
 const mockPush = jest.fn();
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
+}));
+
+const mockDonationDetails = jest.fn();
+jest.mock("@/common/hooks/useApi", () => ({
+  useDonationDetails: () => mockDonationDetails(),
 }));
 
 function rows() {
@@ -33,7 +39,14 @@ beforeAll(() => {
 });
 
 describe("DonationRequestsPage", () => {
-  beforeEach(() => mockPush.mockReset());
+  beforeEach(() => {
+    mockPush.mockReset();
+    mockDonationDetails.mockReturnValue({
+      data: donationRequests,
+      isLoading: false,
+      error: null,
+    });
+  });
 
   it("shows the review-status tabs with counts", () => {
     render(<DonationRequestsPage />);
@@ -93,7 +106,12 @@ describe("DonationRequestsPage", () => {
     fireEvent.click(
       screen.getByRole("menuitemcheckbox", { name: "Scheduled" })
     );
-    expect(screen.getByText("1 - 10 of 10 results")).toBeInTheDocument();
+    const scheduled = donationRequests.filter(
+      (d) => d.pickup?.scheduled_date
+    ).length;
+    expect(
+      screen.getByText(`1 - 10 of ${scheduled} results`)
+    ).toBeInTheDocument();
   });
 
   it("opens a request's detail page on row click", () => {
@@ -101,7 +119,21 @@ describe("DonationRequestsPage", () => {
     fireEvent.change(screen.getByPlaceholderText("Search for donation"), {
       target: { value: "Katie" },
     });
-    fireEvent.click(screen.getByText("Katie Sun"));
-    expect(mockPush).toHaveBeenCalledWith("/donation-request/donation-req-001");
+    fireEvent.click(screen.getAllByText("Katie Sun")[0]);
+    expect(mockPush).toHaveBeenCalledWith(
+      expect.stringMatching(/^\/donation-request\/donation-req-\d{3}$/)
+    );
+  });
+
+  it("shows a loading state while the requests load", () => {
+    mockDonationDetails.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+    });
+    render(<DonationRequestsPage />);
+    expect(screen.queryAllByTestId(/^donation-requests-table-row-/)).toEqual(
+      []
+    );
   });
 });

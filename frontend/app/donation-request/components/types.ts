@@ -1,3 +1,5 @@
+import type { DonationReviewStatus } from "@/common/types";
+
 /**
  * View-model types for the donation-request review screen.
  *
@@ -97,8 +99,8 @@ export type DonationRequestOutcome =
   | "unscheduled";
 
 /**
- * One row of the donation-requests list: a flattened summary of a
- * DonationRequest, built with `toDonationRequestRow`.
+ * One row of the donation-requests list: a flattened summary of a backend
+ * DonationDetail, built with `toDonationRequestRow`.
  */
 export interface DonationRequestRow {
   id: string;
@@ -108,8 +110,8 @@ export interface DonationRequestRow {
   submittedAt: string;
   /** Item names with counts, e.g. "2 Bed Frame, 2 Mattress". */
   items: string;
-  /** Derived review status (see `deriveReviewStatus`). */
-  status: ReviewStatus;
+  /** The backend's derived status (DonationDetail.review_status). */
+  status: DonationReviewStatus;
   /** Approved items, for the Reviewed "n/m Approved" label. */
   approvedCount: number;
   /** Total items in the request. */

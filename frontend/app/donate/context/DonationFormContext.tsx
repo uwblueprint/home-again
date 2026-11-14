@@ -7,6 +7,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
+import type { DonationSubmissionInput } from "@/common/types";
 
 // Types
 
@@ -101,6 +102,50 @@ export function validateItems(items: FurnitureItemData[]): boolean {
   return items.every(
     (item) => item.furnitureType !== null && item.hasStains !== null
   );
+}
+
+/** Whether the summary step's household questions and fee agreement are done. */
+export function validateSummary(state: DonationFormState): boolean {
+  return (
+    state.smokingInHousehold !== null &&
+    state.petsInHousehold !== null &&
+    state.feeAgreement
+  );
+}
+
+const SIZED_TYPES: FurnitureType[] = ["Mattress", "Boxspring"];
+
+/**
+ * Shape the finished form into POST /donations/submissions. Call only after
+ * validateItems, validatePickupAddress and validateSummary pass.
+ */
+export function toDonationSubmission(
+  state: DonationFormState
+): DonationSubmissionInput {
+  const { pickupAddress } = state;
+  return {
+    donor_id: state.donorId ?? "",
+    address_line_1: pickupAddress.streetAddress.trim(),
+    address_line_2: pickupAddress.apartment.trim() || null,
+    city: pickupAddress.city.trim(),
+    postal_code: pickupAddress.postalCode.trim() || null,
+    smoking_household: state.smokingInHousehold ?? false,
+    has_pets: state.petsInHousehold ?? false,
+    items: state.items.map((item) => ({
+      furniture_type: item.furnitureType ?? "Other",
+      size:
+        item.furnitureType && SIZED_TYPES.includes(item.furnitureType)
+          ? item.mattressSize
+          : null,
+      has_stains: item.hasStains ?? false,
+      chair_count:
+        item.furnitureType === "Dining table & chairs /sets"
+          ? item.chairCount
+          : null,
+      other_description:
+        item.furnitureType === "Other" ? item.otherDescription : null,
+    })),
+  };
 }
 
 // Context

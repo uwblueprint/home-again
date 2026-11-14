@@ -16,6 +16,8 @@ from fastapi.routing import APIRoute
 PUBLIC_ROUTES: set[tuple[str, str]] = {
     ("GET", "/health"),
     ("POST", "/api/donations"),
+    # The whole anonymous donate form.
+    ("POST", "/api/donations/submissions"),
     # Item types for the anonymous donate form.
     ("GET", "/api/inventory"),
     ("GET", "/api/inventory/{inventory_id}"),

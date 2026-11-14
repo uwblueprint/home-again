@@ -18,7 +18,6 @@ import {
   AgreementsStep,
   ReviewStep,
   FurnitureForm,
-  ITEMS,
   type FurnitureFormData,
   DeliveryForm,
   type DeliveryFormData,
@@ -39,6 +38,11 @@ import {
   useCreateReferral,
   useUpdateClient,
 } from "@/common/hooks/useApi";
+import {
+  inventoryIdFor,
+  useReferralCatalog,
+  type ReferralCatalog,
+} from "@/app/referral-form/catalog";
 import { useAuthStore } from "@/common/stores/authStore";
 import { cn } from "@/common/lib/utils";
 import {
@@ -77,13 +81,21 @@ const EDIT_STEP_SUBTITLES: Record<number, string> = {
   5: "Describe the client's delivery needs and any access details.",
 };
 
-function buildRequestedItems(furniture: FurnitureFormData) {
-  return ITEMS.flatMap((item) => {
+/**
+ * One entry per requested item (and size). `inventory_id` links each entry to
+ * the inventory row it asks for, so requests can be matched against stock.
+ */
+function buildRequestedItems(
+  furniture: FurnitureFormData,
+  catalog: ReferralCatalog
+) {
+  return catalog.items.flatMap((item) => {
     const subs = furniture.subOptions[item.id]?.filter(
       (sub) => sub.quantity > 0
     );
     if (subs?.length) {
       return subs.map((sub) => ({
+        inventory_id: inventoryIdFor(item.id, sub.id),
         item: item.label,
         size: sub.label,
         quantity: sub.quantity,
@@ -96,6 +108,7 @@ function buildRequestedItems(furniture: FurnitureFormData) {
     ) {
       return [
         {
+          inventory_id: inventoryIdFor(item.id),
           item: item.label,
           quantity: furniture.quantities[item.id],
           notes: furniture.notes[item.id] || null,
@@ -182,6 +195,7 @@ export default function ReferralFormPage() {
   const createClient = useCreateClient();
   const updateClient = useUpdateClient();
   const createReferral = useCreateReferral();
+  const catalog = useReferralCatalog();
   const isSubmitting =
     createClient.isPending ||
     updateClient.isPending ||
@@ -374,7 +388,7 @@ export default function ReferralFormPage() {
 
       const payload: CreateReferralInput = {
         client_id: clientId,
-        requested_items: buildRequestedItems(furnitureData),
+        requested_items: buildRequestedItems(furnitureData, catalog),
         agent_id: currentAgent?.id ?? null,
         secondary_agent_id: agentData.secondaryAgentId,
         agents_present_during_delivery: agentData.agentNeedsToBePresent,
@@ -505,6 +519,7 @@ export default function ReferralFormPage() {
       showHeader={!hideHeading}
       onValidityChange={setFurnitureIsValid}
       onDataChange={setFurnitureData}
+      catalog={catalog}
     />
   );
 
@@ -597,6 +612,7 @@ export default function ReferralFormPage() {
             furniture={furnitureData}
             delivery={deliveryData}
             onEditStep={setEditingStep}
+            catalog={catalog}
           />
         );
         break;

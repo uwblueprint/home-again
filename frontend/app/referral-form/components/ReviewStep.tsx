@@ -2,7 +2,11 @@
 
 import { Pencil } from "lucide-react";
 
-import { ITEMS, type FurnitureFormData } from "./FurnitureForm";
+import type { FurnitureFormData } from "./FurnitureForm";
+import {
+  FALLBACK_CATALOG,
+  type ReferralCatalog,
+} from "@/app/referral-form/catalog";
 import type { DeliveryFormData } from "./DeliveryForm";
 import {
   REFERRAL_REASONS,
@@ -19,6 +23,8 @@ type ReviewStepProps = {
   currentAgent: AgentRecord | null;
   secondaryAgent: AgentRecord | null;
   furniture: FurnitureFormData;
+  /** Items to show; see useReferralCatalog. */
+  catalog?: ReferralCatalog;
   delivery: DeliveryFormData;
   onEditStep: (stepIndex: number) => void;
 };
@@ -71,12 +77,13 @@ export default function ReviewStep({
   furniture,
   delivery,
   onEditStep,
+  catalog = FALLBACK_CATALOG,
 }: ReviewStepProps) {
   const selectedReasons = REFERRAL_REASONS.filter(
     (reason) => referral.reasons[reason.id]
   ).map((reason) => reason.label);
 
-  const selectedItems = ITEMS.filter((item) => {
+  const selectedItems = catalog.items.filter((item) => {
     const subs = furniture.subOptions[item.id];
     if (subs?.length) {
       return subs.some((sub) => sub.quantity > 0);

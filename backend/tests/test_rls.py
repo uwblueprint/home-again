@@ -22,6 +22,7 @@ EXPECTED_TABLES = {
     "furniture_photos",
     "inventory",
     "referrals",
+    "referral_items",
     "dropoffs",
     "alembic_version",
 }

@@ -1,7 +1,7 @@
 """inventory
 
 Revision ID: 20261114_inventory
-Revises: 20261105_public_rls
+Revises: 20261113_referral_items
 Create Date: 2026-11-14
 
 Add the inventory table: one row per item type Home Again gives out, with a
@@ -12,6 +12,8 @@ items get one row per size), with ids matching the form's item ids.
 - Seed it from the referral form's items, quantity 0
 - Add furniture.inventory_id and backfill it for existing furniture whose name
   matches an item type (including the donate form's names, e.g. "Sofa")
+- Add referral_items.inventory_id (the type a client asked for) and backfill it
+  the same way, matching sized items on name and size
 """
 
 from datetime import datetime, timezone
@@ -20,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "20261114_inventory"
-down_revision = "20261105_public_rls"
+down_revision = "20261113_referral_items"
 branch_labels = None
 depends_on = None
 
@@ -135,8 +137,50 @@ def upgrade():
             .values(inventory_id=inventory_id)
         )
 
+    op.add_column(
+        "referral_items", sa.Column("inventory_id", sa.String(64), nullable=True)
+    )
+    op.create_foreign_key(
+        "referral_items_inventory_id_fkey",
+        "referral_items",
+        "inventory",
+        ["inventory_id"],
+        ["id"],
+    )
+    op.create_index(
+        "ix_referral_items_inventory_id", "referral_items", ["inventory_id"]
+    )
+
+    referral_items = sa.table(
+        "referral_items",
+        sa.column("name", sa.String),
+        sa.column("size", sa.String),
+        sa.column("inventory_id"),
+    )
+    for name, inventory_id in NAME_TO_INVENTORY.items():
+        op.execute(
+            referral_items.update()
+            .where(sa.func.lower(sa.func.trim(referral_items.c.name)) == name)
+            .where(referral_items.c.size.is_(None))
+            .values(inventory_id=inventory_id)
+        )
+    for item_id, name, size, _ in ITEMS:
+        if size is None:
+            continue
+        op.execute(
+            referral_items.update()
+            .where(sa.func.lower(sa.func.trim(referral_items.c.name)) == name.lower())
+            .where(sa.func.lower(sa.func.trim(referral_items.c.size)) == size.lower())
+            .values(inventory_id=item_id)
+        )
+
 
 def downgrade():
+    op.drop_index("ix_referral_items_inventory_id", table_name="referral_items")
+    op.drop_constraint(
+        "referral_items_inventory_id_fkey", "referral_items", type_="foreignkey"
+    )
+    op.drop_column("referral_items", "inventory_id")
     op.drop_index("ix_furniture_inventory_id", table_name="furniture")
     op.drop_constraint("furniture_inventory_id_fkey", "furniture", type_="foreignkey")
     op.drop_column("furniture", "inventory_id")

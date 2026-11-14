@@ -18,7 +18,7 @@ import json
 from datetime import date, datetime, timezone
 from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .enums import (
     DonationReviewStatus,
@@ -489,7 +489,10 @@ class Pickup(PickupBase):
 
 class DropoffBase(BaseModel):
     route_id: str
-    furniture_id: str
+    # The requested unit being delivered. Set this; furniture_id is optional
+    # and predates referral items.
+    referral_item_id: Optional[str] = None
+    furniture_id: Optional[str] = None
     referral_id: Optional[str] = None
     high_priority: bool = False
     contact_in_case_of_cancellation: bool = False
@@ -497,7 +500,11 @@ class DropoffBase(BaseModel):
 
 
 class DropoffCreate(DropoffBase):
-    pass
+    @model_validator(mode="after")
+    def needs_something_to_deliver(self):
+        if not self.referral_item_id and not self.furniture_id:
+            raise ValueError("Provide referral_item_id (or furniture_id).")
+        return self
 
 
 class DropoffUpdate(BaseModel):

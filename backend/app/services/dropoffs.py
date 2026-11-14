@@ -7,8 +7,16 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models import Dropoff, Furniture, Referral, Route
+from ..enums import ReferralItemStatus
+from ..models import Dropoff, Furniture, Referral, ReferralItem, Route
 from ..schemas import DropoffCreate, DropoffUpdate
+from . import inventory as inventory_service
+
+# A unit can only be scheduled once review has cleared it.
+SCHEDULABLE_ITEM_STATUSES = {
+    ReferralItemStatus.APPROVED.value,
+    ReferralItemStatus.WAITLISTED.value,
+}
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +33,45 @@ async def get_dropoff(db: AsyncSession, dropoff_id: str) -> Dropoff | None:
     return result.scalar_one_or_none()
 
 
+async def _get_item(db: AsyncSession, item_id: str) -> ReferralItem | None:
+    result = await db.execute(select(ReferralItem).where(ReferralItem.id == item_id))
+    return result.scalar_one_or_none()
+
+
 async def create_dropoff(db: AsyncSession, payload: DropoffCreate) -> Dropoff:
+    """
+    Schedule a drop-off. With a referral item, the item must be approved (or
+    waitlisted) and moves to SCHEDULED in the same transaction.
+    """
     data = payload.model_dump()
     await _validate_fks(db, data)
+
+    item = None
+    if data.get("referral_item_id"):
+        item = await _get_item(db, data["referral_item_id"])
+        if item is None:
+            raise ValueError(
+                f"Referral item with ID '{data['referral_item_id']}' does not exist."
+            )
+        if item.status not in SCHEDULABLE_ITEM_STATUSES:
+            raise ValueError(
+                "Only approved or waitlisted items can be scheduled for a drop-off."
+            )
+        if data.get("referral_id") and data["referral_id"] != item.referral_id:
+            raise ValueError("referral_id doesn't match the referral item's referral.")
+        data["referral_id"] = item.referral_id
+        # Scheduling takes one unit of the type off the count. With none left,
+        # the item waits for stock instead.
+        if item.inventory_id and not await inventory_service.take_one(
+            db, item.inventory_id
+        ):
+            item.status = ReferralItemStatus.WAITLISTED.value
+            await db.commit()
+            raise inventory_service.OutOfStockError(
+                "None in stock; the item is waitlisted until more come in."
+            )
+        item.status = ReferralItemStatus.SCHEDULED.value
+
     db_dropoff = Dropoff(**data)
     db.add(db_dropoff)
     try:
@@ -59,7 +103,36 @@ async def update_dropoff(
     return dropoff
 
 
+async def deliver_dropoff(db: AsyncSession, dropoff: Dropoff) -> ReferralItem:
+    """Mark the drop-off's referral item delivered. Final."""
+    item = (
+        await _get_item(db, dropoff.referral_item_id)
+        if dropoff.referral_item_id
+        else None
+    )
+    if item is None:
+        raise ValueError("This drop-off isn't linked to a referral item.")
+    if item.status != ReferralItemStatus.SCHEDULED.value:
+        raise ValueError("Only a scheduled item can be marked delivered.")
+    item.status = ReferralItemStatus.DELIVERED.value
+    await db.commit()
+    await db.refresh(item)
+    return item
+
+
 async def delete_dropoff(db: AsyncSession, dropoff: Dropoff) -> None:
+    """
+    Cancel a drop-off. Its referral item goes back to APPROVED and the unit
+    goes back on the count.
+    """
+    if dropoff.referral_item_id:
+        item = await _get_item(db, dropoff.referral_item_id)
+        if item is not None:
+            if item.status == ReferralItemStatus.DELIVERED.value:
+                raise ValueError("A delivered drop-off can't be cancelled.")
+            if item.inventory_id:
+                await inventory_service.add(db, item.inventory_id)
+            item.status = ReferralItemStatus.APPROVED.value
     await db.delete(dropoff)
     try:
         await db.commit()

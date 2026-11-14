@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..database import get_db
 from ..models import Dropoff
 from ..schemas import Dropoff as DropoffSchema
-from ..schemas import DropoffCreate, DropoffUpdate
-from ..services import dropoffs_service
+from ..schemas import DropoffCreate, DropoffUpdate, ReferralItem
+from ..services import dropoffs_service, inventory_service
 
 router = APIRouter()
 
@@ -32,6 +32,8 @@ async def list_dropoffs(db: AsyncSession = Depends(get_db)):
 async def create_dropoff(payload: DropoffCreate, db: AsyncSession = Depends(get_db)):
     try:
         return await dropoffs_service.create_dropoff(db, payload)
+    except inventory_service.OutOfStockError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
@@ -63,3 +65,15 @@ async def delete_dropoff(
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/{dropoff_id}/deliver", response_model=ReferralItem)
+async def deliver_dropoff(
+    dropoff: Dropoff = Depends(get_dropoff_or_404),
+    db: AsyncSession = Depends(get_db),
+):
+    """Mark the drop-off's referral item delivered."""
+    try:
+        return await dropoffs_service.deliver_dropoff(db, dropoff)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

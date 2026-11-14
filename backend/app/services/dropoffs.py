@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..enums import ReferralItemStatus
 from ..models import Dropoff, Furniture, Referral, ReferralItem, Route
 from ..schemas import DropoffCreate, DropoffUpdate
+from . import inventory as inventory_service
 
 # A unit can only be scheduled once review has cleared it.
 SCHEDULABLE_ITEM_STATUSES = {
@@ -59,6 +60,16 @@ async def create_dropoff(db: AsyncSession, payload: DropoffCreate) -> Dropoff:
         if data.get("referral_id") and data["referral_id"] != item.referral_id:
             raise ValueError("referral_id doesn't match the referral item's referral.")
         data["referral_id"] = item.referral_id
+        # Scheduling takes one unit of the type off the count. With none left,
+        # the item waits for stock instead.
+        if item.inventory_id and not await inventory_service.take_one(
+            db, item.inventory_id
+        ):
+            item.status = ReferralItemStatus.WAITLISTED.value
+            await db.commit()
+            raise inventory_service.OutOfStockError(
+                "None in stock; the item is waitlisted until more come in."
+            )
         item.status = ReferralItemStatus.SCHEDULED.value
 
     db_dropoff = Dropoff(**data)
@@ -110,12 +121,17 @@ async def deliver_dropoff(db: AsyncSession, dropoff: Dropoff) -> ReferralItem:
 
 
 async def delete_dropoff(db: AsyncSession, dropoff: Dropoff) -> None:
-    """Cancel a drop-off. Its referral item goes back to APPROVED."""
+    """
+    Cancel a drop-off. Its referral item goes back to APPROVED and the unit
+    goes back on the count.
+    """
     if dropoff.referral_item_id:
         item = await _get_item(db, dropoff.referral_item_id)
         if item is not None:
             if item.status == ReferralItemStatus.DELIVERED.value:
                 raise ValueError("A delivered drop-off can't be cancelled.")
+            if item.inventory_id:
+                await inventory_service.add(db, item.inventory_id)
             item.status = ReferralItemStatus.APPROVED.value
     await db.delete(dropoff)
     try:

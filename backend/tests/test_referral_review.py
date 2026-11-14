@@ -1,6 +1,34 @@
 """Tests for referral items and the referral's derived review status."""
 
+import pytest_asyncio
+from sqlalchemy import delete
 from test_referrals import create_client, create_referral
+
+from app.models import Inventory
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def stock(db_session):
+    """Plenty of the requested types, so scheduling isn't blocked on stock."""
+    await db_session.execute(
+        delete(Inventory).where(Inventory.id.in_(["sofa-couch", "mattress-only-queen"]))
+    )
+    db_session.add_all(
+        [
+            Inventory(
+                id="sofa-couch", name="Sofa/Couch", category="Seating", quantity=100
+            ),
+            Inventory(
+                id="mattress-only-queen",
+                name="Mattress Only",
+                size="Queen",
+                category="Bed",
+                quantity=100,
+            ),
+        ]
+    )
+    await db_session.commit()
+
 
 ITEMS = [
     {"item": "Sofa/Couch", "quantity": 2},

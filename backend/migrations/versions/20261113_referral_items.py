@@ -11,6 +11,8 @@ a donation's from its furniture).
 - Create referral_items and enable RLS on it, like every other public table
 - Backfill rows from each referral's requested_items JSON ("Sofa" × 2 → two
   rows). referrals.requested_items stays as the agent's original request.
+- dropoffs: add referral_item_id (the unit being delivered) and make
+  furniture_id optional; which physical piece goes out isn't tracked
 - Existing referrals have no per-unit decisions, so each unit takes its
   referral's status: declined → REJECTED, approved (shown as "waitlisted") →
   WAITLISTED, completed → DELIVERED, anything else → PENDING_REVIEW
@@ -64,6 +66,23 @@ def upgrade():
     op.create_index("ix_referral_items_referral_id", "referral_items", ["referral_id"])
     op.execute('ALTER TABLE public."referral_items" ENABLE ROW LEVEL SECURITY')
 
+    op.alter_column(
+        "dropoffs", "furniture_id", existing_type=sa.String(36), nullable=True
+    )
+    op.add_column(
+        "dropoffs", sa.Column("referral_item_id", sa.String(36), nullable=True)
+    )
+    op.create_foreign_key(
+        "dropoffs_referral_item_id_fkey",
+        "dropoffs",
+        "referral_items",
+        ["referral_item_id"],
+        ["id"],
+    )
+    op.create_unique_constraint(
+        "dropoffs_referral_item_id_key", "dropoffs", ["referral_item_id"]
+    )
+
     referrals_table = sa.table(
         "referrals",
         sa.column("id", sa.String),
@@ -112,5 +131,12 @@ def upgrade():
 
 
 def downgrade():
+    op.drop_constraint("dropoffs_referral_item_id_key", "dropoffs", type_="unique")
+    op.drop_constraint("dropoffs_referral_item_id_fkey", "dropoffs", type_="foreignkey")
+    op.drop_column("dropoffs", "referral_item_id")
+    # Fails if any drop-off was created without a furniture_id.
+    op.alter_column(
+        "dropoffs", "furniture_id", existing_type=sa.String(36), nullable=False
+    )
     op.drop_index("ix_referral_items_referral_id", table_name="referral_items")
     op.drop_table("referral_items")

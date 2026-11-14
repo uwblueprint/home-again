@@ -488,6 +488,7 @@ class ReferralItem(Base):
     )
 
     referral = relationship("Referral", back_populates="items")
+    dropoff = relationship("Dropoff", back_populates="referral_item", uselist=False)
 
 
 # ---------------------------------------------------------------------------
@@ -496,14 +497,23 @@ class ReferralItem(Base):
 
 
 class Dropoff(Base):
-    """A dropoff stop on a route where furniture is delivered to a client."""
+    """
+    A dropoff stop on a route where one requested unit is delivered to a client.
+
+    Points at the ReferralItem being delivered. Which physical piece goes out
+    isn't tracked; scheduling only lowers the inventory count for the type.
+    furniture_id predates referral items and is optional.
+    """
 
     __tablename__ = "dropoffs"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     route_id = Column(String(36), ForeignKey("routes.id"), nullable=False)
-    furniture_id = Column(String(36), ForeignKey("furniture.id"), nullable=False)
+    furniture_id = Column(String(36), ForeignKey("furniture.id"), nullable=True)
     referral_id = Column(String(36), ForeignKey("referrals.id"), nullable=True)
+    referral_item_id = Column(
+        String(36), ForeignKey("referral_items.id"), nullable=True, unique=True
+    )
     high_priority = Column(Boolean, nullable=False, default=False)
     contact_in_case_of_cancellation = Column(Boolean, nullable=False, default=False)
     dispatch_required = Column(Boolean, nullable=False, default=False)
@@ -520,3 +530,4 @@ class Dropoff(Base):
     route = relationship("Route", back_populates="dropoffs")
     furniture = relationship("Furniture", back_populates="dropoff")
     referral = relationship("Referral", back_populates="dropoffs")
+    referral_item = relationship("ReferralItem", back_populates="dropoff")

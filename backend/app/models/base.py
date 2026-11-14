@@ -489,6 +489,58 @@ class Referral(Base):
     secondary_agent = relationship("Agent", foreign_keys=[secondary_agent_id])
     furniture_items = relationship("Furniture", back_populates="referral")
     dropoffs = relationship("Dropoff", back_populates="referral")
+    items = relationship(
+        "ReferralItem",
+        back_populates="referral",
+        cascade="all, delete-orphan",
+        order_by="ReferralItem.position",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Referral item
+# ---------------------------------------------------------------------------
+
+
+class ReferralItem(Base):
+    """
+    One requested unit on a referral: "Sofa × 2" is two rows, so each can be
+    approved, waitlisted, scheduled or delivered on its own.
+
+    Created from Referral.requested_items, which stays as the agent's original
+    request. furniture_id is set once a specific donated piece is assigned.
+    """
+
+    __tablename__ = "referral_items"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    referral_id = Column(String(36), ForeignKey("referrals.id"), nullable=False)
+    name = Column(String(255), nullable=False)
+    size = Column(String(50), nullable=True)
+    notes = Column(Text, nullable=True)
+    status = Column(String(50), nullable=False)  # See ReferralItemStatus
+    # Set only when status is REJECTED.
+    rejection_reason = Column(Text, nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
+    furniture_id = Column(
+        String(36), ForeignKey("furniture.id"), nullable=True, unique=True
+    )
+    # The inventory type asked for. Null when the request doesn't match one.
+    inventory_id = Column(String(64), ForeignKey("inventory.id"), nullable=True)
+    # Order within the referral, following requested_items.
+    position = Column(Integer, nullable=False, default=0)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
+
+    referral = relationship("Referral", back_populates="items")
+    furniture = relationship("Furniture")
+    inventory = relationship("Inventory")
 
 
 # ---------------------------------------------------------------------------

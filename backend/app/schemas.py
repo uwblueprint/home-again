@@ -30,6 +30,8 @@ from .enums import (
     FurnitureStatus,
     GenderEnum,
     ImmigrationStatusEnum,
+    ReferralItemStatus,
+    ReferralReviewStatus,
     ReferralStatus,
     RouteStatus,
 )
@@ -561,10 +563,43 @@ class ReferralUpdate(BaseModel):
     status: Optional[ReferralStatus] = None
 
 
+class ReferralItem(BaseModel):
+    """One requested unit on a referral, with its own review status."""
+
+    id: str
+    referral_id: str
+    name: str
+    size: Optional[str] = None
+    notes: Optional[str] = None
+    status: ReferralItemStatus
+    rejection_reason: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+    furniture_id: Optional[str] = None
+    inventory_id: Optional[str] = None
+    position: int
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ReferralItemReject(BaseModel):
+    """Payload for POST /referrals/{id}/items/{item_id}/reject."""
+
+    rejection_reason: Optional[str] = None
+
+
 class Referral(ReferralBase):
     id: str
     created_at: datetime
     updated_at: datetime
+    # Derived from the items, never stored — see
+    # services.referrals.compute_review_status.
+    review_status: ReferralReviewStatus = ReferralReviewStatus.PENDING_REVIEW
+    # For the "Approved 2/4" label.
+    approved_count: int = 0
+    item_count: int = 0
+    items: list[ReferralItem] = []
 
     @field_validator("requested_items", mode="before")
     @classmethod

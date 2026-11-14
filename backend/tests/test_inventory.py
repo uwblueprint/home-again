@@ -83,3 +83,42 @@ async def test_furniture_records_its_inventory_type(client, inventory):
     )
     assert resp.status_code == 200, resp.text
     assert resp.json()["inventory_id"] is None
+
+
+async def test_referral_items_record_the_type_asked_for(client, inventory):
+    agency_free_client = await client.post(
+        "/api/clients",
+        json={
+            "first_name": "Ivy",
+            "last_name": "Inventory",
+            "birthday": "1990-01-01",
+            "family_type": "single",
+            "num_children": 0,
+            "num_adults": 1,
+        },
+    )
+    assert agency_free_client.status_code == 201, agency_free_client.text
+    resp = await client.post(
+        "/api/referrals",
+        json={
+            "client_id": agency_free_client.json()["id"],
+            "address_line_1": "1 Test St",
+            "city": "St. John's",
+            "status": "pending",
+            "requested_items": [
+                # From the referral form, which sends inventory_id.
+                {"item": "Sofa/Couch", "quantity": 1, "inventory_id": "sofa-couch"},
+                # Matched by name and size.
+                {"item": "Mattress Only", "size": "Queen", "quantity": 1},
+                # An id that doesn't exist falls back to the name, which
+                # doesn't match either.
+                {"item": "Rocking horse", "inventory_id": "nope"},
+            ],
+        },
+    )
+    assert resp.status_code == 201, resp.text
+    assert [item["inventory_id"] for item in resp.json()["items"]] == [
+        "sofa-couch",
+        "mattress-only-queen",
+        None,
+    ]

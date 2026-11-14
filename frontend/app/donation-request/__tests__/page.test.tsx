@@ -121,7 +121,7 @@ describe("DonationRequestsPage", () => {
     });
     fireEvent.click(screen.getAllByText("Katie Sun")[0]);
     expect(mockPush).toHaveBeenCalledWith(
-      expect.stringMatching(/^\/donation-request\/donation-req-\d{3}$/)
+      expect.stringMatching(/^\/donation-request\/[0-9a-f-]{36}$/)
     );
   });
 

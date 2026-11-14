@@ -93,7 +93,10 @@ function makeDonation(
   index: number,
   variant: number
 ): DonationDetail {
-  const id = `donation-req-${String(index + 1).padStart(3, "0")}`;
+  // UUID-shaped like real ids, with a distinct first block per request.
+  const id = `${(0x3f2a9c00 + index * 7919).toString(16)}-0000-4000-8000-${String(
+    index + 1
+  ).padStart(12, "0")}`;
   const [firstName, lastName] = DONORS[index % DONORS.length];
   // Partially reviewed needs at least two items (one reviewed, one not).
   const names =

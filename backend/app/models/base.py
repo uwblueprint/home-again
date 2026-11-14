@@ -508,7 +508,8 @@ class ReferralItem(Base):
     approved, waitlisted, scheduled or delivered on its own.
 
     Created from Referral.requested_items, which stays as the agent's original
-    request. furniture_id is set once a specific donated piece is assigned.
+    request. Units aren't tied to a specific donated piece: a drop-off only
+    lowers the inventory count for the type.
     """
 
     __tablename__ = "referral_items"
@@ -522,9 +523,6 @@ class ReferralItem(Base):
     # Set only when status is REJECTED.
     rejection_reason = Column(Text, nullable=True)
     reviewed_at = Column(DateTime, nullable=True)
-    furniture_id = Column(
-        String(36), ForeignKey("furniture.id"), nullable=True, unique=True
-    )
     # The inventory type asked for. Null when the request doesn't match one.
     inventory_id = Column(String(64), ForeignKey("inventory.id"), nullable=True)
     # Order within the referral, following requested_items.
@@ -539,7 +537,6 @@ class ReferralItem(Base):
     )
 
     referral = relationship("Referral", back_populates="items")
-    furniture = relationship("Furniture")
     inventory = relationship("Inventory")
 
 

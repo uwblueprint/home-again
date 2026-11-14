@@ -16,6 +16,7 @@ from .donors import router as donors_router
 from .dropoffs import router as dropoffs_router
 from .furniture import router as furniture_router
 from .health import router as health_router
+from .inventory import public_router as public_inventory_router
 from .pickups import router as pickups_router
 from .referrals import router as referrals_router
 from .routes import router as routes_router
@@ -35,11 +36,15 @@ router.include_router(pickups_router, prefix="/pickups", tags=["pickups"])
 router.include_router(referrals_router, prefix="/referrals", tags=["referrals"])
 router.include_router(routes_router, prefix="/routes", tags=["routes"])
 
-# No auth — health and anonymous donation submission.
+# No auth — health, anonymous donation submission, and the item types its
+# form offers.
 public_router = APIRouter()
 public_router.include_router(health_router, tags=["health"])
 public_router.include_router(
     public_donations_router, prefix="/api/donations", tags=["donations"]
+)
+public_router.include_router(
+    public_inventory_router, prefix="/api/inventory", tags=["inventory"]
 )
 
 __all__ = ["router", "public_router"]

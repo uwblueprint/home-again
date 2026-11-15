@@ -197,8 +197,6 @@ def compute_review_status(referral: Referral) -> ReferralReviewStatus:
         for item in going_out
     ):
         return ReferralReviewStatus.SCHEDULED
-    if any(item.status == ReferralItemStatus.WAITLISTED.value for item in going_out):
-        return ReferralReviewStatus.WAITLISTED
     if len(going_out) == len(items):
         return ReferralReviewStatus.APPROVED
     return ReferralReviewStatus.PARTIALLY_APPROVED
@@ -225,7 +223,7 @@ async def review_item(
     status: ReferralItemStatus,
     rejection_reason: str | None = None,
 ) -> ReferralItem:
-    """Approve, waitlist or reject one unit of a referral."""
+    """Approve or reject one unit of a referral."""
     item = next((item for item in referral.items if item.id == item_id), None)
     if item is None:
         raise LookupError("Referral item not found")

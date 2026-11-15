@@ -23,6 +23,8 @@ DONATE_TYPE_ALIASES = {
 SIZED_TYPES = {
     "mattress": "mattress-only",
     "boxspring": "box-spring-only",
+    # Sizes "TW/DB" and "DB/QN", as the frames are stocked.
+    "bed frames": "metal-bed-frame",
 }
 
 

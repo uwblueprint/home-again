@@ -197,7 +197,6 @@ export type ReferralReviewStatus =
   | "approved"
   | "partially_approved"
   | "rejected"
-  | "waitlisted"
   | "scheduled"
   | "delivered";
 
@@ -205,7 +204,6 @@ export type ReferralReviewStatus =
 export type ReferralItemStatus =
   | "PENDING_REVIEW"
   | "APPROVED"
-  | "WAITLISTED"
   | "REJECTED"
   | "SCHEDULED"
   | "DELIVERED"

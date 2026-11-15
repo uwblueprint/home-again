@@ -131,18 +131,19 @@ const RECORDS: ReferralRecord[] = [
 
 /**
  * Item status for each referral status, as the backend's referral_items
- * migration sets it: approved shows as "waitlisted" in the referral list.
+ * migration sets it. An approved referral is "waitlisted" (accepted) in the
+ * referral list, but its units still need reviewing.
  */
 const ITEM_STATUS: Record<Referral["status"], ReferralItemStatus> = {
   pending: "PENDING_REVIEW",
-  approved: "WAITLISTED",
+  approved: "PENDING_REVIEW",
   completed: "DELIVERED",
   declined: "REJECTED",
 };
 
 const REVIEW_STATUS: Record<Referral["status"], ReferralReviewStatus> = {
   pending: "pending_review",
-  approved: "waitlisted",
+  approved: "pending_review",
   completed: "delivered",
   declined: "rejected",
 };

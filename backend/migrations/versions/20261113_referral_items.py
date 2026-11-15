@@ -16,8 +16,8 @@ a donation's from its furniture).
 - dropoffs: add referral_item_id (the unit being delivered) and make
   furniture_id optional; which physical piece goes out isn't tracked
 - Existing referrals have no per-unit decisions, so each unit takes its
-  referral's status: declined → REJECTED, approved (shown as "waitlisted") →
-  WAITLISTED, completed → DELIVERED, anything else → PENDING_REVIEW
+  referral's status: declined → REJECTED, completed → DELIVERED, anything
+  else (including approved, shown as "waitlisted") → PENDING_REVIEW
 """
 
 import json
@@ -33,7 +33,6 @@ depends_on = None
 
 STATUS_FROM_REFERRAL = {
     "declined": "REJECTED",
-    "approved": "WAITLISTED",
     "completed": "DELIVERED",
 }
 

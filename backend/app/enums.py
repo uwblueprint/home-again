@@ -149,12 +149,14 @@ class ReferralRejectionReason(str, enum.Enum):
 
 
 class ReferralItemStatus(str, enum.Enum):
-    """Where one requested unit is, from an admin's review through delivery."""
+    """
+    Where one requested unit is, from an admin's review through delivery.
+    Review is approve or reject; waitlisting is for a whole referral
+    (Referral.status), not a unit.
+    """
 
     PENDING_REVIEW = "PENDING_REVIEW"
     APPROVED = "APPROVED"
-    # Approved for this client, but waiting for stock.
-    WAITLISTED = "WAITLISTED"
     REJECTED = "REJECTED"
     SCHEDULED = "SCHEDULED"
     DELIVERED = "DELIVERED"
@@ -178,8 +180,6 @@ class ReferralReviewStatus(str, enum.Enum):
     PARTIALLY_APPROVED = "partially_approved"
     # Every unit rejected or cancelled; there is nothing to deliver.
     REJECTED = "rejected"
-    # Review is done but at least one approved unit is waiting for stock.
-    WAITLISTED = "waitlisted"
     # Every unit still going out has a drop-off booked.
     SCHEDULED = "scheduled"
     DELIVERED = "delivered"

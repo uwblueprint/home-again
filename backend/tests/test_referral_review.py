@@ -116,12 +116,25 @@ async def test_rejected_when_every_unit_is_rejected(client):
     assert data["approved_count"] == 0
 
 
-async def test_waitlisted_when_an_approved_unit_waits_for_stock(client):
+async def test_units_cant_be_waitlisted_individually(client):
+    """Waitlisting is for a whole referral (its status), not a unit."""
     referral = await new_referral(client)
-    await review(client, referral, 0, "approve")
-    await review(client, referral, 1, "waitlist")
-    await review(client, referral, 2, "approve")
-    assert (await status_of(client, referral))["review_status"] == "waitlisted"
+    item_id = referral["items"][0]["id"]
+    resp = await client.post(
+        f"/api/referrals/{referral['id']}/items/{item_id}/waitlist"
+    )
+    assert resp.status_code in (404, 405)
+
+
+async def test_waitlisting_a_referral_leaves_its_units_to_review(client):
+    referral = await new_referral(client)
+    resp = await client.put(
+        f"/api/referrals/{referral['id']}", json={"status": "approved"}
+    )
+    assert resp.status_code == 200, resp.text
+    data = resp.json()
+    assert data["review_status"] == "pending_review"
+    assert all(item["status"] == "PENDING_REVIEW" for item in data["items"])
 
 
 async def test_list_includes_each_referrals_status(client):

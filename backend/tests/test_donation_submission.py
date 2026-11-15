@@ -28,6 +28,16 @@ async def inventory(db_session):
             Inventory(id="sofa-couch", name="Sofa/Couch", category="Seating"),
             Inventory(id="dresser", name="Dresser", category="Storage and Shelving"),
             Inventory(
+                id="dining-kitchen-table",
+                name="Dining/Kitchen Table",
+                category="Tables",
+            ),
+            Inventory(
+                id="kitchen-dining-chair",
+                name="Kitchen/Dining Chair",
+                category="Seating",
+            ),
+            Inventory(
                 id="mattress-only-queen",
                 name="Mattress Only",
                 size="Queen",
@@ -138,3 +148,67 @@ async def test_details_lists_donations_with_their_status(client, inventory):
     assert match["review_status"] == "pending_review"
     assert match["donor"]["first_name"] == "Katie"
     assert len(match["furniture_items"]) == 1
+
+
+async def test_a_dining_set_becomes_a_table_and_one_row_per_chair(client, inventory):
+    donor = await create_donor(client, "dining")
+    resp = await client.post(
+        "/api/donations/submissions",
+        json={
+            **SUBMISSION,
+            "donor_id": donor["id"],
+            "items": [
+                {
+                    "furniture_type": "Dining table & chairs /sets",
+                    "has_stains": False,
+                    "chair_count": 4,
+                }
+            ],
+        },
+    )
+    assert resp.status_code == 201, resp.text
+    items = resp.json()["furniture_items"]
+    assert [(i["name"], i["inventory_id"]) for i in items] == [
+        ("Dining table", "dining-kitchen-table"),
+        *[("Dining chair", "kitchen-dining-chair")] * 4,
+    ]
+    assert resp.json()["item_count"] == 5
+
+
+async def test_picking_up_a_dining_set_counts_the_table_and_each_chair(
+    client, db_session, inventory
+):
+    donor = await create_donor(client, "diningstock")
+    donation = (
+        await client.post(
+            "/api/donations/submissions",
+            json={
+                **SUBMISSION,
+                "donor_id": donor["id"],
+                "items": [
+                    {
+                        "furniture_type": "Dining table & chairs /sets",
+                        "has_stains": False,
+                        "chair_count": 3,
+                    }
+                ],
+            },
+        )
+    ).json()
+    items = donation["furniture_items"]
+    for item in items[:3]:
+        await client.post(f"/api/furniture/{item['id']}/approve")
+    # One chair is broken.
+    await client.post(
+        f"/api/furniture/{items[3]['id']}/reject",
+        json={"rejection_reason": "condition"},
+    )
+
+    resp = await client.put(
+        f"/api/donations/{donation['id']}", json={"status": "completed"}
+    )
+    assert resp.status_code == 200, resp.text
+
+    table = (await client.get("/api/inventory/dining-kitchen-table")).json()
+    chairs = (await client.get("/api/inventory/kitchen-dining-chair")).json()
+    assert (table["quantity"], chairs["quantity"]) == (1, 2)

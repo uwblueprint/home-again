@@ -28,23 +28,42 @@ export const donationsHandlers = [
       status: "pending",
       review_status: "pending_review",
       approved_count: 0,
-      item_count: body.items.length,
+      item_count: 0, // counted after the items are built
       pickup: null,
       created_at: now,
       updated_at: now,
-      furniture_items: body.items.map((item, i) => ({
-        ...donationRequests[0].furniture_items[0],
-        id: `${id}-item-${i}`,
-        name: item.size
-          ? `${item.furniture_type} (${item.size})`
-          : item.furniture_type,
-        description: item.has_stains ? "Has stains" : "No stains",
-        status: "PICKUP_PENDING",
-        rejection_reason: null,
-        reviewed_at: null,
-        donation_id: id,
-      })),
+      // Like the backend: a dining set is its table plus one row per chair.
+      furniture_items: body.items
+        .flatMap((item) =>
+          item.furniture_type === "Dining table & chairs /sets"
+            ? [
+                { ...item, name: "Dining table" },
+                ...Array.from({ length: item.chair_count ?? 0 }, () => ({
+                  ...item,
+                  name: "Dining chair",
+                })),
+              ]
+            : [
+                {
+                  ...item,
+                  name: item.size
+                    ? `${item.furniture_type} (${item.size})`
+                    : item.furniture_type,
+                },
+              ]
+        )
+        .map((item, i) => ({
+          ...donationRequests[0].furniture_items[0],
+          id: `${id}-item-${i}`,
+          name: item.name,
+          description: item.has_stains ? "Has stains" : "No stains",
+          status: "PICKUP_PENDING" as const,
+          rejection_reason: null,
+          reviewed_at: null,
+          donation_id: id,
+        })),
     };
+    created.item_count = created.furniture_items.length;
     return HttpResponse.json(created, { status: 201 });
   }),
 

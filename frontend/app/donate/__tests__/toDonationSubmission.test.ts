@@ -1,5 +1,6 @@
 import {
   toDonationSubmission,
+  validateItems,
   validateSummary,
   type DonationFormState,
 } from "@/app/donate/context/DonationFormContext";
@@ -26,6 +27,7 @@ const STATE: DonationFormState = {
       hasStains: false,
       photos: [],
       mattressSize: "Queen",
+      bedFrameSize: null,
       chairCount: null,
       otherDescription: null,
     },
@@ -35,6 +37,7 @@ const STATE: DonationFormState = {
       hasStains: true,
       photos: [],
       mattressSize: "Twin",
+      bedFrameSize: "DB/QN",
       chairCount: 4,
       otherDescription: "ignored",
     },
@@ -44,6 +47,7 @@ const STATE: DonationFormState = {
       hasStains: false,
       photos: [],
       mattressSize: null,
+      bedFrameSize: null,
       chairCount: null,
       otherDescription: "Rocking horse",
     },
@@ -94,5 +98,36 @@ describe("validateSummary", () => {
     expect(validateSummary({ ...STATE, smokingInHousehold: null })).toBe(false);
     expect(validateSummary({ ...STATE, petsInHousehold: null })).toBe(false);
     expect(validateSummary({ ...STATE, feeAgreement: false })).toBe(false);
+  });
+});
+
+describe("bed frames", () => {
+  const frame = {
+    id: "f",
+    furnitureType: "Bed frames" as const,
+    hasStains: false,
+    photos: [],
+    mattressSize: null,
+    bedFrameSize: "TW/DB" as const,
+    chairCount: null,
+    otherDescription: null,
+  };
+
+  it("sends the bed frame size", () => {
+    const payload = toDonationSubmission({ ...STATE, items: [frame] });
+    expect(payload.items[0]).toMatchObject({
+      furniture_type: "Bed frames",
+      size: "TW/DB",
+    });
+  });
+
+  it("needs a size before the items step can continue", () => {
+    expect(validateItems([frame])).toBe(true);
+    expect(validateItems([{ ...frame, bedFrameSize: null }])).toBe(false);
+    expect(
+      validateItems([
+        { ...frame, furnitureType: "Mattress", bedFrameSize: null },
+      ])
+    ).toBe(false);
   });
 });

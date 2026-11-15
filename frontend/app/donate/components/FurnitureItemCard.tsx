@@ -6,6 +6,7 @@ import { cn } from "@/common/lib/utils";
 import { Button } from "@/common/components/ui/button";
 import Image from "next/image";
 import {
+  BED_FRAME_SIZES,
   FURNITURE_TYPES,
   type FurnitureType,
   type FurnitureItemData,
@@ -163,10 +164,33 @@ export default function FurnitureItemCard({
                 </div>
               )}
 
-              {/* Mattress/Boxspring/Bed frame size */}
+              {/* Bed frame size: frames are stocked as adjustable pairs */}
+              {itemData.furnitureType === "Bed frames" && (
+                <div>
+                  <p className="mb-2 text-sm font-medium text-foreground">
+                    Please indicate size<span className="text-destructive">*</span>
+                  </p>
+                  <div className="flex gap-4">
+                    {BED_FRAME_SIZES.map(({ value, label }) => (
+                      <label key={value} className="flex cursor-pointer items-center gap-2 text-sm">
+                        <input
+                          type="radio"
+                          name={`bed-frame-size-${itemData.id}`}
+                          value={value}
+                          checked={itemData.bedFrameSize === value}
+                          onChange={() => onUpdate({ bedFrameSize: value })}
+                          className="accent-primary size-4"
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Mattress/Boxspring size */}
               {(itemData.furnitureType === "Mattress" ||
-                itemData.furnitureType === "Boxspring" ||
-                itemData.furnitureType === "Bed frames") && (
+                itemData.furnitureType === "Boxspring") && (
                 <div>
                   <p className="mb-2 text-sm font-medium text-foreground">
                     Please indicate size<span className="text-destructive">*</span>

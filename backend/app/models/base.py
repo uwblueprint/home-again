@@ -509,7 +509,7 @@ class Referral(Base):
 class ReferralItem(Base):
     """
     One requested unit on a referral: "Sofa × 2" is two rows, so each can be
-    approved, waitlisted, scheduled or delivered on its own.
+    approved or rejected, scheduled and delivered on its own.
 
     Created from Referral.requested_items, which stays as the agent's original
     request. Units aren't tied to a specific donated piece: a drop-off only

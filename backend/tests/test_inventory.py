@@ -191,9 +191,7 @@ async def test_scheduling_a_dropoff_takes_one_off_the_count(
     assert await quantity_of(client, "sofa-couch") == 1
 
 
-async def test_with_none_left_scheduling_waitlists_the_item(
-    client, db_session, inventory
-):
+async def test_with_none_left_scheduling_is_refused(client, db_session, inventory):
     await set_quantity(db_session, "sofa-couch", 0)
     referral, item, route = await approved_sofa_request(client)
 
@@ -201,10 +199,11 @@ async def test_with_none_left_scheduling_waitlists_the_item(
     assert resp.status_code == 409, resp.text
     assert await quantity_of(client, "sofa-couch") == 0
     data = (await client.get(f"/api/referrals/{referral['id']}")).json()
-    assert data["items"][0]["status"] == "WAITLISTED"
-    assert data["review_status"] == "waitlisted"
+    # Nothing changes: the unit stays approved, with no drop-off.
+    assert data["items"][0]["status"] == "APPROVED"
+    assert data["review_status"] == "approved"
 
-    # Once stock comes in, the waitlisted item can be scheduled.
+    # Once stock comes in, it can be scheduled.
     await set_quantity(db_session, "sofa-couch", 1)
     assert (await schedule(client, item, route)).status_code == 201
     assert await quantity_of(client, "sofa-couch") == 0

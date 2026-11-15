@@ -98,16 +98,6 @@ async def approve_item(
     return await _review_item(db, referral, item_id, ReferralItemStatus.APPROVED)
 
 
-@router.post("/{referral_id}/items/{item_id}/waitlist", response_model=ReferralItem)
-async def waitlist_item(
-    item_id: str,
-    referral: Referral = Depends(get_referral_or_404),
-    db: AsyncSession = Depends(get_db),
-):
-    """Approved for this client but waiting for stock."""
-    return await _review_item(db, referral, item_id, ReferralItemStatus.WAITLISTED)
-
-
 @router.post("/{referral_id}/items/{item_id}/reject", response_model=ReferralItem)
 async def reject_item(
     item_id: str,

@@ -301,3 +301,65 @@ async def test_moving_out_of_rejected_clears_the_reason(client):
     )
     assert resp.status_code == 200, resp.text
     assert resp.json()["rejection_reason"] is None
+
+
+# ── Declining and deleting ────────────────────────────────────────────────────
+
+
+async def test_declining_closes_every_open_unit(client):
+    referral = await new_referral(client)
+    route = await new_route(client)
+    await review(client, referral, 0, "approve")
+    await review(client, referral, 1, "approve")
+    dropoff = (await schedule(client, referral, 1, route)).json()
+
+    resp = await client.put(
+        f"/api/referrals/{referral['id']}",
+        json={"status": "declined", "rejection_reason": "location"},
+    )
+    assert resp.status_code == 200, resp.text
+    data = resp.json()
+    # Approved → cancelled, scheduled → cancelled with its drop-off, pending →
+    # rejected.
+    assert [item["status"] for item in data["items"]] == [
+        "CANCELLED",
+        "CANCELLED",
+        "REJECTED",
+    ]
+    assert data["review_status"] == "rejected"
+    assert (await client.get(f"/api/dropoffs/{dropoff['id']}")).status_code == 404
+
+
+async def test_declining_keeps_delivered_units(client):
+    referral = await new_referral(client)
+    route = await new_route(client)
+    await review(client, referral, 0, "approve")
+    dropoff = (await schedule(client, referral, 0, route)).json()
+    await client.post(f"/api/dropoffs/{dropoff['id']}/deliver")
+
+    resp = await client.put(
+        f"/api/referrals/{referral['id']}", json={"status": "declined"}
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["items"][0]["status"] == "DELIVERED"
+
+
+async def test_deleting_a_referral_cancels_its_dropoffs(client):
+    referral = await new_referral(client)
+    route = await new_route(client)
+    await review(client, referral, 0, "approve")
+    dropoff = (await schedule(client, referral, 0, route)).json()
+
+    assert (await client.delete(f"/api/referrals/{referral['id']}")).status_code == 204
+    assert (await client.get(f"/api/dropoffs/{dropoff['id']}")).status_code == 404
+
+
+async def test_a_referral_with_a_delivery_cant_be_deleted(client):
+    referral = await new_referral(client)
+    route = await new_route(client)
+    await review(client, referral, 0, "approve")
+    dropoff = (await schedule(client, referral, 0, route)).json()
+    await client.post(f"/api/dropoffs/{dropoff['id']}/deliver")
+
+    resp = await client.delete(f"/api/referrals/{referral['id']}")
+    assert resp.status_code == 400

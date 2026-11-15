@@ -109,6 +109,21 @@ async def deliver_dropoff(db: AsyncSession, dropoff: Dropoff) -> ReferralItem:
     return item
 
 
+async def get_item_dropoff(db: AsyncSession, item_id: str) -> Dropoff | None:
+    result = await db.execute(
+        select(Dropoff).where(Dropoff.referral_item_id == item_id)
+    )
+    return result.scalar_one_or_none()
+
+
+async def release_dropoff(db: AsyncSession, dropoff: Dropoff) -> None:
+    """
+    Remove a drop-off that hasn't been delivered, without committing, so the
+    caller can change the item's status in the same transaction.
+    """
+    await db.delete(dropoff)
+
+
 async def delete_dropoff(db: AsyncSession, dropoff: Dropoff) -> None:
     """Cancel a drop-off. Its referral item goes back to APPROVED."""
     if dropoff.referral_item_id:
@@ -117,7 +132,7 @@ async def delete_dropoff(db: AsyncSession, dropoff: Dropoff) -> None:
             if item.status == ReferralItemStatus.DELIVERED.value:
                 raise ValueError("A delivered drop-off can't be cancelled.")
             item.status = ReferralItemStatus.APPROVED.value
-    await db.delete(dropoff)
+    await release_dropoff(db, dropoff)
     try:
         await db.commit()
     except IntegrityError as e:

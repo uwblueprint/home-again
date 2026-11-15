@@ -13,6 +13,7 @@ from sqlalchemy.orm import selectinload
 from ..enums import ReferralItemStatus, ReferralReviewStatus, ReferralStatus
 from ..models import Agent, Client, Referral, ReferralItem
 from ..schemas import ReferralCreate, ReferralUpdate
+from . import dropoffs as dropoffs_service
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +68,11 @@ async def update_referral(
     await _validate_fks(db, data)
     status = data.get("status") or referral.status
     _check_rejection(data, status)
+    if (
+        status == ReferralStatus.DECLINED
+        and referral.status != ReferralStatus.DECLINED.value
+    ):
+        await _close_items(db, referral)
     if status != ReferralStatus.DECLINED:
         # A referral moved out of rejected no longer has a rejection reason.
         data["rejection_reason"] = None
@@ -91,6 +97,19 @@ async def update_referral(
 
 
 async def delete_referral(db: AsyncSession, referral: Referral) -> None:
+    """
+    Delete a referral and its items. Open drop-offs are cancelled first; a
+    referral with a delivered item is kept as the record of that delivery.
+    """
+    if any(
+        item.status == ReferralItemStatus.DELIVERED.value for item in referral.items
+    ):
+        raise ValueError("This referral has delivered items, so it can't be deleted.")
+    for item in referral.items:
+        dropoff = await dropoffs_service.get_item_dropoff(db, item.id)
+        if dropoff is not None:
+            await dropoffs_service.release_dropoff(db, dropoff)
+    await db.flush()
     await db.delete(referral)
     try:
         await db.commit()
@@ -224,6 +243,27 @@ async def review_item(
     await db.commit()
     await db.refresh(item)
     return item
+
+
+async def _close_items(db: AsyncSession, referral: Referral) -> None:
+    """
+    A declined referral gets nothing more: units not yet reviewed are rejected,
+    units still going out are cancelled along with any drop-off. Delivered
+    units stay delivered.
+    """
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    for item in referral.items:
+        if item.status == ReferralItemStatus.DELIVERED.value:
+            continue
+        dropoff = await dropoffs_service.get_item_dropoff(db, item.id)
+        if dropoff is not None:
+            await dropoffs_service.release_dropoff(db, dropoff)
+        item.status = (
+            ReferralItemStatus.REJECTED.value
+            if item.status == ReferralItemStatus.PENDING_REVIEW.value
+            else ReferralItemStatus.CANCELLED.value
+        )
+        item.reviewed_at = now
 
 
 def _check_rejection(data: dict[str, Any], status: str) -> None:

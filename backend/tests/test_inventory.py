@@ -276,3 +276,52 @@ async def test_a_picked_up_donation_adds_its_approved_items(
     # Saving it as completed again doesn't count them twice.
     await client.put(f"/api/donations/{donation['id']}", json={"status": "completed"})
     assert await quantity_of(client, "sofa-couch") == 2
+
+
+async def test_declining_a_referral_puts_scheduled_units_back(
+    client, db_session, inventory
+):
+    await set_quantity(db_session, "sofa-couch", 1)
+    referral, item, route = await approved_sofa_request(client)
+    await schedule(client, item, route)
+    assert await quantity_of(client, "sofa-couch") == 0
+
+    resp = await client.put(
+        f"/api/referrals/{referral['id']}", json={"status": "declined"}
+    )
+    assert resp.status_code == 200, resp.text
+    assert await quantity_of(client, "sofa-couch") == 1
+
+
+async def test_deleting_a_referral_puts_scheduled_units_back(
+    client, db_session, inventory
+):
+    await set_quantity(db_session, "sofa-couch", 1)
+    referral, item, route = await approved_sofa_request(client)
+    await schedule(client, item, route)
+
+    assert (await client.delete(f"/api/referrals/{referral['id']}")).status_code == 204
+    assert await quantity_of(client, "sofa-couch") == 1
+
+
+async def test_donate_form_bed_frames_resolve_by_size(db_session, inventory):
+    from app.services import inventory_service
+
+    db_session.add(
+        Inventory(
+            id="metal-bed-frame-tw-db",
+            name="Metal Bed Frame",
+            size="TW/DB",
+            category="Bed",
+        )
+    )
+    await db_session.commit()
+
+    match = await inventory_service.resolve_inventory_item(
+        db_session, "Bed frames", "TW/DB"
+    )
+    assert match is not None and match.id == "metal-bed-frame-tw-db"
+    # Without a size there's no way to tell which row it is.
+    assert (
+        await inventory_service.resolve_inventory_item(db_session, "Bed frames") is None
+    )

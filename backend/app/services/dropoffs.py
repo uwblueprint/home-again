@@ -55,15 +55,14 @@ async def create_dropoff(db: AsyncSession, payload: DropoffCreate) -> Dropoff:
         if data.get("referral_id") and data["referral_id"] != item.referral_id:
             raise ValueError("referral_id doesn't match the referral item's referral.")
         data["referral_id"] = item.referral_id
-        # Scheduling takes one unit of the type off the count. With none left,
-        # the item waits for stock instead.
+        # Scheduling takes one unit of the type off the count. With none left
+        # nothing changes: the item stays approved until stock comes in.
         if item.inventory_id and not await inventory_service.take_one(
             db, item.inventory_id
         ):
-            item.status = ReferralItemStatus.WAITLISTED.value
-            await db.commit()
+            await db.rollback()
             raise inventory_service.OutOfStockError(
-                "None in stock; the item is waitlisted until more come in."
+                "None in stock; schedule this drop-off once more come in."
             )
         item.status = ReferralItemStatus.SCHEDULED.value
 

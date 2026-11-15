@@ -31,6 +31,7 @@ from .enums import (
     GenderEnum,
     ImmigrationStatusEnum,
     ReferralItemStatus,
+    ReferralRejectionReason,
     ReferralReviewStatus,
     ReferralStatus,
     RouteStatus,
@@ -511,10 +512,22 @@ class ReferralBase(BaseModel):
     move_other_info: Optional[str] = None
     notes_and_instructions: Optional[str] = None
     status: ReferralStatus
+    # Only when status is declined; details are required for OTHER.
+    rejection_reason: Optional[ReferralRejectionReason] = None
+    rejection_details: Optional[str] = None
+
+
+def _check_rejection_details(model):
+    if (
+        model.rejection_reason == ReferralRejectionReason.OTHER
+        and not (model.rejection_details or "").strip()
+    ):
+        raise ValueError("rejection_details is required when the reason is other.")
+    return model
 
 
 class ReferralCreate(ReferralBase):
-    pass
+    _rejection_details = model_validator(mode="after")(_check_rejection_details)
 
 
 class ReferralUpdate(BaseModel):
@@ -548,6 +561,10 @@ class ReferralUpdate(BaseModel):
     move_other_info: Optional[str] = None
     notes_and_instructions: Optional[str] = None
     status: Optional[ReferralStatus] = None
+    rejection_reason: Optional[ReferralRejectionReason] = None
+    rejection_details: Optional[str] = None
+
+    _rejection_details = model_validator(mode="after")(_check_rejection_details)
 
 
 class ReferralItem(BaseModel):

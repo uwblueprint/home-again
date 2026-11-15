@@ -235,3 +235,69 @@ async def test_a_dropoff_needs_something_to_deliver(client):
     route = await new_route(client)
     resp = await client.post("/api/dropoffs", json={"route_id": route["id"]})
     assert resp.status_code == 422
+
+
+# ── Rejection reason ──────────────────────────────────────────────────────────
+
+
+async def test_rejecting_a_referral_records_the_reason(client):
+    referral = await new_referral(client)
+    resp = await client.put(
+        f"/api/referrals/{referral['id']}",
+        json={"status": "declined", "rejection_reason": "location"},
+    )
+    assert resp.status_code == 200, resp.text
+    data = await status_of(client, referral)
+    assert data["rejection_reason"] == "location"
+    assert data["rejection_details"] is None
+
+
+async def test_other_needs_details(client):
+    referral = await new_referral(client)
+    resp = await client.put(
+        f"/api/referrals/{referral['id']}",
+        json={"status": "declined", "rejection_reason": "other"},
+    )
+    assert resp.status_code == 422
+
+    resp = await client.put(
+        f"/api/referrals/{referral['id']}",
+        json={
+            "status": "declined",
+            "rejection_reason": "other",
+            "rejection_details": "Client moved away",
+        },
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["rejection_details"] == "Client moved away"
+
+
+async def test_a_reason_needs_a_declined_referral(client):
+    referral = await new_referral(client)
+    resp = await client.put(
+        f"/api/referrals/{referral['id']}",
+        json={"rejection_reason": "duplicate"},
+    )
+    assert resp.status_code == 400
+
+
+async def test_unknown_reasons_are_rejected(client):
+    referral = await new_referral(client)
+    resp = await client.put(
+        f"/api/referrals/{referral['id']}",
+        json={"status": "declined", "rejection_reason": "nope"},
+    )
+    assert resp.status_code == 422
+
+
+async def test_moving_out_of_rejected_clears_the_reason(client):
+    referral = await new_referral(client)
+    await client.put(
+        f"/api/referrals/{referral['id']}",
+        json={"status": "declined", "rejection_reason": "incomplete"},
+    )
+    resp = await client.put(
+        f"/api/referrals/{referral['id']}", json={"status": "approved"}
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["rejection_reason"] is None

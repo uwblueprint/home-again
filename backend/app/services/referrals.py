@@ -10,7 +10,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from ..enums import ReferralItemStatus, ReferralReviewStatus
+from ..enums import ReferralItemStatus, ReferralReviewStatus, ReferralStatus
 from ..models import Agent, Client, Referral, ReferralItem
 from ..schemas import ReferralCreate, ReferralUpdate
 
@@ -45,6 +45,7 @@ async def get_referral(db: AsyncSession, referral_id: str) -> Referral | None:
 async def create_referral(db: AsyncSession, payload: ReferralCreate) -> Referral:
     data = payload.model_dump()
     await _validate_fks(db, data)
+    _check_rejection(data, data["status"])
     referral = Referral(**_prepare_payload(data))
     referral.items = build_items(data["requested_items"])
     db.add(referral)
@@ -64,6 +65,12 @@ async def update_referral(
     if not data:
         raise ValueError("No update fields were provided.")
     await _validate_fks(db, data)
+    status = data.get("status") or referral.status
+    _check_rejection(data, status)
+    if status != ReferralStatus.DECLINED:
+        # A referral moved out of rejected no longer has a rejection reason.
+        data["rejection_reason"] = None
+        data["rejection_details"] = None
     if data.get("requested_items") is not None:
         # The items are rebuilt from the request, which would throw away any
         # review decisions already made.
@@ -217,6 +224,12 @@ async def review_item(
     await db.commit()
     await db.refresh(item)
     return item
+
+
+def _check_rejection(data: dict[str, Any], status: str) -> None:
+    """A rejection reason only belongs on a declined referral."""
+    if data.get("rejection_reason") and status != ReferralStatus.DECLINED:
+        raise ValueError("A rejection reason can only be set on a declined referral.")
 
 
 def _prepare_payload(data: dict[str, Any]) -> dict[str, Any]:

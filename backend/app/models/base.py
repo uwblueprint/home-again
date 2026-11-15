@@ -427,6 +427,10 @@ class Referral(Base):
     move_other_info = Column(Text, nullable=True)
     notes_and_instructions = Column(Text, nullable=True)
     status = Column(String(50), nullable=False)  # See ReferralStatus
+    # Set only when status is declined. See ReferralRejectionReason;
+    # rejection_details is required when the reason is OTHER.
+    rejection_reason = Column(String(50), nullable=True)
+    rejection_details = Column(Text, nullable=True)
     created_at = Column(
         DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
     )

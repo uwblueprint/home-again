@@ -11,6 +11,8 @@ a donation's from its furniture).
 - Create referral_items and enable RLS on it, like every other public table
 - Backfill rows from each referral's requested_items JSON ("Sofa" × 2 → two
   rows). referrals.requested_items stays as the agent's original request.
+- referrals: add rejection_reason and rejection_details, set when a referral
+  is declined (details required for "other"); existing rows stay empty
 - dropoffs: add referral_item_id (the unit being delivered) and make
   furniture_id optional; which physical piece goes out isn't tracked
 - Existing referrals have no per-unit decisions, so each unit takes its
@@ -65,6 +67,11 @@ def upgrade():
     )
     op.create_index("ix_referral_items_referral_id", "referral_items", ["referral_id"])
     op.execute('ALTER TABLE public."referral_items" ENABLE ROW LEVEL SECURITY')
+
+    op.add_column(
+        "referrals", sa.Column("rejection_reason", sa.String(50), nullable=True)
+    )
+    op.add_column("referrals", sa.Column("rejection_details", sa.Text(), nullable=True))
 
     op.alter_column(
         "dropoffs", "furniture_id", existing_type=sa.String(36), nullable=True
@@ -131,6 +138,8 @@ def upgrade():
 
 
 def downgrade():
+    op.drop_column("referrals", "rejection_details")
+    op.drop_column("referrals", "rejection_reason")
     op.drop_constraint("dropoffs_referral_item_id_key", "dropoffs", type_="unique")
     op.drop_constraint("dropoffs_referral_item_id_fkey", "dropoffs", type_="foreignkey")
     op.drop_column("dropoffs", "referral_item_id")

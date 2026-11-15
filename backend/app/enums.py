@@ -139,6 +139,15 @@ class ReferralStatus(str, enum.Enum):
     DECLINED = "declined"
 
 
+class ReferralRejectionReason(str, enum.Enum):
+    """Why an admin rejected a whole referral. OTHER requires free-text details."""
+
+    DUPLICATE = "duplicate"  # Submitted a referral this year already
+    LOCATION = "location"  # Outside the service area
+    INCOMPLETE = "incomplete"  # Incomplete information
+    OTHER = "other"
+
+
 class ReferralItemStatus(str, enum.Enum):
     """Where one requested unit is, from an admin's review through delivery."""
 

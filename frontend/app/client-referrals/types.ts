@@ -25,10 +25,6 @@ export interface ClientReferral {
   rejectionReason?: string;
 }
 
-export interface ClientReferralsData {
-  referrals: ClientReferral[];
-}
-
 export type MoveTarget = "waitlisted" | "rejected";
 
 export type ReferralStatusUpdate = {

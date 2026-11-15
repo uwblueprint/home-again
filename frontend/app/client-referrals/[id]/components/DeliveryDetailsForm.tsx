@@ -5,7 +5,7 @@ import { Checkbox, Input, Textarea } from "@/common/components/ui";
 import type {
   DeliveryDetailsFormData,
   DeliveryDetailsErrors,
-} from "@/app/referral-requests/[id]/types";
+} from "@/app/client-referrals/[id]/types";
 
 const MOVE_OPTIONS = [
   { id: "staircases", label: "Staircases" },

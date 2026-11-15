@@ -4,6 +4,7 @@ import type {
   Client,
   Referral,
   UpdateReferralInput,
+  UpdateClientInput,
 } from "@/common/types";
 import { API_STATUS } from "./constants";
 import type { MoveTarget } from "./types";
@@ -47,5 +48,27 @@ export async function updateReferral(
   // The current backend has no rejection-reason field. Keep that value in the
   // optimistic UI state until the API contract adds a dedicated field.
   const response = await apiClient.put<Referral>(`/referrals/${id}`, payload);
+  return response.data;
+}
+
+export async function updateClientDetails(
+  id: string,
+  payload: UpdateClientInput
+): Promise<Client> {
+  const response = await apiClient.put<Client>(
+    `/clients/${encodeURIComponent(id)}`,
+    payload
+  );
+  return response.data;
+}
+
+export async function updateDeliveryDetails(
+  id: string,
+  payload: UpdateReferralInput
+): Promise<Referral> {
+  const response = await apiClient.put<Referral>(
+    `/referrals/${encodeURIComponent(id)}`,
+    payload
+  );
   return response.data;
 }

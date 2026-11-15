@@ -4,7 +4,7 @@ import type {
   DeliveryDetailsFormData,
   ClientDetailsErrors,
   DeliveryDetailsErrors,
-} from "@/app/referral-requests/[id]/types";
+} from "@/app/client-referrals/[id]/types";
 
 export const toClientForm = (client: Client): ClientDetailsFormData => ({
   firstName: client.first_name,

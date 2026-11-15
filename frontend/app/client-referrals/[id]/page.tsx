@@ -6,19 +6,22 @@ import { REFERRAL_REQUESTS } from "@/common/constants/Routes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Check, X } from "lucide-react";
-import { useReferralData } from "@/app/referral-requests/[id]/hooks/useReferralData";
+import {
+  REFERRAL_DATA_KEY,
+  useReferralData,
+} from "@/app/client-referrals/hooks";
 import {
   RejectReferralDialog,
   WaitlistReferralDialog,
-} from "@/app/referral-requests/components";
-import type { ReferralDialogReferral } from "@/app/referral-requests/components";
-import apiClient from "@/common/lib/apiClient";
+} from "@/app/client-referrals/components";
+import type { ReferralDialogReferral } from "@/app/client-referrals/components";
+import { updateReferral } from "@/app/client-referrals/api";
 import {
   ReferralRequestHeader,
   RequestedItemsSection,
   ReferralDetails,
-} from "@/app/referral-requests/[id]/components";
-import { toReferralRequest } from "@/app/referral-requests/[id]/data/referral";
+} from "@/app/client-referrals/[id]/components";
+import { toReferralRequest } from "@/app/client-referrals/[id]/data/referral";
 import {
   Button,
   Tabs,
@@ -36,16 +39,10 @@ export default function ReferralRequestPage() {
   const agents = data?.agents ?? [];
   const referral = data?.referrals.find((referral) => referral.id === id);
   const move = useMutation({
-    mutationFn: async (update: {
-      status: "approved" | "declined";
-      is_priority?: boolean;
-      priority_description?: string;
-    }) => {
-      await apiClient.put(`/referrals/${encodeURIComponent(id)}`, update);
-    },
+    mutationFn: updateReferral.bind(null, id),
     onSuccess: async () => {
       setDialog(null);
-      await queryClient.invalidateQueries({ queryKey: ["referrals"] });
+      await queryClient.invalidateQueries({ queryKey: REFERRAL_DATA_KEY });
     },
   });
   const request = referral ? toReferralRequest(referral) : undefined;
@@ -175,7 +172,7 @@ export default function ReferralRequestPage() {
           }}
           onConfirm={() => {
             // Rejection reasons are not supported by the current backend contract.
-            move.mutate({ status: "declined" });
+            move.mutate({ target: "rejected" });
           }}
         />
       )}
@@ -190,9 +187,9 @@ export default function ReferralRequestPage() {
           }}
           onConfirm={(isPriority) =>
             move.mutate({
-              status: "approved",
-              is_priority: isPriority,
-              priority_description: request.priorityDescription,
+              target: "waitlisted",
+              isPriority,
+              priorityDescription: request.priorityDescription,
             })
           }
         />

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { PAGE_SIZE, REVIEW_FILTERS, TABS } from "./constants";
 import { useClientReferrals } from "./hooks";
@@ -17,6 +18,7 @@ import {
   matchesReviewFilter,
   sortBySubmissionDate,
 } from "./utils";
+import { REFERRAL_REQUEST } from "@/common/constants/Routes";
 
 function toDialogReferral(referral: ClientReferral) {
   return {
@@ -33,6 +35,7 @@ function toDialogReferral(referral: ClientReferral) {
 }
 
 export default function ClientReferralsPage() {
+  const router = useRouter();
   const { referrals, isLoading, isError, waitlist, reject } =
     useClientReferrals();
 
@@ -127,7 +130,7 @@ export default function ClientReferralsPage() {
   };
 
   return (
-    <div className="mx-auto flex max-w-275 flex-col px-xl py-xl">
+    <main className="mx-auto flex w-full max-w-275 flex-1 flex-col px-xl py-xl">
       <div className="flex flex-col gap-5">
         <p className="text-black text-3xl font-semibold leading-8">
           Client Referrals
@@ -204,9 +207,9 @@ export default function ClientReferralsPage() {
             referrals={visible}
             onWaitlist={setWaitlistTarget}
             onReject={setRejectTarget}
-            onViewDetails={() => {
-              /* TODO: navigate to referral details */
-            }}
+            onViewDetails={(referral) =>
+              router.push(REFERRAL_REQUEST(referral.id))
+            }
           />
         </div>
       )}
@@ -252,6 +255,6 @@ export default function ClientReferralsPage() {
           onPageChange={(nextPage) => setPage(nextPage + 1)}
         />
       )}
-    </div>
+    </main>
   );
 }

@@ -2,11 +2,11 @@
 
 import { FormField } from "@/common/components/forms";
 import { Checkbox, Input } from "@/common/components/ui";
-import { DetailSelect } from "@/app/referral-requests/[id]/components/DetailFormFields";
+import { DetailSelect } from "@/app/client-referrals/[id]/components/DetailFormFields";
 import type {
   ClientDetailsErrors,
   ClientDetailsFormData,
-} from "@/app/referral-requests/[id]/types";
+} from "@/app/client-referrals/[id]/types";
 
 // Values mirror the backend GenderEnum, ImmigrationStatusEnum, and FamilyTypeEnum.
 export const GENDERS = [

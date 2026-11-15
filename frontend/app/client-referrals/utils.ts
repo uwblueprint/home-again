@@ -15,40 +15,60 @@ export const unfulfillableMsg = (count: number) =>
     ? `${count} items that can't be fully fulfilled right now.`
     : undefined;
 
-function toReferralItems(rawItems: unknown[]) {
+export type NormalizedRequestedItem = {
+  id: string;
+  name: string;
+  size?: string;
+  quantity: number;
+  stock: number;
+  description?: string;
+  reviewed: boolean;
+  approved: boolean;
+};
+
+export function normalizeRequestedItems(
+  rawItems: unknown[]
+): NormalizedRequestedItem[] {
   return rawItems.flatMap((item, index) => {
     if (!item || typeof item !== "object") return [];
 
     const value = item as Record<string, unknown>;
-    if (typeof value.name !== "string") return [];
+    const name =
+      typeof value.name === "string"
+        ? value.name
+        : typeof value.item === "string"
+          ? value.item
+          : undefined;
+    if (!name) return [];
 
     return [
       {
         id: typeof value.id === "string" ? value.id : `requested-item-${index}`,
-        name: value.name,
+        name,
+        size: typeof value.size === "string" ? value.size : undefined,
         quantity: typeof value.quantity === "number" ? value.quantity : 1,
         stock: typeof value.stock === "number" ? value.stock : 0,
+        description:
+          typeof value.description === "string"
+            ? value.description
+            : typeof value.notes === "string"
+              ? value.notes
+              : undefined,
+        reviewed: value.reviewed === true,
+        approved: value.approved === true,
       },
     ];
   });
 }
 
 function getReviewSummary(rawItems: unknown[]) {
-  const reviewableItems = rawItems.filter(
-    (item): item is Record<string, unknown> =>
-      Boolean(item) &&
-      typeof item === "object" &&
-      typeof (item as Record<string, unknown>).name === "string"
-  );
-  const reviewedItems = reviewableItems.filter(
-    (item) => item.reviewed === true
-  );
+  const reviewableItems = normalizeRequestedItems(rawItems);
+  const reviewedItems = reviewableItems.filter((item) => item.reviewed);
 
   return {
     totalCount: reviewableItems.length,
     reviewedCount: reviewedItems.length,
-    approvedCount: reviewedItems.filter((item) => item.approved === true)
-      .length,
+    approvedCount: reviewedItems.filter((item) => item.approved).length,
   };
 }
 
@@ -104,7 +124,12 @@ export function toClientReferral(
       toAgent(raw.agent_id, "primary"),
       toAgent(raw.secondary_agent_id, "secondary"),
     ].filter(Boolean) as ClientReferral["agents"],
-    items: toReferralItems(raw.requested_items),
+    items: normalizeRequestedItems(raw.requested_items).map((item) => ({
+      id: item.id,
+      name: [item.name, item.size].filter(Boolean).join(" / "),
+      quantity: item.quantity,
+      stock: item.stock,
+    })),
     reviewStatus,
     approvedCount:
       reviewStatus === "reviewed" ? review.approvedCount : undefined,

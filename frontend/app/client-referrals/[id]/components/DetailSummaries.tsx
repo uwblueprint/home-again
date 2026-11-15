@@ -3,7 +3,7 @@ import {
   FAMILY_TYPES,
   GENDERS,
   IMMIGRATION_STATUSES,
-} from "@/app/referral-requests/[id]/components/ClientDetailsForm";
+} from "@/app/client-referrals/[id]/components/ClientDetailsForm";
 import type { Client, Referral } from "@/common/types";
 
 function optionLabel(

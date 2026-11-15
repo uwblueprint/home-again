@@ -16,10 +16,7 @@ export const REVIEW_FILTERS: { key: ReviewFilter; label: string }[] = [
 ];
 
 /** The current backend models waitlisted as approved and rejected as declined. */
-export const API_STATUS: Record<
-  MoveTarget,
-  "approved" | "declined"
-> = {
+export const API_STATUS: Record<MoveTarget, "approved" | "declined"> = {
   waitlisted: "approved",
   rejected: "declined",
 };

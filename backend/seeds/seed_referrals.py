@@ -7,7 +7,6 @@ from datetime import datetime
 from app.database import AsyncSessionLocal
 from app.models import Agency, Agent, Client, Referral
 
-
 AGENCY_ID = "demo-agency"
 AGENT_ONE_ID = "demo-agent-maya"
 AGENT_TWO_ID = "demo-agent-noah"
@@ -79,7 +78,9 @@ REFERRALS = tuple(
             "pending",
             datetime(2026, 11, 8, 14, 30),
             agent_id=AGENT_TWO_ID,
-            items=[{"id": "nightstand", "name": "Nightstand", "quantity": 2, "stock": 1}],
+            items=[
+                {"id": "nightstand", "name": "Nightstand", "quantity": 2, "stock": 1}
+            ],
         ),
         make_referral(3, 3, "pending", datetime(2026, 11, 7, 9, 45), agent_id=None),
         make_referral(
@@ -108,7 +109,9 @@ REFERRALS = tuple(
             agent_id=AGENT_ONE_ID,
             items=[{"id": "dresser", "name": "Dresser", "quantity": 1, "stock": 4}],
         ),
-        make_referral(7, 7, "pending", datetime(2026, 11, 3, 13, 0), agent_id=AGENT_TWO_ID),
+        make_referral(
+            7, 7, "pending", datetime(2026, 11, 3, 13, 0), agent_id=AGENT_TWO_ID
+        ),
         make_referral(
             8,
             8,
@@ -228,7 +231,9 @@ REFERRALS = tuple(
                 }
             ],
         ),
-        make_referral(14, 6, "declined", datetime(2026, 11, 9, 8, 0), agent_id=AGENT_TWO_ID),
+        make_referral(
+            14, 6, "declined", datetime(2026, 11, 9, 8, 0), agent_id=AGENT_TWO_ID
+        ),
         make_referral(
             15,
             7,
@@ -246,7 +251,9 @@ REFERRALS = tuple(
             agent_id=AGENT_TWO_ID,
             items=[{"id": "desk", "name": "Desk", "quantity": 1, "stock": 0}],
         ),
-        make_referral(18, 2, "declined", datetime(2026, 11, 5, 8, 0), agent_id=AGENT_ONE_ID),
+        make_referral(
+            18, 2, "declined", datetime(2026, 11, 5, 8, 0), agent_id=AGENT_ONE_ID
+        ),
         make_referral(
             19,
             3,

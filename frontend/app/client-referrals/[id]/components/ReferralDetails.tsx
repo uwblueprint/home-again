@@ -1,27 +1,24 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, Pencil } from "lucide-react";
 import {
   ClientDetailsSummary,
   DeliveryDetailsSummary,
-} from "@/app/referral-requests/[id]/components/DetailSummaries";
-import { ClientDetailsForm } from "@/app/referral-requests/[id]/components/ClientDetailsForm";
-import { DeliveryDetailsForm } from "@/app/referral-requests/[id]/components/DeliveryDetailsForm";
+} from "@/app/client-referrals/[id]/components/DetailSummaries";
+import { ClientDetailsForm } from "@/app/client-referrals/[id]/components/ClientDetailsForm";
+import { DeliveryDetailsForm } from "@/app/client-referrals/[id]/components/DeliveryDetailsForm";
 import type {
   ClientDetailsErrors,
   DeliveryDetailsErrors,
   DeliveryDetailsFormData,
-} from "@/app/referral-requests/[id]/types";
+} from "@/app/client-referrals/[id]/types";
 import {
   toClientForm,
-  toClientUpdate,
   toDeliveryForm,
-  toDeliveryUpdate,
   validateClientDetails,
   validateDeliveryDetails,
-} from "@/app/referral-requests/[id]/data/details";
+} from "@/app/client-referrals/[id]/data/details";
 import {
   Button,
   Card,
@@ -30,9 +27,11 @@ import {
   CollapsibleTrigger,
 } from "@/common/components/ui";
 import type { Client, Referral } from "@/common/types";
-import type { ReferralDialogAgent } from "@/app/referral-requests/components";
-import apiClient from "@/common/lib/apiClient";
-import { REFERRAL_DATA_KEY } from "@/app/referral-requests/[id]/hooks/useReferralData";
+import type { ReferralDialogAgent } from "@/app/client-referrals/components";
+import {
+  useUpdateClientDetails,
+  useUpdateDeliveryDetails,
+} from "@/app/client-referrals/hooks";
 
 function DetailCard({
   title,
@@ -86,25 +85,10 @@ function Actions({
 }
 
 function ClientDetails({ client }: { client: Client }) {
-  const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(() => toClientForm(client));
   const [errors, setErrors] = useState<ClientDetailsErrors>({});
-  const save = useMutation({
-    mutationFn: () =>
-      apiClient.put<Client>(
-        `/clients/${encodeURIComponent(client.id)}`,
-        toClientUpdate(draft)
-      ),
-    onSuccess: async ({ data }) => {
-      qc.setQueryData<Client[]>(["clients"], (old) =>
-        old?.map((client) => (client.id === data.id ? data : client))
-      );
-      await qc.invalidateQueries({ queryKey: ["clients"] });
-      await qc.invalidateQueries({ queryKey: REFERRAL_DATA_KEY });
-      setEditing(false);
-    },
-  });
+  const save = useUpdateClientDetails(client.id, () => setEditing(false));
   return (
     <DetailCard title="Client Details">
       {!editing ? (
@@ -136,7 +120,7 @@ function ClientDetails({ client }: { client: Client }) {
             event.preventDefault();
             const nextErrors = validateClientDetails(draft);
             setErrors(nextErrors);
-            if (!Object.keys(nextErrors).length) save.mutate();
+            if (!Object.keys(nextErrors).length) save.mutate(draft);
           }}
         >
           <fieldset disabled={save.isPending} className="min-w-0">
@@ -181,24 +165,12 @@ function DeliveryDetails({
   referral: Referral;
   phone?: string | null;
 }) {
-  const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<DeliveryDetailsFormData>(() =>
     toDeliveryForm(referral)
   );
   const [errors, setErrors] = useState<DeliveryDetailsErrors>({});
-  const save = useMutation({
-    mutationFn: () =>
-      apiClient.put<Referral>(
-        `/referrals/${encodeURIComponent(referral.id)}`,
-        toDeliveryUpdate(draft)
-      ),
-    onSuccess: async ({ data }) => {
-      qc.setQueryData(["referrals", "detail", referral.id], data);
-      await qc.invalidateQueries({ queryKey: ["referrals"] });
-      setEditing(false);
-    },
-  });
+  const save = useUpdateDeliveryDetails(referral.id, () => setEditing(false));
   return (
     <DetailCard title="Delivery Details">
       {!editing ? (
@@ -230,7 +202,7 @@ function DeliveryDetails({
             event.preventDefault();
             const nextErrors = validateDeliveryDetails(draft);
             setErrors(nextErrors);
-            if (!Object.keys(nextErrors).length) save.mutate();
+            if (!Object.keys(nextErrors).length) save.mutate(draft);
           }}
         >
           <fieldset disabled={save.isPending} className="min-w-0">

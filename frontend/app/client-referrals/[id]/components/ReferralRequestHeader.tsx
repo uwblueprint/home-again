@@ -5,7 +5,7 @@ import {
   RejectedBadge,
   PriorityBadge,
 } from "@/common/components/status-labels";
-import type { ReferralRequestPreview } from "@/app/referral-requests/[id]/types";
+import type { ReferralRequestPreview } from "@/app/client-referrals/[id]/types";
 
 export function ReferralRequestHeader({
   request,

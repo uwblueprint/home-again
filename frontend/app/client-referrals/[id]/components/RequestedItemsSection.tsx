@@ -1,6 +1,6 @@
 import { RequestedItemCard } from "@/common/components/data-display";
 import { Alert, Button } from "@/common/components/ui";
-import type { ReferralRequestPreview } from "@/app/referral-requests/[id]/types";
+import type { ReferralRequestPreview } from "@/app/client-referrals/[id]/types";
 
 export function RequestedItemsSection({
   items,

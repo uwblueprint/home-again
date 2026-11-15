@@ -7,7 +7,12 @@ import type {
 
 type ReferralRecord = Omit<
   Referral,
-  "review_status" | "approved_count" | "item_count" | "items"
+  | "review_status"
+  | "approved_count"
+  | "item_count"
+  | "items"
+  | "rejection_reason"
+  | "rejection_details"
 >;
 
 const RECORDS: ReferralRecord[] = [
@@ -173,6 +178,8 @@ export const referrals: Referral[] = RECORDS.map((record) => {
   const items = toItems(record);
   return {
     ...record,
+    rejection_reason: null,
+    rejection_details: null,
     review_status: REVIEW_STATUS[record.status],
     approved_count: items.filter((item) => item.status === "DELIVERED").length,
     item_count: items.length,

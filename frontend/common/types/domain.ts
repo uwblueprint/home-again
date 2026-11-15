@@ -166,6 +166,9 @@ export interface Referral {
   move_other_info: string | null;
   notes_and_instructions: string | null;
   status: "pending" | "approved" | "completed" | "declined";
+  /** Only set when status is "declined"; details are required for "other". */
+  rejection_reason: ReferralRejectionReason | null;
+  rejection_details: string | null;
   created_at: string;
   updated_at: string;
   /** Derived from the items server-side, never stored. */
@@ -176,6 +179,13 @@ export interface Referral {
   /** One per requested unit, in request order. */
   items: ReferralItem[];
 }
+
+/** Mirrors backend `ReferralRejectionReason`. */
+export type ReferralRejectionReason =
+  | "duplicate"
+  | "location"
+  | "incomplete"
+  | "other";
 
 /**
  * Mirrors backend `ReferralReviewStatus`: where a referral is, from review

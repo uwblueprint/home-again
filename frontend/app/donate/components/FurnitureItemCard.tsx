@@ -6,7 +6,10 @@ import { cn } from "@/common/lib/utils";
 import { Button } from "@/common/components/ui/button";
 import Image from "next/image";
 import {
+  BED_FRAME_SIZES,
+  DEFAULT_CHAIR_COUNT,
   FURNITURE_TYPES,
+  MAX_CHAIRS,
   type FurnitureType,
   type FurnitureItemData,
 } from "@/app/donate/context/DonationFormContext";
@@ -142,18 +145,18 @@ export default function FurnitureItemCard({
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      onClick={() => onUpdate({ chairCount: Math.max(0, (itemData.chairCount ?? 1) - 1) })}
+                      onClick={() => onUpdate({ chairCount: Math.max(0, (itemData.chairCount ?? DEFAULT_CHAIR_COUNT) - 1) })}
                       className="flex size-8 items-center justify-center rounded-md border border-border text-foreground hover:bg-secondary"
                       aria-label="Decrease chair count"
                     >
                       −
                     </button>
                     <span className="w-6 text-center text-sm font-medium">
-                      {itemData.chairCount ?? 1}
+                      {itemData.chairCount ?? DEFAULT_CHAIR_COUNT}
                     </span>
                     <button
                       type="button"
-                      onClick={() => onUpdate({ chairCount: (itemData.chairCount ?? 1) + 1 })}
+                      onClick={() => onUpdate({ chairCount: Math.min(MAX_CHAIRS, (itemData.chairCount ?? DEFAULT_CHAIR_COUNT) + 1) })}
                       className="flex size-8 items-center justify-center rounded-md border border-border text-foreground hover:bg-secondary"
                       aria-label="Increase chair count"
                     >
@@ -163,10 +166,33 @@ export default function FurnitureItemCard({
                 </div>
               )}
 
-              {/* Mattress/Boxspring/Bed frame size */}
+              {/* Bed frame size: frames are stocked as adjustable pairs */}
+              {itemData.furnitureType === "Bed frames" && (
+                <div>
+                  <p className="mb-2 text-sm font-medium text-foreground">
+                    Please indicate size<span className="text-destructive">*</span>
+                  </p>
+                  <div className="flex gap-4">
+                    {BED_FRAME_SIZES.map(({ value, label }) => (
+                      <label key={value} className="flex cursor-pointer items-center gap-2 text-sm">
+                        <input
+                          type="radio"
+                          name={`bed-frame-size-${itemData.id}`}
+                          value={value}
+                          checked={itemData.bedFrameSize === value}
+                          onChange={() => onUpdate({ bedFrameSize: value })}
+                          className="accent-primary size-4"
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Mattress/Boxspring size */}
               {(itemData.furnitureType === "Mattress" ||
-                itemData.furnitureType === "Boxspring" ||
-                itemData.furnitureType === "Bed frames") && (
+                itemData.furnitureType === "Boxspring") && (
                 <div>
                   <p className="mb-2 text-sm font-medium text-foreground">
                     Please indicate size<span className="text-destructive">*</span>

@@ -191,7 +191,9 @@ class Donation(Base):
     donor = relationship("Donor", back_populates="donations")
     # Ordered so the review screen renders its item cards the same way every load.
     furniture_items = relationship(
-        "Furniture", back_populates="donation", order_by="Furniture.created_at"
+        "Furniture",
+        back_populates="donation",
+        order_by="[Furniture.position, Furniture.created_at, Furniture.id]",
     )
     pickups = relationship("Pickup", back_populates="donation")
 
@@ -360,6 +362,9 @@ class Furniture(Base):
     smoking_household = Column(Boolean, nullable=False, default=False)
     has_pets = Column(Boolean, nullable=False, default=False)
     status = Column(String(50), nullable=False)  # See FurnitureStatus
+    # Order within its donation, e.g. a dining set's table before its chairs.
+    # Rows created together share a created_at on coarse clocks.
+    position = Column(Integer, nullable=False, default=0, server_default="0")
     # Set only when status is REJECTED. See FurnitureRejectionReason;
     # rejection_details is required when the reason is OTHER.
     rejection_reason = Column(String(50), nullable=True)

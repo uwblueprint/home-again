@@ -5,7 +5,10 @@ import Image from "next/image";
 import { StepIndicator } from "@/common/components/ui/step-indicator";
 import { cn } from "@/common/lib/utils";
 import { Button } from "@/common/components/ui/button";
-import { useDonationForm } from "@/app/donate/context/DonationFormContext";
+import {
+  useDonationForm,
+  validateSummary,
+} from "@/app/donate/context/DonationFormContext";
 
 const STEPS = [
   { label: "Furniture Details" },
@@ -16,6 +19,8 @@ const STEPS = [
 interface DonationLayoutProps {
   currentStep: 1 | 2 | 3;
   onNext: () => void;
+  /** Disables the submit button while the request is in flight. */
+  isSubmitting?: boolean;
   onBack?: () => void;
   /** Optional element rendered on the left side of the bottom nav (e.g. "+ Add Item"). */
   leftAction?: React.ReactNode;
@@ -27,6 +32,7 @@ export default function DonationLayout({
   onNext,
   onBack,
   leftAction,
+  isSubmitting = false,
   children,
 }: DonationLayoutProps) {
   const stepIndex = currentStep - 1;
@@ -42,11 +48,7 @@ export default function DonationLayout({
   function handleNextClick() {
     if (currentStep === 3) {
       setSubmitAttempted(true);
-      const isValid =
-        formState.feeAgreement &&
-        formState.smokingInHousehold !== null &&
-        formState.petsInHousehold !== null;
-      if (isValid) onNext();
+      if (validateSummary(formState)) onNext();
     } else {
       onNext();
     }
@@ -96,8 +98,13 @@ export default function DonationLayout({
           </div>
 
           {/* Right side (Next / Submit) */}
-          <Button size="lg" className="px-6 py-5" onClick={handleNextClick}>
-            {nextLabel}
+          <Button
+            size="lg"
+            className="px-6 py-5"
+            onClick={handleNextClick}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Submitting…" : nextLabel}
           </Button>
         </div>
       </nav>

@@ -1,6 +1,21 @@
-import type { Referral } from "@/common/types";
+import type {
+  Referral,
+  ReferralItem,
+  ReferralItemStatus,
+  ReferralReviewStatus,
+} from "@/common/types";
 
-export const referrals: Referral[] = [
+type ReferralRecord = Omit<
+  Referral,
+  | "review_status"
+  | "approved_count"
+  | "item_count"
+  | "items"
+  | "rejection_reason"
+  | "rejection_details"
+>;
+
+const RECORDS: ReferralRecord[] = [
   {
     id: "referral-001",
     client_id: "client-001",
@@ -113,3 +128,62 @@ export const referrals: Referral[] = [
     updated_at: "2024-05-01T16:20:00Z",
   },
 ];
+
+/**
+ * Item status for each referral status, as the backend's referral_items
+ * migration sets it. An approved referral is "waitlisted" (accepted) in the
+ * referral list, but its units still need reviewing.
+ */
+const ITEM_STATUS: Record<Referral["status"], ReferralItemStatus> = {
+  pending: "PENDING_REVIEW",
+  approved: "PENDING_REVIEW",
+  completed: "DELIVERED",
+  declined: "REJECTED",
+};
+
+const REVIEW_STATUS: Record<Referral["status"], ReferralReviewStatus> = {
+  pending: "pending_review",
+  approved: "pending_review",
+  completed: "delivered",
+  declined: "rejected",
+};
+
+/** One item per requested unit, like the backend's referral_items rows. */
+function toItems(record: ReferralRecord): ReferralItem[] {
+  const entries = record.requested_items as {
+    item: string;
+    size?: string;
+    quantity?: number;
+  }[];
+  return entries
+    .flatMap((entry) =>
+      Array.from({ length: entry.quantity ?? 1 }, () => entry)
+    )
+    .map((entry, position) => ({
+      id: `${record.id}-item-${position}`,
+      referral_id: record.id,
+      name: entry.item,
+      size: entry.size ?? null,
+      notes: null,
+      status: ITEM_STATUS[record.status],
+      rejection_reason: null,
+      reviewed_at: record.status === "pending" ? null : record.updated_at,
+      inventory_id: null,
+      position,
+      created_at: record.created_at,
+      updated_at: record.updated_at,
+    }));
+}
+
+export const referrals: Referral[] = RECORDS.map((record) => {
+  const items = toItems(record);
+  return {
+    ...record,
+    rejection_reason: null,
+    rejection_details: null,
+    review_status: REVIEW_STATUS[record.status],
+    approved_count: items.filter((item) => item.status === "DELIVERED").length,
+    item_count: items.length,
+    items,
+  };
+});

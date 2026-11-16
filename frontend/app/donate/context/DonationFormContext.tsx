@@ -7,6 +7,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
+import type { DonationSubmissionInput } from "@/common/types";
 
 // Types
 
@@ -30,12 +31,25 @@ export const FURNITURE_TYPES = [
 
 export type FurnitureType = (typeof FURNITURE_TYPES)[number];
 
+/** Chairs in a dining set: the card starts at this, and can't go above MAX_CHAIRS. */
+export const DEFAULT_CHAIR_COUNT = 1;
+export const MAX_CHAIRS = 20;
+
+/** Bed frame sizes as they're stocked; the values match inventory sizes. */
+export const BED_FRAME_SIZES = [
+  { value: "TW/DB", label: "Twin / Double" },
+  { value: "DB/QN", label: "Double / Queen" },
+] as const;
+export type BedFrameSize = (typeof BED_FRAME_SIZES)[number]["value"];
+
 export interface FurnitureItemData {
   id: string;
   furnitureType: FurnitureType | null;
   hasStains: boolean | null;
   photos: File[];
   mattressSize: "Twin" | "Double" | "Queen" | null;
+  /** Bed frames are stocked as adjustable twin/double or double/queen frames. */
+  bedFrameSize: BedFrameSize | null;
   chairCount: number | null;
   otherDescription: string | null;
 }
@@ -91,16 +105,75 @@ function createItem(): FurnitureItemData {
     hasStains: null,
     photos: [],
     mattressSize: null,
+    bedFrameSize: null,
     chairCount: null,
     otherDescription: null,
   };
 }
 
+/** The size an item needs before it can be submitted, or null if none. */
+function missingSize(item: FurnitureItemData): boolean {
+  if (item.furnitureType === "Bed frames") return item.bedFrameSize === null;
+  if (item.furnitureType === "Mattress" || item.furnitureType === "Boxspring") {
+    return item.mattressSize === null;
+  }
+  return false;
+}
+
 export function validateItems(items: FurnitureItemData[]): boolean {
-  // Photos are optional; only furniture type and stains status are required.
+  // Photos are optional; type, stains and (for sized items) size are required.
   return items.every(
-    (item) => item.furnitureType !== null && item.hasStains !== null
+    (item) =>
+      item.furnitureType !== null &&
+      item.hasStains !== null &&
+      !missingSize(item)
   );
+}
+
+/** Whether the summary step's household questions and fee agreement are done. */
+export function validateSummary(state: DonationFormState): boolean {
+  return (
+    state.smokingInHousehold !== null &&
+    state.petsInHousehold !== null &&
+    state.feeAgreement
+  );
+}
+
+const SIZED_TYPES: FurnitureType[] = ["Mattress", "Boxspring"];
+
+/**
+ * Shape the finished form into POST /donations/submissions. Call only after
+ * validateItems, validatePickupAddress and validateSummary pass.
+ */
+export function toDonationSubmission(
+  state: DonationFormState
+): DonationSubmissionInput {
+  const { pickupAddress } = state;
+  return {
+    donor_id: state.donorId ?? "",
+    address_line_1: pickupAddress.streetAddress.trim(),
+    address_line_2: pickupAddress.apartment.trim() || null,
+    city: pickupAddress.city.trim(),
+    postal_code: pickupAddress.postalCode.trim() || null,
+    smoking_household: state.smokingInHousehold ?? false,
+    has_pets: state.petsInHousehold ?? false,
+    items: state.items.map((item) => ({
+      furniture_type: item.furnitureType ?? "Other",
+      size:
+        item.furnitureType === "Bed frames"
+          ? item.bedFrameSize
+          : item.furnitureType && SIZED_TYPES.includes(item.furnitureType)
+            ? item.mattressSize
+            : null,
+      has_stains: item.hasStains ?? false,
+      chair_count:
+        item.furnitureType === "Dining table & chairs /sets"
+          ? (item.chairCount ?? DEFAULT_CHAIR_COUNT)
+          : null,
+      other_description:
+        item.furnitureType === "Other" ? item.otherDescription : null,
+    })),
+  };
 }
 
 // Context
@@ -125,7 +198,16 @@ export function DonationFormProvider({
     petsInHousehold: null,
     feeAgreement: false,
     items: [
-      { id: "item-initial", furnitureType: null, hasStains: null, photos: [], mattressSize: null, chairCount: null, otherDescription: null },
+      {
+        id: "item-initial",
+        furnitureType: null,
+        hasStains: null,
+        photos: [],
+        mattressSize: null,
+        bedFrameSize: null,
+        chairCount: null,
+        otherDescription: null,
+      },
     ],
     pickupSubmitAttempted: false,
   }));

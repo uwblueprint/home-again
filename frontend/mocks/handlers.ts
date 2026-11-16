@@ -5,6 +5,7 @@ import { clientsHandlers } from "./handlers/clients";
 import { donationsHandlers } from "./handlers/donations";
 import { donorsHandlers } from "./handlers/donors";
 import { furnitureHandlers } from "./handlers/furniture";
+import { inventoryHandlers } from "./handlers/inventory";
 import { referralsHandlers } from "./handlers/referrals";
 import { routesHandlers } from "./handlers/routes";
 
@@ -22,6 +23,7 @@ export const handlers = [
   ...donationsHandlers,
   ...donorsHandlers,
   ...furnitureHandlers,
+  ...inventoryHandlers,
   ...referralsHandlers,
   ...routesHandlers,
   fallbackHandler,

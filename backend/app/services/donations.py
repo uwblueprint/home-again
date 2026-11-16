@@ -8,9 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from ..enums import DonationReviewStatus, DonationStatus, FurnitureStatus
-from ..models import Donation, Donor, Furniture, Pickup
+from ..models import Donation, Donor, Furniture, Inventory, Pickup
 from . import inventory as inventory_service
-from ..schemas import DonationCreate, DonationUpdate
+from ..schemas import DonationCreate, DonationSubmission, DonationUpdate
 
 logger = logging.getLogger(__name__)
 
@@ -132,6 +132,106 @@ async def get_donation_detail(db: AsyncSession, donation_id: str) -> Donation | 
         )
     )
     return result.scalar_one_or_none()
+
+
+async def list_donation_details(db: AsyncSession) -> list[Donation]:
+    """Every donation, newest first, loaded like get_donation_detail."""
+    result = await db.execute(
+        select(Donation)
+        .order_by(Donation.created_at.desc())
+        .options(
+            selectinload(Donation.donor),
+            selectinload(Donation.furniture_items).selectinload(Furniture.photos),
+            selectinload(Donation.pickups),
+        )
+    )
+    return result.scalars().all()
+
+
+# The donate form's "Dining table & chairs /sets" is one entry with a chair
+# count, but the table and each chair are separate pieces in stock.
+DINING_SET_TYPE = "dining table & chairs /sets"
+DINING_TABLE_ID = "dining-kitchen-table"
+DINING_CHAIR_ID = "kitchen-dining-chair"
+
+
+def _describe_item(item) -> str:
+    """The line the review screen shows under the item name."""
+    parts = ["Has stains" if item.has_stains else "No stains"]
+    if item.other_description and item.other_description.strip():
+        parts.append(item.other_description.strip())
+    return ". ".join(parts)
+
+
+async def _pieces(db: AsyncSession, item) -> list[tuple[str, Inventory | None]]:
+    """
+    The donated pieces one form entry stands for, each with its inventory type:
+    a dining set is its table plus one row per chair, so each can be reviewed
+    and counted on its own. Everything else is a single piece.
+    """
+    if item.furniture_type.strip().lower() == DINING_SET_TYPE:
+        table = await inventory_service.get_inventory_item(db, DINING_TABLE_ID)
+        chair = await inventory_service.get_inventory_item(db, DINING_CHAIR_ID)
+        chairs = [("Dining chair", chair)] * (item.chair_count or 0)
+        return [("Dining table", table), *chairs]
+
+    inventory = await inventory_service.resolve_inventory_item(
+        db, item.furniture_type, item.size
+    )
+    name = item.furniture_type.strip()
+    if item.size:
+        name = f"{name} ({item.size.strip()})"
+    return [(name, inventory)]
+
+
+async def submit_donation(db: AsyncSession, payload: DonationSubmission) -> Donation:
+    """
+    Create a donation and its items from the donate form, in one transaction.
+    Each piece is linked to its inventory type where one matches; a dining set
+    becomes its table plus one row per chair.
+    """
+    donor_result = await db.execute(
+        select(Donor.id).where(Donor.id == payload.donor_id)
+    )
+    if not donor_result.scalar_one_or_none():
+        raise ValueError(f"Donor with ID '{payload.donor_id}' does not exist.")
+
+    donation = Donation(
+        **payload.model_dump(exclude={"items"}),
+        status=DonationStatus.PENDING.value,
+    )
+    db.add(donation)
+    await db.flush()
+
+    position = 0
+    for item in payload.items:
+        for name, inventory in await _pieces(db, item):
+            db.add(
+                Furniture(
+                    name=name,
+                    position=position,
+                    # Photos upload separately (PUT /furniture/{id}/photos);
+                    # the form has no image or colour fields yet.
+                    image_url="",
+                    description=_describe_item(item),
+                    colour="",
+                    category=inventory.category if inventory else "Other",
+                    smoking_household=payload.smoking_household,
+                    has_pets=payload.has_pets,
+                    status=FurnitureStatus.PICKUP_PENDING.value,
+                    donation_id=donation.id,
+                    inventory_id=inventory.id if inventory else None,
+                )
+            )
+            position += 1
+
+    try:
+        await db.commit()
+    except IntegrityError as e:
+        await db.rollback()
+        logger.exception("IntegrityError submitting donation: %s", e.orig)
+        raise ValueError(f"Unable to submit donation: {str(e.orig)}") from e
+    return await get_donation_detail(db, donation.id)
 
 
 def get_active_pickup(donation: Donation) -> Pickup | None:

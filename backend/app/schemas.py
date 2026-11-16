@@ -215,6 +215,45 @@ class DonationCreate(DonationBase):
     pass
 
 
+# Bounds on the anonymous donate form, which anyone can post to. They match the
+# form's chair stepper; no real donation comes close to the item limit.
+MAX_CHAIRS_PER_SET = 20
+MAX_ITEMS_PER_SUBMISSION = 50
+
+
+class DonationSubmissionItem(BaseModel):
+    """One item on the anonymous donate form."""
+
+    # The donate form's type ("Sofa", "Mattress", "Other", ...). Mapped to an
+    # inventory type where one matches; see services.inventory.
+    furniture_type: str = Field(..., min_length=1, max_length=255)
+    # Only for types that come in sizes (mattress, box spring).
+    size: Optional[str] = None
+    has_stains: bool
+    # Dining sets: how many chairs come with the table.
+    chair_count: Optional[int] = Field(None, ge=0, le=MAX_CHAIRS_PER_SET)
+    # Free text for "Other".
+    other_description: Optional[str] = None
+
+
+class DonationSubmission(BaseModel):
+    """
+    The whole donate form in one request: the donation and its items, created
+    together so a failed item never leaves a donation without its furniture.
+    """
+
+    donor_id: str
+    address_line_1: str = Field(..., min_length=1)
+    address_line_2: Optional[str] = None
+    city: str = Field(..., min_length=1)
+    postal_code: Optional[str] = None
+    smoking_household: bool
+    has_pets: bool
+    items: list[DonationSubmissionItem] = Field(
+        ..., min_length=1, max_length=MAX_ITEMS_PER_SUBMISSION
+    )
+
+
 class DonationUpdate(BaseModel):
     donor_id: Optional[str] = None
     donation_type: Optional[DonationTypeEnum] = None

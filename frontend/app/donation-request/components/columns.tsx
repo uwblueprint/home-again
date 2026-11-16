@@ -4,16 +4,16 @@ import type { ColumnDef, FilterFn } from "@tanstack/react-table";
 
 import {
   ApprovalsLabel,
+  ConfirmedBadge,
   PartiallyReviewedBadge,
   PendingReviewBadge,
+  PickedUpBadge,
+  RejectedBadge,
   ScheduledBadge,
 } from "@/common/components/status-labels";
 import { formatDayMonthYear, formatShortDate } from "@/common/utils/DateUtils";
-import type {
-  DonationRequestOutcome,
-  DonationRequestRow,
-  ReviewStatus,
-} from "./types";
+import type { DonationReviewStatus } from "@/common/types";
+import type { DonationRequestOutcome, DonationRequestRow } from "./types";
 
 /** Labels for the list's Filter menu, in menu order. */
 export const OUTCOME_FILTER_OPTIONS: {
@@ -33,7 +33,7 @@ export function ReviewStatusBadge({
   approvedCount = 0,
   itemCount = 0,
 }: {
-  status: ReviewStatus;
+  status: DonationReviewStatus;
   scheduledDate?: string | null;
   /** Shown as "n/m Approved" once review is finished. */
   approvedCount?: number;
@@ -44,15 +44,21 @@ export function ReviewStatusBadge({
       return <PendingReviewBadge />;
     case "partially_reviewed":
       return <PartiallyReviewedBadge />;
-    case "reviewed":
-      // The design shows how many items passed review, not a plain "Reviewed".
+    case "approved":
+    case "partially_approved":
       return <ApprovalsLabel approved={approvedCount} total={itemCount} />;
+    case "rejected":
+      return <RejectedBadge />;
     case "scheduled":
       return (
         <ScheduledBadge
           date={scheduledDate ? formatShortDate(scheduledDate) : undefined}
         />
       );
+    case "confirmed":
+      return <ConfirmedBadge />;
+    case "picked_up":
+      return <PickedUpBadge />;
   }
 }
 

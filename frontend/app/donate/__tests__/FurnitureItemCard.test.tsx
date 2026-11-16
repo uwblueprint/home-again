@@ -21,6 +21,7 @@ function createMockItem(
     hasStains: null,
     photos: [],
     mattressSize: null,
+    bedFrameSize: null,
     chairCount: null,
     otherDescription: null,
     ...overrides,
@@ -193,5 +194,25 @@ describe("FurnitureItemCard", () => {
         "blob:remove.png"
       );
     });
+  });
+});
+
+describe("FurnitureItemCard bed frame size", () => {
+  it("offers the stocked bed frame sizes", () => {
+    const onUpdate = jest.fn();
+    render(
+      <FurnitureItemCard
+        itemData={createMockItem({ furnitureType: "Bed frames" })}
+        index={0}
+        isExpanded
+        onToggle={jest.fn()}
+        onUpdate={onUpdate}
+        onDelete={jest.fn()}
+        isDeleteDisabled={false}
+      />
+    );
+    expect(screen.queryByLabelText("Queen")).toBeNull();
+    fireEvent.click(screen.getByLabelText("Double / Queen"));
+    expect(onUpdate).toHaveBeenCalledWith({ bedFrameSize: "DB/QN" });
   });
 });

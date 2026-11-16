@@ -6,7 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..database import get_db
 from ..models import Donation
 from ..schemas import Donation as DonationSchema
-from ..schemas import DonationCreate, DonationDetail, DonationUpdate
+from ..schemas import (
+    DonationCreate,
+    DonationDetail,
+    DonationSubmission,
+    DonationUpdate,
+)
 from ..services import donations_service
 
 router = APIRouter()
@@ -38,6 +43,30 @@ async def create_donation(payload: DonationCreate, db: AsyncSession = Depends(ge
         return await donations_service.create_donation(db, payload)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@public_router.post(
+    "/submissions",
+    response_model=DonationDetail,
+    status_code=status.HTTP_201_CREATED,
+)
+async def submit_donation(
+    payload: DonationSubmission, db: AsyncSession = Depends(get_db)
+):
+    """The whole donate form: the donation and its items, created together."""
+    try:
+        donation = await donations_service.submit_donation(db, payload)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    return donations_service.build_donation_detail(donation)
+
+
+# Declared before /{donation_id} so "details" isn't read as an id.
+@router.get("/details", response_model=list[DonationDetail])
+async def list_donation_details(db: AsyncSession = Depends(get_db)):
+    """Every donation with its donor, items and review status, newest first."""
+    donations = await donations_service.list_donation_details(db)
+    return [donations_service.build_donation_detail(d) for d in donations]
 
 
 @router.get("/{donation_id}", response_model=DonationSchema)

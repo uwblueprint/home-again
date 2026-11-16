@@ -73,6 +73,11 @@ async def update_referral(
         and referral.status != ReferralStatus.DECLINED.value
     ):
         await _close_items(db, referral)
+    elif (
+        status != ReferralStatus.DECLINED
+        and referral.status == ReferralStatus.DECLINED.value
+    ):
+        _reopen_items(referral)
     if status != ReferralStatus.DECLINED:
         # A referral moved out of rejected no longer has a rejection reason.
         data["rejection_reason"] = None
@@ -122,11 +127,20 @@ async def delete_referral(db: AsyncSession, referral: Referral) -> None:
 # ── Items and derived review status ───────────────────────────────────────────
 
 
+# Most units of one item a single entry can ask for.
+MAX_UNITS_PER_ENTRY = 20
+
+
 def _quantity(entry: dict[str, Any]) -> int:
     try:
-        return max(1, int(entry.get("quantity") or 1))
+        quantity = max(1, int(entry.get("quantity") or 1))
     except (TypeError, ValueError):
         return 1
+    if quantity > MAX_UNITS_PER_ENTRY:
+        raise ValueError(
+            f"An item can be requested at most {MAX_UNITS_PER_ENTRY} times."
+        )
+    return quantity
 
 
 def build_items(requested_items: list[Any]) -> list[ReferralItem]:
@@ -227,6 +241,8 @@ async def review_item(
     item = next((item for item in referral.items if item.id == item_id), None)
     if item is None:
         raise LookupError("Referral item not found")
+    if referral.status == ReferralStatus.DECLINED.value:
+        raise ValueError("Reopen this declined referral before reviewing its items.")
     if item.status in (
         ReferralItemStatus.SCHEDULED.value,
         ReferralItemStatus.DELIVERED.value,
@@ -262,6 +278,19 @@ async def _close_items(db: AsyncSession, referral: Referral) -> None:
             else ReferralItemStatus.CANCELLED.value
         )
         item.reviewed_at = now
+
+
+def _reopen_items(referral: Referral) -> None:
+    """
+    A referral moved out of declined goes back to review: every unit not yet
+    delivered is pending again, including any rejected before the decline.
+    """
+    for item in referral.items:
+        if item.status == ReferralItemStatus.DELIVERED.value:
+            continue
+        item.status = ReferralItemStatus.PENDING_REVIEW.value
+        item.rejection_reason = None
+        item.reviewed_at = None
 
 
 def _check_rejection(data: dict[str, Any], status: str) -> None:

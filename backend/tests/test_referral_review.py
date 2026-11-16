@@ -1,6 +1,6 @@
 """Tests for referral items and the referral's derived review status."""
 
-from test_referrals import create_client, create_referral
+from test_referrals import REFERRAL_BASE, create_client, create_referral
 
 ITEMS = [
     {"item": "Sofa/Couch", "quantity": 2},
@@ -368,6 +368,70 @@ async def test_declining_keeps_delivered_units(client):
     )
     assert resp.status_code == 200, resp.text
     assert resp.json()["items"][0]["status"] == "DELIVERED"
+
+
+async def test_items_on_a_declined_referral_cant_be_reviewed(client):
+    referral = await new_referral(client)
+    await review(client, referral, 0, "approve")
+    await client.put(f"/api/referrals/{referral['id']}", json={"status": "declined"})
+
+    item_id = referral["items"][0]["id"]
+    resp = await client.post(f"/api/referrals/{referral['id']}/items/{item_id}/approve")
+    assert resp.status_code == 400
+    data = await status_of(client, referral)
+    assert data["items"][0]["status"] == "CANCELLED"
+    assert data["review_status"] == "rejected"
+
+
+async def test_reopening_a_declined_referral_sends_items_back_to_review(client):
+    referral = await new_referral(client)
+    route = await new_route(client)
+    await review(client, referral, 0, "approve")
+    await review(client, referral, 1, "reject", rejection_reason="Damaged")
+    await review(client, referral, 2, "approve")
+    dropoff = (await schedule(client, referral, 2, route)).json()
+    await client.post(f"/api/dropoffs/{dropoff['id']}/deliver")
+    await client.put(
+        f"/api/referrals/{referral['id']}",
+        json={"status": "declined", "rejection_reason": "location"},
+    )
+
+    resp = await client.put(
+        f"/api/referrals/{referral['id']}", json={"status": "approved"}
+    )
+    assert resp.status_code == 200, resp.text
+    data = resp.json()
+    assert [item["status"] for item in data["items"]] == [
+        "PENDING_REVIEW",
+        "PENDING_REVIEW",
+        "DELIVERED",
+    ]
+    assert all(item["rejection_reason"] is None for item in data["items"][:2])
+    assert data["rejection_reason"] is None
+    assert data["review_status"] == "partially_reviewed"
+    await review(client, data, 0, "approve")
+
+
+async def test_an_entry_can_ask_for_at_most_20_units(client):
+    c = await create_client(client)
+    resp = await client.post(
+        "/api/referrals",
+        json={
+            **REFERRAL_BASE,
+            "client_id": c["id"],
+            "requested_items": [{"item": "Sofa/Couch", "quantity": 21}],
+        },
+    )
+    assert resp.status_code == 400
+    assert "at most 20" in resp.json()["detail"]
+
+    referral = await new_referral(client)
+    resp = await client.put(
+        f"/api/referrals/{referral['id']}",
+        json={"requested_items": [{"item": "Desk", "quantity": 1000000}]},
+    )
+    assert resp.status_code == 400
+    assert (await status_of(client, referral))["item_count"] == 3
 
 
 async def test_deleting_a_referral_cancels_its_dropoffs(client):

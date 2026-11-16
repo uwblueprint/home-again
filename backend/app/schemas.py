@@ -527,6 +527,10 @@ class Dropoff(DropoffBase):
 # ============ Referral Schemas ============
 
 
+# Matches the reject dialog's text limit.
+REFERRAL_REJECTION_DETAILS_MAX_LENGTH = 500
+
+
 class ReferralBase(BaseModel):
     # Client
     client_id: str
@@ -565,7 +569,9 @@ class ReferralBase(BaseModel):
     status: ReferralStatus
     # Only when status is declined; details are required for OTHER.
     rejection_reason: Optional[ReferralRejectionReason] = None
-    rejection_details: Optional[str] = None
+    rejection_details: Optional[str] = Field(
+        default=None, max_length=REFERRAL_REJECTION_DETAILS_MAX_LENGTH
+    )
 
 
 def _check_rejection_details(model):
@@ -613,7 +619,9 @@ class ReferralUpdate(BaseModel):
     notes_and_instructions: Optional[str] = None
     status: Optional[ReferralStatus] = None
     rejection_reason: Optional[ReferralRejectionReason] = None
-    rejection_details: Optional[str] = None
+    rejection_details: Optional[str] = Field(
+        default=None, max_length=REFERRAL_REJECTION_DETAILS_MAX_LENGTH
+    )
 
     _rejection_details = model_validator(mode="after")(_check_rejection_details)
 

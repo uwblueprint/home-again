@@ -52,12 +52,11 @@ async def test_lists_item_types_in_form_order(client, inventory):
     assert data[1]["quantity"] == 2
 
 
-async def test_inventory_is_readable_without_login(unauthenticated_client, inventory):
-    """The anonymous donate form needs the item types."""
+async def test_inventory_needs_a_login(unauthenticated_client, inventory):
+    """Stock counts are internal, so reading inventory needs a login."""
     client, _app = unauthenticated_client
-    resp = await client.get("/api/inventory")
-    assert resp.status_code == 200, resp.text
-    assert len(resp.json()) == 2
+    assert (await client.get("/api/inventory")).status_code == 401
+    assert (await client.get("/api/inventory/sofa-couch")).status_code == 401
 
 
 async def test_gets_one_item_type(client, inventory):

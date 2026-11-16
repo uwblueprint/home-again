@@ -14,6 +14,7 @@ os.environ.setdefault(
 )
 
 import pytest
+
 # Always run tests in production mode, even if a developer's backend/.env sets
 # ENV=DEVELOPMENT; otherwise tokenless requests would pass and hide auth bugs.
 # Real environment variables take precedence over the .env file.

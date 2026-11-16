@@ -285,6 +285,19 @@ async def test_other_needs_details(client):
     assert resp.json()["rejection_details"] == "Client moved away"
 
 
+async def test_rejection_details_are_capped_at_500_characters(client):
+    referral = await new_referral(client)
+    resp = await client.put(
+        f"/api/referrals/{referral['id']}",
+        json={
+            "status": "declined",
+            "rejection_reason": "other",
+            "rejection_details": "x" * 501,
+        },
+    )
+    assert resp.status_code == 422
+
+
 async def test_a_reason_needs_a_declined_referral(client):
     referral = await new_referral(client)
     resp = await client.put(

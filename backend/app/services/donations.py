@@ -9,6 +9,7 @@ from sqlalchemy.orm import selectinload
 
 from ..enums import DonationReviewStatus, DonationStatus, FurnitureStatus
 from ..models import Donation, Donor, Furniture, Pickup
+from . import inventory as inventory_service
 from ..schemas import DonationCreate, DonationUpdate
 
 logger = logging.getLogger(__name__)
@@ -70,8 +71,23 @@ async def update_donation(
         if not donor_result.scalar_one_or_none():
             raise ValueError(f"Donor with ID '{data['donor_id']}' does not exist.")
 
+    # Picked up is final: its items are already counted in stock, so moving it
+    # back (and completing it again) would count them twice.
+    if (
+        donation.status == DonationStatus.COMPLETED.value
+        and "status" in data
+        and data["status"] != DonationStatus.COMPLETED
+    ):
+        raise ValueError("This donation was picked up, so its status can't change.")
+
+    picked_up_now = (
+        data.get("status") == DonationStatus.COMPLETED
+        and donation.status != DonationStatus.COMPLETED.value
+    )
     for key, value in data.items():
         setattr(donation, key, value)
+    if picked_up_now:
+        await _add_collected_items_to_inventory(db, donation.id)
     try:
         await db.commit()
     except IntegrityError as e:
@@ -80,6 +96,24 @@ async def update_donation(
         raise ValueError(f"Update failed: {str(e.orig)}") from e
     await db.refresh(donation)
     return donation
+
+
+async def _add_collected_items_to_inventory(db: AsyncSession, donation_id: str) -> None:
+    """
+    A picked-up donation's approved items are now stock: +1 for each item's
+    type. Rejected and unreviewed items weren't collected; items with no type
+    can't be counted.
+    """
+    result = await db.execute(
+        select(Furniture.inventory_id).where(
+            Furniture.donation_id == donation_id,
+            Furniture.inventory_id.is_not(None),
+            Furniture.status.in_(REVIEWED_FURNITURE_STATUSES),
+            Furniture.status != FurnitureStatus.REJECTED.value,
+        )
+    )
+    for inventory_id in result.scalars().all():
+        await inventory_service.add(db, inventory_id)
 
 
 async def delete_donation(db: AsyncSession, donation: Donation) -> None:

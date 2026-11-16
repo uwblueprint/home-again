@@ -374,6 +374,12 @@ class FurnitureDetail(Furniture):
 # ============ Inventory Schemas ============
 
 
+class InventoryUpdate(BaseModel):
+    """Payload for PATCH /inventory/{id}: the count staff have on hand."""
+
+    quantity: int = Field(..., ge=0)
+
+
 class Inventory(BaseModel):
     """
     One item type the donate and referral forms offer. quantity is on hand;

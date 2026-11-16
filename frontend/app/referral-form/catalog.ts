@@ -210,6 +210,56 @@ export function catalogFromInventory(rows: InventoryItem[]): ReferralCatalog {
   return { items, subOptions, categories };
 }
 
+/** Item selections, as the furniture step keeps them. */
+type Selections = {
+  selected: Record<string, boolean>;
+  subOptions: Record<string, SubOption[]>;
+};
+
+/**
+ * Merge a newly loaded catalog's sizes into the form's. Each item gets the
+ * catalog's sizes in its order, keeping quantities already chosen, plus any
+ * chosen size the catalog doesn't list, so a selection is never lost.
+ */
+export function mergeSubOptions(
+  catalogSubOptions: Record<string, SubOption[]>,
+  current: Record<string, SubOption[]>
+): Record<string, SubOption[]> {
+  const merged: Record<string, SubOption[]> = { ...current };
+  for (const [itemId, sizes] of Object.entries(catalogSubOptions)) {
+    const previous = current[itemId] ?? [];
+    const chosen = (sizeId: string) =>
+      previous.find((option) => option.id === sizeId)?.quantity ?? 0;
+    merged[itemId] = [
+      ...sizes.map((size) => ({ ...size, quantity: chosen(size.id) })),
+      ...previous.filter(
+        (option) =>
+          option.quantity > 0 && !sizes.some((size) => size.id === option.id)
+      ),
+    ];
+  }
+  return merged;
+}
+
+/**
+ * The catalog's items, plus any bundled item that has a selection but isn't in
+ * the catalog (picked before inventory loaded), so it's still reviewed and
+ * submitted rather than silently dropped.
+ */
+export function itemsWithSelections(
+  catalog: ReferralCatalog,
+  furniture: Selections
+): Item[] {
+  const listed = new Set(catalog.items.map((item) => item.id));
+  const extra = FALLBACK_ITEMS.filter(
+    (item) =>
+      !listed.has(item.id) &&
+      (furniture.selected[item.id] ||
+        furniture.subOptions[item.id]?.some((option) => option.quantity > 0))
+  );
+  return [...catalog.items, ...extra];
+}
+
 /** The referral form's items from inventory, or the bundled list until then. */
 export function useReferralCatalog(): ReferralCatalog {
   const { data } = useInventory();

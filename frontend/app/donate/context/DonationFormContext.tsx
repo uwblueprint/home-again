@@ -31,6 +31,10 @@ export const FURNITURE_TYPES = [
 
 export type FurnitureType = (typeof FURNITURE_TYPES)[number];
 
+/** Chairs in a dining set: the card starts at this, and can't go above MAX_CHAIRS. */
+export const DEFAULT_CHAIR_COUNT = 1;
+export const MAX_CHAIRS = 20;
+
 /** Bed frame sizes as they're stocked; the values match inventory sizes. */
 export const BED_FRAME_SIZES = [
   { value: "TW/DB", label: "Twin / Double" },
@@ -164,7 +168,7 @@ export function toDonationSubmission(
       has_stains: item.hasStains ?? false,
       chair_count:
         item.furnitureType === "Dining table & chairs /sets"
-          ? item.chairCount
+          ? (item.chairCount ?? DEFAULT_CHAIR_COUNT)
           : null,
       other_description:
         item.furnitureType === "Other" ? item.otherDescription : null,
@@ -194,7 +198,16 @@ export function DonationFormProvider({
     petsInHousehold: null,
     feeAgreement: false,
     items: [
-      { id: "item-initial", furnitureType: null, hasStains: null, photos: [], mattressSize: null, bedFrameSize: null, chairCount: null, otherDescription: null },
+      {
+        id: "item-initial",
+        furnitureType: null,
+        hasStains: null,
+        photos: [],
+        mattressSize: null,
+        bedFrameSize: null,
+        chairCount: null,
+        otherDescription: null,
+      },
     ],
     pickupSubmitAttempted: false,
   }));

@@ -40,6 +40,7 @@ import {
 } from "@/common/hooks/useApi";
 import {
   inventoryIdFor,
+  itemsWithSelections,
   useReferralCatalog,
   type ReferralCatalog,
 } from "@/app/referral-form/catalog";
@@ -89,7 +90,7 @@ function buildRequestedItems(
   furniture: FurnitureFormData,
   catalog: ReferralCatalog
 ) {
-  return catalog.items.flatMap((item) => {
+  return itemsWithSelections(catalog, furniture).flatMap((item) => {
     const subs = furniture.subOptions[item.id]?.filter(
       (sub) => sub.quantity > 0
     );

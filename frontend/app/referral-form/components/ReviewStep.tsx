@@ -5,6 +5,7 @@ import { Pencil } from "lucide-react";
 import type { FurnitureFormData } from "./FurnitureForm";
 import {
   FALLBACK_CATALOG,
+  itemsWithSelections,
   type ReferralCatalog,
 } from "@/app/referral-form/catalog";
 import type { DeliveryFormData } from "./DeliveryForm";
@@ -83,13 +84,15 @@ export default function ReviewStep({
     (reason) => referral.reasons[reason.id]
   ).map((reason) => reason.label);
 
-  const selectedItems = catalog.items.filter((item) => {
+  const selectedItems = itemsWithSelections(catalog, furniture).filter(
+    (item) => {
     const subs = furniture.subOptions[item.id];
     if (subs?.length) {
       return subs.some((sub) => sub.quantity > 0);
     }
     return furniture.selected[item.id] && (furniture.quantities[item.id] ?? 0) > 0;
-  });
+    }
+  );
 
   const selectedMoveLabels = Object.entries(delivery.selectedMoves)
     .filter(([, checked]) => checked)

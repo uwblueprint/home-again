@@ -115,6 +115,22 @@ describe("toDonationRequestRow", () => {
     });
   });
 
+  it("shows the local submitted date, not the UTC one", () => {
+    // 01:00 UTC on Mar 15 is 9:30pm Mar 14 in St. John's (Jest's timezone).
+    const row = toDonationRequestRow({
+      ...BASE,
+      created_at: "2026-03-15T01:00:00",
+    });
+    expect(row.submittedAt).toBe("2026-03-14");
+  });
+
+  it("keeps the pickup's calendar date as stored", () => {
+    const row = toDonationRequestRow(
+      withItems([["Sofa", "APPROVED"]], "2026-04-02T00:00:00")
+    );
+    expect(row.scheduledDate).toBe("2026-04-02");
+  });
+
   it("shows a dash when the donor is missing", () => {
     const row = toDonationRequestRow({ ...BASE, donor: null });
     expect(row.donorName).toBe("—");

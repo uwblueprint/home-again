@@ -13,6 +13,7 @@ import {
 import FurnitureItemCard from "@/common/components/forms/FurnitureItemCard"
 import {
   FALLBACK_CATALOG,
+  mergeSubOptions,
   type Item,
   type ReferralCatalog,
   type SubOption,
@@ -118,15 +119,9 @@ export default function FurnitureForm({
   const [search, setSearch] = useState("")
 
   // The catalog can arrive after the form mounts (bundled list first, then
-  // inventory). Add any sized items it brings without touching chosen sizes.
+  // inventory). Take its sizes, including new ones, keeping chosen quantities.
   useEffect(() => {
-    setSubOptions((prev) => {
-      const missing = Object.entries(catalog.subOptions).filter(
-        ([itemId]) => !prev[itemId]
-      )
-      if (!missing.length) return prev
-      return { ...prev, ...cloneSubOptions(Object.fromEntries(missing)) }
-    })
+    setSubOptions((prev) => mergeSubOptions(catalog.subOptions, prev))
   }, [catalog])
 
   const currentCategory = catalog.categories.includes(activeCategory)

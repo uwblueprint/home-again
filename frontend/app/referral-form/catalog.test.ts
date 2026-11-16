@@ -3,6 +3,8 @@ import {
   FALLBACK_CATALOG,
   catalogFromInventory,
   inventoryIdFor,
+  itemsWithSelections,
+  mergeSubOptions,
 } from "./catalog";
 
 describe("catalogFromInventory", () => {
@@ -58,5 +60,69 @@ describe("inventoryIdFor", () => {
     expect(inventoryIdFor("metal-bed-frame", "tw-db")).toBe(
       "metal-bed-frame-tw-db"
     );
+  });
+});
+
+describe("mergeSubOptions", () => {
+  it("adds sizes the catalog brings and keeps chosen quantities", () => {
+    const merged = mergeSubOptions(
+      {
+        "mattress-only": [
+          { id: "twin", label: "Twin", quantity: 0 },
+          { id: "queen", label: "Queen", quantity: 0 },
+          { id: "king", label: "King", quantity: 0 },
+        ],
+      },
+      {
+        "mattress-only": [
+          { id: "twin", label: "Twin", quantity: 0 },
+          { id: "queen", label: "Queen", quantity: 2 },
+        ],
+      }
+    );
+    expect(merged["mattress-only"]).toEqual([
+      { id: "twin", label: "Twin", quantity: 0 },
+      { id: "queen", label: "Queen", quantity: 2 },
+      { id: "king", label: "King", quantity: 0 },
+    ]);
+  });
+
+  it("keeps a chosen size the catalog no longer lists", () => {
+    const merged = mergeSubOptions(
+      { "mattress-only": [{ id: "twin", label: "Twin", quantity: 0 }] },
+      {
+        "mattress-only": [
+          { id: "twin", label: "Twin", quantity: 0 },
+          { id: "double", label: "Double", quantity: 1 },
+        ],
+      }
+    );
+    expect(merged["mattress-only"].map((option) => option.id)).toEqual([
+      "twin",
+      "double",
+    ]);
+  });
+});
+
+describe("itemsWithSelections", () => {
+  const catalog = {
+    ...FALLBACK_CATALOG,
+    items: FALLBACK_CATALOG.items.filter((item) => item.id !== "desk"),
+  };
+
+  it("keeps a selected item the catalog doesn't list", () => {
+    const items = itemsWithSelections(catalog, {
+      selected: { desk: true },
+      subOptions: {},
+    });
+    expect(items.map((item) => item.id)).toContain("desk");
+  });
+
+  it("leaves out unlisted items nobody selected", () => {
+    const items = itemsWithSelections(catalog, {
+      selected: {},
+      subOptions: {},
+    });
+    expect(items).toEqual(catalog.items);
   });
 });

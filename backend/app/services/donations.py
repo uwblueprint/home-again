@@ -203,11 +203,13 @@ async def submit_donation(db: AsyncSession, payload: DonationSubmission) -> Dona
     db.add(donation)
     await db.flush()
 
+    position = 0
     for item in payload.items:
         for name, inventory in await _pieces(db, item):
             db.add(
                 Furniture(
                     name=name,
+                    position=position,
                     # Photos upload separately (PUT /furniture/{id}/photos);
                     # the form has no image or colour fields yet.
                     image_url="",
@@ -221,6 +223,7 @@ async def submit_donation(db: AsyncSession, payload: DonationSubmission) -> Dona
                     inventory_id=inventory.id if inventory else None,
                 )
             )
+            position += 1
 
     try:
         await db.commit()

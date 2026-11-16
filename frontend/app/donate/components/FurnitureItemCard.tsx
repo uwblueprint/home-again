@@ -7,7 +7,9 @@ import { Button } from "@/common/components/ui/button";
 import Image from "next/image";
 import {
   BED_FRAME_SIZES,
+  DEFAULT_CHAIR_COUNT,
   FURNITURE_TYPES,
+  MAX_CHAIRS,
   type FurnitureType,
   type FurnitureItemData,
 } from "@/app/donate/context/DonationFormContext";
@@ -143,18 +145,18 @@ export default function FurnitureItemCard({
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      onClick={() => onUpdate({ chairCount: Math.max(0, (itemData.chairCount ?? 1) - 1) })}
+                      onClick={() => onUpdate({ chairCount: Math.max(0, (itemData.chairCount ?? DEFAULT_CHAIR_COUNT) - 1) })}
                       className="flex size-8 items-center justify-center rounded-md border border-border text-foreground hover:bg-secondary"
                       aria-label="Decrease chair count"
                     >
                       −
                     </button>
                     <span className="w-6 text-center text-sm font-medium">
-                      {itemData.chairCount ?? 1}
+                      {itemData.chairCount ?? DEFAULT_CHAIR_COUNT}
                     </span>
                     <button
                       type="button"
-                      onClick={() => onUpdate({ chairCount: (itemData.chairCount ?? 1) + 1 })}
+                      onClick={() => onUpdate({ chairCount: Math.min(MAX_CHAIRS, (itemData.chairCount ?? DEFAULT_CHAIR_COUNT) + 1) })}
                       className="flex size-8 items-center justify-center rounded-md border border-border text-foreground hover:bg-secondary"
                       aria-label="Increase chair count"
                     >

@@ -1,5 +1,7 @@
 """Tests for the donate form submission and the donation-requests list."""
 
+from datetime import datetime
+
 import pytest_asyncio
 from sqlalchemy import delete
 
@@ -127,6 +129,83 @@ async def test_submission_needs_at_least_one_item(client, inventory):
         json={**SUBMISSION, "donor_id": donor["id"], "items": []},
     )
     assert resp.status_code == 422
+
+
+async def test_submission_limits_items_and_chairs(client, inventory):
+    """Anyone can post the form, so one request can't create unbounded rows."""
+    donor = await create_donor(client, "limits")
+    sofa = {"furniture_type": "Sofa", "has_stains": False}
+    resp = await client.post(
+        "/api/donations/submissions",
+        json={**SUBMISSION, "donor_id": donor["id"], "items": [sofa] * 51},
+    )
+    assert resp.status_code == 422
+
+    resp = await client.post(
+        "/api/donations/submissions",
+        json={
+            **SUBMISSION,
+            "donor_id": donor["id"],
+            "items": [
+                {
+                    "furniture_type": "Dining table & chairs /sets",
+                    "has_stains": False,
+                    "chair_count": 21,
+                }
+            ],
+        },
+    )
+    assert resp.status_code == 422
+
+
+async def test_pieces_keep_their_order_when_created_at_ties(
+    client, db_session, inventory
+):
+    """
+    Pieces created in one request can share or even reverse created_at (coarse
+    or skewed clocks); position keeps them in submitted order.
+    """
+    from datetime import timedelta
+
+    from sqlalchemy import update
+
+    from app.models import Furniture
+
+    donor = await create_donor(client, "order")
+    submitted = (
+        await client.post(
+            "/api/donations/submissions",
+            json={
+                **SUBMISSION,
+                "donor_id": donor["id"],
+                "items": [
+                    {"furniture_type": "Sofa", "has_stains": False},
+                    {
+                        "furniture_type": "Dining table & chairs /sets",
+                        "has_stains": False,
+                        "chair_count": 2,
+                    },
+                ],
+            },
+        )
+    ).json()
+    # Later pieces get earlier timestamps, so created_at alone would reverse them.
+    for i, item in enumerate(submitted["furniture_items"]):
+        await db_session.execute(
+            update(Furniture)
+            .where(Furniture.id == item["id"])
+            .values(created_at=datetime(2026, 1, 1) - timedelta(seconds=i))
+        )
+    await db_session.commit()
+
+    resp = await client.get(f"/api/donations/{submitted['id']}/detail")
+    assert resp.status_code == 200, resp.text
+    assert [item["name"] for item in resp.json()["furniture_items"]] == [
+        "Sofa",
+        "Dining table",
+        "Dining chair",
+        "Dining chair",
+    ]
 
 
 async def test_details_lists_donations_with_their_status(client, inventory):

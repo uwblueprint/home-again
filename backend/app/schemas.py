@@ -215,6 +215,12 @@ class DonationCreate(DonationBase):
     pass
 
 
+# Bounds on the anonymous donate form, which anyone can post to. They match the
+# form's chair stepper; no real donation comes close to the item limit.
+MAX_CHAIRS_PER_SET = 20
+MAX_ITEMS_PER_SUBMISSION = 50
+
+
 class DonationSubmissionItem(BaseModel):
     """One item on the anonymous donate form."""
 
@@ -225,7 +231,7 @@ class DonationSubmissionItem(BaseModel):
     size: Optional[str] = None
     has_stains: bool
     # Dining sets: how many chairs come with the table.
-    chair_count: Optional[int] = Field(None, ge=0)
+    chair_count: Optional[int] = Field(None, ge=0, le=MAX_CHAIRS_PER_SET)
     # Free text for "Other".
     other_description: Optional[str] = None
 
@@ -243,7 +249,9 @@ class DonationSubmission(BaseModel):
     postal_code: Optional[str] = None
     smoking_household: bool
     has_pets: bool
-    items: list[DonationSubmissionItem] = Field(..., min_length=1)
+    items: list[DonationSubmissionItem] = Field(
+        ..., min_length=1, max_length=MAX_ITEMS_PER_SUBMISSION
+    )
 
 
 class DonationUpdate(BaseModel):

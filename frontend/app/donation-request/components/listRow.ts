@@ -40,9 +40,23 @@ export function deriveOutcomes(
   return outcomes;
 }
 
-/** Backend datetimes are naive UTC; the row wants a yyyy-mm-dd date. */
+/** A calendar date the backend stores at midnight (e.g. a pickup date). */
 function toDateOnly(value: string | null | undefined): string | null {
   return value ? value.slice(0, 10) : null;
+}
+
+/**
+ * A moment the backend stores as naive UTC (e.g. created_at), as the local
+ * yyyy-mm-dd date, so an evening submission isn't shown as the next day.
+ */
+function toLocalDate(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const date = new Date(
+    /[zZ]|[+-]\d\d:\d\d$/.test(value) ? value : `${value}Z`
+  );
+  if (Number.isNaN(date.getTime())) return toDateOnly(value);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
 /** Flattens a donation from GET /donations/details into one list row. */
@@ -56,7 +70,7 @@ export function toDonationRequestRow(
       [donor?.first_name, donor?.last_name].filter(Boolean).join(" ") || "—",
     // There's no human-facing request number yet; show the id's first block.
     requestId: donation.id.split("-")[0].toUpperCase(),
-    submittedAt: toDateOnly(donation.created_at) ?? "",
+    submittedAt: toLocalDate(donation.created_at) ?? "",
     items: summarizeItems(donation.furniture_items.map((item) => item.name)),
     status: donation.review_status,
     approvedCount: donation.approved_count,

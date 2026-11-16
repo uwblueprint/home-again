@@ -46,7 +46,9 @@ const STAGE_COUNTS: [SampleStage, number][] = [
 ];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const NEWEST_SUBMISSION = Date.UTC(2026, 2, 23);
+// 15:00 UTC: mid-morning in Atlantic and Newfoundland time, so the local
+// submitted date matches the UTC one.
+const NEWEST_SUBMISSION = Date.UTC(2026, 2, 23, 15);
 const TOTAL = STAGE_COUNTS.reduce((sum, [, count]) => sum + count, 0);
 
 function isoDaysBefore(days: number) {

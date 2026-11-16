@@ -8,7 +8,7 @@ from ..models import Referral
 from ..enums import ReferralItemStatus
 from ..schemas import Referral as ReferralSchema
 from ..schemas import ReferralCreate, ReferralItem, ReferralItemReject, ReferralUpdate
-from ..services import referrals_service
+from ..services import inventory_service, referrals_service
 
 router = APIRouter()
 
@@ -85,6 +85,8 @@ async def _review_item(
         )
     except LookupError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except inventory_service.OutOfStockError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 

@@ -18,9 +18,6 @@ PUBLIC_ROUTES: set[tuple[str, str]] = {
     ("POST", "/api/donations"),
     # The whole anonymous donate form.
     ("POST", "/api/donations/submissions"),
-    # Item types for the anonymous donate form.
-    ("GET", "/api/inventory"),
-    ("GET", "/api/inventory/{inventory_id}"),
     ("GET", "/docs"),
     ("GET", "/docs/oauth2-redirect"),
     ("GET", "/redoc"),

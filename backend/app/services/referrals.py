@@ -265,6 +265,17 @@ async def review_item(
         ReferralItemStatus.DELIVERED.value,
     ):
         raise ValueError("This item already has a drop-off; cancel that first.")
+    # Approving holds a unit of the type, so it needs one available.
+    if (
+        status == ReferralItemStatus.APPROVED
+        and item.status != ReferralItemStatus.APPROVED.value
+        and item.inventory_id
+    ):
+        try:
+            await inventory_service.hold_one(db, item.inventory_id)
+        except inventory_service.OutOfStockError:
+            await db.rollback()  # releases the row lock
+            raise
 
     item.status = status.value
     item.rejection_reason = (

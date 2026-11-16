@@ -236,7 +236,12 @@ export interface InventoryItem {
   /** Only set for items that come in sizes, e.g. "Queen". */
   size: string | null;
   category: string;
+  /** On hand: +1 when a donation is picked up, −1 when a drop-off is delivered. */
   quantity: number;
+  /** Approved or scheduled for referrals, not yet delivered. Derived. */
+  held: number;
+  /** quantity − held: what can still be approved. */
+  available: number;
   position: number;
   created_at: string;
   updated_at: string;

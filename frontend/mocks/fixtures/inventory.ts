@@ -28,10 +28,13 @@ export const inventory: InventoryItem[] = FALLBACK_CATALOG.items
           },
         ];
   })
-  .map((row, position) => ({
+  .map((row, position) => {
+    const quantity = position % 3 === 0 ? 2 : 0;
+    const held = position % 6 === 0 ? 1 : 0;
+    return { ...row, quantity, held, available: quantity - held, position };
+  })
+  .map((row) => ({
     ...row,
-    quantity: position % 3 === 0 ? 2 : 0,
-    position,
     created_at: NOW,
     updated_at: NOW,
   }));

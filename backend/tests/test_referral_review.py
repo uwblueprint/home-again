@@ -1,15 +1,17 @@
 """Tests for referral items and the referral's derived review status."""
 
 import pytest_asyncio
-from sqlalchemy import delete
+from sqlalchemy import delete, update
 from test_referrals import REFERRAL_BASE, create_client, create_referral
 
-from app.models import Inventory
+from app.models import Inventory, ReferralItem
 
 
 @pytest_asyncio.fixture(autouse=True)
 async def stock(db_session):
-    """Plenty of the requested types, so scheduling isn't blocked on stock."""
+    """Plenty of the requested types, so approving isn't blocked on stock."""
+    # Units earlier tests approved would still count as held.
+    await db_session.execute(update(ReferralItem).values(inventory_id=None))
     await db_session.execute(
         delete(Inventory).where(Inventory.id.in_(["sofa-couch", "mattress-only-queen"]))
     )

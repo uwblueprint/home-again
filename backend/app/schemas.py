@@ -375,13 +375,19 @@ class FurnitureDetail(Furniture):
 
 
 class Inventory(BaseModel):
-    """One item type the donate and referral forms offer, with its count."""
+    """
+    One item type the donate and referral forms offer. quantity is on hand;
+    held is approved or scheduled for referrals but not yet delivered;
+    available = quantity − held (negative only if stock was corrected down).
+    """
 
     id: str
     name: str
     size: Optional[str] = None
     category: str
     quantity: int
+    held: int = 0
+    available: int = 0
     position: int
     created_at: datetime
     updated_at: datetime

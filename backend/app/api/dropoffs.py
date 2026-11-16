@@ -75,5 +75,7 @@ async def deliver_dropoff(
     """Mark the drop-off's referral item delivered."""
     try:
         return await dropoffs_service.deliver_dropoff(db, dropoff)
+    except inventory_service.OutOfStockError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

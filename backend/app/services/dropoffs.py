@@ -55,15 +55,8 @@ async def create_dropoff(db: AsyncSession, payload: DropoffCreate) -> Dropoff:
         if data.get("referral_id") and data["referral_id"] != item.referral_id:
             raise ValueError("referral_id doesn't match the referral item's referral.")
         data["referral_id"] = item.referral_id
-        # Scheduling takes one unit of the type off the count. With none left
-        # nothing changes: the item stays approved until stock comes in.
-        if item.inventory_id and not await inventory_service.take_one(
-            db, item.inventory_id
-        ):
-            await db.rollback()
-            raise inventory_service.OutOfStockError(
-                "None in stock; schedule this drop-off once more come in."
-            )
+        # The unit was already held when it was approved; scheduling doesn't
+        # change the count.
         item.status = ReferralItemStatus.SCHEDULED.value
 
     db_dropoff = Dropoff(**data)
@@ -108,6 +101,14 @@ async def deliver_dropoff(db: AsyncSession, dropoff: Dropoff) -> ReferralItem:
         raise ValueError("This drop-off isn't linked to a referral item.")
     if item.status != ReferralItemStatus.SCHEDULED.value:
         raise ValueError("Only a scheduled item can be marked delivered.")
+    # The unit leaves the warehouse: it's no longer on hand or held.
+    if item.inventory_id and not await inventory_service.take_one(
+        db, item.inventory_id
+    ):
+        await db.rollback()
+        raise inventory_service.OutOfStockError(
+            "Inventory shows none on hand; correct the count before delivering."
+        )
     item.status = ReferralItemStatus.DELIVERED.value
     await db.commit()
     await db.refresh(item)
@@ -124,24 +125,16 @@ async def get_item_dropoff(db: AsyncSession, item_id: str) -> Dropoff | None:
 async def release_dropoff(db: AsyncSession, dropoff: Dropoff) -> None:
     """
     Remove a drop-off that hasn't been delivered, without committing, so the
-    caller can change the item's status in the same transaction. Its unit goes
-    back on the inventory count.
+    caller can change the item's status in the same transaction. Nothing was
+    taken off the count, so the count doesn't change.
     """
-    if dropoff.referral_item_id:
-        item = await _get_item(db, dropoff.referral_item_id)
-        if (
-            item is not None
-            and item.inventory_id
-            and item.status != ReferralItemStatus.DELIVERED.value
-        ):
-            await inventory_service.add(db, item.inventory_id)
     await db.delete(dropoff)
 
 
 async def delete_dropoff(db: AsyncSession, dropoff: Dropoff) -> None:
     """
-    Cancel a drop-off. Its referral item goes back to APPROVED and the unit
-    goes back on the count.
+    Cancel a drop-off. Its referral item goes back to APPROVED, so the unit
+    stays held for it.
     """
     if dropoff.referral_item_id:
         item = await _get_item(db, dropoff.referral_item_id)

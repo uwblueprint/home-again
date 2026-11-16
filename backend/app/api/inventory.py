@@ -14,12 +14,12 @@ router = APIRouter()
 
 @router.get("", response_model=list[InventorySchema])
 async def list_inventory(db: AsyncSession = Depends(get_db)):
-    return await inventory_service.list_inventory(db)
+    return await inventory_service.list_inventory_with_counts(db)
 
 
 @router.get("/{inventory_id}", response_model=InventorySchema)
 async def get_inventory_item(inventory_id: str, db: AsyncSession = Depends(get_db)):
-    item = await inventory_service.get_inventory_item(db, inventory_id)
+    item = await inventory_service.get_inventory_item_with_counts(db, inventory_id)
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Inventory item not found"

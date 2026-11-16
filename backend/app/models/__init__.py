@@ -12,6 +12,7 @@ from .base import (
     FurniturePhoto,
     Pickup,
     Referral,
+    ReferralItem,
     Route,
 )
 
@@ -27,5 +28,6 @@ __all__ = [
     "FurniturePhoto",
     "Pickup",
     "Referral",
+    "ReferralItem",
     "Route",
 ]

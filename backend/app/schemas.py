@@ -324,6 +324,7 @@ class FurnitureBase(BaseModel):
     donation_id: Optional[str] = None
     referral_id: Optional[str] = None
     pickup_id: Optional[str] = None
+    inventory_id: Optional[str] = None
 
 
 class FurnitureCreate(FurnitureBase):
@@ -345,6 +346,7 @@ class FurnitureUpdate(BaseModel):
     donation_id: Optional[str] = None
     referral_id: Optional[str] = None
     pickup_id: Optional[str] = None
+    inventory_id: Optional[str] = None
 
 
 class FurnitureReject(BaseModel):
@@ -367,6 +369,30 @@ class FurnitureDetail(Furniture):
     """Furniture with its ordered photo set, for the donation review UI."""
 
     photos: list[FurniturePhoto] = []
+
+
+# ============ Inventory Schemas ============
+
+
+class Inventory(BaseModel):
+    """
+    One item type the donate and referral forms offer. quantity is on hand;
+    held is approved or scheduled for referrals but not yet delivered;
+    available = quantity − held (negative only if stock was corrected down).
+    """
+
+    id: str
+    name: str
+    size: Optional[str] = None
+    category: str
+    quantity: int
+    held: int = 0
+    available: int = 0
+    position: int
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Route Schemas ============
@@ -586,6 +612,7 @@ class ReferralItem(BaseModel):
     status: ReferralItemStatus
     rejection_reason: Optional[str] = None
     reviewed_at: Optional[datetime] = None
+    inventory_id: Optional[str] = None
     position: int
     created_at: datetime
     updated_at: datetime

@@ -14,6 +14,7 @@ from ..enums import ReferralItemStatus, ReferralReviewStatus, ReferralStatus
 from ..models import Agent, Client, Referral, ReferralItem
 from ..schemas import ReferralCreate, ReferralUpdate
 from . import dropoffs as dropoffs_service
+from . import inventory as inventory_service
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ async def create_referral(db: AsyncSession, payload: ReferralCreate) -> Referral
     await _validate_fks(db, data)
     _check_rejection(data, data["status"])
     referral = Referral(**_prepare_payload(data))
-    referral.items = build_items(data["requested_items"])
+    referral.items = await build_items(db, data["requested_items"])
     db.add(referral)
     try:
         await db.commit()
@@ -89,7 +90,7 @@ async def update_referral(
             item.status != ReferralItemStatus.PENDING_REVIEW for item in referral.items
         ):
             raise ValueError("Requested items can't change once review has started.")
-        referral.items = build_items(data["requested_items"])
+        referral.items = await build_items(db, data["requested_items"])
     for key, value in _prepare_payload(data).items():
         setattr(referral, key, value)
     try:
@@ -143,10 +144,24 @@ def _quantity(entry: dict[str, Any]) -> int:
     return quantity
 
 
-def build_items(requested_items: list[Any]) -> list[ReferralItem]:
+async def _resolve_inventory_id(
+    db: AsyncSession, entry: dict[str, Any], name: str
+) -> str | None:
+    """The entry's inventory_id if it exists, else a match on name and size."""
+    given = entry.get("inventory_id")
+    if given and await inventory_service.get_inventory_item(db, str(given)):
+        return str(given)
+    match = await inventory_service.resolve_inventory_item(db, name, entry.get("size"))
+    return match.id if match else None
+
+
+async def build_items(
+    db: AsyncSession, requested_items: list[Any]
+) -> list[ReferralItem]:
     """
     One ReferralItem per requested unit: {"item": "Sofa", "quantity": 2} makes
-    two rows. Entries that aren't objects are kept as a single unit.
+    two rows, each linked to its inventory type where one matches. Entries that
+    aren't objects are kept as a single unit.
     """
     items: list[ReferralItem] = []
     for entry in requested_items or []:
@@ -155,12 +170,14 @@ def build_items(requested_items: list[Any]) -> list[ReferralItem]:
         name = str(
             entry.get("item") or entry.get("name") or entry.get("type") or "Item"
         ).strip()
+        inventory_id = await _resolve_inventory_id(db, entry, name)
         for _ in range(_quantity(entry)):
             items.append(
                 ReferralItem(
                     name=name[:255],
                     size=entry.get("size"),
                     notes=entry.get("notes"),
+                    inventory_id=inventory_id,
                     status=ReferralItemStatus.PENDING_REVIEW.value,
                     position=len(items),
                 )
@@ -248,6 +265,17 @@ async def review_item(
         ReferralItemStatus.DELIVERED.value,
     ):
         raise ValueError("This item already has a drop-off; cancel that first.")
+    # Approving holds a unit of the type, so it needs one available.
+    if (
+        status == ReferralItemStatus.APPROVED
+        and item.status != ReferralItemStatus.APPROVED.value
+        and item.inventory_id
+    ):
+        try:
+            await inventory_service.hold_one(db, item.inventory_id)
+        except inventory_service.OutOfStockError:
+            await db.rollback()  # releases the row lock
+            raise
 
     item.status = status.value
     item.rejection_reason = (

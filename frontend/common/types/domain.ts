@@ -76,6 +76,81 @@ export interface DonorListItem extends Donor {
   last_donated_at: string | null;
 }
 
+/** Mirrors backend `DonationReviewStatus`: derived server-side, never stored. */
+export type DonationReviewStatus =
+  | "pending_review"
+  | "partially_reviewed"
+  | "reviewed"
+  | "scheduled";
+
+/** Mirrors backend `FurniturePhoto`. */
+export interface FurniturePhoto {
+  id: string;
+  furniture_id: string;
+  url: string;
+  position: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Mirrors backend `FurnitureDetail`: a donated item with its ordered photos. */
+export interface DonationItemDetail {
+  id: string;
+  name: string;
+  image_url: string;
+  description: string;
+  condition: "excellent" | "good" | "fair" | "poor" | null;
+  colour: string;
+  category: string;
+  smoking_household: boolean;
+  has_pets: boolean;
+  status: FurnitureStatus;
+  rejection_reason: "condition" | "pickup" | "location" | "other" | null;
+  rejection_details: string | null;
+  donation_id: string | null;
+  reviewed_at: string | null;
+  photos: FurniturePhoto[];
+  created_at: string;
+  updated_at: string;
+}
+
+/** Mirrors backend `Pickup`. Datetimes are naive UTC ISO strings. */
+export interface Pickup {
+  id: string;
+  route_id: string | null;
+  donation_id: string | null;
+  scheduled_date: string | null;
+  note: string | null;
+  confirmed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Mirrors backend `DonationDetail`: a donation with its donor, items and active
+ * pickup, as returned by `GET /donations/{id}/detail` and
+ * `GET /donors/{id}/donations`.
+ */
+export interface DonationDetail {
+  id: string;
+  donor_id: string;
+  donation_type: string | null;
+  charitable_receipt_estimate: number | null;
+  address_line_1: string | null;
+  address_line_2: string | null;
+  city: string | null;
+  postal_code: string | null;
+  status: "pending" | "completed" | "cancelled" | null;
+  smoking_household: boolean | null;
+  has_pets: boolean | null;
+  created_at: string;
+  updated_at: string;
+  review_status: DonationReviewStatus;
+  donor: Donor | null;
+  furniture_items: DonationItemDetail[];
+  pickup: Pickup | null;
+}
+
 export interface Client {
   id: string;
   first_name: string;
@@ -99,6 +174,7 @@ export interface Client {
 export type FurnitureStatus =
   | "PICKUP_PENDING"
   | "APPROVED"
+  | "REJECTED"
   | "OFFERED"
   | "SCHEDULED"
   | "DELIVERED"

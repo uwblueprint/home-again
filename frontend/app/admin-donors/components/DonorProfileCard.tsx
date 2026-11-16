@@ -16,6 +16,7 @@ import {
   CollapsibleTrigger,
   CopyButton,
   Input,
+  Skeleton,
 } from "@/common/components/ui";
 import { InformationBlock } from "@/common/components/data-display";
 import { FormField } from "@/common/components/forms";
@@ -337,4 +338,41 @@ function DonorProfileForm({
   );
 }
 
-export { DonorProfileCard, type DonorProfileCardProps };
+const SKELETON_FIELD_LABELS = [
+  "First name",
+  "Last name",
+  "Email Address",
+  "Phone number",
+] as const;
+
+/** Placeholder for `DonorProfileCard` while the donor loads. */
+function DonorProfileCardSkeleton() {
+  return (
+    <Card role="status" aria-busy="true" aria-label="Loading donor details">
+      <CardHeader className="items-center">
+        <CardTitle className="text-heading-4 font-semibold text-foreground">
+          <h2>Donor Information</h2>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-lg pt-lg">
+        <div className="grid grid-cols-1 gap-x-sm gap-y-lg sm:grid-cols-2">
+          {SKELETON_FIELD_LABELS.map((label) => (
+            <div key={label} className="flex flex-col gap-1.5">
+              <p className="text-paragraph-small font-medium text-foreground">
+                {label}
+              </p>
+              <Skeleton className="h-4 w-40" />
+            </div>
+          ))}
+        </div>
+        <Skeleton className="h-9 w-20" />
+      </CardContent>
+    </Card>
+  );
+}
+
+export {
+  DonorProfileCard,
+  DonorProfileCardSkeleton,
+  type DonorProfileCardProps,
+};

@@ -92,21 +92,36 @@ async def delete_donation(db: AsyncSession, donation: Donation) -> None:
         raise ValueError(f"Unable to delete donation: {str(e.orig)}") from e
 
 
+# Eager-load everything build_donation_detail reads; async sessions can't
+# lazy-load.
+DONATION_DETAIL_OPTIONS = (
+    selectinload(Donation.donor),
+    selectinload(Donation.furniture_items).selectinload(Furniture.photos),
+    selectinload(Donation.pickups),
+)
+
+
 async def get_donation_detail(db: AsyncSession, donation_id: str) -> Donation | None:
-    """
-    Load a donation with everything the review screen renders, in one round trip:
-    donor, furniture items with their ordered photos, and the pickup.
-    """
+    """Load one donation with everything the review screen renders, in one round trip."""
     result = await db.execute(
         select(Donation)
         .where(Donation.id == donation_id)
-        .options(
-            selectinload(Donation.donor),
-            selectinload(Donation.furniture_items).selectinload(Furniture.photos),
-            selectinload(Donation.pickups),
-        )
+        .options(*DONATION_DETAIL_OPTIONS)
     )
     return result.scalar_one_or_none()
+
+
+async def list_donor_donation_details(
+    db: AsyncSession, donor_id: str
+) -> list[Donation]:
+    """A donor's donations, newest first, loaded like get_donation_detail."""
+    result = await db.execute(
+        select(Donation)
+        .where(Donation.donor_id == donor_id)
+        .order_by(Donation.created_at.desc())
+        .options(*DONATION_DETAIL_OPTIONS)
+    )
+    return result.scalars().all()
 
 
 def get_active_pickup(donation: Donation) -> Pickup | None:

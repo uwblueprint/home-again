@@ -248,6 +248,21 @@ buttons — typically a primary action button:
 />
 ```
 
+### Toolbar placement
+
+The toolbar renders inside the table card by default. Pass
+`toolbarPlacement="outside"` when the design puts tabs, search, filter and sort
+above the card (e.g. the admin Donation Requests list):
+
+```tsx
+<DataTable
+  columns={columns}
+  data={rows}
+  toolbarPlacement="outside"
+  toolbarLeading={<Tabs>…</Tabs>}
+/>
+```
+
 ---
 
 ## Loading / error / empty states

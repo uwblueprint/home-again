@@ -135,6 +135,25 @@ class OutOfStockError(ValueError):
     """Raised when a unit is needed but the type's quantity is 0."""
 
 
+async def set_quantity(db: AsyncSession, inventory_id: str, quantity: int) -> bool:
+    """
+    Set the on-hand count after a stock take or correction, and commit. It may
+    go below what's held; available then shows the shortfall. Returns whether
+    the type exists.
+    """
+    result = await db.execute(
+        update(Inventory)
+        .where(Inventory.id == inventory_id)
+        .values(quantity=quantity)
+        .execution_options(synchronize_session=False)
+    )
+    if result.rowcount != 1:
+        await db.rollback()
+        return False
+    await db.commit()
+    return True
+
+
 async def hold_one(db: AsyncSession, inventory_id: str) -> None:
     """
     Check one more unit of the type can be held, before approving a referral

@@ -320,6 +320,13 @@ async def test_a_picked_up_donation_adds_its_approved_items(
     await client.put(f"/api/donations/{donation['id']}", json={"status": "completed"})
     assert await quantity_of(client, "sofa-couch") == 2
 
+    # Picked up is final: moving it back would let it be counted again.
+    resp = await client.put(
+        f"/api/donations/{donation['id']}", json={"status": "pending"}
+    )
+    assert resp.status_code == 400
+    assert await quantity_of(client, "sofa-couch") == 2
+
 
 async def test_declining_a_referral_releases_its_units(client, db_session, inventory):
     await set_quantity(db_session, "sofa-couch", 1)
@@ -364,3 +371,38 @@ async def test_donate_form_bed_frames_resolve_by_size(db_session, inventory):
     assert (
         await inventory_service.resolve_inventory_item(db_session, "Bed frames") is None
     )
+
+
+async def test_staff_can_set_the_count(client, db_session, inventory):
+    await set_quantity(db_session, "sofa-couch", 0)
+    await approved_sofa_request(client, approve_it=False)
+
+    resp = await client.patch("/api/inventory/sofa-couch", json={"quantity": 3})
+    assert resp.status_code == 200, resp.text
+    assert (resp.json()["quantity"], resp.json()["available"]) == (3, 3)
+    assert await counts_of(client, "sofa-couch") == (3, 0, 3)
+
+
+async def test_setting_the_count_below_held_shows_the_shortfall(
+    client, db_session, inventory
+):
+    await set_quantity(db_session, "sofa-couch", 2)
+    await approved_sofa_request(client)
+    await approved_sofa_request(client)
+
+    resp = await client.patch("/api/inventory/sofa-couch", json={"quantity": 1})
+    assert resp.status_code == 200, resp.text
+    assert await counts_of(client, "sofa-couch") == (1, 2, -1)
+
+
+async def test_the_count_cant_be_negative_or_set_on_an_unknown_type(client, inventory):
+    resp = await client.patch("/api/inventory/sofa-couch", json={"quantity": -1})
+    assert resp.status_code == 422
+    resp = await client.patch("/api/inventory/nope", json={"quantity": 1})
+    assert resp.status_code == 404
+
+
+async def test_setting_the_count_needs_a_login(unauthenticated_client, inventory):
+    client, _app = unauthenticated_client
+    resp = await client.patch("/api/inventory/sofa-couch", json={"quantity": 5})
+    assert resp.status_code == 401

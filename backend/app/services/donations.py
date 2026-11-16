@@ -71,6 +71,15 @@ async def update_donation(
         if not donor_result.scalar_one_or_none():
             raise ValueError(f"Donor with ID '{data['donor_id']}' does not exist.")
 
+    # Picked up is final: its items are already counted in stock, so moving it
+    # back (and completing it again) would count them twice.
+    if (
+        donation.status == DonationStatus.COMPLETED.value
+        and "status" in data
+        and data["status"] != DonationStatus.COMPLETED
+    ):
+        raise ValueError("This donation was picked up, so its status can't change.")
+
     picked_up_now = (
         data.get("status") == DonationStatus.COMPLETED
         and donation.status != DonationStatus.COMPLETED.value

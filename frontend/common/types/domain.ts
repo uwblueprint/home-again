@@ -66,6 +66,16 @@ export interface Donor {
   updated_at: string;
 }
 
+/**
+ * A donor as returned by `GET /donors`, with donation stats. Other donor
+ * endpoints return a plain `Donor` (see the backend `DonorListItem`).
+ */
+export interface DonorListItem extends Donor {
+  donation_count: number;
+  /** ISO date of their most recent donation; null if they have none. */
+  last_donated_at: string | null;
+}
+
 export interface Client {
   id: string;
   first_name: string;

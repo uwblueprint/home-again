@@ -16,6 +16,7 @@ from .donors import router as donors_router
 from .dropoffs import router as dropoffs_router
 from .furniture import router as furniture_router
 from .health import router as health_router
+from .inventory import router as inventory_router
 from .pickups import router as pickups_router
 from .referrals import router as referrals_router
 from .routes import router as routes_router
@@ -31,6 +32,7 @@ router.include_router(donations_router, prefix="/donations", tags=["donations"])
 router.include_router(donors_router, prefix="/donors", tags=["donors"])
 router.include_router(dropoffs_router, prefix="/dropoffs", tags=["dropoffs"])
 router.include_router(furniture_router, prefix="/furniture", tags=["furniture"])
+router.include_router(inventory_router, prefix="/inventory", tags=["inventory"])
 router.include_router(pickups_router, prefix="/pickups", tags=["pickups"])
 router.include_router(referrals_router, prefix="/referrals", tags=["referrals"])
 router.include_router(routes_router, prefix="/routes", tags=["routes"])

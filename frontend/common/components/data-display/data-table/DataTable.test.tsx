@@ -1,8 +1,9 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { DataTable } from "./DataTable";
+import { DataTableColumnHeader } from "./DataTableColumnHeader";
 
 interface Referral {
   id: string;
@@ -63,15 +64,102 @@ describe("DataTable", () => {
   it("invokes onRowClick with the row data", () => {
     const onRowClick = jest.fn();
     render(
-      <DataTable
-        columns={columns}
-        data={makeData(1)}
-        onRowClick={onRowClick}
-      />
+      <DataTable columns={columns} data={makeData(1)} onRowClick={onRowClick} />
     );
     fireEvent.click(screen.getByText("Jane Doe"));
     expect(onRowClick).toHaveBeenCalledWith(
       expect.objectContaining({ clientName: "Jane Doe" })
     );
+  });
+
+  it("checks the sort option matching a header-click sort", () => {
+    const headerColumns: ColumnDef<Referral>[] = [
+      {
+        accessorKey: "clientName",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Client Name" />
+        ),
+      },
+      { accessorKey: "status", header: "Status" },
+    ];
+    render(
+      <DataTable
+        columns={headerColumns}
+        data={makeData(3)}
+        sortOptions={[
+          {
+            value: "status",
+            label: "Status",
+            sorting: [{ id: "status", desc: false }],
+          },
+          {
+            value: "name_az",
+            label: "Name (A-Z)",
+            sorting: [{ id: "clientName", desc: false }],
+          },
+        ]}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Client Name/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Sort" }));
+    expect(screen.getByRole("radio", { name: "Name (A-Z)" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "Status" })).not.toBeChecked();
+  });
+
+  it("renders loading skeletons only for visible columns", () => {
+    render(
+      <DataTable
+        columns={columns}
+        data={[]}
+        loading
+        initialColumnVisibility={{ status: false }}
+        hideToolbar
+      />
+    );
+    const headerCells = screen.getAllByRole("columnheader");
+    const firstBodyRow = screen.getAllByRole("row")[1];
+    expect(headerCells).toHaveLength(1);
+    expect(within(firstBodyRow).getAllByRole("cell")).toHaveLength(1);
+  });
+
+  describe("search scope", () => {
+    interface Item {
+      id: string;
+      name: string | null;
+      code: string;
+      secret: string;
+    }
+
+    const itemColumns: ColumnDef<Item>[] = [
+      { accessorKey: "name", header: "Name" },
+      { accessorKey: "code", header: "Code" },
+      // A sort-only value that shouldn't be searchable.
+      { accessorKey: "secret", header: "Secret", enableGlobalFilter: false },
+    ];
+
+    const items: Item[] = [
+      // First row's name is empty — TanStack's default would then skip the
+      // whole column when searching.
+      { id: "1", name: null, code: "A-1", secret: "zebra" },
+      { id: "2", name: "Mango", code: "B-2", secret: "apple" },
+    ];
+
+    it("searches columns whose first cell is empty", () => {
+      render(<DataTable columns={itemColumns} data={items} />);
+      fireEvent.change(screen.getByPlaceholderText("Search"), {
+        target: { value: "mango" },
+      });
+      expect(screen.getByText("Mango")).toBeInTheDocument();
+      expect(screen.queryByText("A-1")).not.toBeInTheDocument();
+    });
+
+    it("skips columns with enableGlobalFilter: false", () => {
+      render(<DataTable columns={itemColumns} data={items} />);
+      fireEvent.change(screen.getByPlaceholderText("Search"), {
+        target: { value: "zebra" },
+      });
+      expect(screen.getByTestId("data-table-search-empty")).toBeInTheDocument();
+    });
   });
 });

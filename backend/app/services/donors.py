@@ -2,19 +2,32 @@
 
 import logging
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models import Donor
-from ..schemas import DonorCreate, DonorUpdate
+from ..models import Donation, Donor
+from ..schemas import DonorCreate, DonorListItem, DonorUpdate
 
 logger = logging.getLogger(__name__)
 
 
-async def list_donors(db: AsyncSession) -> list[Donor]:
-    result = await db.execute(select(Donor).order_by(Donor.last_name, Donor.first_name))
-    return result.scalars().all()
+async def list_donors(db: AsyncSession) -> list[DonorListItem]:
+    """
+    All donors with their donation count and latest donation date, by name.
+
+    Outer join so donors with no donations still appear. Donations of any
+    status count.
+    """
+    donation_count = func.count(Donation.id).label("donation_count")
+    last_donated_at = func.max(Donation.created_at).label("last_donated_at")
+    result = await db.execute(
+        select(*Donor.__table__.columns, donation_count, last_donated_at)
+        .outerjoin(Donation, Donation.donor_id == Donor.id)
+        .group_by(Donor.id)
+        .order_by(Donor.last_name, Donor.first_name, Donor.id)
+    )
+    return [DonorListItem.model_validate(row) for row in result.mappings()]
 
 
 async def get_donor(db: AsyncSession, donor_id: str) -> Donor | None:

@@ -19,6 +19,14 @@ const badgeVariants = cva(
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
+        superadmin:
+          "bg-brand-purples/200 text-brand-purples/700",
+        admin:
+          "bg-neutral/200 text-neutral/700",
+        invitePending:
+          "bg-amber/100 text-brand-amber/900",
+        inviteExpired:
+          "bg-red/100 text-brand-rose/600",
       },
     },
     defaultVariants: {

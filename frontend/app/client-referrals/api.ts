@@ -9,11 +9,14 @@ import type {
 } from "@/common/types";
 import { API_STATUS } from "./constants";
 import type { MoveTarget } from "./types";
+import type { ReferralRejectionReason } from "@/common/constants/referrals";
 
 type ReferralUpdate = {
   target: MoveTarget;
   isPriority?: boolean;
   priorityDescription?: string;
+  rejectionReason?: ReferralRejectionReason;
+  rejectionDetails?: string;
 };
 
 export async function fetchReferralData() {
@@ -50,10 +53,14 @@ export async function updateReferral(
     ...(update.priorityDescription === undefined
       ? {}
       : { priority_description: update.priorityDescription }),
+    ...(update.target === "rejected"
+      ? {
+          rejection_reason: update.rejectionReason,
+          rejection_details: update.rejectionDetails ?? null,
+        }
+      : {}),
   };
 
-  // The current backend has no rejection-reason field. Keep that value in the
-  // optimistic UI state until the API contract adds a dedicated field.
   const response = await apiClient.put<Referral>(`/referrals/${id}`, payload);
   return response.data;
 }

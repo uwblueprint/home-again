@@ -45,7 +45,9 @@ export default function ReferralRequestPage() {
       await queryClient.invalidateQueries({ queryKey: REFERRAL_DATA_KEY });
     },
   });
-  const request = referral ? toReferralRequest(referral) : undefined;
+  const request = referral
+    ? toReferralRequest(referral, data?.inventory ?? [])
+    : undefined;
 
   if (!request || !referral)
     return (
@@ -170,9 +172,13 @@ export default function ReferralRequestPage() {
           onOpenChange={(open) => {
             if (!open) setDialog(null);
           }}
-          onConfirm={() => {
-            // Rejection reasons are not supported by the current backend contract.
-            move.mutate({ target: "rejected" });
+          isSubmitting={move.isPending}
+          onConfirm={(reason, details) => {
+            move.mutate({
+              target: "rejected",
+              rejectionReason: reason,
+              rejectionDetails: details,
+            });
           }}
         />
       )}
@@ -182,6 +188,7 @@ export default function ReferralRequestPage() {
           referral={dialogReferral}
           isPriority={request.isPriority}
           priorityReason={request.priorityDescription}
+          isSubmitting={move.isPending}
           onOpenChange={(open) => {
             if (!open) setDialog(null);
           }}

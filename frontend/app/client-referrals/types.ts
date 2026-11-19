@@ -1,4 +1,5 @@
 import type { ReferralCardAgent, ReferralCardItem } from "@/common/components";
+import type { ReferralRejectionReason } from "@/common/constants/referrals";
 
 export type ReferralTab = "new" | "waitlisted" | "rejected";
 
@@ -29,7 +30,10 @@ export type MoveTarget = "waitlisted" | "rejected";
 
 export type ReferralStatusUpdate = {
   target: MoveTarget;
-  rejectionReason?: string;
+  rejectionReason?: ReferralRejectionReason;
+  rejectionDetails?: string;
   isPriority?: boolean;
   priorityDescription?: string;
 };
+
+export type { ReferralRejectionReason };

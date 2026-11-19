@@ -3,6 +3,13 @@
  * Update when the API schema changes.
  */
 
+import type {
+  ReferralItemStatus,
+  ReferralRejectionReason,
+  ReferralReviewStatus,
+  ReferralStatus,
+} from "@/common/constants/referrals";
+
 export interface Admin {
   id: string;
   supabase_user_id: string | null;
@@ -168,19 +175,14 @@ export interface Referral {
   adequate_parking: boolean | null;
   move_other_info: string | null;
   notes_and_instructions: string | null;
-  status: "pending" | "approved" | "completed" | "declined";
+  status: ReferralStatus;
+  rejection_reason?: ReferralRejectionReason | null;
+  rejection_details?: string | null;
   created_at: string;
   updated_at: string;
 }
 
-export type ReferralReviewStatus =
-  | "pending_review"
-  | "partially_reviewed"
-  | "approved"
-  | "partially_approved"
-  | "rejected"
-  | "scheduled"
-  | "delivered";
+export type { ReferralReviewStatus };
 
 export interface ReferralItem {
   id: string;
@@ -188,13 +190,7 @@ export interface ReferralItem {
   name: string;
   size: string | null;
   notes: string | null;
-  status:
-    | "PENDING_REVIEW"
-    | "APPROVED"
-    | "REJECTED"
-    | "SCHEDULED"
-    | "DELIVERED"
-    | "CANCELLED";
+  status: ReferralItemStatus;
   rejection_reason: string | null;
   reviewed_at: string | null;
   inventory_id: string | null;

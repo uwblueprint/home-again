@@ -4,6 +4,9 @@ import asyncio
 import json
 from datetime import datetime
 
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+
 from app.database import AsyncSessionLocal
 from app.models import Agency, Agent, Client, Inventory, Referral, ReferralItem
 
@@ -27,6 +30,17 @@ CLIENTS = tuple(
         (6, "Casey", "Miller", datetime(1975, 12, 30).date()),
         (7, "Sam", "Moore", datetime(2001, 8, 21).date()),
         (8, "Jamie", "Lee", datetime(1982, 10, 14).date()),
+        (9, "Alex", "Martin", datetime(1992, 3, 16).date()),
+        (10, "Quinn", "Clark", datetime(1987, 7, 9).date()),
+        (11, "Emerson", "Lewis", datetime(1996, 11, 22).date()),
+        (12, "Parker", "Walker", datetime(1983, 5, 4).date()),
+        (13, "Reese", "Hall", datetime(1999, 1, 13).date()),
+        (14, "Finley", "Allen", datetime(1979, 9, 27).date()),
+        (15, "Dakota", "Young", datetime(1991, 6, 11).date()),
+        (16, "Hayden", "King", datetime(1988, 2, 19).date()),
+        (17, "Rowan", "Scott", datetime(1995, 12, 5).date()),
+        (18, "Skyler", "Green", datetime(1981, 4, 28).date()),
+        (19, "Charlie", "Baker", datetime(2000, 10, 8).date()),
     )
 )
 
@@ -41,6 +55,8 @@ def make_referral(
     secondary_agent_id: str | None = None,
     is_priority: bool = False,
     priority_description: str | None = None,
+    rejection_reason: str | None = None,
+    rejection_details: str | None = None,
     items: list[dict[str, object]] | None = None,
 ) -> dict[str, object]:
     return {
@@ -51,6 +67,8 @@ def make_referral(
         "status": status,
         "is_priority": is_priority,
         "priority_description": priority_description,
+        "rejection_reason": rejection_reason,
+        "rejection_details": rejection_details,
         "created_at": created_at,
         "items": items or [],
     }
@@ -134,7 +152,7 @@ REFERRALS = tuple(
         ),
         make_referral(
             9,
-            1,
+            9,
             "approved",
             datetime(2026, 11, 8, 12, 0),
             agent_id=AGENT_TWO_ID,
@@ -159,7 +177,7 @@ REFERRALS = tuple(
         ),
         make_referral(
             10,
-            2,
+            10,
             "approved",
             datetime(2026, 11, 7, 12, 0),
             agent_id=AGENT_ONE_ID,
@@ -176,7 +194,7 @@ REFERRALS = tuple(
         ),
         make_referral(
             11,
-            3,
+            11,
             "approved",
             datetime(2026, 11, 6, 12, 0),
             agent_id=AGENT_TWO_ID,
@@ -193,7 +211,7 @@ REFERRALS = tuple(
         ),
         make_referral(
             12,
-            4,
+            12,
             "approved",
             datetime(2026, 11, 5, 12, 0),
             agent_id=None,
@@ -218,7 +236,7 @@ REFERRALS = tuple(
         ),
         make_referral(
             13,
-            5,
+            13,
             "approved",
             datetime(2026, 11, 4, 12, 0),
             agent_id=AGENT_ONE_ID,
@@ -232,35 +250,56 @@ REFERRALS = tuple(
             ],
         ),
         make_referral(
-            14, 6, "declined", datetime(2026, 11, 9, 8, 0), agent_id=AGENT_TWO_ID
+            14,
+            14,
+            "declined",
+            datetime(2026, 11, 9, 8, 0),
+            agent_id=AGENT_TWO_ID,
+            rejection_reason="duplicate",
         ),
         make_referral(
             15,
-            7,
+            15,
             "declined",
             datetime(2026, 11, 8, 8, 0),
             agent_id=AGENT_ONE_ID,
+            rejection_reason="location",
             items=[{"id": "sofa", "name": "Sofa", "quantity": 1, "stock": 2}],
         ),
-        make_referral(16, 8, "declined", datetime(2026, 11, 7, 8, 0), agent_id=None),
+        make_referral(
+            16,
+            16,
+            "declined",
+            datetime(2026, 11, 7, 8, 0),
+            agent_id=None,
+            rejection_reason="incomplete",
+        ),
         make_referral(
             17,
-            1,
+            17,
             "declined",
             datetime(2026, 11, 6, 8, 0),
             agent_id=AGENT_TWO_ID,
+            rejection_reason="other",
+            rejection_details="The client needs items outside the current program scope.",
             items=[{"id": "desk", "name": "Desk", "quantity": 1, "stock": 0}],
         ),
         make_referral(
-            18, 2, "declined", datetime(2026, 11, 5, 8, 0), agent_id=AGENT_ONE_ID
+            18,
+            18,
+            "declined",
+            datetime(2026, 11, 5, 8, 0),
+            agent_id=AGENT_ONE_ID,
+            rejection_reason="location",
         ),
         make_referral(
             19,
-            3,
+            19,
             "declined",
             datetime(2026, 11, 4, 8, 0),
             agent_id=AGENT_TWO_ID,
             secondary_agent_id=AGENT_ONE_ID,
+            rejection_reason="incomplete",
             items=[{"id": "chair", "name": "Armchair", "quantity": 1, "stock": 1}],
         ),
     ]
@@ -396,7 +435,12 @@ async def seed() -> None:
         await session.flush()
 
         for referral_data in REFERRALS:
-            referral = await session.get(Referral, referral_data["id"])
+            result = await session.execute(
+                select(Referral)
+                .where(Referral.id == referral_data["id"])
+                .options(selectinload(Referral.items))
+            )
+            referral = result.scalar_one_or_none()
             if referral is None:
                 requested_items, referral_items = build_referral_items(referral_data)
                 session.add(
@@ -408,6 +452,8 @@ async def seed() -> None:
                         status=referral_data["status"],
                         is_priority=referral_data["is_priority"],
                         priority_description=referral_data["priority_description"],
+                        rejection_reason=referral_data["rejection_reason"],
+                        rejection_details=referral_data["rejection_details"],
                         requested_items=json.dumps(requested_items),
                         address_line_1="100 Demo Street",
                         city="Waterloo",
@@ -416,6 +462,21 @@ async def seed() -> None:
                         items=referral_items,
                     )
                 )
+            else:
+                # Rebuild demo rows so reruns apply every seed change.
+                requested_items, referral_items = build_referral_items(referral_data)
+                referral.client_id = referral_data["client_id"]
+                referral.agent_id = referral_data["agent_id"]
+                referral.secondary_agent_id = referral_data["secondary_agent_id"]
+                referral.status = referral_data["status"]
+                referral.is_priority = referral_data["is_priority"]
+                referral.priority_description = referral_data["priority_description"]
+                referral.rejection_reason = referral_data["rejection_reason"]
+                referral.rejection_details = referral_data["rejection_details"]
+                referral.requested_items = json.dumps(requested_items)
+                referral.created_at = referral_data["created_at"]
+                referral.updated_at = referral_data["created_at"]
+                referral.items = referral_items
 
         await session.commit()
 

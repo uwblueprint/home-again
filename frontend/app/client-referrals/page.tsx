@@ -12,7 +12,12 @@ import {
   RejectReferralDialog,
   WaitlistReferralDialog,
 } from "./components";
-import type { ClientReferral, ReferralTab, ReviewFilter } from "./types";
+import type {
+  ClientReferral,
+  ReferralRejectionReason,
+  ReferralTab,
+  ReviewFilter,
+} from "./types";
 import {
   matchesQuery,
   matchesReviewFilter,
@@ -36,7 +41,7 @@ function toDialogReferral(referral: ClientReferral) {
 
 export default function ClientReferralsPage() {
   const router = useRouter();
-  const { referrals, isLoading, isError, waitlist, reject } =
+  const { referrals, isLoading, isError, isUpdating, waitlist, reject } =
     useClientReferrals();
 
   const [tab, setTab] = useState<ReferralTab>("new");
@@ -114,15 +119,12 @@ export default function ClientReferralsPage() {
 
   const handleReject = async (
     referral: ClientReferral,
-    reason: string,
+    reason: ReferralRejectionReason,
     details?: string
   ) => {
     setActionError(null);
     try {
-      // "Other" uses the text entered by the reviewer as the reason.
-      const rejectionReason =
-        reason === "other" ? (details?.trim() ?? "") : reason;
-      await reject(referral.id, rejectionReason);
+      await reject(referral.id, reason, details?.trim());
       setRejectTarget(null);
     } catch {
       setActionError("Unable to reject this referral. Please try again.");
@@ -223,6 +225,7 @@ export default function ClientReferralsPage() {
           referral={toDialogReferral(waitlistTarget)}
           isPriority={waitlistTarget.isPriority}
           priorityReason={waitlistTarget.priorityDescription}
+          isSubmitting={isUpdating}
           onConfirm={(isPriority) =>
             void handleWaitlist(
               waitlistTarget,
@@ -240,6 +243,7 @@ export default function ClientReferralsPage() {
             if (!open) setRejectTarget(null);
           }}
           referral={toDialogReferral(rejectTarget)}
+          isSubmitting={isUpdating}
           onConfirm={(reason, details) =>
             void handleReject(rejectTarget, reason, details)
           }

@@ -6,6 +6,19 @@ import type {
   Referral,
   ReferralItem,
 } from "@/common/types";
+import {
+  CLIENT_REFERRAL_REVIEW_STATUS,
+  CLIENT_REFERRAL_TAB,
+} from "./constants";
+import {
+  REFERRAL_ITEM_STATUS,
+  REFERRAL_REJECTION_REASON,
+  REFERRAL_REJECTION_REASON_LABELS,
+  REFERRAL_REVIEW_STATUS,
+  REFERRAL_STATUS,
+  type ReferralItemStatus,
+  type ReferralReviewStatus,
+} from "@/common/constants/referrals";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -54,10 +67,14 @@ export function normalizeReferralItems(
       approved: true,
     };
     normalized.quantity += 1;
-    normalized.reviewed &&= item.status !== "PENDING_REVIEW";
-    normalized.approved &&= ["APPROVED", "SCHEDULED", "DELIVERED"].includes(
-      item.status
-    );
+    normalized.reviewed &&= item.status !== REFERRAL_ITEM_STATUS.PENDING_REVIEW;
+    normalized.approved &&= (
+      [
+        REFERRAL_ITEM_STATUS.APPROVED,
+        REFERRAL_ITEM_STATUS.SCHEDULED,
+        REFERRAL_ITEM_STATUS.DELIVERED,
+      ] as ReferralItemStatus[]
+    ).includes(item.status);
     grouped.set(key, normalized);
   }
   return [...grouped.values()];
@@ -109,11 +126,12 @@ export function toClientReferral(
 ): ClientReferral {
   const tab: ReferralTab =
     // Completed referrals stay in the waitlist because there is no completed tab.
-    raw.status === "declined"
-      ? "rejected"
-      : raw.status === "approved" || raw.status === "completed"
-        ? "waitlisted"
-        : "new";
+    raw.status === REFERRAL_STATUS.DECLINED
+      ? CLIENT_REFERRAL_TAB.REJECTED
+      : raw.status === REFERRAL_STATUS.APPROVED ||
+          raw.status === REFERRAL_STATUS.COMPLETED
+        ? CLIENT_REFERRAL_TAB.WAITLISTED
+        : CLIENT_REFERRAL_TAB.NEW;
 
   const toAgent = (id: string | null, role: "primary" | "secondary") => {
     const agent = id ? agents.find((item) => item.id === id) : undefined;
@@ -131,21 +149,24 @@ export function toClientReferral(
   const items = raw.items?.length
     ? normalizeReferralItems(raw.items, inventory)
     : normalizeRequestedItems(raw.requested_items);
-  const backendReviewStatus = raw.review_status ?? "pending_review";
+  const backendReviewStatus =
+    raw.review_status ?? REFERRAL_REVIEW_STATUS.PENDING_REVIEW;
   const reviewStatus =
     tab !== "waitlisted"
       ? undefined
-      : backendReviewStatus === "partially_reviewed"
-        ? "partially-reviewed"
-        : [
-              "approved",
-              "partially_approved",
-              "rejected",
-              "scheduled",
-              "delivered",
-            ].includes(backendReviewStatus)
-          ? "reviewed"
-          : "pending-review";
+      : backendReviewStatus === REFERRAL_REVIEW_STATUS.PARTIALLY_REVIEWED
+        ? CLIENT_REFERRAL_REVIEW_STATUS.PARTIALLY_REVIEWED
+        : (
+              [
+                REFERRAL_REVIEW_STATUS.APPROVED,
+                REFERRAL_REVIEW_STATUS.PARTIALLY_APPROVED,
+                REFERRAL_REVIEW_STATUS.REJECTED,
+                REFERRAL_REVIEW_STATUS.SCHEDULED,
+                REFERRAL_REVIEW_STATUS.DELIVERED,
+              ] as ReferralReviewStatus[]
+            ).includes(backendReviewStatus)
+          ? CLIENT_REFERRAL_REVIEW_STATUS.REVIEWED
+          : CLIENT_REFERRAL_REVIEW_STATUS.PENDING;
 
   return {
     id: raw.id,
@@ -167,6 +188,13 @@ export function toClientReferral(
       stock: item.stock,
     })),
     reviewStatus,
+    rejectionReason:
+      raw.rejection_reason === REFERRAL_REJECTION_REASON.OTHER
+        ? raw.rejection_details ||
+          REFERRAL_REJECTION_REASON_LABELS[REFERRAL_REJECTION_REASON.OTHER]
+        : raw.rejection_reason
+          ? REFERRAL_REJECTION_REASON_LABELS[raw.rejection_reason]
+          : undefined,
     approvedCount:
       reviewStatus === "reviewed" ? (raw.approved_count ?? 0) : undefined,
     totalCount:

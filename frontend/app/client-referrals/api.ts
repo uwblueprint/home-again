@@ -2,6 +2,7 @@ import apiClient from "@/common/lib/apiClient";
 import type {
   AgentRecord,
   Client,
+  InventoryRecord,
   Referral,
   UpdateReferralInput,
   UpdateClientInput,
@@ -17,17 +18,23 @@ type ReferralUpdate = {
 
 export async function fetchReferralData() {
   // Referrals store client and agent IDs, so load the related records together.
-  const [referralsResponse, clientsResponse, agentsResponse] =
-    await Promise.all([
-      apiClient.get<Referral[]>("/referrals"),
-      apiClient.get<Client[]>("/clients"),
-      apiClient.get<AgentRecord[]>("/agents"),
-    ]);
+  const [
+    referralsResponse,
+    clientsResponse,
+    agentsResponse,
+    inventoryResponse,
+  ] = await Promise.all([
+    apiClient.get<Referral[]>("/referrals"),
+    apiClient.get<Client[]>("/clients"),
+    apiClient.get<AgentRecord[]>("/agents"),
+    apiClient.get<InventoryRecord[]>("/inventory"),
+  ]);
 
   return {
     referrals: referralsResponse.data,
     clients: clientsResponse.data,
     agents: agentsResponse.data,
+    inventory: inventoryResponse.data,
   };
 }
 

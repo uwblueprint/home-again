@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 
 from app.database import AsyncSessionLocal
-from app.models import Agency, Agent, Client, Referral
+from app.models import Agency, Agent, Client, Inventory, Referral, ReferralItem
 
 AGENCY_ID = "demo-agency"
 AGENT_ONE_ID = "demo-agent-maya"
@@ -267,6 +267,80 @@ REFERRALS = tuple(
 )
 
 
+def build_referral_items(
+    referral_data: dict[str, object],
+) -> tuple[list[dict[str, object]], list[ReferralItem]]:
+    """Create the legacy request payload and one row per requested unit."""
+    requested_items: list[dict[str, object]] = []
+    referral_items: list[ReferralItem] = []
+    for position, item in enumerate(referral_data["items"]):
+        name = str(item["name"])
+        quantity = int(item.get("quantity", 1))
+        requested_items.append(
+            {
+                "item": name,
+                "quantity": quantity,
+            }
+        )
+        for unit in range(quantity):
+            reviewed = item.get("reviewed") is True
+            approved = item.get("approved") is True
+            if referral_data["status"] == "declined":
+                item_status = "REJECTED"
+            elif not reviewed:
+                item_status = "PENDING_REVIEW"
+            elif approved:
+                item_status = "APPROVED"
+            else:
+                item_status = "REJECTED"
+            referral_items.append(
+                ReferralItem(
+                    id=f"{referral_data['id']}-item-{position}-{unit}",
+                    name=name,
+                    size=item.get("size"),
+                    notes=item.get("notes"),
+                    status=item_status,
+                    inventory_id=item.get("inventory_id"),
+                    position=len(referral_items),
+                )
+            )
+    return requested_items, referral_items
+
+
+def inventory_rows() -> list[Inventory]:
+    """Create varied stock so the local cards show available and unavailable items."""
+    quantities = {
+        "bed": 4,
+        "mattress": 2,
+        "nightstand": 1,
+        "sofa": 3,
+        "table": 0,
+        "dresser": 5,
+        "crib": 0,
+        "chair": 6,
+        "lamp": 1,
+        "desk": 1,
+        "shelf": 2,
+    }
+    names: dict[str, str] = {}
+    for referral_data in REFERRALS:
+        for item in referral_data["items"]:
+            item_id = str(item["id"])
+            names.setdefault(item_id, str(item["name"]))
+            item["inventory_id"] = item_id
+
+    return [
+        Inventory(
+            id=item_id,
+            name=name,
+            category="demo",
+            quantity=quantities.get(item_id, 2),
+            position=position,
+        )
+        for position, (item_id, name) in enumerate(names.items())
+    ]
+
+
 async def seed() -> None:
     async with AsyncSessionLocal() as session:
         agency = await session.get(Agency, AGENCY_ID)
@@ -315,9 +389,16 @@ async def seed() -> None:
 
         await session.flush()
 
+        for inventory in inventory_rows():
+            if await session.get(Inventory, inventory.id) is None:
+                session.add(inventory)
+
+        await session.flush()
+
         for referral_data in REFERRALS:
             referral = await session.get(Referral, referral_data["id"])
             if referral is None:
+                requested_items, referral_items = build_referral_items(referral_data)
                 session.add(
                     Referral(
                         id=referral_data["id"],
@@ -327,11 +408,12 @@ async def seed() -> None:
                         status=referral_data["status"],
                         is_priority=referral_data["is_priority"],
                         priority_description=referral_data["priority_description"],
-                        requested_items=json.dumps(referral_data["items"]),
+                        requested_items=json.dumps(requested_items),
                         address_line_1="100 Demo Street",
                         city="Waterloo",
                         created_at=referral_data["created_at"],
                         updated_at=referral_data["created_at"],
+                        items=referral_items,
                     )
                 )
 

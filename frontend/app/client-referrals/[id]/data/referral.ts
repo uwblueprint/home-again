@@ -1,10 +1,15 @@
 import type { Referral } from "@/common/types";
 import type { ReferralRequestPreview } from "@/app/client-referrals/[id]/types";
-import { normalizeRequestedItems } from "@/app/client-referrals/utils";
+import {
+  normalizeReferralItems,
+  normalizeRequestedItems,
+} from "@/app/client-referrals/utils";
 
 export function toReferralRequest(raw: Referral): ReferralRequestPreview {
-  const items = normalizeRequestedItems(raw.requested_items);
-  const reviewed = items.filter((item) => item.reviewed).length;
+  const items = raw.items?.length
+    ? normalizeReferralItems(raw.items)
+    : normalizeRequestedItems(raw.requested_items);
+  const backendReviewStatus = raw.review_status ?? "pending_review";
   const waitlisted = raw.status === "approved" || raw.status === "completed";
 
   return {
@@ -19,9 +24,9 @@ export function toReferralRequest(raw: Referral): ReferralRequestPreview {
     status:
       raw.status === "declined"
         ? "rejected"
-        : !waitlisted || reviewed === 0
+        : !waitlisted || backendReviewStatus === "pending_review"
           ? "pending-review"
-          : reviewed < items.length
+          : backendReviewStatus === "partially_reviewed"
             ? "partially-reviewed"
             : "reviewed",
     items: items.map((item) => ({

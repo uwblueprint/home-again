@@ -23,7 +23,12 @@ export function useClientReferrals() {
   const referrals = useMemo(
     () =>
       query.data?.referrals.map((referral) => ({
-        ...toClientReferral(referral, query.data.clients, query.data.agents),
+        ...toClientReferral(
+          referral,
+          query.data.clients,
+          query.data.agents,
+          query.data.inventory
+        ),
         rejectionReason: rejectionReasons[referral.id],
       })) ?? [],
     [query.data, rejectionReasons]

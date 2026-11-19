@@ -1,5 +1,11 @@
 import type { ClientReferral, ReferralTab, ReviewFilter } from "./types";
-import type { AgentRecord, Client, Referral } from "@/common/types";
+import type {
+  AgentRecord,
+  Client,
+  InventoryRecord,
+  Referral,
+  ReferralItem,
+} from "@/common/types";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -25,6 +31,37 @@ export type NormalizedRequestedItem = {
   reviewed: boolean;
   approved: boolean;
 };
+
+export function normalizeReferralItems(
+  items: ReferralItem[],
+  inventory: InventoryRecord[] = []
+) {
+  const grouped = new Map<string, NormalizedRequestedItem>();
+  for (const item of items) {
+    const key = `${item.name}|${item.size ?? ""}`;
+    const existing = grouped.get(key);
+    const inventoryItem = item.inventory_id
+      ? inventory.find((record) => record.id === item.inventory_id)
+      : undefined;
+    const normalized = existing ?? {
+      id: item.id,
+      name: item.name,
+      size: item.size ?? undefined,
+      quantity: 0,
+      stock: inventoryItem?.available ?? 0,
+      description: item.notes ?? undefined,
+      reviewed: true,
+      approved: true,
+    };
+    normalized.quantity += 1;
+    normalized.reviewed &&= item.status !== "PENDING_REVIEW";
+    normalized.approved &&= ["APPROVED", "SCHEDULED", "DELIVERED"].includes(
+      item.status
+    );
+    grouped.set(key, normalized);
+  }
+  return [...grouped.values()];
+}
 
 export function normalizeRequestedItems(
   rawItems: unknown[]
@@ -61,24 +98,14 @@ export function normalizeRequestedItems(
   });
 }
 
-function getReviewSummary(rawItems: unknown[]) {
-  const reviewableItems = normalizeRequestedItems(rawItems);
-  const reviewedItems = reviewableItems.filter((item) => item.reviewed);
-
-  return {
-    totalCount: reviewableItems.length,
-    reviewedCount: reviewedItems.length,
-    approvedCount: reviewedItems.filter((item) => item.approved).length,
-  };
-}
-
 /**
  * Backend Referral -> view model used by the referral cards.
  */
 export function toClientReferral(
   raw: Referral,
   clients: Client[],
-  agents: AgentRecord[]
+  agents: AgentRecord[],
+  inventory: InventoryRecord[] = []
 ): ClientReferral {
   const tab: ReferralTab =
     // Completed referrals stay in the waitlist because there is no completed tab.
@@ -101,15 +128,24 @@ export function toClientReferral(
 
   const client = clients.find((item) => item.id === raw.client_id);
   // Review status comes from item review flags until the API exposes this field.
-  const review = getReviewSummary(raw.requested_items);
+  const items = raw.items?.length
+    ? normalizeReferralItems(raw.items, inventory)
+    : normalizeRequestedItems(raw.requested_items);
+  const backendReviewStatus = raw.review_status ?? "pending_review";
   const reviewStatus =
-    tab !== "waitlisted" || review.reviewedCount === 0
-      ? tab === "waitlisted"
-        ? "pending-review"
-        : undefined
-      : review.reviewedCount < review.totalCount
+    tab !== "waitlisted"
+      ? undefined
+      : backendReviewStatus === "partially_reviewed"
         ? "partially-reviewed"
-        : "reviewed";
+        : [
+              "approved",
+              "partially_approved",
+              "rejected",
+              "scheduled",
+              "delivered",
+            ].includes(backendReviewStatus)
+          ? "reviewed"
+          : "pending-review";
 
   return {
     id: raw.id,
@@ -124,7 +160,7 @@ export function toClientReferral(
       toAgent(raw.agent_id, "primary"),
       toAgent(raw.secondary_agent_id, "secondary"),
     ].filter(Boolean) as ClientReferral["agents"],
-    items: normalizeRequestedItems(raw.requested_items).map((item) => ({
+    items: items.map((item) => ({
       id: item.id,
       name: [item.name, item.size].filter(Boolean).join(" / "),
       quantity: item.quantity,
@@ -132,8 +168,11 @@ export function toClientReferral(
     })),
     reviewStatus,
     approvedCount:
-      reviewStatus === "reviewed" ? review.approvedCount : undefined,
-    totalCount: reviewStatus === "reviewed" ? review.totalCount : undefined,
+      reviewStatus === "reviewed" ? (raw.approved_count ?? 0) : undefined,
+    totalCount:
+      reviewStatus === "reviewed"
+        ? (raw.item_count ?? items.length)
+        : undefined,
   };
 }
 

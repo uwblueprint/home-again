@@ -33,6 +33,7 @@ docker-compose up --build
 
 - **Database**: The `db` service creates database `hafb` with user `hafb_user` and the password set in the compose file. Scripts in `db-init/` run on first start (e.g. `create-multiple-dbs.sh` if you set `POSTGRES_MULTIPLE_DATABASES`).
 - **Migrations**: The backend container runs `alembic upgrade head` in its entrypoint before starting the API, so tables are created automatically.
+- **Demo data**: Demo data is opt-in. Run `docker compose exec py-backend python -m seeds.seed_referrals` after startup to add deterministic agencies, agents, clients, and referrals. The seed is idempotent and does not overwrite changes to existing demo rows.
 - **Backend health**: Backend has a healthcheck on `/health`; frontend starts only after backend is healthy.
 - **Frontend**: The dev server runs with Turbopack and listens on `0.0.0.0`. `CHOKIDAR_USEPOLLING` and `WATCHPACK_POLLING` are set so file changes are detected with volume mounts. The app calls the API at `http://localhost:8000/api` (browser uses the host's port mapping).
 
@@ -65,6 +66,13 @@ docker-compose down
 
 # Re-run migrations manually
 docker-compose exec py-backend alembic upgrade head
+
+# Seed the local database with demo referral data
+docker compose exec py-backend python -m seeds.seed_referrals
+
+# Reset the local database and recreate the demo data on the next startup
+docker-compose down -v
+docker-compose up --build
 
 # Shell into backend container
 docker-compose exec py-backend sh

@@ -3,6 +3,11 @@
  * Used when creating or updating resources via the backend.
  */
 
+import type {
+  ReferralRejectionReason,
+  ReferralStatus,
+} from "@/common/constants/referrals";
+
 export interface CreateAgencyInput {
   name: string;
   address_line_1: string;
@@ -97,5 +102,9 @@ export interface CreateReferralInput {
   adequate_parking?: boolean | null;
   move_other_info?: string | null;
   notes_and_instructions?: string | null;
-  status: "pending" | "approved" | "completed" | "declined";
+  status: ReferralStatus;
+  rejection_reason?: ReferralRejectionReason | null;
+  rejection_details?: string | null;
 }
+
+export type UpdateReferralInput = Partial<CreateReferralInput>;

@@ -26,8 +26,8 @@ export type ReferralDialogAgent = {
   firstName: string;
   lastName: string;
   role: AgentRole;
-  email: string;
-  phone: string;
+  email?: string;
+  phone?: string;
 };
 
 export type ReferralDialogReferral = {
@@ -78,10 +78,14 @@ function AgentContact({ agent }: { agent: ReferralDialogAgent }) {
           {ROLE_LABEL[agent.role]}: {fullName}
         </span>
       </div>
-      <div className="flex flex-wrap gap-x-md text-paragraph-small text-muted-foreground">
-        <span className="break-all">{agent.email}</span>
-        <span>{agent.phone}</span>
-      </div>
+      {agent.email || agent.phone ? (
+        <div className="flex flex-wrap gap-x-md text-paragraph-small text-muted-foreground">
+          {agent.email ? (
+            <span className="break-all">{agent.email}</span>
+          ) : null}
+          {agent.phone ? <span>{agent.phone}</span> : null}
+        </div>
+      ) : null}
     </li>
   );
 }

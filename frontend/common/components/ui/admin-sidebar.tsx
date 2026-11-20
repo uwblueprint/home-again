@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { ComponentType } from "react";
 import { useEffect, useState } from "react";
 
@@ -23,6 +24,7 @@ import {
   SidebarRoutesAndSchedulingIcon,
 } from "@/common/components/ui/sidebar-icons";
 import { SidebarNavShell } from "@/common/components/ui/sidebar-nav-shell";
+import { REFERRAL_REQUESTS } from "@/common/constants/Routes";
 
 export type AdminSidebarActiveItem =
   | "home"
@@ -119,6 +121,7 @@ function AdminSidebar({
             <SidebarMenuSubItem>
               <SidebarMenuSubButton
                 isActive={activeItem === "client-referrals"}
+                render={<Link href={REFERRAL_REQUESTS} />}
               >
                 <span>Client Referrals</span>
               </SidebarMenuSubButton>

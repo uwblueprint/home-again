@@ -6,18 +6,14 @@ import {
   PriorityBadge,
 } from "@/common/components/status-labels";
 import type { ReferralRequestPreview } from "@/app/client-referrals/[id]/types";
+import { formatDate } from "@/app/client-referrals/utils";
 
 export function ReferralRequestHeader({
   request,
 }: {
   request: ReferralRequestPreview;
 }) {
-  const submittedAt = new Intl.DateTimeFormat("en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(request.submittedAt));
+  const submittedAt = formatDate(request.submittedAt);
 
   return (
     <header className="flex flex-wrap items-start justify-between gap-lg">

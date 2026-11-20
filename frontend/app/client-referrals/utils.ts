@@ -1,4 +1,9 @@
-import type { ClientReferral, ReferralTab, ReviewFilter } from "./types";
+import type {
+  ClientReferral,
+  ReferralSortField,
+  ReferralTab,
+  ReviewFilter,
+} from "./types";
 import type {
   AgentRecord,
   Client,
@@ -140,6 +145,8 @@ export function toClientReferral(
           firstName: agent.first_name,
           lastName: agent.last_name,
           role,
+          email: agent.email ?? undefined,
+          phone: agent.phone_number ?? undefined,
         }
       : null;
   };
@@ -227,13 +234,43 @@ export function matchesReviewFilter(r: ClientReferral, filter: ReviewFilter) {
   return filter === "all" || r.reviewStatus === filter;
 }
 
-export function sortBySubmissionDate(
+const collator = new Intl.Collator(undefined, { sensitivity: "base" });
+
+export function sortReferrals(
   referrals: ClientReferral[],
+  field: ReferralSortField,
   descending: boolean
 ) {
-  return [...referrals].sort((a, b) => {
-    const difference =
-      Date.parse(a.submittedAtIso) - Date.parse(b.submittedAtIso);
-    return descending ? -difference : difference;
+  const dir = descending ? -1 : 1;
+
+  const decorated = referrals.map((r) => {
+    const [first = "", last = ""] = r.clientName.split(" ", 2);
+    return {
+      r,
+      time: Date.parse(r.submittedAtIso),
+      priority: r.isPriority ? 1 : 0,
+      first,
+      last,
+    };
   });
+
+  decorated.sort((a, b) => {
+    if (field === "priority" && a.priority !== b.priority) {
+      return (a.priority - b.priority) * dir;
+    }
+
+    let diff: number;
+    if (field === "recency" || field === "priority") {
+      diff = a.time - b.time;
+    } else {
+      const aKey = field === "firstName" ? a.first : a.last;
+      const bKey = field === "firstName" ? b.first : b.last;
+      diff =
+        collator.compare(aKey, bKey) ||
+        collator.compare(a.r.clientName, b.r.clientName);
+    }
+    return diff * dir;
+  });
+
+  return decorated.map((d) => d.r);
 }

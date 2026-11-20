@@ -1,6 +1,8 @@
 "use client";
 
 import { RadioGroup, RadioGroupItem } from "@/common/components/ui/radio-group";
+import type { ReactNode } from "react";
+
 import { cn } from "@/common/lib/utils";
 
 type SortMenuOption = {
@@ -22,6 +24,8 @@ type SortMenuProps = {
   onReset?: () => void;
   /** Heading shown above the options. Pass an empty string to hide it. @default "Sort by" */
   label?: string;
+  /** Controls shown beside the heading, such as sort direction buttons. */
+  headerActions?: ReactNode;
   /** Text for the reset action. @default "Reset" */
   resetLabel?: string;
   className?: string;
@@ -39,6 +43,7 @@ function SortMenu({
   onChange,
   onReset,
   label = "Sort by",
+  headerActions,
   resetLabel = "Reset",
   className,
 }: SortMenuProps) {
@@ -50,8 +55,13 @@ function SortMenu({
         className
       )}
     >
-      {label ? (
-        <p className="text-paragraph-small text-muted-foreground">{label}</p>
+      {label || headerActions ? (
+        <div className="flex items-center justify-between gap-md">
+          {label ? (
+            <p className="text-paragraph-small text-muted-foreground">{label}</p>
+          ) : null}
+          {headerActions}
+        </div>
       ) : null}
       <RadioGroup
         value={value}

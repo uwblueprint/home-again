@@ -22,6 +22,7 @@ import {
   ReferralDetails,
 } from "@/app/client-referrals/[id]/components";
 import { toReferralRequest } from "@/app/client-referrals/[id]/data/referral";
+import { formatDate } from "@/app/client-referrals/utils";
 import {
   Button,
   Tabs,
@@ -53,7 +54,7 @@ export default function ReferralRequestPage() {
     return (
       <div className="flex min-h-0 w-full flex-1 flex-col bg-background">
         <main className="mx-auto flex w-full max-w-275 flex-1 flex-col gap-4xl px-xl py-xl">
-          <Tabs defaultValue="requested-items">
+          <Tabs defaultValue="details">
             <ReferralSectionTabs />
           </Tabs>
           {!isPending && (
@@ -83,9 +84,7 @@ export default function ReferralRequestPage() {
   const dialogReferral: ReferralDialogReferral = {
     clientName: client ? `${client.first_name} ${client.last_name}` : "Client",
     referralId: request.id,
-    submittedAt: new Intl.DateTimeFormat("en-US", { timeZone: "UTC" }).format(
-      new Date(request.submittedAt)
-    ),
+    submittedAt: formatDate(request.submittedAt),
     agents: (
       [
         { id: request.agentId, role: "primary" },
@@ -143,14 +142,8 @@ export default function ReferralRequestPage() {
             </p>
           )}
         </div>
-        <Tabs defaultValue="requested-items" className="gap-4xl">
+        <Tabs defaultValue="details" className="gap-4xl">
           <ReferralSectionTabs />
-          <TabsContent value="requested-items">
-            <RequestedItemsSection
-              items={request.items}
-              isNew={request.isNew}
-            />
-          </TabsContent>
           <TabsContent value="details">
             <ReferralDetails
               referral={referral}
@@ -160,6 +153,12 @@ export default function ReferralRequestPage() {
               clientError={false}
               agentsLoading={false}
               agentsError={false}
+            />
+          </TabsContent>
+          <TabsContent value="requested-items">
+            <RequestedItemsSection
+              items={request.items}
+              isNew={request.isNew}
             />
           </TabsContent>
         </Tabs>
@@ -211,8 +210,8 @@ function ReferralSectionTabs() {
       aria-label="Referral request sections"
       className="max-w-full overflow-x-auto"
     >
-      <TabsTrigger value="requested-items">Requested Items</TabsTrigger>
       <TabsTrigger value="details">Details</TabsTrigger>
+      <TabsTrigger value="requested-items">Requested Items</TabsTrigger>
       <TabsTrigger
         value="dropoffs"
         disabled

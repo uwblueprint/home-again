@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { PAGE_SIZE, REVIEW_FILTERS, TABS } from "./constants";
-import { useClientReferrals } from "./hooks";
+import { useReferralBoard } from "./hooks";
 import { DataTablePagination } from "@/common/components/data-display";
 import { Tabs, TabsList, TabsTrigger } from "@/common/components/ui/tabs";
 import {
@@ -16,13 +16,10 @@ import type {
   ClientReferral,
   ReferralRejectionReason,
   ReferralTab,
+  ReferralSortField,
   ReviewFilter,
 } from "./types";
-import {
-  matchesQuery,
-  matchesReviewFilter,
-  sortBySubmissionDate,
-} from "./utils";
+import { matchesQuery, matchesReviewFilter, sortReferrals } from "./utils";
 import { REFERRAL_REQUEST } from "@/common/constants/Routes";
 
 function toDialogReferral(referral: ClientReferral) {
@@ -35,6 +32,8 @@ function toDialogReferral(referral: ClientReferral) {
       firstName: agent.firstName,
       lastName: agent.lastName,
       role: agent.role,
+      email: agent.email,
+      phone: agent.phone,
     })),
   };
 }
@@ -42,11 +41,12 @@ function toDialogReferral(referral: ClientReferral) {
 export default function ClientReferralsPage() {
   const router = useRouter();
   const { referrals, isLoading, isError, isUpdating, waitlist, reject } =
-    useClientReferrals();
+    useReferralBoard();
 
   const [tab, setTab] = useState<ReferralTab>("new");
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
   const [query, setQuery] = useState("");
+  const [sortField, setSortField] = useState<ReferralSortField>("recency");
   const [sortDescending, setSortDescending] = useState(true);
   const [page, setPage] = useState(1);
   const [waitlistTarget, setWaitlistTarget] = useState<ClientReferral | null>(
@@ -88,8 +88,8 @@ export default function ClientReferralsPage() {
         matchesQuery(r, query) &&
         (tab !== "waitlisted" || matchesReviewFilter(r, reviewFilter))
     );
-    return sortBySubmissionDate(matchingReferrals, sortDescending);
-  }, [byTab, tab, query, reviewFilter, sortDescending]);
+    return sortReferrals(matchingReferrals, sortField, sortDescending);
+  }, [byTab, tab, query, reviewFilter, sortField, sortDescending]);
 
   // Show pagination only when the results need more than one page.
   const paginated = filtered.length > PAGE_SIZE;
@@ -170,8 +170,19 @@ export default function ClientReferralsPage() {
               setQuery(value);
               setPage(1);
             }}
-            onSort={() => {
-              setSortDescending((descending) => !descending);
+            sortField={sortField}
+            sortDescending={sortDescending}
+            onSortFieldChange={(field) => {
+              setSortField(field);
+              setPage(1);
+            }}
+            onSortDirectionChange={(descending) => {
+              setSortDescending(descending);
+              setPage(1);
+            }}
+            onSortReset={() => {
+              setSortField("recency");
+              setSortDescending(true);
               setPage(1);
             }}
           />

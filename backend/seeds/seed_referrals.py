@@ -347,26 +347,41 @@ def build_referral_items(
 
 
 def inventory_rows() -> list[Inventory]:
-    """Create varied stock so the local cards show available and unavailable items."""
+    """Create varied stock that is consistent with approved referral units."""
     quantities = {
         "bed": 4,
         "mattress": 2,
         "nightstand": 1,
         "sofa": 3,
-        "table": 0,
+        "table": 1,
         "dresser": 5,
-        "crib": 0,
+        "crib": 1,
         "chair": 6,
         "lamp": 1,
         "desk": 1,
         "shelf": 2,
     }
     names: dict[str, str] = {}
+    held_counts: dict[str, int] = {}
     for referral_data in REFERRALS:
         for item in referral_data["items"]:
             item_id = str(item["id"])
             names.setdefault(item_id, str(item["name"]))
             item["inventory_id"] = item_id
+            if (
+                referral_data["status"] != "declined"
+                and item.get("reviewed") is True
+                and item.get("approved") is True
+            ):
+                quantity = int(item.get("quantity", 1))
+                held_counts[item_id] = held_counts.get(item_id, 0) + quantity
+
+    for item_id, held in held_counts.items():
+        quantity = quantities.get(item_id, 2)
+        if held > quantity:
+            raise ValueError(
+                f"Seed inventory {item_id} has {held} held units but only {quantity} on hand."
+            )
 
     return [
         Inventory(
@@ -411,6 +426,12 @@ async def seed() -> None:
                         phone_number="519-555-0101",
                     )
                 )
+            else:
+                agent.agency_id = AGENCY_ID
+                agent.first_name = first_name
+                agent.last_name = last_name
+                agent.email = email
+                agent.phone_number = "519-555-0101"
 
         for client_data in CLIENTS:
             client = await session.get(Client, client_data["id"])
@@ -429,8 +450,14 @@ async def seed() -> None:
         await session.flush()
 
         for inventory in inventory_rows():
-            if await session.get(Inventory, inventory.id) is None:
+            existing = await session.get(Inventory, inventory.id)
+            if existing is None:
                 session.add(inventory)
+            else:
+                existing.name = inventory.name
+                existing.category = inventory.category
+                existing.quantity = inventory.quantity
+                existing.position = inventory.position
 
         await session.flush()
 

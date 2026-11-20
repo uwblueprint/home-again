@@ -14,7 +14,7 @@ import {
 
 type MoveVars = { id: string } & ReferralStatusUpdate;
 
-export function useClientReferrals() {
+export function useReferralBoard() {
   const qc = useQueryClient();
   const query = useReferralData();
   const referrals = useMemo(

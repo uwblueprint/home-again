@@ -35,7 +35,10 @@ export type ReferralStatus = ReferralCardStateProps["status"];
 export type ReferralCardAgent = Pick<
   AgentHoverProps,
   "firstName" | "lastName" | "role" | "imageUrl"
->;
+> & {
+  email?: string;
+  phone?: string;
+};
 
 export type ReferralCardItem = {
   id: string;

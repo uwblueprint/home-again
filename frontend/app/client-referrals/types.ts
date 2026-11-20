@@ -28,6 +28,12 @@ export interface ClientReferral {
 
 export type MoveTarget = "waitlisted" | "rejected";
 
+export type ReferralSortField =
+  | "recency"
+  | "priority"
+  | "firstName"
+  | "lastName";
+
 export type ReferralStatusUpdate = {
   target: MoveTarget;
   rejectionReason?: ReferralRejectionReason;

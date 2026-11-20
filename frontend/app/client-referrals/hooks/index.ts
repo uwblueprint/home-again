@@ -1,4 +1,4 @@
-export { useClientReferrals } from "./useClientReferrals";
+export { useReferralBoard } from "./useReferralBoard";
 export {
   useReferralData,
   REFERRAL_DATA_KEY,

@@ -5,6 +5,7 @@ import {
   IMMIGRATION_STATUSES,
 } from "@/app/client-referrals/[id]/components/ClientDetailsForm";
 import type { Client, Referral } from "@/common/types";
+import { formatDate } from "@/app/client-referrals/utils";
 
 function optionLabel(
   value: string | null,
@@ -16,16 +17,7 @@ function optionLabel(
 }
 
 function displayDate(value: string | null) {
-  if (!value) return "—";
-  const date = new Date(`${value.slice(0, 10)}T00:00:00Z`);
-  return Number.isNaN(date.getTime())
-    ? "—"
-    : new Intl.DateTimeFormat("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "2-digit",
-        timeZone: "UTC",
-      }).format(date);
+  return value ? formatDate(value) || "—" : "—";
 }
 
 export function ClientDetailsSummary({ client }: { client: Client }) {

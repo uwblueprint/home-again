@@ -41,7 +41,11 @@ DUPLICATES = """
 
 
 def upgrade():
-    op.execute("UPDATE donors SET email = lower(trim(email))")
+    # Strip all surrounding whitespace, like Python's str.strip() in the API
+    # (Postgres trim() only strips spaces).
+    op.execute(
+        r"UPDATE donors SET email = lower(regexp_replace(email, '^\s+|\s+$', '', 'g'))"
+    )
     op.execute(f"""
         UPDATE donations SET donor_id = dup.keep_id
         FROM ({DUPLICATES}) dup

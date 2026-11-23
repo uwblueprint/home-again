@@ -69,19 +69,25 @@ async def update_donor(db: AsyncSession, donor: Donor, payload: DonorUpdate) -> 
     data = payload.model_dump(exclude_unset=True)
     if not data:
         raise ValueError("No update fields were provided.")
+    # Read before the commit: after a rollback the instance is expired.
+    donor_id = donor.id
     new_email = data.get("email")
-    if new_email and new_email != donor.email:
-        if await get_donor_by_email(db, new_email):
-            raise DonorEmailTaken()
+
+    async def email_taken_by_other() -> bool:
+        found = await get_donor_by_email(db, new_email) if new_email else None
+        return found is not None and found.id != donor_id
+
+    if await email_taken_by_other():
+        raise DonorEmailTaken()
     for key, value in data.items():
         setattr(donor, key, value)
     try:
         await db.commit()
     except IntegrityError as e:
         await db.rollback()
-        if new_email and await get_donor_by_email(db, new_email):
+        if await email_taken_by_other():
             raise DonorEmailTaken() from e
-        logger.exception("IntegrityError updating donor %s: %s", donor.id, e.orig)
+        logger.exception("IntegrityError updating donor %s: %s", donor_id, e.orig)
         raise ValueError(f"Unable to update donor: {str(e.orig)}") from e
     await db.refresh(donor)
     return donor

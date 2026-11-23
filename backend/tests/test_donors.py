@@ -233,3 +233,13 @@ async def test_update_donor_keeps_own_email(client):
     assert resp.status_code == 200, resp.text
     assert resp.json()["email"] == "same@example.com"
     assert resp.json()["phone"] == "555-9999"
+
+
+async def test_update_donor_own_email_with_other_error_is_not_409(client):
+    donor = await create_donor(client, email="own_error@example.com")
+    resp = await client.put(
+        f"/api/donors/{donor['id']}",
+        json={"email": "own_error@example.com", "first_name": None},
+    )
+    # The NOT NULL failure is reported as itself, not as a taken email.
+    assert resp.status_code == 400, resp.text

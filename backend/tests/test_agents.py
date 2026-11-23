@@ -106,3 +106,56 @@ async def test_delete_agent(client):
     resp = await client.delete(f"/api/agents/{created['id']}")
     assert resp.status_code == 204
     assert (await client.get(f"/api/agents/{created['id']}")).status_code == 404
+
+
+async def test_create_agent_duplicate_email_any_case(client):
+    agency = await create_agency(client, name="Duplicate Email Agency")
+    payload = await make_agent_payload(agency["id"], email="Dup.Agent@example.com")
+    resp = await client.post("/api/agents", json=payload)
+    assert resp.status_code == 201, resp.text
+    # Stored as entered.
+    assert resp.json()["email"] == "Dup.Agent@example.com"
+
+    for email in ("Dup.Agent@example.com", " dup.agent@EXAMPLE.com "):
+        payload = await make_agent_payload(agency["id"], email=email)
+        resp = await client.post("/api/agents", json=payload)
+        assert resp.status_code == 409, email
+        assert resp.json()["detail"] == "An agent with this email already exists."
+
+
+async def test_create_agent_blank_email(client):
+    agency = await create_agency(client, name="Blank Email Agency")
+    payload = await make_agent_payload(agency["id"], email="  ")
+    resp = await client.post("/api/agents", json=payload)
+    assert resp.status_code == 422
+
+
+async def test_update_agent_to_taken_email(client):
+    agency = await create_agency(client, name="Taken Email Agency")
+    first = await client.post(
+        "/api/agents",
+        json=await make_agent_payload(agency["id"], email="owner.agent@example.com"),
+    )
+    second = await client.post(
+        "/api/agents",
+        json=await make_agent_payload(agency["id"], email="mover.agent@example.com"),
+    )
+    assert first.status_code == second.status_code == 201
+    resp = await client.put(
+        f"/api/agents/{second.json()['id']}", json={"email": "OWNER.agent@example.com"}
+    )
+    assert resp.status_code == 409
+
+
+async def test_update_agent_changes_case_of_own_email(client):
+    agency = await create_agency(client, name="Own Email Agency")
+    created = await client.post(
+        "/api/agents",
+        json=await make_agent_payload(agency["id"], email="self.agent@example.com"),
+    )
+    assert created.status_code == 201
+    resp = await client.put(
+        f"/api/agents/{created.json()['id']}", json={"email": "Self.Agent@example.com"}
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["email"] == "Self.Agent@example.com"

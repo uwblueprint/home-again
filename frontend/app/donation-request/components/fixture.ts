@@ -1,11 +1,11 @@
 import type { DonationRequest } from "./types";
 
 /**
- * Five placeholder photos for an item — the same furniture shot repeated, as in
- * the review frames, so the strip reads as one item's photo set.
+ * Placeholder photos for an item — the same furniture shot repeated, as in the
+ * review frames, so the strip reads as one item's photo set. Five by default.
  */
-function samplePhotos() {
-  return Array.from({ length: 5 }, (_, i) => ({
+export function samplePhotos(count = 5) {
+  return Array.from({ length: count }, (_, i) => ({
     url: "/sample-furniture.jpg",
     position: i,
   }));

@@ -50,6 +50,23 @@ export function formatLongDate(dateString: string): string {
 }
 
 /**
+ * Formats an ISO date string day-first with the full month name, e.g.
+ * "26 March 2026".
+ */
+export function formatDayMonthYear(dateString: string): string {
+  if (!dateString) return "—";
+
+  const date = parseForDisplay(dateString);
+  if (Number.isNaN(date.getTime())) return dateString;
+
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+/**
  * Formats an ISO date string to a compact "Mar 26" label.
  */
 export function formatShortDate(dateString: string): string {

@@ -56,14 +56,14 @@ export function DataTableFacetedFilter<TData, TValue>({
       <DropdownMenuTrigger
         render={
           <Button
-            variant="secondary"
+            variant="outline"
             className={cn(
-              "h-10 gap-(--2xs) rounded-xl border border-border px-sm",
+              "h-9 gap-xs border-(--unofficial-border-3) bg-(--unofficial-outline) px-md text-foreground shadow-xs",
               selectedValues.length > 0 && "bg-accent",
               className
             )}
           >
-            <ListFilter className="size-5" />
+            <ListFilter className="size-4" />
             {title}
           </Button>
         }

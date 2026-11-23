@@ -7,29 +7,39 @@ import type {
   DonorInformation,
   RejectionReason,
 } from "@/app/donation-request/components/types";
-import { DONATION_REQUEST_FIXTURE } from "@/app/donation-request/components/fixture";
+import { DONATION_REQUEST_SAMPLES } from "@/app/donation-request/components/listFixture";
 
 /**
- * Client-side store backing the donation-request review screen.
+ * Client-side store backing the donation-request list and review screens.
  *
  * The database is not provisioned yet, so every action mutates local state
  * instead of calling the API. Field names match the backend review schema
  * (PR: donation request review schema), so these actions map one-to-one onto
- * the future endpoints (approve, reject, schedule pickup, confirm).
+ * the future endpoints (approve, reject, schedule pickup, confirm). Requests
+ * are keyed by id so the list reflects reviews made on the detail page.
  */
 interface DonationRequestStore {
-  request: DonationRequest;
+  requests: Record<string, DonationRequest>;
 
-  approveItem: (itemId: string) => void;
+  approveItem: (requestId: string, itemId: string) => void;
   rejectItem: (
+    requestId: string,
     itemId: string,
     reason: RejectionReason,
     details?: string
   ) => void;
-  updateDonor: (patch: Partial<DonorInformation>) => void;
-  schedulePickup: (scheduledDate: string, note?: string) => void;
-  updatePickup: (scheduledDate: string, note?: string) => void;
-  confirmPickup: () => void;
+  updateDonor: (requestId: string, patch: Partial<DonorInformation>) => void;
+  schedulePickup: (
+    requestId: string,
+    scheduledDate: string,
+    note?: string
+  ) => void;
+  updatePickup: (
+    requestId: string,
+    scheduledDate: string,
+    note?: string
+  ) => void;
+  confirmPickup: (requestId: string) => void;
   reset: () => void;
 }
 
@@ -38,14 +48,33 @@ const genId = () =>
     ? crypto.randomUUID()
     : `pickup-${Date.now()}`;
 
-export const useDonationRequestStore = create<DonationRequestStore>((set) => ({
-  request: DONATION_REQUEST_FIXTURE,
+const seedRequests = (): Record<string, DonationRequest> =>
+  Object.fromEntries(
+    DONATION_REQUEST_SAMPLES.map((request) => [request.id, request])
+  );
 
-  approveItem: (itemId) =>
-    set((state) => ({
-      request: {
-        ...state.request,
-        furniture_items: state.request.furniture_items.map((item) =>
+/**
+ * Applies `update` to one request. Unknown ids leave the state untouched, so a
+ * stale id from the URL can't create a half-formed request.
+ */
+function updateRequest(
+  state: DonationRequestStore,
+  requestId: string,
+  update: (request: DonationRequest) => DonationRequest
+): Partial<DonationRequestStore> {
+  const request = state.requests[requestId];
+  if (!request) return {};
+  return { requests: { ...state.requests, [requestId]: update(request) } };
+}
+
+export const useDonationRequestStore = create<DonationRequestStore>((set) => ({
+  requests: seedRequests(),
+
+  approveItem: (requestId, itemId) =>
+    set((state) =>
+      updateRequest(state, requestId, (request) => ({
+        ...request,
+        furniture_items: request.furniture_items.map((item) =>
           item.id === itemId
             ? {
                 ...item,
@@ -55,89 +84,89 @@ export const useDonationRequestStore = create<DonationRequestStore>((set) => ({
               }
             : item
         ),
-      },
-    })),
+      }))
+    ),
 
-  rejectItem: (itemId, reason, details) =>
-    set((state) => {
-      const furniture_items = state.request.furniture_items.map((item) =>
-        item.id === itemId
-          ? {
-              ...item,
-              status: "REJECTED" as const,
-              rejection_reason: reason,
-              rejection_details: details ?? null,
-            }
-          : item
-      );
-      // With nothing approved there is nothing to pick up, so a pickup booked
-      // for the earlier approvals is dropped rather than left "Scheduled".
-      const hasApproved = furniture_items.some(
-        (item) => item.status === "APPROVED"
-      );
-      return {
-        request: {
-          ...state.request,
+  rejectItem: (requestId, itemId, reason, details) =>
+    set((state) =>
+      updateRequest(state, requestId, (request) => {
+        const furniture_items = request.furniture_items.map((item) =>
+          item.id === itemId
+            ? {
+                ...item,
+                status: "REJECTED" as const,
+                rejection_reason: reason,
+                rejection_details: details ?? null,
+              }
+            : item
+        );
+        // With nothing approved there is nothing to pick up, so a pickup booked
+        // for the earlier approvals is dropped rather than left "Scheduled".
+        const hasApproved = furniture_items.some(
+          (item) => item.status === "APPROVED"
+        );
+        return {
+          ...request,
           furniture_items,
-          pickup: hasApproved ? state.request.pickup : null,
-        },
-      };
-    }),
+          pickup: hasApproved ? request.pickup : null,
+        };
+      })
+    ),
 
-  updateDonor: (patch) =>
-    set((state) => ({
-      request: {
-        ...state.request,
-        donor: { ...state.request.donor, ...patch },
-      },
-    })),
+  updateDonor: (requestId, patch) =>
+    set((state) =>
+      updateRequest(state, requestId, (request) => ({
+        ...request,
+        donor: { ...request.donor, ...patch },
+      }))
+    ),
 
-  schedulePickup: (scheduledDate, note) =>
-    set((state) => ({
-      request: {
-        ...state.request,
+  schedulePickup: (requestId, scheduledDate, note) =>
+    set((state) =>
+      updateRequest(state, requestId, (request) => ({
+        ...request,
         pickup: {
-          id: state.request.pickup?.id ?? genId(),
+          id: request.pickup?.id ?? genId(),
           scheduled_date: scheduledDate,
           note: note ?? null,
           confirmed_at: null,
         },
-      },
-    })),
+      }))
+    ),
 
-  updatePickup: (scheduledDate, note) =>
-    set((state) => {
-      const existing = state.request.pickup;
-      // Moving a confirmed pickup to a new date invalidates the confirmation,
-      // matching the warning in the Edit Pickup dialog and the backend rule.
-      const dateChanged = existing?.scheduled_date !== scheduledDate;
-      return {
-        request: {
-          ...state.request,
+  updatePickup: (requestId, scheduledDate, note) =>
+    set((state) =>
+      updateRequest(state, requestId, (request) => {
+        const existing = request.pickup;
+        // Moving a confirmed pickup to a new date invalidates the confirmation,
+        // matching the warning in the Edit Pickup dialog and the backend rule.
+        const dateChanged = existing?.scheduled_date !== scheduledDate;
+        return {
+          ...request,
           pickup: {
             id: existing?.id ?? genId(),
             scheduled_date: scheduledDate,
             note: note ?? null,
             confirmed_at: dateChanged ? null : (existing?.confirmed_at ?? null),
           },
-        },
-      };
-    }),
+        };
+      })
+    ),
 
-  confirmPickup: () =>
-    set((state) => {
-      if (!state.request.pickup?.scheduled_date) return state;
-      return {
-        request: {
-          ...state.request,
+  confirmPickup: (requestId) =>
+    set((state) =>
+      updateRequest(state, requestId, (request) => {
+        if (!request.pickup?.scheduled_date) return request;
+        return {
+          ...request,
           pickup: {
-            ...state.request.pickup,
+            ...request.pickup,
             confirmed_at:
-              state.request.pickup.confirmed_at ?? new Date().toISOString(),
+              request.pickup.confirmed_at ?? new Date().toISOString(),
           },
-        },
-      };
-    }),
+        };
+      })
+    ),
 
-  reset: () => set({ request: DONATION_REQUEST_FIXTURE }),
+  reset: () => set({ requests: seedRequests() }),
 }));

@@ -30,8 +30,15 @@ export function deriveReviewStatus(request: DonationRequest): ReviewStatus {
   return "reviewed";
 }
 
-/** Count of approved items — drives the "n/m Approved" header label. */
+/**
+ * An item counts as approved once reviewed and not rejected — including the
+ * downstream states (OFFERED, SCHEDULED, …), which only follow an approval.
+ */
+export const isApproved = (status: string) =>
+  isReviewed(status) && status !== "REJECTED";
+
+/** Count of approved items — drives the "n/m Approved" labels. */
 export function countApproved(request: DonationRequest): number {
-  return request.furniture_items.filter((item) => item.status === "APPROVED")
+  return request.furniture_items.filter((item) => isApproved(item.status))
     .length;
 }

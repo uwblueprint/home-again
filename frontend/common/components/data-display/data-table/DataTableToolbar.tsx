@@ -73,6 +73,7 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const search = (
     <SearchBar
+      size="sm"
       placeholder={searchPlaceholder}
       value={(table.getState().globalFilter as string) ?? ""}
       onChange={(value) => table.setGlobalFilter(value)}

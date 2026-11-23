@@ -29,7 +29,7 @@ export default function DonationRequestPage() {
   );
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const request = useDonationRequestStore((state) => state.request);
+  const request = useDonationRequestStore((state) => state.requests[id]);
   const approveItem = useDonationRequestStore((state) => state.approveItem);
   const rejectItem = useDonationRequestStore((state) => state.rejectItem);
   const updateDonor = useDonationRequestStore((state) => state.updateDonor);
@@ -39,9 +39,9 @@ export default function DonationRequestPage() {
   const updatePickup = useDonationRequestStore((state) => state.updatePickup);
   const confirmPickup = useDonationRequestStore((state) => state.confirmPickup);
 
-  // The store holds a single fixture until GET /donations/{id}/detail is wired
-  // up; any other id would otherwise silently render that fixture.
-  if (id !== request.id) notFound();
+  // The store holds the sample requests until GET /donations/{id}/detail is
+  // wired up; an unknown id has nothing to show.
+  if (!request) notFound();
 
   const reviewStatus = deriveReviewStatus(request);
   const approvedCount = countApproved(request);
@@ -74,7 +74,10 @@ export default function DonationRequestPage() {
             onSchedulePickup={openSchedule}
           />
 
-          <DonorInformationCard donor={request.donor} onSave={updateDonor} />
+          <DonorInformationCard
+            donor={request.donor}
+            onSave={(patch) => updateDonor(id, patch)}
+          />
 
           {pickup?.scheduled_date && (
             <ScheduledPickupCard
@@ -92,8 +95,10 @@ export default function DonationRequestPage() {
               <DonationItemCard
                 key={item.id}
                 item={item}
-                onApprove={approveItem}
-                onReject={rejectItem}
+                onApprove={(itemId) => approveItem(id, itemId)}
+                onReject={(itemId, reason, details) =>
+                  rejectItem(id, itemId, reason, details)
+                }
               />
             ))}
           </section>
@@ -115,8 +120,8 @@ export default function DonationRequestPage() {
         defaultNote={pickup?.note ?? ""}
         onSubmit={(date, note) =>
           scheduleMode === "edit"
-            ? updatePickup(date, note)
-            : schedulePickup(date, note)
+            ? updatePickup(id, date, note)
+            : schedulePickup(id, date, note)
         }
       />
 
@@ -125,7 +130,7 @@ export default function DonationRequestPage() {
           open={confirmOpen}
           onOpenChange={setConfirmOpen}
           date={pickup.scheduled_date}
-          onConfirm={confirmPickup}
+          onConfirm={() => confirmPickup(id)}
         />
       )}
     </SidebarAppShell>

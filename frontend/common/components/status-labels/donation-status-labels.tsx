@@ -108,6 +108,14 @@ export function PickedUpBadge() {
   );
 }
 
+export function CancelledBadge() {
+  return (
+    <Badge className="h-auto rounded-lg text-paragraph-small font-normal border-transparent bg-neutral-100 text-neutral-900">
+      Cancelled
+    </Badge>
+  );
+}
+
 type DonationStatusBadgeProps =
   | {
       status: "approved_fraction";
@@ -131,6 +139,8 @@ export function DonationStatusBadge(props: DonationStatusBadgeProps) {
       return <RejectedBadge />;
     case "picked_up":
       return <PickedUpBadge />;
+    case "cancelled":
+      return <CancelledBadge />;
     case "scheduled_by":
       return <ScheduledBadge date={props.scheduledDate} />;
     case "pending_review":
@@ -149,6 +159,7 @@ export type DonationHistoryStatus =
   | "confirmed"
   | "approved_fraction"
   | "picked_up"
+  | "cancelled"
   | "rejected"
   | "scheduled_by"
   | "pending_review"

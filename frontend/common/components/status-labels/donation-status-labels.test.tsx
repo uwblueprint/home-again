@@ -11,6 +11,7 @@ describe("DonationStatusBadge", () => {
     ["unconfirmed", "Unconfirmed"],
     ["confirmed", "Confirmed"],
     ["picked_up", "Picked up"],
+    ["cancelled", "Cancelled"],
     ["rejected", "Rejected"],
     ["scheduled_by", "Scheduled"],
     ["pending_review", "Pending Review"],

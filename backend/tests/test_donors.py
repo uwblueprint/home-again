@@ -9,9 +9,12 @@ DONOR_BASE = {
 
 
 async def create_donor(client, **overrides):
+    """POST a donor, then GET it: POST only returns the id."""
     payload = {**DONOR_BASE, **overrides}
     resp = await client.post("/api/donors", json=payload)
     assert resp.status_code == 201, resp.text
+    resp = await client.get(f"/api/donors/{resp.json()['id']}")
+    assert resp.status_code == 200, resp.text
     return resp.json()
 
 
@@ -201,13 +204,30 @@ async def test_create_donor_stores_email_trimmed_and_lowercased(client):
     assert data["email"] == "mixed.case@example.com"
 
 
-async def test_create_donor_duplicate_email(client):
-    await create_donor(client, email="taken@example.com")
+async def test_create_donor_returns_only_id(client):
     resp = await client.post(
-        "/api/donors", json={**DONOR_BASE, "email": " TAKEN@example.com"}
+        "/api/donors", json={**DONOR_BASE, "email": "only_id@example.com"}
     )
-    assert resp.status_code == 409
-    assert resp.json()["detail"] == "A donor with this email already exists."
+    assert resp.status_code == 201, resp.text
+    assert set(resp.json()) == {"id"}
+
+
+async def test_create_donor_returning_email_gets_existing_donor(client):
+    donor = await create_donor(client, email="returning@example.com")
+    resp = await client.post(
+        "/api/donors",
+        json={
+            **DONOR_BASE,
+            "email": " RETURNING@example.com",
+            "first_name": "Someone",
+            "phone": "555-1234",
+        },
+    )
+    assert resp.status_code == 201, resp.text
+    assert resp.json() == {"id": donor["id"]}
+    # The saved details aren't overwritten by an anonymous submission.
+    saved = (await client.get(f"/api/donors/{donor['id']}")).json()
+    assert saved == donor
 
 
 async def test_create_donor_blank_email(client):
@@ -243,3 +263,32 @@ async def test_update_donor_own_email_with_other_error_is_not_409(client):
     )
     # The NOT NULL failure is reported as itself, not as a taken email.
     assert resp.status_code == 400, resp.text
+
+
+async def test_create_donor_too_long_is_422(client):
+    resp = await client.post(
+        "/api/donors",
+        json={**DONOR_BASE, "email": "long_phone@example.com", "phone": "1" * 21},
+    )
+    assert resp.status_code == 422
+
+
+async def test_create_donor_concurrent_insert_returns_existing(client, monkeypatch):
+    """The pre-check misses a donor another request just added."""
+    from app.services import donors as donor_service
+
+    donor = await create_donor(client, email="race@example.com")
+    real_lookup = donor_service.get_donor_by_email
+    calls = 0
+
+    async def miss_first_lookup(db, email):
+        nonlocal calls
+        calls += 1
+        return None if calls == 1 else await real_lookup(db, email)
+
+    monkeypatch.setattr(donor_service, "get_donor_by_email", miss_first_lookup)
+    resp = await client.post(
+        "/api/donors", json={**DONOR_BASE, "email": "race@example.com"}
+    )
+    assert resp.status_code == 201, resp.text
+    assert resp.json() == {"id": donor["id"]}

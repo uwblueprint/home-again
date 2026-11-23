@@ -13,10 +13,15 @@ import {
   SelectValue,
 } from "@/common/components/ui/select";
 import { Textarea } from "@/common/components/ui/textarea";
+import {
+  REFERRAL_REJECTION_REASON,
+  REFERRAL_REJECTION_REASON_LABELS,
+} from "@/common/constants/referrals";
 
 import ReferralDialogLayout, {
   type ReferralDialogReferral,
 } from "./ReferralDialogLayout";
+import type { ReferralRejectionReason } from "../types";
 
 // TYPES
 export type ReferralRejectReason = {
@@ -32,17 +37,32 @@ export type RejectReferralDialogProps = {
   reasons?: ReferralRejectReason[];
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onConfirm?: (reason: string, details?: string) => void;
+  isSubmitting?: boolean;
+  onConfirm?: (reason: ReferralRejectionReason, details?: string) => void;
   onCancel?: () => void;
 };
 
 // CONFIG
-// TODO: replace with the backend's referral rejection reasons once they exist.
 export const DEFAULT_REFERRAL_REJECT_REASONS: ReferralRejectReason[] = [
-  { value: "duplicate", label: "Submitted a referral this year already" },
-  { value: "location", label: "Location outside service area" },
-  { value: "incomplete", label: "Incomplete information" },
-  { value: "other", label: "Other", requiresDetails: true },
+  {
+    value: REFERRAL_REJECTION_REASON.DUPLICATE,
+    label:
+      REFERRAL_REJECTION_REASON_LABELS[REFERRAL_REJECTION_REASON.DUPLICATE],
+  },
+  {
+    value: REFERRAL_REJECTION_REASON.LOCATION,
+    label: REFERRAL_REJECTION_REASON_LABELS[REFERRAL_REJECTION_REASON.LOCATION],
+  },
+  {
+    value: REFERRAL_REJECTION_REASON.INCOMPLETE,
+    label:
+      REFERRAL_REJECTION_REASON_LABELS[REFERRAL_REJECTION_REASON.INCOMPLETE],
+  },
+  {
+    value: REFERRAL_REJECTION_REASON.OTHER,
+    label: REFERRAL_REJECTION_REASON_LABELS[REFERRAL_REJECTION_REASON.OTHER],
+    requiresDetails: true,
+  },
 ];
 
 const MAX_DETAILS_LENGTH = 500;
@@ -54,10 +74,11 @@ export default function RejectReferralDialog({
   reasons = DEFAULT_REFERRAL_REJECT_REASONS,
   open,
   onOpenChange,
+  isSubmitting = false,
   onConfirm,
   onCancel,
 }: RejectReferralDialogProps) {
-  const [reason, setReason] = useState<string | null>(null);
+  const [reason, setReason] = useState<ReferralRejectionReason | null>(null);
   const [details, setDetails] = useState("");
 
   const requiresDetails = (value: string | null) => {
@@ -88,22 +109,25 @@ export default function RejectReferralDialog({
       referral={referral}
       footer={
         <>
-          <DialogClose render={<Button variant="outline" onClick={onCancel} />}>
-            Cancel
-          </DialogClose>
           <DialogClose
             render={
               <Button
-                disabled={!isValid}
-                onClick={() =>
-                  reason &&
-                  onConfirm?.(reason, needsDetails ? details : undefined)
-                }
+                variant="outline"
+                onClick={onCancel}
+                disabled={isSubmitting}
               />
             }
           >
-            Confirm and reject
+            Cancel
           </DialogClose>
+          <Button
+            disabled={!isValid || isSubmitting}
+            onClick={() =>
+              reason && onConfirm?.(reason, needsDetails ? details : undefined)
+            }
+          >
+            {isSubmitting ? "Rejecting..." : "Confirm and reject"}
+          </Button>
         </>
       }
     >
@@ -119,7 +143,7 @@ export default function RejectReferralDialog({
           value={reason}
           onValueChange={(value) => {
             if (!value) return;
-            const next = value as string;
+            const next = value as ReferralRejectionReason;
             setReason(next);
             // Drop typed details once the new reason no longer needs them.
             if (!requiresDetails(next)) setDetails("");

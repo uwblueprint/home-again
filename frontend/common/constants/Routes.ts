@@ -17,6 +17,9 @@ export const AGENT_DASH_SEARCH = "/agent-dash/search";
 export const AGENT_DASH_REFERRAL = (id: string) =>
   `/agent-dash/referrals/${id}`;
 export const REFERRAL_FORM = "/referral-form";
+export const DONATION_REQUESTS = "/donation-request";
+export const DONATION_REQUEST = (id: string) => `/donation-request/${id}`;
+export const REFERRAL_REQUESTS = "/client-referrals";
+export const REFERRAL_REQUEST = (id: string) => `${REFERRAL_REQUESTS}/${id}`;
 export const ADMIN_DONORS = "/admin/donors";
 export const ADMIN_DONOR = (id: string) => `/admin/donors/${id}`;
-export const DONATION_REQUEST = (id: string) => `/donation-request/${id}`;

@@ -1,0 +1,41 @@
+"""Inventory REST API: the item types the donate and referral forms offer."""
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from ..database import get_db
+from ..schemas import Inventory as InventorySchema
+from ..schemas import InventoryUpdate
+from ..services import inventory_service
+
+# Behind login, like the rest of the API. Stock counts are internal.
+# TODO: once role checks exist (#184), return quantity to staff only and
+# limit PATCH to staff.
+router = APIRouter()
+
+
+@router.get("", response_model=list[InventorySchema])
+async def list_inventory(db: AsyncSession = Depends(get_db)):
+    return await inventory_service.list_inventory_with_counts(db)
+
+
+@router.get("/{inventory_id}", response_model=InventorySchema)
+async def get_inventory_item(inventory_id: str, db: AsyncSession = Depends(get_db)):
+    item = await inventory_service.get_inventory_item_with_counts(db, inventory_id)
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Inventory item not found"
+        )
+    return item
+
+
+@router.patch("/{inventory_id}", response_model=InventorySchema)
+async def set_inventory_quantity(
+    inventory_id: str, payload: InventoryUpdate, db: AsyncSession = Depends(get_db)
+):
+    """Set a type's on-hand count, e.g. after a stock take."""
+    if not await inventory_service.set_quantity(db, inventory_id, payload.quantity):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Inventory item not found"
+        )
+    return await inventory_service.get_inventory_item_with_counts(db, inventory_id)

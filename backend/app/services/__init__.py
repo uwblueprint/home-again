@@ -11,6 +11,7 @@ from . import donations as donations_service
 from . import donors as donor_service
 from . import dropoffs as dropoffs_service
 from . import furniture as furniture_service
+from . import inventory as inventory_service
 from . import pickups as pickups_service
 from . import referrals as referrals_service
 from . import routes as route_service
@@ -24,6 +25,7 @@ __all__ = [
     "donor_service",
     "dropoffs_service",
     "furniture_service",
+    "inventory_service",
     "pickups_service",
     "referrals_service",
     "route_service",

@@ -57,7 +57,7 @@ export default function DonationRequestPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const { data: donation, error } = useDonationDetail(id);
-  const request = useDonationRequestStore((state) => state.request);
+  const request = useDonationRequestStore((state) => state.requests[id]);
   const loadRequest = useDonationRequestStore((state) => state.loadRequest);
   const approveItem = useDonationRequestStore((state) => state.approveItem);
   const rejectItem = useDonationRequestStore((state) => state.rejectItem);
@@ -74,14 +74,13 @@ export default function DonationRequestPage() {
     if (donation) loadRequest(toDonationRequest(donation));
   }, [donation, loadRequest]);
 
-  if (isAxiosError(error) && error.response?.status === 404) notFound();
+  // The list's sample requests are already in the store; an id that's in
+  // neither the store nor the API has nothing to show.
+  if (!request && isAxiosError(error) && error.response?.status === 404) {
+    notFound();
+  }
 
-  // Until the effect runs, the store still holds the previous request.
-  const loaded = donation !== undefined && request.id === donation.id;
-
-  const reviewStatus = deriveReviewStatus(request);
-  const approvedCount = countApproved(request);
-  const { pickup } = request;
+  const pickup = request?.pickup;
 
   const openSchedule = () => {
     setScheduleMode("schedule");
@@ -101,7 +100,7 @@ export default function DonationRequestPage() {
           userInitials="WX"
         />
 
-        {!loaded ? (
+        {!request ? (
           <main className="mx-auto flex w-full max-w-[1174px] flex-1 flex-col px-2xl py-lg">
             {error ? (
               <p
@@ -119,15 +118,15 @@ export default function DonationRequestPage() {
             <main className="mx-auto flex w-full max-w-[1174px] flex-1 flex-col gap-2xl px-2xl py-lg">
               <DonationRequestHeader
                 request={request}
-                reviewStatus={reviewStatus}
-                approvedCount={approvedCount}
+                reviewStatus={deriveReviewStatus(request)}
+                approvedCount={countApproved(request)}
                 totalItems={request.furniture_items.length}
                 onSchedulePickup={openSchedule}
               />
 
               <DonorInformationCard
                 donor={request.donor}
-                onSave={updateDonor}
+                onSave={(patch) => updateDonor(id, patch)}
               />
 
               {pickup?.scheduled_date && (
@@ -146,8 +145,10 @@ export default function DonationRequestPage() {
                   <DonationItemCard
                     key={item.id}
                     item={item}
-                    onApprove={approveItem}
-                    onReject={rejectItem}
+                    onApprove={(itemId) => approveItem(id, itemId)}
+                    onReject={(itemId, reason, details) =>
+                      rejectItem(id, itemId, reason, details)
+                    }
                   />
                 ))}
               </section>
@@ -171,8 +172,8 @@ export default function DonationRequestPage() {
         defaultNote={pickup?.note ?? ""}
         onSubmit={(date, note) =>
           scheduleMode === "edit"
-            ? updatePickup(date, note)
-            : schedulePickup(date, note)
+            ? updatePickup(id, date, note)
+            : schedulePickup(id, date, note)
         }
       />
 
@@ -181,7 +182,7 @@ export default function DonationRequestPage() {
           open={confirmOpen}
           onOpenChange={setConfirmOpen}
           date={pickup.scheduled_date}
-          onConfirm={confirmPickup}
+          onConfirm={() => confirmPickup(id)}
         />
       )}
     </SidebarAppShell>

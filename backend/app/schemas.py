@@ -18,7 +18,7 @@ import json
 from datetime import date, datetime, timezone
 from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .enums import (
     DonationReviewStatus,
@@ -30,6 +30,9 @@ from .enums import (
     FurnitureStatus,
     GenderEnum,
     ImmigrationStatusEnum,
+    ReferralItemStatus,
+    ReferralRejectionReason,
+    ReferralReviewStatus,
     ReferralStatus,
     RouteStatus,
 )
@@ -321,6 +324,7 @@ class FurnitureBase(BaseModel):
     donation_id: Optional[str] = None
     referral_id: Optional[str] = None
     pickup_id: Optional[str] = None
+    inventory_id: Optional[str] = None
 
 
 class FurnitureCreate(FurnitureBase):
@@ -342,6 +346,7 @@ class FurnitureUpdate(BaseModel):
     donation_id: Optional[str] = None
     referral_id: Optional[str] = None
     pickup_id: Optional[str] = None
+    inventory_id: Optional[str] = None
 
 
 class FurnitureReject(BaseModel):
@@ -364,6 +369,36 @@ class FurnitureDetail(Furniture):
     """Furniture with its ordered photo set, for the donation review UI."""
 
     photos: list[FurniturePhoto] = []
+
+
+# ============ Inventory Schemas ============
+
+
+class InventoryUpdate(BaseModel):
+    """Payload for PATCH /inventory/{id}: the count staff have on hand."""
+
+    quantity: int = Field(..., ge=0)
+
+
+class Inventory(BaseModel):
+    """
+    One item type the donate and referral forms offer. quantity is on hand;
+    held is approved or scheduled for referrals but not yet delivered;
+    available = quantity − held (negative only if stock was corrected down).
+    """
+
+    id: str
+    name: str
+    size: Optional[str] = None
+    category: str
+    quantity: int
+    held: int = 0
+    available: int = 0
+    position: int
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ============ Route Schemas ============
@@ -436,7 +471,10 @@ class Pickup(PickupBase):
 
 class DropoffBase(BaseModel):
     route_id: str
-    furniture_id: str
+    # The requested unit being delivered. Set this; furniture_id is optional
+    # and predates referral items.
+    referral_item_id: Optional[str] = None
+    furniture_id: Optional[str] = None
     referral_id: Optional[str] = None
     high_priority: bool = False
     contact_in_case_of_cancellation: bool = False
@@ -444,7 +482,11 @@ class DropoffBase(BaseModel):
 
 
 class DropoffCreate(DropoffBase):
-    pass
+    @model_validator(mode="after")
+    def needs_something_to_deliver(self):
+        if not self.referral_item_id and not self.furniture_id:
+            raise ValueError("Provide referral_item_id (or furniture_id).")
+        return self
 
 
 class DropoffUpdate(BaseModel):
@@ -464,6 +506,10 @@ class Dropoff(DropoffBase):
 
 
 # ============ Referral Schemas ============
+
+
+# Matches the reject dialog's text limit.
+REFERRAL_REJECTION_DETAILS_MAX_LENGTH = 500
 
 
 class ReferralBase(BaseModel):
@@ -502,10 +548,24 @@ class ReferralBase(BaseModel):
     move_other_info: Optional[str] = None
     notes_and_instructions: Optional[str] = None
     status: ReferralStatus
+    # Only when status is declined; details are required for OTHER.
+    rejection_reason: Optional[ReferralRejectionReason] = None
+    rejection_details: Optional[str] = Field(
+        default=None, max_length=REFERRAL_REJECTION_DETAILS_MAX_LENGTH
+    )
+
+
+def _check_rejection_details(model):
+    if (
+        model.rejection_reason == ReferralRejectionReason.OTHER
+        and not (model.rejection_details or "").strip()
+    ):
+        raise ValueError("rejection_details is required when the reason is other.")
+    return model
 
 
 class ReferralCreate(ReferralBase):
-    pass
+    _rejection_details = model_validator(mode="after")(_check_rejection_details)
 
 
 class ReferralUpdate(BaseModel):
@@ -539,12 +599,50 @@ class ReferralUpdate(BaseModel):
     move_other_info: Optional[str] = None
     notes_and_instructions: Optional[str] = None
     status: Optional[ReferralStatus] = None
+    rejection_reason: Optional[ReferralRejectionReason] = None
+    rejection_details: Optional[str] = Field(
+        default=None, max_length=REFERRAL_REJECTION_DETAILS_MAX_LENGTH
+    )
+
+    _rejection_details = model_validator(mode="after")(_check_rejection_details)
+
+
+class ReferralItem(BaseModel):
+    """One requested unit on a referral, with its own review status."""
+
+    id: str
+    referral_id: str
+    name: str
+    size: Optional[str] = None
+    notes: Optional[str] = None
+    status: ReferralItemStatus
+    rejection_reason: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+    inventory_id: Optional[str] = None
+    position: int
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ReferralItemReject(BaseModel):
+    """Payload for POST /referrals/{id}/items/{item_id}/reject."""
+
+    rejection_reason: Optional[str] = None
 
 
 class Referral(ReferralBase):
     id: str
     created_at: datetime
     updated_at: datetime
+    # Derived from the items, never stored — see
+    # services.referrals.compute_review_status.
+    review_status: ReferralReviewStatus = ReferralReviewStatus.PENDING_REVIEW
+    # For the "Approved 2/4" label.
+    approved_count: int = 0
+    item_count: int = 0
+    items: list[ReferralItem] = []
 
     @field_validator("requested_items", mode="before")
     @classmethod
@@ -571,6 +669,10 @@ class DonationDetail(Donation):
     """
 
     review_status: DonationReviewStatus
+    # For the "Approved 2/4" label. Approved includes items that have moved
+    # downstream of approval (OFFERED, SCHEDULED, ...).
+    approved_count: int = 0
+    item_count: int = 0
     donor: Optional[Donor] = None
     furniture_items: list[FurnitureDetail] = []
     pickup: Optional[Pickup] = None

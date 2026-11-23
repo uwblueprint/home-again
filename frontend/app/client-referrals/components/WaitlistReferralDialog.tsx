@@ -21,6 +21,7 @@ export type WaitlistReferralDialogProps = {
   priorityReason?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  isSubmitting?: boolean;
   /** Called with the admin's final decision on the priority flag. */
   onConfirm?: (isPriority: boolean) => void;
   onCancel?: () => void;
@@ -34,6 +35,7 @@ export default function WaitlistReferralDialog({
   priorityReason,
   open,
   onOpenChange,
+  isSubmitting = false,
   onConfirm,
   onCancel,
 }: WaitlistReferralDialogProps) {
@@ -53,14 +55,23 @@ export default function WaitlistReferralDialog({
       referral={referral}
       footer={
         <>
-          <DialogClose render={<Button variant="outline" onClick={onCancel} />}>
+          <DialogClose
+            render={
+              <Button
+                variant="outline"
+                onClick={onCancel}
+                disabled={isSubmitting}
+              />
+            }
+          >
             Cancel
           </DialogClose>
-          <DialogClose
-            render={<Button onClick={() => onConfirm?.(confirmedPriority)} />}
+          <Button
+            disabled={isSubmitting}
+            onClick={() => onConfirm?.(confirmedPriority)}
           >
-            Confirm and waitlist
-          </DialogClose>
+            {isSubmitting ? "Waitlisting..." : "Confirm and waitlist"}
+          </Button>
         </>
       }
     >

@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     Column,
     Date,
     DateTime,
@@ -298,6 +299,48 @@ class Pickup(Base):
 
 
 # ---------------------------------------------------------------------------
+# Inventory
+# ---------------------------------------------------------------------------
+
+
+class Inventory(Base):
+    """
+    One type of item Home Again gives out (e.g. "Mattress Only", Queen), with
+    how many are available.
+
+    The donate and referral forms both offer these types, so a donated piece
+    (Furniture.inventory_id) and a client's request can be matched. Furniture
+    rows are individual donated pieces; this table counts them by type.
+    """
+
+    __tablename__ = "inventory"
+    __table_args__ = (
+        CheckConstraint("quantity >= 0", name="inventory_quantity_non_negative"),
+    )
+
+    # Readable slug ("mattress-only-queen"), matching the referral form's item
+    # ids so seeded rows keep the same id in every environment.
+    id = Column(String(64), primary_key=True)
+    name = Column(String(255), nullable=False)
+    # Only set for items that come in sizes (mattresses, box springs, frames).
+    size = Column(String(50), nullable=True)
+    category = Column(String(100), nullable=False)
+    quantity = Column(Integer, nullable=False, default=0)
+    # Display order within the forms.
+    position = Column(Integer, nullable=False, default=0)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
+
+    furniture_items = relationship("Furniture", back_populates="inventory")
+
+
+# ---------------------------------------------------------------------------
 # Furniture
 # ---------------------------------------------------------------------------
 
@@ -325,6 +368,9 @@ class Furniture(Base):
     donation_id = Column(String(36), ForeignKey("donations.id"), nullable=True)
     referral_id = Column(String(36), ForeignKey("referrals.id"), nullable=True)
     pickup_id = Column(String(36), ForeignKey("pickups.id"), nullable=True)
+    # Which inventory type this piece is. Null for items that don't match one
+    # (e.g. "Other") or that predate the inventory table.
+    inventory_id = Column(String(64), ForeignKey("inventory.id"), nullable=True)
     created_at = Column(
         DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
     )
@@ -335,6 +381,7 @@ class Furniture(Base):
     )
 
     # Relationships
+    inventory = relationship("Inventory", back_populates="furniture_items")
     donation = relationship("Donation", back_populates="furniture_items")
     referral = relationship("Referral", back_populates="furniture_items")
     pickup = relationship("Pickup", back_populates="furniture_items")
@@ -427,6 +474,10 @@ class Referral(Base):
     move_other_info = Column(Text, nullable=True)
     notes_and_instructions = Column(Text, nullable=True)
     status = Column(String(50), nullable=False)  # See ReferralStatus
+    # Set only when status is declined. See ReferralRejectionReason;
+    # rejection_details is required when the reason is OTHER.
+    rejection_reason = Column(String(50), nullable=True)
+    rejection_details = Column(Text, nullable=True)
     created_at = Column(
         DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
     )
@@ -442,6 +493,56 @@ class Referral(Base):
     secondary_agent = relationship("Agent", foreign_keys=[secondary_agent_id])
     furniture_items = relationship("Furniture", back_populates="referral")
     dropoffs = relationship("Dropoff", back_populates="referral")
+    items = relationship(
+        "ReferralItem",
+        back_populates="referral",
+        cascade="all, delete-orphan",
+        order_by="ReferralItem.position",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Referral item
+# ---------------------------------------------------------------------------
+
+
+class ReferralItem(Base):
+    """
+    One requested unit on a referral: "Sofa × 2" is two rows, so each can be
+    approved or rejected, scheduled and delivered on its own.
+
+    Created from Referral.requested_items, which stays as the agent's original
+    request. Units aren't tied to a specific donated piece: a drop-off only
+    lowers the inventory count for the type.
+    """
+
+    __tablename__ = "referral_items"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    referral_id = Column(String(36), ForeignKey("referrals.id"), nullable=False)
+    name = Column(String(255), nullable=False)
+    size = Column(String(50), nullable=True)
+    notes = Column(Text, nullable=True)
+    status = Column(String(50), nullable=False)  # See ReferralItemStatus
+    # Set only when status is REJECTED.
+    rejection_reason = Column(Text, nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
+    # The inventory type asked for. Null when the request doesn't match one.
+    inventory_id = Column(String(64), ForeignKey("inventory.id"), nullable=True)
+    # Order within the referral, following requested_items.
+    position = Column(Integer, nullable=False, default=0)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+        onupdate=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
+
+    referral = relationship("Referral", back_populates="items")
+    inventory = relationship("Inventory")
+    dropoff = relationship("Dropoff", back_populates="referral_item", uselist=False)
 
 
 # ---------------------------------------------------------------------------
@@ -450,14 +551,23 @@ class Referral(Base):
 
 
 class Dropoff(Base):
-    """A dropoff stop on a route where furniture is delivered to a client."""
+    """
+    A dropoff stop on a route where one requested unit is delivered to a client.
+
+    Points at the ReferralItem being delivered. Which physical piece goes out
+    isn't tracked; scheduling only lowers the inventory count for the type.
+    furniture_id predates referral items and is optional.
+    """
 
     __tablename__ = "dropoffs"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     route_id = Column(String(36), ForeignKey("routes.id"), nullable=False)
-    furniture_id = Column(String(36), ForeignKey("furniture.id"), nullable=False)
+    furniture_id = Column(String(36), ForeignKey("furniture.id"), nullable=True)
     referral_id = Column(String(36), ForeignKey("referrals.id"), nullable=True)
+    referral_item_id = Column(
+        String(36), ForeignKey("referral_items.id"), nullable=True, unique=True
+    )
     high_priority = Column(Boolean, nullable=False, default=False)
     contact_in_case_of_cancellation = Column(Boolean, nullable=False, default=False)
     dispatch_required = Column(Boolean, nullable=False, default=False)
@@ -474,3 +584,4 @@ class Dropoff(Base):
     route = relationship("Route", back_populates="dropoffs")
     furniture = relationship("Furniture", back_populates="dropoff")
     referral = relationship("Referral", back_populates="dropoffs")
+    referral_item = relationship("ReferralItem", back_populates="dropoff")

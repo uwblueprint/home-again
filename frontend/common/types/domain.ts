@@ -3,6 +3,13 @@
  * Update when the API schema changes.
  */
 
+import type {
+  ReferralItemStatus,
+  ReferralRejectionReason,
+  ReferralReviewStatus,
+  ReferralStatus,
+} from "@/common/constants/referrals";
+
 export interface Admin {
   id: string;
   supabase_user_id: string | null;
@@ -213,6 +220,10 @@ export interface Referral {
   id: string;
   client_id: string;
   requested_items: unknown[];
+  items?: ReferralItem[];
+  review_status?: ReferralReviewStatus;
+  approved_count?: number;
+  item_count?: number;
   agent_id: string | null;
   secondary_agent_id: string | null;
   agents_present_during_delivery: boolean | null;
@@ -240,7 +251,39 @@ export interface Referral {
   adequate_parking: boolean | null;
   move_other_info: string | null;
   notes_and_instructions: string | null;
-  status: "pending" | "approved" | "completed" | "declined";
+  status: ReferralStatus;
+  rejection_reason?: ReferralRejectionReason | null;
+  rejection_details?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type { ReferralReviewStatus };
+
+export interface ReferralItem {
+  id: string;
+  referral_id: string;
+  name: string;
+  size: string | null;
+  notes: string | null;
+  status: ReferralItemStatus;
+  rejection_reason: string | null;
+  reviewed_at: string | null;
+  inventory_id: string | null;
+  position: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InventoryRecord {
+  id: string;
+  name: string;
+  size: string | null;
+  category: string;
+  quantity: number;
+  held: number;
+  available: number;
+  position: number;
   created_at: string;
   updated_at: string;
 }

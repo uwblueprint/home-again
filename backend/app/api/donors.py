@@ -5,9 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
 from ..models import Donor
+from ..schemas import DonationDetail
 from ..schemas import Donor as DonorSchema
 from ..schemas import DonorCreate, DonorListItem, DonorUpdate
-from ..services import donor_service
+from ..services import donations_service, donor_service
 
 router = APIRouter()
 
@@ -37,6 +38,16 @@ async def create_donor(payload: DonorCreate, db: AsyncSession = Depends(get_db))
 @router.get("/{donor_id}", response_model=DonorSchema)
 async def get_donor(donor: Donor = Depends(get_donor_or_404)):
     return donor
+
+
+@router.get("/{donor_id}/donations", response_model=list[DonationDetail])
+async def list_donor_donations(
+    donor: Donor = Depends(get_donor_or_404),
+    db: AsyncSession = Depends(get_db),
+):
+    """The donor's donations, newest first, each with its items and review status."""
+    donations = await donations_service.list_donor_donation_details(db, donor.id)
+    return [donations_service.build_donation_detail(d) for d in donations]
 
 
 @router.put("/{donor_id}", response_model=DonorSchema)

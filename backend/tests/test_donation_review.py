@@ -297,8 +297,21 @@ async def test_detail_partially_reviewed_when_some_items_reviewed(client):
     assert resp.json()["review_status"] == "partially_reviewed"
 
 
-async def test_detail_reviewed_when_all_items_reviewed(client):
-    donation = await create_donation(client, tag="reviewed")
+async def test_detail_approved_when_every_item_approved(client):
+    donation = await create_donation(client, tag="approved")
+    first = await create_item(client, donation["id"])
+    second = await create_item(client, donation["id"], name="Table")
+
+    await client.post(f"/api/furniture/{first['id']}/approve")
+    await client.post(f"/api/furniture/{second['id']}/approve")
+
+    data = (await client.get(f"/api/donations/{donation['id']}/detail")).json()
+    assert data["review_status"] == "approved"
+    assert (data["approved_count"], data["item_count"]) == (2, 2)
+
+
+async def test_detail_partially_approved_when_review_mixes_outcomes(client):
+    donation = await create_donation(client, tag="mixed")
     first = await create_item(client, donation["id"])
     second = await create_item(client, donation["id"], name="Table")
 
@@ -307,8 +320,22 @@ async def test_detail_reviewed_when_all_items_reviewed(client):
         f"/api/furniture/{second['id']}/reject", json={"rejection_reason": "condition"}
     )
 
-    resp = await client.get(f"/api/donations/{donation['id']}/detail")
-    assert resp.json()["review_status"] == "reviewed"
+    data = (await client.get(f"/api/donations/{donation['id']}/detail")).json()
+    assert data["review_status"] == "partially_approved"
+    assert (data["approved_count"], data["item_count"]) == (1, 2)
+
+
+async def test_detail_rejected_when_every_item_rejected(client):
+    donation = await create_donation(client, tag="rejected")
+    item = await create_item(client, donation["id"])
+
+    await client.post(
+        f"/api/furniture/{item['id']}/reject", json={"rejection_reason": "condition"}
+    )
+
+    data = (await client.get(f"/api/donations/{donation['id']}/detail")).json()
+    assert data["review_status"] == "rejected"
+    assert data["approved_count"] == 0
 
 
 async def test_detail_stays_reviewed_once_items_move_downstream(client):
@@ -322,8 +349,10 @@ async def test_detail_stays_reviewed_once_items_move_downstream(client):
     )
     await client.put(f"/api/furniture/{first['id']}", json={"status": "OFFERED"})
 
-    resp = await client.get(f"/api/donations/{donation['id']}/detail")
-    assert resp.json()["review_status"] == "reviewed"
+    data = (await client.get(f"/api/donations/{donation['id']}/detail")).json()
+    assert data["review_status"] == "partially_approved"
+    # OFFERED follows an approval, so it still counts as approved.
+    assert data["approved_count"] == 1
 
 
 async def test_detail_pending_review_when_donation_has_no_items(client):
@@ -350,6 +379,35 @@ async def test_detail_scheduled_once_a_pickup_has_a_date(client):
     data = resp.json()
     assert data["review_status"] == "scheduled"
     assert data["pickup"]["scheduled_date"].startswith("2026-03-26")
+
+
+async def test_detail_confirmed_once_the_donor_confirms_the_pickup(client):
+    donation = await create_donation(client, tag="confirmed")
+    item = await create_item(client, donation["id"])
+    await client.post(f"/api/furniture/{item['id']}/approve")
+    pickup = (
+        await client.post(
+            "/api/pickups",
+            json={
+                "donation_id": donation["id"],
+                "scheduled_date": "2026-03-26T00:00:00",
+            },
+        )
+    ).json()
+    await client.post(f"/api/pickups/{pickup['id']}/confirm")
+
+    resp = await client.get(f"/api/donations/{donation['id']}/detail")
+    assert resp.json()["review_status"] == "confirmed"
+
+
+async def test_detail_picked_up_once_the_donation_is_completed(client):
+    donation = await create_donation(client, tag="pickedup")
+    item = await create_item(client, donation["id"])
+    await client.post(f"/api/furniture/{item['id']}/approve")
+    await client.put(f"/api/donations/{donation['id']}", json={"status": "completed"})
+
+    resp = await client.get(f"/api/donations/{donation['id']}/detail")
+    assert resp.json()["review_status"] == "picked_up"
 
 
 async def test_scheduling_does_not_mask_an_unfinished_review(client):
@@ -401,7 +459,7 @@ async def test_a_dispatch_pickup_does_not_hide_the_scheduled_one(client):
 
     resp = await client.get(f"/api/donations/{donation['id']}/detail")
     data = resp.json()
-    assert data["review_status"] == "scheduled"
+    assert data["review_status"] == "confirmed"
     assert data["pickup"]["id"] == scheduled["id"]
     assert data["pickup"]["confirmed_at"] is not None
 

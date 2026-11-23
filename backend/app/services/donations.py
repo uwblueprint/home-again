@@ -7,8 +7,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from ..enums import DonationReviewStatus, FurnitureStatus
+from ..enums import DonationReviewStatus, DonationStatus, FurnitureStatus
 from ..models import Donation, Donor, Furniture, Pickup
+from . import inventory as inventory_service
 from ..schemas import DonationCreate, DonationUpdate
 
 logger = logging.getLogger(__name__)
@@ -70,8 +71,23 @@ async def update_donation(
         if not donor_result.scalar_one_or_none():
             raise ValueError(f"Donor with ID '{data['donor_id']}' does not exist.")
 
+    # Picked up is final: its items are already counted in stock, so moving it
+    # back (and completing it again) would count them twice.
+    if (
+        donation.status == DonationStatus.COMPLETED.value
+        and "status" in data
+        and data["status"] != DonationStatus.COMPLETED
+    ):
+        raise ValueError("This donation was picked up, so its status can't change.")
+
+    picked_up_now = (
+        data.get("status") == DonationStatus.COMPLETED
+        and donation.status != DonationStatus.COMPLETED.value
+    )
     for key, value in data.items():
         setattr(donation, key, value)
+    if picked_up_now:
+        await _add_collected_items_to_inventory(db, donation.id)
     try:
         await db.commit()
     except IntegrityError as e:
@@ -80,6 +96,24 @@ async def update_donation(
         raise ValueError(f"Update failed: {str(e.orig)}") from e
     await db.refresh(donation)
     return donation
+
+
+async def _add_collected_items_to_inventory(db: AsyncSession, donation_id: str) -> None:
+    """
+    A picked-up donation's approved items are now stock: +1 for each item's
+    type. Rejected and unreviewed items weren't collected; items with no type
+    can't be counted.
+    """
+    result = await db.execute(
+        select(Furniture.inventory_id).where(
+            Furniture.donation_id == donation_id,
+            Furniture.inventory_id.is_not(None),
+            Furniture.status.in_(REVIEWED_FURNITURE_STATUSES),
+            Furniture.status != FurnitureStatus.REJECTED.value,
+        )
+    )
+    for inventory_id in result.scalars().all():
+        await inventory_service.add(db, inventory_id)
 
 
 async def delete_donation(db: AsyncSession, donation: Donation) -> None:
@@ -92,21 +126,36 @@ async def delete_donation(db: AsyncSession, donation: Donation) -> None:
         raise ValueError(f"Unable to delete donation: {str(e.orig)}") from e
 
 
+# Eager-load everything build_donation_detail reads; async sessions can't
+# lazy-load.
+DONATION_DETAIL_OPTIONS = (
+    selectinload(Donation.donor),
+    selectinload(Donation.furniture_items).selectinload(Furniture.photos),
+    selectinload(Donation.pickups),
+)
+
+
 async def get_donation_detail(db: AsyncSession, donation_id: str) -> Donation | None:
-    """
-    Load a donation with everything the review screen renders, in one round trip:
-    donor, furniture items with their ordered photos, and the pickup.
-    """
+    """Load one donation with everything the review screen renders, in one round trip."""
     result = await db.execute(
         select(Donation)
         .where(Donation.id == donation_id)
-        .options(
-            selectinload(Donation.donor),
-            selectinload(Donation.furniture_items).selectinload(Furniture.photos),
-            selectinload(Donation.pickups),
-        )
+        .options(*DONATION_DETAIL_OPTIONS)
     )
     return result.scalar_one_or_none()
+
+
+async def list_donor_donation_details(
+    db: AsyncSession, donor_id: str
+) -> list[Donation]:
+    """A donor's donations, newest first, loaded like get_donation_detail."""
+    result = await db.execute(
+        select(Donation)
+        .where(Donation.donor_id == donor_id)
+        .order_by(Donation.created_at.desc())
+        .options(*DONATION_DETAIL_OPTIONS)
+    )
+    return result.scalars().all()
 
 
 def get_active_pickup(donation: Donation) -> Pickup | None:
@@ -125,14 +174,32 @@ def get_active_pickup(donation: Donation) -> Pickup | None:
     return max(scheduled or pickups, key=lambda pickup: pickup.created_at)
 
 
+def count_approved(donation: Donation) -> int:
+    """
+    Items that passed review. Downstream statuses (OFFERED, SCHEDULED, ...) only
+    follow an approval, so they count too; only REJECTED and unreviewed items
+    don't.
+    """
+    return sum(
+        1
+        for item in donation.furniture_items or []
+        if item.status in REVIEWED_FURNITURE_STATUSES
+        and item.status != FurnitureStatus.REJECTED.value
+    )
+
+
 def compute_review_status(donation: Donation) -> DonationReviewStatus:
     """
-    Derive how far along the admin's review is.
+    Derive where the donation request is, from review through to pickup.
 
     Never stored: recomputing keeps the badge honest when an item is re-reviewed
     or a scheduled pickup is removed. Requires furniture_items and pickups to be
     loaded — use get_donation_detail.
     """
+    # Picked up is final, whatever the items say.
+    if donation.status == DonationStatus.COMPLETED.value:
+        return DonationReviewStatus.PICKED_UP
+
     items = donation.furniture_items or []
     reviewed = [item for item in items if item.status in REVIEWED_FURNITURE_STATUSES]
 
@@ -142,12 +209,21 @@ def compute_review_status(donation: Donation) -> DonationReviewStatus:
     if len(reviewed) < len(items):
         return DonationReviewStatus.PARTIALLY_REVIEWED
 
+    approved = count_approved(donation)
+    if approved == 0:
+        return DonationReviewStatus.REJECTED
+
     # Scheduling only outranks a *finished* review; a pickup booked while items
     # are still outstanding must not hide that they need attention.
     pickup = get_active_pickup(donation)
     if pickup and pickup.scheduled_date:
+        if pickup.confirmed_at:
+            return DonationReviewStatus.CONFIRMED
         return DonationReviewStatus.SCHEDULED
-    return DonationReviewStatus.REVIEWED
+
+    if approved == len(items):
+        return DonationReviewStatus.APPROVED
+    return DonationReviewStatus.PARTIALLY_APPROVED
 
 
 def build_donation_detail(donation: Donation) -> dict:
@@ -158,6 +234,8 @@ def build_donation_detail(donation: Donation) -> dict:
             for column in donation.__table__.columns
         },
         "review_status": compute_review_status(donation),
+        "approved_count": count_approved(donation),
+        "item_count": len(donation.furniture_items or []),
         "donor": donation.donor,
         "furniture_items": donation.furniture_items,
         "pickup": get_active_pickup(donation),

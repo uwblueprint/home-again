@@ -62,17 +62,27 @@ class DonationStatus(str, enum.Enum):
 
 class DonationReviewStatus(str, enum.Enum):
     """
-    Progress of an admin's item-by-item review of a donation request.
+    Where a donation request is, from the admin's review through to pickup.
 
-    Derived from the donation's furniture statuses and its pickup — never stored,
+    Derived from the donation's status, furniture statuses and pickup — never stored,
     so it cannot drift when an item is re-reviewed. See
     services.donations.compute_review_status.
     """
 
     PENDING_REVIEW = "pending_review"
     PARTIALLY_REVIEWED = "partially_reviewed"
-    REVIEWED = "reviewed"
+    # Every item reviewed and approved.
+    APPROVED = "approved"
+    # Every item reviewed, some approved and some rejected ("Approved 2/4";
+    # the counts are DonationDetail.approved_count / item_count).
+    PARTIALLY_APPROVED = "partially_approved"
+    # Every item reviewed and rejected; there is nothing to pick up.
+    REJECTED = "rejected"
+    # A pickup date is set but the donor hasn't confirmed it.
     SCHEDULED = "scheduled"
+    CONFIRMED = "confirmed"
+    # The donation is complete (DonationStatus.COMPLETED).
+    PICKED_UP = "picked_up"
 
 
 # ---------------------------------------------------------------------------
@@ -127,3 +137,49 @@ class ReferralStatus(str, enum.Enum):
     APPROVED = "approved"
     COMPLETED = "completed"
     DECLINED = "declined"
+
+
+class ReferralRejectionReason(str, enum.Enum):
+    """Why an admin rejected a whole referral. OTHER requires free-text details."""
+
+    DUPLICATE = "duplicate"  # Submitted a referral this year already
+    LOCATION = "location"  # Outside the service area
+    INCOMPLETE = "incomplete"  # Incomplete information
+    OTHER = "other"
+
+
+class ReferralItemStatus(str, enum.Enum):
+    """
+    Where one requested unit is, from an admin's review through delivery.
+    Review is approve or reject; waitlisting is for a whole referral
+    (Referral.status), not a unit.
+    """
+
+    PENDING_REVIEW = "PENDING_REVIEW"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    SCHEDULED = "SCHEDULED"
+    DELIVERED = "DELIVERED"
+    CANCELLED = "CANCELLED"
+
+
+class ReferralReviewStatus(str, enum.Enum):
+    """
+    Where a referral is, from the admin's item-by-item review through delivery.
+
+    The referral counterpart of DonationReviewStatus. Derived from the
+    referral's item statuses — never stored. See
+    services.referrals.compute_review_status.
+    """
+
+    PENDING_REVIEW = "pending_review"
+    PARTIALLY_REVIEWED = "partially_reviewed"
+    # Every unit reviewed and approved.
+    APPROVED = "approved"
+    # Every unit reviewed, some approved and some rejected ("Approved 2/4").
+    PARTIALLY_APPROVED = "partially_approved"
+    # Every unit rejected or cancelled; there is nothing to deliver.
+    REJECTED = "rejected"
+    # Every unit still going out has a drop-off booked.
+    SCHEDULED = "scheduled"
+    DELIVERED = "delivered"

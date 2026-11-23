@@ -116,6 +116,7 @@ import {
   UnconfirmedBadge,
   ConfirmedBadge,
   PickedUpBadge,
+  CancelledBadge,
   PriorityBadge,
 } from "@/common/components/status-labels";
 import {
@@ -275,6 +276,7 @@ function StatusLabelsDemo() {
         <UnconfirmedBadge />
         <ConfirmedBadge />
         <PickedUpBadge />
+        <CancelledBadge />
         <div className="flex flex-wrap gap-sm">
           <PriorityBadge />
         </div>

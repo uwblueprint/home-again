@@ -91,6 +91,12 @@ interface DataTableProps<TData, TValue> {
   pageSize?: number;
   initialColumnVisibility?: VisibilityState;
   hideToolbar?: boolean;
+  /**
+   * Where the toolbar renders. "inside" (default) puts it in the table card;
+   * "outside" puts it above the card, for pages whose design has the tabs,
+   * search, filter and sort outside the card.
+   */
+  toolbarPlacement?: "inside" | "outside";
   hidePagination?: boolean;
   testId?: string;
 }
@@ -120,6 +126,7 @@ export function DataTable<TData, TValue>({
   pageSize = 10,
   initialColumnVisibility = {},
   hideToolbar = false,
+  toolbarPlacement = "inside",
   hidePagination = false,
   testId = "data-table",
 }: DataTableProps<TData, TValue>) {
@@ -187,27 +194,30 @@ export function DataTable<TData, TValue>({
   const showSearchEmpty = !loading && !error && !hasRows && !!trimmedSearch;
   const { pageIndex } = table.getState().pagination;
 
-  return (
+  const toolbar = hideToolbar ? null : (
+    <DataTableToolbar
+      table={table}
+      searchPlaceholder={searchPlaceholder}
+      filters={filters}
+      sortOptions={sortOptions}
+      sortValue={activeSortValue}
+      onSortChange={sortOptions ? handleSortChange : undefined}
+      onSortReset={sortOptions ? handleSortReset : undefined}
+      leading={toolbarLeading}
+      actions={toolbarActions}
+      subtabs={subtabs}
+    />
+  );
+  const toolbarOutside = toolbarPlacement === "outside";
+
+  const card = (
     <div
-      className="flex w-full flex-col gap-xl rounded-xl border border-border p-xl shadow-xs"
+      className="flex w-full flex-col gap-xl"
       data-testid={testId}
     >
       {header}
 
-      {hideToolbar ? null : (
-        <DataTableToolbar
-          table={table}
-          searchPlaceholder={searchPlaceholder}
-          filters={filters}
-          sortOptions={sortOptions}
-          sortValue={activeSortValue}
-          onSortChange={sortOptions ? handleSortChange : undefined}
-          onSortReset={sortOptions ? handleSortReset : undefined}
-          leading={toolbarLeading}
-          actions={toolbarActions}
-          subtabs={subtabs}
-        />
-      )}
+      {toolbarOutside ? null : toolbar}
 
       {showSearchEmpty ? (
         <DataTableSearchEmptyState query={trimmedSearch} />
@@ -307,6 +317,17 @@ export function DataTable<TData, TValue>({
       )}
     </div>
   );
+
+  if (toolbarOutside && toolbar) {
+    return (
+      <div className="flex w-full flex-col gap-4xl">
+        {toolbar}
+        {card}
+      </div>
+    );
+  }
+
+  return card;
 }
 
 function DataTableSearchEmptyState({ query }: { query: string }) {

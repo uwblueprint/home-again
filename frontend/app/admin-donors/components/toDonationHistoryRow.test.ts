@@ -74,6 +74,18 @@ describe("toDonationHistoryRow", () => {
     expect(row.items).toHaveLength(3);
   });
 
+  it("still counts items that moved on after approval", () => {
+    const donation = makeDonation({
+      review_status: "reviewed",
+      furniture_items: withItemStatuses(
+        "APPROVED",
+        "DELIVERED",
+        "PICKUP_PENDING"
+      ),
+    });
+    expect(toDonationHistoryRow(donation).approvedCount).toBe(2);
+  });
+
   it("carries the pickup's scheduled date, if any", () => {
     const scheduled = makeDonation({
       review_status: "scheduled",
@@ -93,6 +105,15 @@ describe("toDonationHistoryRow", () => {
       furniture_items: withItemStatuses("REJECTED", "REJECTED"),
     });
     expect(toDonationHistoryRow(donation).status).toBe("rejected");
+  });
+
+  it("shows a cancelled donation as cancelled, whatever its review state", () => {
+    const donation = makeDonation({
+      status: "cancelled",
+      review_status: "scheduled",
+      pickup: scheduledPickup,
+    });
+    expect(toDonationHistoryRow(donation).status).toBe("cancelled");
   });
 
   it("shows a completed donation as picked up, whatever its review state", () => {

@@ -24,7 +24,10 @@ import {
   SidebarRoutesAndSchedulingIcon,
 } from "@/common/components/ui/sidebar-icons";
 import { SidebarNavShell } from "@/common/components/ui/sidebar-nav-shell";
-import { REFERRAL_REQUESTS } from "@/common/constants/Routes";
+import {
+  DONATION_REQUESTS,
+  REFERRAL_REQUESTS,
+} from "@/common/constants/Routes";
 
 export type AdminSidebarActiveItem =
   | "home"
@@ -129,6 +132,7 @@ function AdminSidebar({
             <SidebarMenuSubItem>
               <SidebarMenuSubButton
                 isActive={activeItem === "donation-requests"}
+                render={<Link href={DONATION_REQUESTS} />}
               >
                 <span>Donation Requests</span>
               </SidebarMenuSubButton>

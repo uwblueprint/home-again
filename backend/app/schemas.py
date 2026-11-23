@@ -186,6 +186,14 @@ class DonorUpdate(BaseModel):
     _normalize_email = field_validator("email")(_normalize_donor_email)
 
 
+class DonorRef(BaseModel):
+    """Only a donor's id: what the public donate form gets back."""
+
+    id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class Donor(DonorBase):
     id: str
     created_at: datetime

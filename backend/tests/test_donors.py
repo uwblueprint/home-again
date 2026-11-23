@@ -9,9 +9,12 @@ DONOR_BASE = {
 
 
 async def create_donor(client, **overrides):
+    """POST a donor, then GET it: POST only returns the id."""
     payload = {**DONOR_BASE, **overrides}
     resp = await client.post("/api/donors", json=payload)
     assert resp.status_code == 201, resp.text
+    resp = await client.get(f"/api/donors/{resp.json()['id']}")
+    assert resp.status_code == 200, resp.text
     return resp.json()
 
 
@@ -201,13 +204,30 @@ async def test_create_donor_stores_email_trimmed_and_lowercased(client):
     assert data["email"] == "mixed.case@example.com"
 
 
-async def test_create_donor_duplicate_email(client):
-    await create_donor(client, email="taken@example.com")
+async def test_create_donor_returns_only_id(client):
     resp = await client.post(
-        "/api/donors", json={**DONOR_BASE, "email": " TAKEN@example.com"}
+        "/api/donors", json={**DONOR_BASE, "email": "only_id@example.com"}
     )
-    assert resp.status_code == 409
-    assert resp.json()["detail"] == "A donor with this email already exists."
+    assert resp.status_code == 201, resp.text
+    assert set(resp.json()) == {"id"}
+
+
+async def test_create_donor_returning_email_gets_existing_donor(client):
+    donor = await create_donor(client, email="returning@example.com")
+    resp = await client.post(
+        "/api/donors",
+        json={
+            **DONOR_BASE,
+            "email": " RETURNING@example.com",
+            "first_name": "Someone",
+            "phone": "555-1234",
+        },
+    )
+    assert resp.status_code == 201, resp.text
+    assert resp.json() == {"id": donor["id"]}
+    # The saved details aren't overwritten by an anonymous submission.
+    saved = (await client.get(f"/api/donors/{donor['id']}")).json()
+    assert saved == donor
 
 
 async def test_create_donor_blank_email(client):

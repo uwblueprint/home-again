@@ -163,7 +163,8 @@ export function useDonationDetail(donationId?: string | null) {
 }
 
 /**
- * Create a new donor
+ * Create a donor, or get the existing one with the same email. Public: the
+ * donate form calls it before login, so it returns only the donor's id.
  *
  * Automatically invalidates the donors query cache after success.
  */
@@ -172,7 +173,10 @@ export function useCreateDonor() {
 
   return useMutation({
     mutationFn: async (payload: CreateDonorInput) => {
-      const response = await apiClient.post<Donor>("/donors", payload);
+      const response = await apiClient.post<Pick<Donor, "id">>(
+        "/donors",
+        payload
+      );
       return response.data;
     },
     onSuccess: () => {

@@ -65,6 +65,22 @@ async def create_donor(db: AsyncSession, payload: DonorCreate) -> Donor:
     return db_donor
 
 
+async def get_or_create_donor(db: AsyncSession, payload: DonorCreate) -> Donor:
+    """
+    The donor with this email, or a new one from the payload.
+
+    A returning donor's saved details are left as they are.
+    """
+    existing = await get_donor_by_email(db, payload.email)
+    if existing:
+        return existing
+    try:
+        return await create_donor(db, payload)
+    except DonorEmailTaken:
+        # Another request added this email since the check above.
+        return await get_donor_by_email(db, payload.email)
+
+
 async def update_donor(db: AsyncSession, donor: Donor, payload: DonorUpdate) -> Donor:
     data = payload.model_dump(exclude_unset=True)
     if not data:

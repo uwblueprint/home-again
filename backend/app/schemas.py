@@ -130,8 +130,18 @@ class AgentBase(BaseModel):
     is_admin: bool = False
 
 
+def _strip_agent_email(value: Optional[str]) -> str:
+    # Only runs when email is sent, so None here is an explicit null.
+    email = (value or "").strip()
+    if not email:
+        raise ValueError("Email is required.")
+    return email
+
+
 class AgentCreate(AgentBase):
     supabase_user_id: Optional[str] = None
+
+    _strip_email = field_validator("email")(_strip_agent_email)
 
 
 class AgentUpdate(BaseModel):
@@ -142,6 +152,8 @@ class AgentUpdate(BaseModel):
     agency_id: Optional[str] = None
     is_admin: Optional[bool] = None
     supabase_user_id: Optional[str] = None
+
+    _strip_email = field_validator("email")(_strip_agent_email)
 
 
 class Agent(AgentBase):
@@ -174,6 +186,13 @@ def _normalize_donor_email(value: Optional[str]) -> Optional[str]:
 
 
 class DonorCreate(DonorBase):
+    # Public (the donate form), so enforce the column sizes here: longer
+    # values would be a database error (500) instead of a 422.
+    first_name: str = Field(min_length=1, max_length=100)
+    last_name: str = Field(min_length=1, max_length=100)
+    email: str = Field(max_length=255)
+    phone: str = Field(min_length=1, max_length=20)
+
     _normalize_email = field_validator("email")(_normalize_donor_email)
 
 
@@ -184,6 +203,14 @@ class DonorUpdate(BaseModel):
     phone: Optional[str] = None
 
     _normalize_email = field_validator("email")(_normalize_donor_email)
+
+
+class DonorRef(BaseModel):
+    """Only a donor's id: what the public donate form gets back."""
+
+    id: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Donor(DonorBase):

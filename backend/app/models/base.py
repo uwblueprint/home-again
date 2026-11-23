@@ -22,6 +22,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    func,
     text,
 )
 from sqlalchemy.orm import relationship
@@ -127,6 +128,17 @@ class Agent(Base):
 
     # Relationships
     agency = relationship("Agency", back_populates="agents", foreign_keys=[agency_id])
+
+
+# An invite must match exactly one agent, so email is unique ignoring case. It's
+# stored as entered. Legacy rows with no email ('') are exempt.
+Index(
+    "ix_agents_email_lower",
+    func.lower(Agent.email),
+    unique=True,
+    postgresql_where=text("email <> ''"),
+    sqlite_where=text("email <> ''"),
+)
 
 
 # ---------------------------------------------------------------------------

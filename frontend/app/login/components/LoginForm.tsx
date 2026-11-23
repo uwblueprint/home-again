@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { CircleCheck, CircleX } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
 
+import { Toast } from "@/common/components/feedback";
 import { FormField } from "@/common/components/forms/FormField";
 import { EntrySplitLayout } from "@/common/components/layout";
 import {
@@ -19,6 +21,7 @@ import {
 import { Alert } from "@/common/components/ui/alert";
 import { Button } from "@/common/components/ui/button";
 import { Input } from "@/common/components/ui/input";
+import { LOGIN_PAGE } from "@/common/constants/Routes";
 import { EMAIL_REGEX } from "@/common/constants/validators";
 
 // TODO: replace with the real HAFB admin contact email.
@@ -29,11 +32,23 @@ type Errors = {
   password?: string;
 };
 
-export default function LoginForm() {
+export default function LoginForm({
+  passwordReset = false,
+}: {
+  /** True when arriving from a successful password reset. */
+  passwordReset?: boolean;
+}) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Errors>({});
   const [forgotOpen, setForgotOpen] = useState(false);
+  const [resetToastOpen, setResetToastOpen] = useState(passwordReset);
+
+  // Drop `?reset=success` so a refresh doesn't show the toast again.
+  useEffect(() => {
+    if (passwordReset) router.replace(LOGIN_PAGE, { scroll: false });
+  }, [passwordReset, router]);
 
   // TODO(auth): Forgot-password currently falls back to the placeholder
   // "name@agency.org" when the email field is empty, and Reset only closes
@@ -69,6 +84,10 @@ export default function LoginForm() {
 
   return (
     <EntrySplitLayout>
+      <Toast open={resetToastOpen} onOpenChange={setResetToastOpen}>
+        Password successfully reset
+      </Toast>
+
       <Image
         src="/hafb_logo.svg"
         alt="Home Again Furniture Bank"
@@ -111,7 +130,11 @@ export default function LoginForm() {
             />
           </FormField>
 
-          <FormField label="Password" htmlFor="password" error={errors.password}>
+          <FormField
+            label="Password"
+            htmlFor="password"
+            error={errors.password}
+          >
             <div className="relative">
               <Input
                 id="password"

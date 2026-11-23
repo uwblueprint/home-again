@@ -35,6 +35,9 @@
     --unofficial-destructive-border: var(--raw-colors-red-500);
     --unofficial-destructive-subtle: var(--raw-colors-red-50);
     --unofficial-destructive-text: var(--raw-colors-red-600);
+    --unofficial-success-border: var(--raw-colors-lime-800);
+    --unofficial-success-subtle: var(--raw-colors-lime-50);
+    --unofficial-success-text: var(--raw-colors-lime-800);
     --unofficial-foreground-alt: var(--raw-colors-neutral-800);
     --unofficial-ghost: var(--white-alpha-001);
     --unofficial-ghost-foreground: var(--raw-colors-neutral-700);
@@ -76,6 +79,8 @@
 :root {
     /* Collection: raw colors */
     --raw-colors-blue-200: oklch(0.882 0.057 254.1);
+    --raw-colors-lime-50: oklch(0.986 0.031 120.8); /* #F7FEE7 */
+    --raw-colors-lime-800: oklch(0.453 0.113 130.9); /* #3F6212 */
     --raw-colors-neutral-100: oklch(0.97 0 0);
     --raw-colors-neutral-200: oklch(0.922 0 0);
     --raw-colors-neutral-300: oklch(0.87 0 0);

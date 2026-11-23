@@ -14,3 +14,9 @@ export { FurnitureItemCard } from "./FurnitureItemCard";
 export { Header } from "./Header";
 export { Footer } from "./Footer";
 export { DatePicker } from "./DatePicker";
+export {
+  PasswordField,
+  PasswordStatusMessage,
+  type PasswordFieldProps,
+} from "./PasswordField";
+export { NewPasswordFields, type NewPasswordValues } from "./NewPasswordFields";

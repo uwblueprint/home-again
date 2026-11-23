@@ -78,7 +78,10 @@ async def get_or_create_donor(db: AsyncSession, payload: DonorCreate) -> Donor:
         return await create_donor(db, payload)
     except DonorEmailTaken:
         # Another request added this email since the check above.
-        return await get_donor_by_email(db, payload.email)
+        donor = await get_donor_by_email(db, payload.email)
+        if donor is None:
+            raise ValueError("Unable to create donor. Please try again.")
+        return donor
 
 
 async def update_donor(db: AsyncSession, donor: Donor, payload: DonorUpdate) -> Donor:

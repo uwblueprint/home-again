@@ -65,15 +65,26 @@ export const donorsHandlers = [
     return HttpResponse.json(updated);
   }),
 
+  // Like the backend: public, reuses the donor with the same email, and
+  // returns only the id.
   http.post(`${BASE}/donors`, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
+    const email = String(body.email ?? "")
+      .trim()
+      .toLowerCase();
+    const existing = [...createdDonors.values(), ...donors].find(
+      (donor) => (donor.email ?? "").toLowerCase() === email
+    );
+    if (existing) {
+      return HttpResponse.json({ id: existing.id }, { status: 201 });
+    }
     const id = crypto.randomUUID();
     const newDonor: Donor = {
       id,
       name: `${body.first_name ?? ""} ${body.last_name ?? ""}`.trim() || null,
       first_name: (body.first_name as string) ?? "",
       last_name: (body.last_name as string) ?? "",
-      email: (body.email as string) ?? "",
+      email,
       phone: (body.phone as string) ?? "",
       address: (body.address as string) ?? "",
       city: (body.city as string) ?? "",
@@ -86,6 +97,6 @@ export const donorsHandlers = [
       updated_at: new Date().toISOString(),
     };
     createdDonors.set(id, newDonor);
-    return HttpResponse.json(newDonor);
+    return HttpResponse.json({ id }, { status: 201 });
   }),
 ];

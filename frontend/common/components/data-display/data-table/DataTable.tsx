@@ -212,7 +212,7 @@ export function DataTable<TData, TValue>({
 
   const card = (
     <div
-      className="flex w-full flex-col gap-xl rounded-xl border border-border p-xl shadow-xs"
+      className="flex w-full flex-col gap-xl"
       data-testid={testId}
     >
       {header}

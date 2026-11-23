@@ -130,8 +130,18 @@ class AgentBase(BaseModel):
     is_admin: bool = False
 
 
+def _strip_agent_email(value: Optional[str]) -> str:
+    # Only runs when email is sent, so None here is an explicit null.
+    email = (value or "").strip()
+    if not email:
+        raise ValueError("Email is required.")
+    return email
+
+
 class AgentCreate(AgentBase):
     supabase_user_id: Optional[str] = None
+
+    _strip_email = field_validator("email")(_strip_agent_email)
 
 
 class AgentUpdate(BaseModel):
@@ -142,6 +152,8 @@ class AgentUpdate(BaseModel):
     agency_id: Optional[str] = None
     is_admin: Optional[bool] = None
     supabase_user_id: Optional[str] = None
+
+    _strip_email = field_validator("email")(_strip_agent_email)
 
 
 class Agent(AgentBase):

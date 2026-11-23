@@ -30,6 +30,8 @@ async def list_agents(db: AsyncSession = Depends(get_db)):
 async def create_agent(payload: AgentCreate, db: AsyncSession = Depends(get_db)):
     try:
         return await agents_service.create_agent(db, payload)
+    except agents_service.AgentEmailTaken as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
@@ -47,6 +49,8 @@ async def update_agent(
 ):
     try:
         return await agents_service.update_agent(db, agent, payload)
+    except agents_service.AgentEmailTaken as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 

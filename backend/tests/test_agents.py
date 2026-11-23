@@ -159,3 +159,29 @@ async def test_update_agent_changes_case_of_own_email(client):
     )
     assert resp.status_code == 200, resp.text
     assert resp.json()["email"] == "Self.Agent@example.com"
+
+
+async def test_update_agent_null_email_is_422(client):
+    agency = await create_agency(client, name="Null Email Agency")
+    created = await client.post(
+        "/api/agents",
+        json=await make_agent_payload(agency["id"], email="null.agent@example.com"),
+    )
+    assert created.status_code == 201
+    resp = await client.put(f"/api/agents/{created.json()['id']}", json={"email": None})
+    assert resp.status_code == 422
+
+
+async def test_update_agent_other_error_after_rollback_is_400(client):
+    """The IntegrityError path reads the id it saved, not the expired agent."""
+    agency = await create_agency(client, name="Rollback Agency")
+    created = await client.post(
+        "/api/agents",
+        json=await make_agent_payload(agency["id"], email="rollback.agent@example.com"),
+    )
+    assert created.status_code == 201
+    resp = await client.put(
+        f"/api/agents/{created.json()['id']}",
+        json={"email": "Rollback.Agent@example.com", "first_name": None},
+    )
+    assert resp.status_code == 400, resp.text

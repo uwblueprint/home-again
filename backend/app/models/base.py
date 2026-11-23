@@ -131,8 +131,14 @@ class Agent(Base):
 
 
 # An invite must match exactly one agent, so email is unique ignoring case. It's
-# stored as entered.
-Index("ix_agents_email_lower", func.lower(Agent.email), unique=True)
+# stored as entered. Legacy rows with no email ('') are exempt.
+Index(
+    "ix_agents_email_lower",
+    func.lower(Agent.email),
+    unique=True,
+    postgresql_where=text("email <> ''"),
+    sqlite_where=text("email <> ''"),
+)
 
 
 # ---------------------------------------------------------------------------

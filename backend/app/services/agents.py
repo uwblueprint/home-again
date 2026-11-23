@@ -22,7 +22,7 @@ class AgentEmailTaken(ValueError):
 async def email_taken(
     db: AsyncSession, email: str, exclude_id: str | None = None
 ) -> bool:
-    query = select(Agent.id).where(func.lower(Agent.email) == email.lower())
+    query = select(Agent.id).where(func.lower(Agent.email) == func.lower(email))
     if exclude_id:
         query = query.where(Agent.id != exclude_id)
     return (await db.execute(query)).first() is not None
@@ -70,8 +70,10 @@ async def update_agent(db: AsyncSession, agent: Agent, payload: AgentUpdate) -> 
         )
         if not result.scalar_one_or_none():
             raise ValueError(f"Agency with ID '{data['agency_id']}' does not exist.")
+    # Read before the commit: after a rollback the instance is expired.
+    agent_id = agent.id
     new_email = data.get("email")
-    if new_email and await email_taken(db, new_email, exclude_id=agent.id):
+    if new_email and await email_taken(db, new_email, exclude_id=agent_id):
         raise AgentEmailTaken()
     for key, value in data.items():
         setattr(agent, key, value)
@@ -79,9 +81,9 @@ async def update_agent(db: AsyncSession, agent: Agent, payload: AgentUpdate) -> 
         await db.commit()
     except IntegrityError as e:
         await db.rollback()
-        if new_email and await email_taken(db, new_email, exclude_id=agent.id):
+        if new_email and await email_taken(db, new_email, exclude_id=agent_id):
             raise AgentEmailTaken() from e
-        logger.exception("IntegrityError updating agent %s: %s", agent.id, e.orig)
+        logger.exception("IntegrityError updating agent %s: %s", agent_id, e.orig)
         raise ValueError(f"Update failed: {str(e.orig)}") from e
     await db.refresh(agent)
     return agent

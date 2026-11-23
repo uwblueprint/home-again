@@ -130,10 +130,9 @@ class AgentBase(BaseModel):
     is_admin: bool = False
 
 
-def _strip_agent_email(value: Optional[str]) -> Optional[str]:
-    if value is None:
-        return None
-    email = value.strip()
+def _strip_agent_email(value: Optional[str]) -> str:
+    # Only runs when email is sent, so None here is an explicit null.
+    email = (value or "").strip()
     if not email:
         raise ValueError("Email is required.")
     return email

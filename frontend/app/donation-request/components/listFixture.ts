@@ -1,9 +1,7 @@
-import { DONATION_REQUEST_FIXTURE } from "./fixture";
-import { toDonationRequestRow } from "./listRow";
+import { DONATION_REQUEST_FIXTURE, samplePhotos } from "./fixture";
 import type {
   DonationRequest,
   DonationRequestItem,
-  DonationRequestRow,
   ItemReviewStatus,
 } from "./types";
 
@@ -92,7 +90,8 @@ function makeRequest(
     status: statuses[i],
     rejection_reason: statuses[i] === "REJECTED" ? "condition" : null,
     rejection_details: null,
-    photos: [],
+    // 1–5 photos per item, so photo strips vary across requests.
+    photos: samplePhotos(1 + ((index + i) % 5)),
   }));
 
   return {
@@ -122,10 +121,10 @@ function makeRequest(
 }
 
 /**
- * Seed requests for the donation-requests list. Stands in for GET /donations
- * until the database is provisioned. The first is the review-screen fixture,
- * so its row opens a working detail page; the rest are list-only placeholders
- * (the detail page only knows the fixture, so they 404).
+ * Seed requests for the donation-requests list and detail pages. Stands in for
+ * GET /donations until the database is provisioned. The first is the
+ * review-screen fixture; every request seeds the store, so each row opens its
+ * own detail page.
  */
 function makeRequests(): DonationRequest[] {
   const stages = STAGE_COUNTS.flatMap(([stage, count]) =>
@@ -136,5 +135,4 @@ function makeRequests(): DonationRequest[] {
   );
 }
 
-export const DONATION_REQUEST_ROWS: DonationRequestRow[] =
-  makeRequests().map(toDonationRequestRow);
+export const DONATION_REQUEST_SAMPLES: DonationRequest[] = makeRequests();

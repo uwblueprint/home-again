@@ -130,4 +130,15 @@ describe("countApproved", () => {
     ]);
     expect(countApproved(request)).toBe(2);
   });
+
+  it("counts items that moved past approval as approved", () => {
+    const request = makeRequest([
+      makeItem("a", "OFFERED"),
+      makeItem("b", "SCHEDULED"),
+      makeItem("c", "DELIVERED"),
+      makeItem("d", "CLOSED"),
+      makeItem("e", "REJECTED"),
+    ]);
+    expect(countApproved(request)).toBe(4);
+  });
 });

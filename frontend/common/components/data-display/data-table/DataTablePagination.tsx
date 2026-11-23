@@ -6,9 +6,22 @@ import {
   PaginationEllipsis,
   PaginationItem,
   PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
 } from "@/common/components/ui/pagination";
+import { cn } from "@/common/lib/utils";
+
+/** Previous / Next: text-only ghost buttons, per the design. */
+const STEP_CLASS =
+  "font-normal text-(--unofficial-ghost-foreground) disabled:opacity-50";
+
+/** Page numbers: 34×36, outlined when current, ghost otherwise. */
+function pageClass(isActive: boolean) {
+  return cn(
+    "h-9 w-8.5",
+    isActive
+      ? "border-(--unofficial-border-3) bg-(--unofficial-outline) text-foreground shadow-xs"
+      : "text-(--unofficial-ghost-foreground)"
+  );
+}
 
 interface DataTablePaginationProps {
   pageIndex: number;
@@ -57,12 +70,17 @@ export function DataTablePagination({
         {startRow} - {endRow} of {totalRows} results
       </p>
       <Pagination className="mx-0 w-fit justify-end">
-        <PaginationContent>
+        <PaginationContent className="gap-xs">
           <PaginationItem>
-            <PaginationPrevious
+            <PaginationLink
+              size="default"
+              aria-label="Go to previous page"
+              className={STEP_CLASS}
               disabled={!canPrevious}
               onClick={() => canPrevious && onPageChange(pageIndex - 1)}
-            />
+            >
+              Previous
+            </PaginationLink>
           </PaginationItem>
           {getPageNumbers(pageIndex + 1, pageCount).map((page, i) =>
             page === "..." ? (
@@ -73,6 +91,7 @@ export function DataTablePagination({
               <PaginationItem key={page}>
                 <PaginationLink
                   isActive={page === pageIndex + 1}
+                  className={pageClass(page === pageIndex + 1)}
                   onClick={() => onPageChange(page - 1)}
                 >
                   {page}
@@ -81,10 +100,15 @@ export function DataTablePagination({
             )
           )}
           <PaginationItem>
-            <PaginationNext
+            <PaginationLink
+              size="default"
+              aria-label="Go to next page"
+              className={STEP_CLASS}
               disabled={!canNext}
               onClick={() => canNext && onPageChange(pageIndex + 1)}
-            />
+            >
+              Next
+            </PaginationLink>
           </PaginationItem>
         </PaginationContent>
       </Pagination>

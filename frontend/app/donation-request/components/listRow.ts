@@ -20,25 +20,24 @@ export function summarizeItems(request: DonationRequest): string {
 /**
  * Which Filter menu options a request matches. Items past review count as
  * approved unless REJECTED (OFFERED, SCHEDULED, … all follow an approval).
- * "Partially approved" means a mix of approved and rejected items.
+ * The approval outcomes only apply once every item is reviewed; "Partially
+ * approved" means a finished review with a mix of approved and rejected items.
  */
 export function deriveOutcomes(
   request: DonationRequest
 ): DonationRequestOutcome[] {
   const items = request.furniture_items;
   const rejected = items.filter((item) => item.status === "REJECTED").length;
-  const approved = items.filter(
-    (item) => item.status !== "PICKUP_PENDING" && item.status !== "REJECTED"
-  ).length;
+  const approved = countApproved(request);
+  const fullyReviewed =
+    items.length > 0 && approved + rejected === items.length;
 
   const outcomes: DonationRequestOutcome[] = [];
-  if (items.length > 0 && approved === items.length) {
-    outcomes.push("fully_approved");
+  if (fullyReviewed && rejected === 0) outcomes.push("fully_approved");
+  if (fullyReviewed && approved === 0) outcomes.push("fully_rejected");
+  if (fullyReviewed && approved > 0 && rejected > 0) {
+    outcomes.push("partially_approved");
   }
-  if (items.length > 0 && rejected === items.length) {
-    outcomes.push("fully_rejected");
-  }
-  if (approved > 0 && rejected > 0) outcomes.push("partially_approved");
   outcomes.push(request.pickup?.scheduled_date ? "scheduled" : "unscheduled");
   return outcomes;
 }

@@ -4,13 +4,14 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
-  DONATION_REQUEST_ROWS,
   OUTCOME_FILTER_OPTIONS,
   donationRequestColumns,
   donationRequestHiddenColumns,
+  toDonationRequestRow,
   type DonationRequestRow,
   type ReviewStatus,
 } from "@/app/donation-request/components";
+import { useDonationRequestStore } from "@/app/donation-request/stores/donationRequestStore";
 import { DataTable } from "@/common/components/data-display";
 import { AdminHeader } from "@/common/components/layout";
 import { AdminSidebar } from "@/common/components/ui/admin-sidebar";
@@ -33,24 +34,6 @@ const TABS: { value: TabValue; label: string; statuses?: ReviewStatus[] }[] = [
   { value: "reviewed", label: "Reviewed", statuses: ["reviewed", "scheduled"] },
 ];
 
-const SORT_OPTIONS = [
-  {
-    value: "oldest",
-    label: "Date submitted (oldest)",
-    sorting: [{ id: "dateSubmitted", desc: false }],
-  },
-  {
-    value: "newest",
-    label: "Date submitted (newest)",
-    sorting: [{ id: "dateSubmitted", desc: true }],
-  },
-  {
-    value: "donor_az",
-    label: "Donor name (A-Z)",
-    sorting: [{ id: "donorName", desc: false }],
-  },
-];
-
 function rowsForTab(rows: DonationRequestRow[], tab: TabValue) {
   const statuses = TABS.find((t) => t.value === tab)?.statuses;
   return statuses ? rows.filter((row) => statuses.includes(row.status)) : rows;
@@ -61,9 +44,17 @@ export default function DonationRequestsPage() {
   const [headerSearch, setHeaderSearch] = useState("");
   const [tab, setTab] = useState<TabValue>("all");
 
-  // Swap for the API's requests mapped through toDonationRequestRow once
-  // GET /donations is wired up.
-  const rows = DONATION_REQUEST_ROWS;
+  // Read from the review store so approvals made on the detail page show up
+  // here. Swap for the API's requests once GET /donations is wired up.
+  const requests = useDonationRequestStore((state) => state.requests);
+  // Oldest first until a column header's sort arrow is clicked.
+  const rows = useMemo(
+    () =>
+      Object.values(requests)
+        .map(toDonationRequestRow)
+        .sort((a, b) => a.submittedAt.localeCompare(b.submittedAt)),
+    [requests]
+  );
   // Memoized: a new array would send the table back to page 1 on every render.
   const visibleRows = useMemo(() => rowsForTab(rows, tab), [rows, tab]);
 
@@ -88,7 +79,6 @@ export default function DonationRequestsPage() {
             toolbarPlacement="outside"
             searchPlaceholder="Search for donation"
             emptyStateMessage="No donation requests found"
-            sortOptions={SORT_OPTIONS}
             filters={[
               {
                 columnId: "outcomes",

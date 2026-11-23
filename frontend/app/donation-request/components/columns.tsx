@@ -8,6 +8,7 @@ import {
   PendingReviewBadge,
   ScheduledBadge,
 } from "@/common/components/status-labels";
+import { DataTableColumnHeader } from "@/common/components/data-display";
 import { formatDayMonthYear, formatShortDate } from "@/common/utils/DateUtils";
 import type {
   DonationRequestOutcome,
@@ -69,19 +70,32 @@ const matchesAnyOutcome: FilterFn<DonationRequestRow> = (
 };
 
 export const donationRequestColumns: ColumnDef<DonationRequestRow>[] = [
-  { accessorKey: "donorName", header: "Donor Name" },
-  { accessorKey: "requestId", header: "Request ID" },
+  {
+    accessorKey: "donorName",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Donor Name" />
+    ),
+  },
+  {
+    accessorKey: "requestId",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Request ID" />
+    ),
+  },
   {
     id: "dateSubmitted",
     // Display string so search matches what users see; sort on the ISO date.
     accessorFn: (row) => formatDayMonthYear(row.submittedAt),
     sortingFn: (a, b) =>
       a.original.submittedAt.localeCompare(b.original.submittedAt),
-    header: "Date Submitted",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Date Submitted" />
+    ),
   },
   {
     accessorKey: "items",
     header: "Items",
+    enableSorting: false,
     cell: ({ row }) => (
       <span className="block max-w-56 truncate" title={row.original.items}>
         {row.original.items}
@@ -93,6 +107,7 @@ export const donationRequestColumns: ColumnDef<DonationRequestRow>[] = [
     header: "Status",
     // Badge text isn't the raw status, so keep it out of search.
     enableGlobalFilter: false,
+    enableSorting: false,
     cell: ({ row }) => (
       <ReviewStatusBadge
         status={row.original.status}

@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 
+import { useDonationRequestStore } from "@/app/donation-request/stores/donationRequestStore";
 import DonationRequestsPage from "../page";
 
 const mockPush = jest.fn();
@@ -33,7 +34,10 @@ beforeAll(() => {
 });
 
 describe("DonationRequestsPage", () => {
-  beforeEach(() => mockPush.mockReset());
+  beforeEach(() => {
+    mockPush.mockReset();
+    useDonationRequestStore.getState().reset();
+  });
 
   it("shows the review-status tabs with counts", () => {
     render(<DonationRequestsPage />);
@@ -58,6 +62,26 @@ describe("DonationRequestsPage", () => {
   it("sorts oldest first by default", () => {
     render(<DonationRequestsPage />);
     expect(within(rows()[0]).getByText("18 January 2026")).toBeInTheDocument();
+  });
+
+  it("has no Sort menu; sorts from the column headers instead", () => {
+    render(<DonationRequestsPage />);
+    expect(screen.queryByRole("button", { name: "Sort" })).toBeNull();
+
+    const dateHeader = screen.getByRole("button", { name: /Date Submitted/ });
+    fireEvent.click(dateHeader); // ascending
+    fireEvent.click(dateHeader); // descending
+    expect(within(rows()[0]).getByText("22 March 2026")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Donor Name/ }));
+    expect(within(rows()[0]).getByText("Ahmed Hassan")).toBeInTheDocument();
+  });
+
+  it("only offers sorting on donor, request ID and date", () => {
+    render(<DonationRequestsPage />);
+    for (const name of ["Items", "Status"]) {
+      expect(screen.queryByRole("button", { name })).toBeNull();
+    }
   });
 
   it("filters rows by tab", () => {
@@ -103,5 +127,22 @@ describe("DonationRequestsPage", () => {
     });
     fireEvent.click(screen.getByText("Katie Sun"));
     expect(mockPush).toHaveBeenCalledWith("/donation-request/donation-req-001");
+  });
+
+  it("opens the clicked request, not just the first one", () => {
+    render(<DonationRequestsPage />);
+    fireEvent.click(screen.getByText("DR-2026-0109"));
+    expect(mockPush).toHaveBeenCalledWith("/donation-request/donation-req-010");
+  });
+
+  it("reflects reviews made in the store", () => {
+    const { requests, approveItem } = useDonationRequestStore.getState();
+    for (const item of requests["donation-req-001"].furniture_items) {
+      approveItem("donation-req-001", item.id);
+    }
+
+    render(<DonationRequestsPage />);
+    expect(screen.getByRole("tab", { name: "Pending (11)" })).toBeVisible();
+    expect(screen.getByRole("tab", { name: "Reviewed (51)" })).toBeVisible();
   });
 });

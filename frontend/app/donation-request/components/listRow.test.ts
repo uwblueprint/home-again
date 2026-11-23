@@ -79,6 +79,15 @@ describe("deriveOutcomes", () => {
       ],
       ["unscheduled"],
     ],
+    [
+      "a mix that is still under review",
+      [
+        ["Sofa", "APPROVED"],
+        ["Chair", "REJECTED"],
+        ["Lamp", "PICKUP_PENDING"],
+      ],
+      ["unscheduled"],
+    ],
     ["no items", [], ["unscheduled"]],
   ])("handles %s", (_case, items, expected) => {
     expect(deriveOutcomes(withItems(items))).toEqual(expected);
@@ -102,6 +111,17 @@ describe("toDonationRequestRow", () => {
     );
     expect(row.status).toBe("reviewed");
     expect([row.approvedCount, row.itemCount]).toEqual([2, 4]);
+  });
+
+  it("counts items past approval as approved", () => {
+    const row = toDonationRequestRow(
+      withItems([
+        ["Sofa", "OFFERED"],
+        ["Chair", "SCHEDULED"],
+      ])
+    );
+    expect([row.approvedCount, row.itemCount]).toEqual([2, 2]);
+    expect(row.outcomes).toContain("fully_approved");
   });
 
   it("flattens the request", () => {

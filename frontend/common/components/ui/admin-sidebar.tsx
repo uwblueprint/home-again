@@ -25,6 +25,7 @@ import {
 } from "@/common/components/ui/sidebar-icons";
 import { SidebarNavShell } from "@/common/components/ui/sidebar-nav-shell";
 import {
+  ADMIN_DONORS,
   DONATION_REQUESTS,
   REFERRAL_REQUESTS,
 } from "@/common/constants/Routes";
@@ -55,6 +56,7 @@ const ADMIN_NAV_ITEMS: {
   >;
   label: string;
   icon: SidebarIconComponent;
+  href?: string;
 }[] = [
   {
     id: "routes-and-scheduling",
@@ -62,7 +64,12 @@ const ADMIN_NAV_ITEMS: {
     icon: SidebarRoutesAndSchedulingIcon,
   },
   { id: "agencies", label: "Agencies", icon: SidebarAgenciesIcon },
-  { id: "donors", label: "Donors", icon: SidebarPeopleIcon },
+  {
+    id: "donors",
+    label: "Donors",
+    icon: SidebarPeopleIcon,
+    href: ADMIN_DONORS,
+  },
   { id: "furniture", label: "Furniture", icon: SidebarFurnitureIcon },
   { id: "reports", label: "Reports", icon: SidebarReportsIcon },
   {
@@ -140,9 +147,13 @@ function AdminSidebar({
           </SidebarMenuSub>
         ) : null}
       </SidebarMenuItem>
-      {ADMIN_NAV_ITEMS.map(({ id, label, icon: Icon }) => (
+      {ADMIN_NAV_ITEMS.map(({ id, label, icon: Icon, href }) => (
         <SidebarMenuItem key={id}>
-          <SidebarMenuButton isActive={activeItem === id} tooltip={label}>
+          <SidebarMenuButton
+            isActive={activeItem === id}
+            tooltip={label}
+            render={href ? <Link href={href} /> : undefined}
+          >
             <Icon />
             <span>{label}</span>
           </SidebarMenuButton>

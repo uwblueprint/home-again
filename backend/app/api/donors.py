@@ -7,10 +7,12 @@ from ..database import get_db
 from ..models import Donor
 from ..schemas import DonationDetail
 from ..schemas import Donor as DonorSchema
-from ..schemas import DonorCreate, DonorListItem, DonorUpdate
+from ..schemas import DonorCreate, DonorListItem, DonorRef, DonorUpdate
 from ..services import donations_service, donor_service
 
 router = APIRouter()
+# Anonymous donate form submission (mounted on public_router).
+public_router = APIRouter()
 
 
 async def get_donor_or_404(donor_id: str, db: AsyncSession = Depends(get_db)) -> Donor:
@@ -27,12 +29,16 @@ async def list_donors(db: AsyncSession = Depends(get_db)):
     return await donor_service.list_donors(db)
 
 
-@router.post("", response_model=DonorSchema, status_code=status.HTTP_201_CREATED)
+@public_router.post("", response_model=DonorRef, status_code=status.HTTP_201_CREATED)
 async def create_donor(payload: DonorCreate, db: AsyncSession = Depends(get_db)):
+    """
+    Start a donation as this donor; the donate form calls this before login.
+
+    A returning donor (same email) gets their existing id. Only the id comes
+    back, so an anonymous caller can't read a donor's details by email.
+    """
     try:
-        return await donor_service.create_donor(db, payload)
-    except donor_service.DonorEmailTaken as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+        return await donor_service.get_or_create_donor(db, payload)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 

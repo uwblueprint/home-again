@@ -18,9 +18,11 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
+    text,
 )
 from sqlalchemy.orm import relationship
 
@@ -136,6 +138,17 @@ class Donor(Base):
     """Donor who provides furniture."""
 
     __tablename__ = "donors"
+    __table_args__ = (
+        # Email identifies a donor (stored trimmed and lowercased). Legacy rows
+        # with no email ('') are exempt.
+        Index(
+            "ix_donors_email",
+            "email",
+            unique=True,
+            postgresql_where=text("email <> ''"),
+            sqlite_where=text("email <> ''"),
+        ),
+    )
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     first_name = Column(String(100), nullable=False)

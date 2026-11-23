@@ -194,3 +194,52 @@ async def test_list_donor_donations_empty(client):
 async def test_list_donor_donations_unknown_donor(client):
     resp = await client.get("/api/donors/nonexistent/donations")
     assert resp.status_code == 404
+
+
+async def test_create_donor_stores_email_trimmed_and_lowercased(client):
+    data = await create_donor(client, email="  Mixed.Case@Example.com ")
+    assert data["email"] == "mixed.case@example.com"
+
+
+async def test_create_donor_duplicate_email(client):
+    await create_donor(client, email="taken@example.com")
+    resp = await client.post(
+        "/api/donors", json={**DONOR_BASE, "email": " TAKEN@example.com"}
+    )
+    assert resp.status_code == 409
+    assert resp.json()["detail"] == "A donor with this email already exists."
+
+
+async def test_create_donor_blank_email(client):
+    resp = await client.post("/api/donors", json={**DONOR_BASE, "email": "   "})
+    assert resp.status_code == 422
+
+
+async def test_update_donor_to_taken_email(client):
+    await create_donor(client, email="owner@example.com")
+    other = await create_donor(client, email="mover@example.com")
+    resp = await client.put(
+        f"/api/donors/{other['id']}", json={"email": "Owner@example.com"}
+    )
+    assert resp.status_code == 409
+
+
+async def test_update_donor_keeps_own_email(client):
+    donor = await create_donor(client, email="same@example.com")
+    resp = await client.put(
+        f"/api/donors/{donor['id']}",
+        json={"email": "SAME@example.com", "phone": "555-9999"},
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["email"] == "same@example.com"
+    assert resp.json()["phone"] == "555-9999"
+
+
+async def test_update_donor_own_email_with_other_error_is_not_409(client):
+    donor = await create_donor(client, email="own_error@example.com")
+    resp = await client.put(
+        f"/api/donors/{donor['id']}",
+        json={"email": "own_error@example.com", "first_name": None},
+    )
+    # The NOT NULL failure is reported as itself, not as a taken email.
+    assert resp.status_code == 400, resp.text

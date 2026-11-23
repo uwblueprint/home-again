@@ -145,4 +145,14 @@ describe("DonationRequestsPage", () => {
     expect(screen.getByRole("tab", { name: "Pending (11)" })).toBeVisible();
     expect(screen.getByRole("tab", { name: "Reviewed (51)" })).toBeVisible();
   });
+
+  it("links both Referrals & Donations sidebar items to their pages", () => {
+    render(<DonationRequestsPage />);
+    expect(
+      screen.getByRole("link", { name: "Donation Requests" })
+    ).toHaveAttribute("href", "/donation-request");
+    expect(
+      screen.getByRole("link", { name: "Client Referrals" })
+    ).toHaveAttribute("href", "/client-referrals");
+  });
 });

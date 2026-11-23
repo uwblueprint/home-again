@@ -83,12 +83,19 @@ export interface DonorListItem extends Donor {
   last_donated_at: string | null;
 }
 
-/** Mirrors backend `DonationReviewStatus`: derived server-side, never stored. */
+/**
+ * Mirrors backend `DonationReviewStatus`: where a donation request is, from
+ * review through to pickup. Derived server-side, never stored.
+ */
 export type DonationReviewStatus =
   | "pending_review"
   | "partially_reviewed"
-  | "reviewed"
-  | "scheduled";
+  | "approved"
+  | "partially_approved"
+  | "rejected"
+  | "scheduled"
+  | "confirmed"
+  | "picked_up";
 
 /** Mirrors backend `FurniturePhoto`. */
 export interface FurniturePhoto {
@@ -153,6 +160,9 @@ export interface DonationDetail {
   created_at: string;
   updated_at: string;
   review_status: DonationReviewStatus;
+  /** Items past approval, for "Approved n/m". */
+  approved_count: number;
+  item_count: number;
   donor: Donor | null;
   furniture_items: DonationItemDetail[];
   pickup: Pickup | null;

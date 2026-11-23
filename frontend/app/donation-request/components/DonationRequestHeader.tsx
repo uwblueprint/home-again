@@ -6,16 +6,20 @@ import { Button } from "@/common/components/ui/button";
 import { Skeleton } from "@/common/components/ui/skeleton";
 import {
   ApprovalsLabel,
+  ConfirmedBadge,
   PartiallyReviewedBadge,
   PendingReviewBadge,
+  PickedUpBadge,
+  RejectedBadge,
   ScheduledBadge,
 } from "@/common/components/status-labels";
+import type { DonationReviewStatus } from "@/common/types";
 import { formatDate, formatShortDate } from "@/common/utils/DateUtils";
-import type { DonationRequest, ReviewStatus } from "./types";
+import type { DonationRequest } from "./types";
 
 interface DonationRequestHeaderProps {
   request: DonationRequest;
-  reviewStatus: ReviewStatus;
+  reviewStatus: DonationReviewStatus;
   approvedCount: number;
   totalItems: number;
   onSchedulePickup: () => void;
@@ -33,11 +37,8 @@ function ReviewStatusIndicator({
       return <PendingReviewBadge />;
     case "partially_reviewed":
       return <PartiallyReviewedBadge />;
-    case "reviewed":
-      // Every item rejected: there is nothing to pick up, so skip scheduling.
-      if (approvedCount === 0) {
-        return <ApprovalsLabel approved={0} total={totalItems} />;
-      }
+    case "approved":
+    case "partially_approved":
       return (
         <div className="flex items-center gap-md">
           <Button variant="outline" onClick={onSchedulePickup}>
@@ -57,6 +58,13 @@ function ReviewStatusIndicator({
           }
         />
       );
+    case "confirmed":
+      return <ConfirmedBadge />;
+    case "rejected":
+      // Every item rejected: there is nothing to pick up, so no scheduling.
+      return <RejectedBadge />;
+    case "picked_up":
+      return <PickedUpBadge />;
   }
 }
 

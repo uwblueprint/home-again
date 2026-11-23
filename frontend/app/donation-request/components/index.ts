@@ -21,7 +21,12 @@ export { DonationItemCard, DonationItemCardSkeleton } from "./DonationItemCard";
 export { ScheduledPickupCard } from "./ScheduledPickupCard";
 export { SchedulePickupDialog } from "./SchedulePickupDialog";
 export { ConfirmPickupDateDialog } from "./ConfirmPickupDateDialog";
-export { deriveReviewStatus, countApproved, isApproved } from "./reviewStatus";
+export {
+  deriveReviewStatus,
+  deriveDonationReviewStatus,
+  countApproved,
+  isApproved,
+} from "./reviewStatus";
 export * from "./types";
 export { toDonationRequest } from "./toDonationRequest";
 export {

@@ -31,6 +31,8 @@ async def list_donors(db: AsyncSession = Depends(get_db)):
 async def create_donor(payload: DonorCreate, db: AsyncSession = Depends(get_db)):
     try:
         return await donor_service.create_donor(db, payload)
+    except donor_service.DonorEmailTaken as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
@@ -58,6 +60,8 @@ async def update_donor(
 ):
     try:
         return await donor_service.update_donor(db, donor, payload)
+    except donor_service.DonorEmailTaken as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 

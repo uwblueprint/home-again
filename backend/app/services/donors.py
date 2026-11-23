@@ -12,6 +12,18 @@ from ..schemas import DonorCreate, DonorListItem, DonorUpdate
 logger = logging.getLogger(__name__)
 
 
+class DonorEmailTaken(ValueError):
+    """Another donor already has this email."""
+
+    def __init__(self) -> None:
+        super().__init__("A donor with this email already exists.")
+
+
+async def get_donor_by_email(db: AsyncSession, email: str) -> Donor | None:
+    result = await db.execute(select(Donor).where(Donor.email == email))
+    return result.scalar_one_or_none()
+
+
 async def list_donors(db: AsyncSession) -> list[DonorListItem]:
     """
     All donors with their donation count and latest donation date, by name.
@@ -36,12 +48,17 @@ async def get_donor(db: AsyncSession, donor_id: str) -> Donor | None:
 
 
 async def create_donor(db: AsyncSession, payload: DonorCreate) -> Donor:
+    if await get_donor_by_email(db, payload.email):
+        raise DonorEmailTaken()
     db_donor = Donor(**payload.model_dump())
     db.add(db_donor)
     try:
         await db.commit()
     except IntegrityError as e:
         await db.rollback()
+        # Another request may have added the same email since the check above.
+        if await get_donor_by_email(db, payload.email):
+            raise DonorEmailTaken() from e
         logger.exception("IntegrityError creating donor: %s", e.orig)
         raise ValueError(f"Unable to create donor: {str(e.orig)}") from e
     await db.refresh(db_donor)
@@ -52,12 +69,18 @@ async def update_donor(db: AsyncSession, donor: Donor, payload: DonorUpdate) -> 
     data = payload.model_dump(exclude_unset=True)
     if not data:
         raise ValueError("No update fields were provided.")
+    new_email = data.get("email")
+    if new_email and new_email != donor.email:
+        if await get_donor_by_email(db, new_email):
+            raise DonorEmailTaken()
     for key, value in data.items():
         setattr(donor, key, value)
     try:
         await db.commit()
     except IntegrityError as e:
         await db.rollback()
+        if new_email and await get_donor_by_email(db, new_email):
+            raise DonorEmailTaken() from e
         logger.exception("IntegrityError updating donor %s: %s", donor.id, e.orig)
         raise ValueError(f"Unable to update donor: {str(e.orig)}") from e
     await db.refresh(donor)

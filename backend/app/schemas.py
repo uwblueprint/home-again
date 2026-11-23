@@ -163,8 +163,18 @@ class DonorBase(BaseModel):
     phone: str
 
 
+def _normalize_donor_email(value: Optional[str]) -> Optional[str]:
+    """Email identifies a donor, so store it trimmed and lowercased."""
+    if value is None:
+        return None
+    email = value.strip().lower()
+    if not email:
+        raise ValueError("Email is required.")
+    return email
+
+
 class DonorCreate(DonorBase):
-    pass
+    _normalize_email = field_validator("email")(_normalize_donor_email)
 
 
 class DonorUpdate(BaseModel):
@@ -172,6 +182,8 @@ class DonorUpdate(BaseModel):
     last_name: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
+
+    _normalize_email = field_validator("email")(_normalize_donor_email)
 
 
 class Donor(DonorBase):

@@ -1,8 +1,11 @@
 import { StatusCard } from "./StatusCard";
 
+type AdminRole = "Admin" | "Superadmin";
+
 type RoleChangeCardProps = {
   firstName: string;
   lastName: string;
+  role: AdminRole;
   onClose: () => void;
 };
 
@@ -21,13 +24,14 @@ function HappyFaceIcon() {
 export function RoleChangeCard({
   firstName,
   lastName,
+  role,
   onClose,
 }: RoleChangeCardProps) {
   return (
     <StatusCard
       icon={<HappyFaceIcon />}
       title="Role change successful"
-      message={`${firstName} ${lastName} is now a Superadmin..`}
+      message={`${firstName} ${lastName} is now a ${role}.`}
       onClose={onClose}
     />
   );

@@ -154,3 +154,25 @@ describe("multiple requests", () => {
     expect(store().requests).toBe(before);
   });
 });
+
+describe("adding a fetched request", () => {
+  const fetched = () => ({ ...request(), id: "donation-xyz" });
+
+  it("adds a request it doesn't have", () => {
+    const next = fetched();
+    store().addRequest(next);
+
+    expect(store().requests["donation-xyz"]).toBe(next);
+  });
+
+  it("keeps the edited copy when the same request is added again", () => {
+    store().addRequest(fetched());
+    const [itemId] = itemIds();
+    store().approveItem("donation-xyz", itemId);
+    const edited = store().requests["donation-xyz"];
+
+    store().addRequest(fetched());
+
+    expect(store().requests["donation-xyz"]).toBe(edited);
+  });
+});

@@ -17,9 +17,19 @@ import { DONATION_REQUEST_SAMPLES } from "@/app/donation-request/components/list
  * (PR: donation request review schema), so these actions map one-to-one onto
  * the future endpoints (approve, reject, schedule pickup, confirm). Requests
  * are keyed by id so the list reflects reviews made on the detail page.
+ *
+ * A request fetched from GET /donations/{id}/detail lives in TanStack Query,
+ * not here: the detail page adds it with `addRequest` on its first edit, and
+ * from then on the store's copy holds the unsaved review edits.
  */
 interface DonationRequestStore {
   requests: Record<string, DonationRequest>;
+
+  /**
+   * Adds a request to edit. A no-op when the id is already present, so a
+   * refetch can't overwrite edits made to the store's copy.
+   */
+  addRequest: (request: DonationRequest) => void;
 
   approveItem: (requestId: string, itemId: string) => void;
   rejectItem: (
@@ -69,6 +79,13 @@ function updateRequest(
 
 export const useDonationRequestStore = create<DonationRequestStore>((set) => ({
   requests: seedRequests(),
+
+  addRequest: (request) =>
+    set((state) =>
+      state.requests[request.id]
+        ? {}
+        : { requests: { ...state.requests, [request.id]: request } }
+    ),
 
   approveItem: (requestId, itemId) =>
     set((state) =>

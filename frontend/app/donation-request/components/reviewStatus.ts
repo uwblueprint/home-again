@@ -1,3 +1,4 @@
+import type { DonationReviewStatus } from "@/common/types";
 import type { DonationRequest, ReviewStatus } from "./types";
 
 /**
@@ -41,4 +42,34 @@ export const isApproved = (status: string) =>
 export function countApproved(request: DonationRequest): number {
   return request.furniture_items.filter((item) => isApproved(item.status))
     .length;
+}
+
+/**
+ * The backend's full `DonationReviewStatus` for a request, mirroring
+ * services.donations.compute_review_status. The detail page shows the
+ * server's review_status, and uses this only once local review edits have made
+ * it stale. `pickedUp` stands in for the donation's COMPLETED status, which
+ * the view model doesn't carry.
+ */
+export function deriveDonationReviewStatus(
+  request: DonationRequest,
+  pickedUp = false
+): DonationReviewStatus {
+  // Picked up is final, whatever the items say.
+  if (pickedUp) return "picked_up";
+
+  const items = request.furniture_items;
+  const reviewed = items.filter((item) => isReviewed(item.status));
+
+  if (items.length === 0 || reviewed.length === 0) return "pending_review";
+  if (reviewed.length < items.length) return "partially_reviewed";
+
+  const approved = countApproved(request);
+  if (approved === 0) return "rejected";
+
+  // As in deriveReviewStatus, scheduling only outranks a finished review.
+  if (request.pickup?.scheduled_date) {
+    return request.pickup.confirmed_at ? "confirmed" : "scheduled";
+  }
+  return approved === items.length ? "approved" : "partially_approved";
 }

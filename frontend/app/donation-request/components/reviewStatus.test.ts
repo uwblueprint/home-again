@@ -1,4 +1,8 @@
-import { deriveReviewStatus, countApproved } from "./reviewStatus";
+import {
+  deriveReviewStatus,
+  deriveDonationReviewStatus,
+  countApproved,
+} from "./reviewStatus";
 import type {
   DonationRequest,
   DonationRequestItem,
@@ -140,5 +144,59 @@ describe("countApproved", () => {
       makeItem("e", "REJECTED"),
     ]);
     expect(countApproved(request)).toBe(4);
+  });
+});
+
+describe("deriveDonationReviewStatus", () => {
+  const items = (...statuses: ItemReviewStatus[]) =>
+    statuses.map((status, i) => makeItem(`i${i}`, status));
+
+  it.each<[string, ItemReviewStatus[], string]>([
+    [
+      "nothing reviewed",
+      ["PICKUP_PENDING", "PICKUP_PENDING"],
+      "pending_review",
+    ],
+    ["some reviewed", ["APPROVED", "PICKUP_PENDING"], "partially_reviewed"],
+    ["every item approved", ["APPROVED", "DELIVERED"], "approved"],
+    [
+      "some approved, some rejected",
+      ["APPROVED", "REJECTED"],
+      "partially_approved",
+    ],
+    ["every item rejected", ["REJECTED", "REJECTED"], "rejected"],
+  ])("%s → %s", (_label, statuses, expected) => {
+    expect(deriveDonationReviewStatus(makeRequest(items(...statuses)))).toBe(
+      expected
+    );
+  });
+
+  it("shows a booked pickup as scheduled, then confirmed", () => {
+    const approved = items("APPROVED", "REJECTED");
+    expect(
+      deriveDonationReviewStatus(makeRequest(approved, SCHEDULED_PICKUP))
+    ).toBe("scheduled");
+    expect(
+      deriveDonationReviewStatus(
+        makeRequest(approved, {
+          ...SCHEDULED_PICKUP!,
+          confirmed_at: "2026-03-20T00:00:00",
+        })
+      )
+    ).toBe("confirmed");
+  });
+
+  it("keeps a fully rejected request rejected, even with a pickup", () => {
+    expect(
+      deriveDonationReviewStatus(
+        makeRequest(items("REJECTED"), SCHEDULED_PICKUP)
+      )
+    ).toBe("rejected");
+  });
+
+  it("reports picked up over everything else", () => {
+    expect(
+      deriveDonationReviewStatus(makeRequest(items("PICKUP_PENDING")), true)
+    ).toBe("picked_up");
   });
 });

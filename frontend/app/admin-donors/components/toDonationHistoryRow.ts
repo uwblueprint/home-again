@@ -5,8 +5,7 @@ import type { DonationHistoryRow } from "./HistoryTableColumns";
 
 /**
  * The badge a donor's donation shows in their history, from most to least
- * final: picked up or cancelled, then fully rejected, then how far review has
- * got.
+ * final: picked up or cancelled, then the backend's review status.
  */
 function historyStatus(donation: DonationDetail): DonationHistoryStatus {
   if (donation.status === "completed") return "picked_up";
@@ -14,15 +13,17 @@ function historyStatus(donation: DonationDetail): DonationHistoryStatus {
   // badge is here so the history already shows it.
   if (donation.status === "cancelled") return "cancelled";
 
-  const items = donation.furniture_items;
-  if (items.length > 0 && items.every((item) => item.status === "REJECTED")) {
-    return "rejected";
-  }
-
   switch (donation.review_status) {
+    case "picked_up":
+      return "picked_up";
+    case "rejected":
+      return "rejected";
+    case "confirmed":
+      return "confirmed";
     case "scheduled":
-      return donation.pickup?.confirmed_at ? "confirmed" : "scheduled_by";
-    case "reviewed":
+      return "scheduled_by";
+    case "approved":
+    case "partially_approved":
       return "approved_fraction";
     case "partially_reviewed":
       return "partially_reviewed";

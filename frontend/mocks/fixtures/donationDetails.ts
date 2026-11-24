@@ -71,6 +71,8 @@ export const donationDetails: DonationDetail[] = [
     created_at: "2026-03-14T15:00:00",
     updated_at: "2026-03-14T15:00:00",
     review_status: "pending_review",
+    approved_count: 0,
+    item_count: 2,
     donor: donorFor("donor-001"),
     furniture_items: [
       item("item-001-a", "donation-001", "Queen Bed Frame", "PICKUP_PENDING"),
@@ -93,6 +95,8 @@ export const donationDetails: DonationDetail[] = [
     created_at: "2026-02-20T15:00:00",
     updated_at: "2026-02-22T15:00:00",
     review_status: "scheduled",
+    approved_count: 1,
+    item_count: 2,
     donor: donorFor("donor-002"),
     furniture_items: [
       item(
@@ -131,7 +135,9 @@ export const donationDetails: DonationDetail[] = [
     has_pets: false,
     created_at: "2026-01-05T15:00:00",
     updated_at: "2026-01-20T15:00:00",
-    review_status: "reviewed",
+    review_status: "picked_up",
+    approved_count: 1,
+    item_count: 1,
     donor: donorFor("donor-003"),
     furniture_items: [
       item("item-003-a", "donation-003", "Bookshelf", "DELIVERED"),

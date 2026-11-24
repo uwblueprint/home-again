@@ -3,18 +3,23 @@
 import { CalendarDays } from "lucide-react";
 
 import { Button } from "@/common/components/ui/button";
+import { Skeleton } from "@/common/components/ui/skeleton";
 import {
   ApprovalsLabel,
+  ConfirmedBadge,
   PartiallyReviewedBadge,
   PendingReviewBadge,
+  PickedUpBadge,
+  RejectedBadge,
   ScheduledBadge,
 } from "@/common/components/status-labels";
+import type { DonationReviewStatus } from "@/common/types";
 import { formatDate, formatShortDate } from "@/common/utils/DateUtils";
-import type { DonationRequest, ReviewStatus } from "./types";
+import type { DonationRequest } from "./types";
 
 interface DonationRequestHeaderProps {
   request: DonationRequest;
-  reviewStatus: ReviewStatus;
+  reviewStatus: DonationReviewStatus;
   approvedCount: number;
   totalItems: number;
   onSchedulePickup: () => void;
@@ -32,11 +37,8 @@ function ReviewStatusIndicator({
       return <PendingReviewBadge />;
     case "partially_reviewed":
       return <PartiallyReviewedBadge />;
-    case "reviewed":
-      // Every item rejected: there is nothing to pick up, so skip scheduling.
-      if (approvedCount === 0) {
-        return <ApprovalsLabel approved={0} total={totalItems} />;
-      }
+    case "approved":
+    case "partially_approved":
       return (
         <div className="flex items-center gap-md">
           <Button variant="outline" onClick={onSchedulePickup}>
@@ -56,6 +58,13 @@ function ReviewStatusIndicator({
           }
         />
       );
+    case "confirmed":
+      return <ConfirmedBadge />;
+    case "rejected":
+      // Every item rejected: there is nothing to pick up, so no scheduling.
+      return <RejectedBadge />;
+    case "picked_up":
+      return <PickedUpBadge />;
   }
 }
 
@@ -80,4 +89,19 @@ function DonationRequestHeader(props: DonationRequestHeaderProps) {
   );
 }
 
-export { DonationRequestHeader };
+/** Placeholder for `DonationRequestHeader` while the request loads. */
+function DonationRequestHeaderSkeleton() {
+  return (
+    <div className="flex items-start justify-between gap-lg">
+      <div className="flex flex-col gap-sm">
+        <h1 className="text-heading-2 font-semibold text-foreground">
+          Donation Request
+        </h1>
+        <Skeleton className="h-4 w-56" />
+      </div>
+      <Skeleton className="mt-1 h-5 w-28 rounded-lg" />
+    </div>
+  );
+}
+
+export { DonationRequestHeader, DonationRequestHeaderSkeleton };

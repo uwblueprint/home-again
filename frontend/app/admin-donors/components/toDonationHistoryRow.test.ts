@@ -41,7 +41,8 @@ describe("toDonationHistoryRow", () => {
   it.each([
     ["pending_review", "pending_review"],
     ["partially_reviewed", "partially_reviewed"],
-    ["reviewed", "approved_fraction"],
+    ["approved", "approved_fraction"],
+    ["partially_approved", "approved_fraction"],
   ] as const)("shows %s review as %s", (reviewStatus, expected) => {
     const donation = makeDonation({
       review_status: reviewStatus,
@@ -58,7 +59,7 @@ describe("toDonationHistoryRow", () => {
     expect(toDonationHistoryRow(scheduled).status).toBe("scheduled_by");
 
     const confirmed = makeDonation({
-      review_status: "scheduled",
+      review_status: "confirmed",
       pickup: { ...scheduledPickup, confirmed_at: "2026-03-16T00:00:00" },
     });
     expect(toDonationHistoryRow(confirmed).status).toBe("confirmed");
@@ -66,7 +67,7 @@ describe("toDonationHistoryRow", () => {
 
   it("counts only approved items", () => {
     const donation = makeDonation({
-      review_status: "reviewed",
+      review_status: "partially_approved",
       furniture_items: withItemStatuses("APPROVED", "REJECTED", "APPROVED"),
     });
     const row = toDonationHistoryRow(donation);
@@ -76,7 +77,7 @@ describe("toDonationHistoryRow", () => {
 
   it("still counts items that moved on after approval", () => {
     const donation = makeDonation({
-      review_status: "reviewed",
+      review_status: "partially_approved",
       furniture_items: withItemStatuses(
         "APPROVED",
         "DELIVERED",
@@ -101,7 +102,7 @@ describe("toDonationHistoryRow", () => {
 
   it("shows rejected when every item was rejected", () => {
     const donation = makeDonation({
-      review_status: "reviewed",
+      review_status: "rejected",
       furniture_items: withItemStatuses("REJECTED", "REJECTED"),
     });
     expect(toDonationHistoryRow(donation).status).toBe("rejected");

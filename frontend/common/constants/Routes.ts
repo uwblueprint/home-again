@@ -5,6 +5,7 @@
 
 export const HOME_PAGE = "/";
 export const LOGIN_PAGE = "/login";
+export const SET_PASSWORD = "/set-password";
 export const AGENT_INTAKE = "/agent-intake";
 export const AGENT_DASH = "/agent-dash";
 export const AGENT_DASH_PROFILE = "/agent-dash/profile";

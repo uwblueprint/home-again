@@ -10,7 +10,7 @@ from httpx import ASGITransport, AsyncClient
 from app.auth import CurrentUser, get_current_user
 from app.database import get_db
 from app.models import Admin, Agency, Agent
-from app.roles import require_agency_admin, require_staff
+from app.roles import require_agency_admin, require_agency_member, require_staff
 
 
 @pytest.fixture
@@ -75,6 +75,7 @@ async def role_data(db_session):
     return SimpleNamespace(
         users=users,
         staff=staff,
+        agents=agents,
         agency_admin=agents["agency_admin"],
         agency_id=agencies[0].id,
         other_agency_id=agencies[1].id,
@@ -92,6 +93,19 @@ async def role_client(db_session):
     @app.get("/agencies/{agency_id}/admin")
     async def agency_admin_only(agent: Agent = Depends(require_agency_admin)):
         return {"id": agent.id, "agency_id": agent.agency_id}
+
+    @app.get("/agencies/{agency_id}/member")
+    async def agency_member_only(agent: Agent = Depends(require_agency_member)):
+        return {"id": agent.id, "agency_id": agent.agency_id}
+
+    # Misuse: agency dependencies on a route without {agency_id} in the path.
+    @app.get("/no-agency/admin")
+    async def no_agency_admin(agent: Agent = Depends(require_agency_admin)):
+        return {"id": agent.id}
+
+    @app.get("/no-agency/member")
+    async def no_agency_member(agent: Agent = Depends(require_agency_member)):
+        return {"id": agent.id}
 
     async def override_get_db():
         yield db_session
@@ -192,7 +206,87 @@ async def test_agency_query_parameter_cannot_override_accessed_agency(
     assert response.status_code == 403
 
 
-@pytest.mark.parametrize("path", ["/staff", "/agencies/any-agency/admin"])
+async def test_require_agency_admin_ignores_query_param_without_path_param(
+    role_client, role_data
+):
+    """agency_id must come from the path, never ?agency_id=, so misuse fails closed."""
+    client, app = role_client
+    app.dependency_overrides[get_current_user] = lambda: role_data.users["agency_admin"]
+
+    response = await client.get(
+        "/no-agency/admin", params={"agency_id": role_data.agency_id}
+    )
+
+    assert response.status_code == 422
+
+
+@pytest.mark.parametrize("role", ["agency_admin", "agent"])
+async def test_require_agency_member_allows_any_agent_of_accessed_agency(
+    role_client, role_data, role
+):
+    client, app = role_client
+    app.dependency_overrides[get_current_user] = lambda: role_data.users[role]
+
+    response = await client.get(f"/agencies/{role_data.agency_id}/member")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "id": role_data.agents[role].id,
+        "agency_id": role_data.agency_id,
+    }
+
+
+@pytest.mark.parametrize(
+    "role",
+    [
+        "staff",
+        "other_agency_admin",
+        "missing",
+        "unlinked_staff",
+        "unlinked_agent",
+    ],
+)
+async def test_require_agency_member_denies_non_members(role_client, role_data, role):
+    client, app = role_client
+    app.dependency_overrides[get_current_user] = lambda: role_data.users[role]
+
+    response = await client.get(f"/agencies/{role_data.agency_id}/member")
+
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Agency access required"}
+
+
+async def test_member_query_parameter_cannot_override_accessed_agency(
+    role_client, role_data
+):
+    client, app = role_client
+    app.dependency_overrides[get_current_user] = lambda: role_data.users["agent"]
+
+    response = await client.get(
+        f"/agencies/{role_data.other_agency_id}/member",
+        params={"agency_id": role_data.agency_id},
+    )
+
+    assert response.status_code == 403
+
+
+async def test_require_agency_member_ignores_query_param_without_path_param(
+    role_client, role_data
+):
+    client, app = role_client
+    app.dependency_overrides[get_current_user] = lambda: role_data.users["agent"]
+
+    response = await client.get(
+        "/no-agency/member", params={"agency_id": role_data.agency_id}
+    )
+
+    assert response.status_code == 422
+
+
+@pytest.mark.parametrize(
+    "path",
+    ["/staff", "/agencies/any-agency/admin", "/agencies/any-agency/member"],
+)
 async def test_role_dependencies_require_authentication(role_client, path):
     client, _app = role_client
 

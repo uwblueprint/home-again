@@ -35,6 +35,12 @@ export default function LoginForm() {
   const [errors, setErrors] = useState<Errors>({});
   const [forgotOpen, setForgotOpen] = useState(false);
 
+  // TODO(auth): Forgot-password currently falls back to the placeholder
+  // "name@agency.org" when the email field is empty, and Reset only closes
+  // the dialog. When wiring Supabase auth: require a real email (or change
+  // copy to "Enter your email above…"), validate which agency/user the
+  // reset link is for, and actually send the reset email. Design may also
+  // want an "enter email" step instead of this confirm-only dialog.
   const resetEmail = email.trim() || "name@agency.org";
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -79,7 +85,7 @@ export default function LoginForm() {
       <Alert
         variant="info"
         icon={CircleCheck}
-        className="text-foreground text-paragraph-small [&_span]:font-medium"
+        className="bg-background text-foreground text-paragraph-small"
       >
         Your account is ready. Sign in to continue.
       </Alert>

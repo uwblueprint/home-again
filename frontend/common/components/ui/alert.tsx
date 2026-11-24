@@ -9,7 +9,7 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        info: "border-border bg-background text-foreground",
+        info: "border-border bg-secondary text-foreground",
         // TODO(design): the palette has no warning ramp — only a lone
         // --raw-colors-yellow-100 — so this variant is still raw Tailwind amber.
         // Needs --unofficial-warning-{border,subtle,text} to match `destructive`.
@@ -66,7 +66,7 @@ function Alert({
       {...props}
     >
       {Icon && <Icon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />}
-      <span className="font-normal">{children}</span>
+      <span className="font-medium">{children}</span>
     </div>
   );
 }

@@ -223,6 +223,7 @@ function StockItemChipDemo() {
       <StockItemChip stock={8} />
       <StockItemChip stock={1} variant="partial" />
       <StockItemChip stock={0} />
+      <StockItemChip stock={2} variant="held" />
     </div>
   );
 }
@@ -1555,10 +1556,28 @@ function ReferralCardDemo() {
 
   // One chip per stock state: available, available, partial, unavailable.
   const DEMO_ITEMS: ReferralCardItem[] = [
-    { id: "bed", name: "Bed frame", quantity: 1, stock: 8 },
-    { id: "mattress", name: "Mattress", quantity: 2, stock: 3 },
-    { id: "nightstand", name: "Nightstand", quantity: 2, stock: 1 },
-    { id: "table", name: "Dining table", quantity: 1, stock: 0 },
+    { id: "bed", inventoryId: "bed", name: "Bed frame", quantity: 1, stock: 8 },
+    {
+      id: "mattress",
+      inventoryId: "mattress",
+      name: "Mattress",
+      quantity: 2,
+      stock: 3,
+    },
+    {
+      id: "nightstand",
+      inventoryId: "nightstand",
+      name: "Nightstand",
+      quantity: 2,
+      stock: 1,
+    },
+    {
+      id: "table",
+      inventoryId: "table",
+      name: "Dining table",
+      quantity: 1,
+      stock: 0,
+    },
   ];
   const shared = {
     clientName: "Jane Doe",

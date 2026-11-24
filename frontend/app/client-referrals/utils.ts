@@ -41,6 +41,7 @@ export const unfulfillableMsg = (count: number) =>
 
 export type NormalizedRequestedItem = {
   id: string;
+  inventoryId?: string;
   name: string;
   size?: string;
   quantity: number;
@@ -54,19 +55,21 @@ export function normalizeReferralItems(
   items: ReferralItem[],
   inventory: InventoryRecord[] = []
 ) {
+  const inventoryById = new Map(inventory.map((record) => [record.id, record]));
   const grouped = new Map<string, NormalizedRequestedItem>();
+
   for (const item of items) {
     const key = `${item.name}|${item.size ?? ""}`;
-    const existing = grouped.get(key);
-    const inventoryItem = item.inventory_id
-      ? inventory.find((record) => record.id === item.inventory_id)
+    const record = item.inventory_id
+      ? inventoryById.get(item.inventory_id)
       : undefined;
-    const normalized = existing ?? {
+    const normalized = grouped.get(key) ?? {
       id: item.id,
+      inventoryId: item.inventory_id ?? undefined,
       name: item.name,
       size: item.size ?? undefined,
       quantity: 0,
-      stock: inventoryItem?.available ?? 0,
+      stock: record?.available ?? 0,
       description: item.notes ?? undefined,
       reviewed: true,
       approved: true,
@@ -103,6 +106,12 @@ export function normalizeRequestedItems(
     return [
       {
         id: typeof value.id === "string" ? value.id : `requested-item-${index}`,
+        inventoryId:
+          typeof value.inventory_id === "string"
+            ? value.inventory_id
+            : typeof value.inventoryId === "string"
+              ? value.inventoryId
+              : undefined,
         name,
         size: typeof value.size === "string" ? value.size : undefined,
         quantity: typeof value.quantity === "number" ? value.quantity : 1,
@@ -190,6 +199,7 @@ export function toClientReferral(
     ].filter(Boolean) as ClientReferral["agents"],
     items: items.map((item) => ({
       id: item.id,
+      inventoryId: item.inventoryId,
       name: [item.name, item.size].filter(Boolean).join(" / "),
       quantity: item.quantity,
       stock: item.stock,

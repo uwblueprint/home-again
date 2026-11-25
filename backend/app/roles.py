@@ -43,9 +43,11 @@ async def _get_agency_agent(
     if agent is None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Agency admin access required"
-            if admin_only
-            else "Agency access required",
+            detail=(
+                "Agency admin access required"
+                if admin_only
+                else "Agency access required"
+            ),
         )
     return agent
 

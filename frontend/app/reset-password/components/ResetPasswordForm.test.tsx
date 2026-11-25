@@ -55,4 +55,13 @@ describe("ResetPasswordForm", () => {
     );
     expect(input).toHaveAttribute("type", "text");
   });
+
+  it("keeps focus in the input when the eye is pressed", () => {
+    render(<ResetPasswordForm />);
+    const eye = screen.getAllByRole("button", { name: "Show password" })[0];
+
+    // fireEvent returns false when the handler called preventDefault(),
+    // which is what stops the input from blurring mid-typing.
+    expect(fireEvent.mouseDown(eye)).toBe(false);
+  });
 });

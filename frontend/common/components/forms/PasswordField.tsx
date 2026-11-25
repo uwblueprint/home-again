@@ -104,6 +104,9 @@ function PasswordField({
         />
         <button
           type="button"
+          // Keep focus in the input so toggling doesn't fire onBlur validation
+          // mid-typing (e.g. a premature "< 8 characters" error).
+          onMouseDown={(event) => event.preventDefault()}
           onClick={() => setVisible((previous) => !previous)}
           className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
           aria-label={visible ? "Hide password" : "Show password"}

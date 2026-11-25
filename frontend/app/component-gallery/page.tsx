@@ -99,7 +99,11 @@ import {
   Header,
   Footer,
   DatePicker,
+  NewPasswordFields,
+  PasswordField,
 } from "@/common/components/forms";
+import { Toast } from "@/common/components/feedback";
+import { useNewPassword } from "@/common/hooks/useNewPassword";
 import { AgentHover } from "@/common/components/agents";
 import {
   MultiStepLayout,
@@ -1652,6 +1656,62 @@ function ReferralCardDemo() {
   );
 }
 
+function PasswordFieldDemo() {
+  const [value, setValue] = useState("");
+  return (
+    <div className="flex w-full max-w-sm flex-col gap-md">
+      <PasswordField
+        id="gallery-password"
+        label="Password"
+        placeholder="Create a password"
+        hint="Password must be at least 8 characters"
+        value={value}
+        onChange={setValue}
+      />
+      <PasswordField
+        id="gallery-password-error"
+        label="Confirm password"
+        placeholder="Re-enter your password"
+        error="Passwords do not match, please re-enter"
+        value=""
+        onChange={() => {}}
+      />
+    </div>
+  );
+}
+
+function NewPasswordFieldsDemo() {
+  const { values, errors, handleChange, handleBlur, validate } =
+    useNewPassword();
+  return (
+    <div className="flex w-full max-w-sm flex-col gap-md">
+      <NewPasswordFields
+        values={values}
+        errors={errors}
+        onChange={handleChange}
+        onBlur={handleBlur}
+      />
+      <Button type="button" size="sm" onClick={validate}>
+        Validate
+      </Button>
+    </div>
+  );
+}
+
+function ToastDemo() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="flex items-center gap-sm">
+      <Button type="button" variant="outline" onClick={() => setOpen(true)}>
+        Show success toast
+      </Button>
+      <Toast open={open} onOpenChange={setOpen}>
+        Password successfully reset
+      </Toast>
+    </div>
+  );
+}
+
 // ─── registry ─────────────────────────────────────────────────────────────────
 // To add a base component: add an entry to BASE_COMPONENTS.
 // To add a composed component: add an entry to COMPOSED_COMPONENTS.
@@ -1709,6 +1769,9 @@ const COMPOSED_COMPONENTS: {
   { name: "AdminHeader", Demo: AdminHeaderDemo },
   { name: "ReferralCard", Demo: ReferralCardDemo, fullWidth: true },
   { name: "DonorProfileCard", Demo: DonorProfileCardDemo, fullWidth: true },
+  { name: "PasswordField", Demo: PasswordFieldDemo },
+  { name: "NewPasswordFields", Demo: NewPasswordFieldsDemo },
+  { name: "Toast", Demo: ToastDemo },
 ];
 
 // ─── page ─────────────────────────────────────────────────────────────────────

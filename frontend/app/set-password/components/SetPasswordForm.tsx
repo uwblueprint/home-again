@@ -1,115 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { CircleCheck, Eye, EyeOff } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent } from "react";
 
-import { FormField } from "@/common/components/forms/FormField";
+import { FormField, NewPasswordFields } from "@/common/components/forms";
 import { EntrySplitLayout } from "@/common/components/layout";
 import { Button } from "@/common/components/ui/button";
 import { Input } from "@/common/components/ui/input";
-import { cn } from "@/common/lib/utils";
+import { useNewPassword } from "@/common/hooks/useNewPassword";
 
-const MIN_PASSWORD_LENGTH = 8;
 /** Placeholder until invite/token API supplies the real email. */
 const MOCK_INVITE_EMAIL = "jordan.reid@avalonfamily.ca";
-
-type Field = "password" | "confirmPassword";
-type Errors = Partial<Record<Field, string>>;
-
-function validate(password: string, confirmPassword: string): Errors {
-  const errors: Errors = {};
-
-  if (password.length < MIN_PASSWORD_LENGTH) {
-    errors.password = "Password is less than 8 characters, please re-enter";
-  }
-
-  if (password !== confirmPassword) {
-    errors.confirmPassword = "Passwords do not match, please re-enter";
-  }
-
-  return errors;
-}
-
-function StatusMessage({
-  id,
-  message,
-  tone,
-}: {
-  id?: string;
-  message: string;
-  tone: "muted" | "destructive";
-}) {
-  return (
-    <p
-      id={id}
-      role={tone === "destructive" ? "alert" : undefined}
-      className={cn(
-        "flex items-start gap-1.5 font-normal text-paragraph-mini",
-        tone === "destructive"
-          ? "[color:var(--unofficial-destructive-text)]"
-          : "text-muted-foreground"
-      )}
-    >
-      <CircleCheck className="mt-0.5 size-3 shrink-0" aria-hidden />
-      <span>{message}</span>
-    </p>
-  );
-}
-
-function PasswordField({
-  id,
-  value,
-  placeholder,
-  autoComplete,
-  invalid,
-  describedBy,
-  onChange,
-  onBlur,
-}: {
-  id: string;
-  value: string;
-  placeholder: string;
-  autoComplete: string;
-  invalid: boolean;
-  describedBy?: string;
-  onChange: (value: string) => void;
-  onBlur: () => void;
-}) {
-  const [visible, setVisible] = useState(false);
-
-  return (
-    <div className="relative">
-      <Input
-        id={id}
-        name={id}
-        type={visible ? "text" : "password"}
-        autoComplete={autoComplete}
-        placeholder={placeholder}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        onBlur={onBlur}
-        aria-invalid={invalid}
-        aria-describedby={describedBy}
-        className="h-10 pr-10"
-      />
-      <button
-        type="button"
-        // Keep focus in the input so toggle doesn't fire onBlur validation mid-typing.
-        onMouseDown={(event) => event.preventDefault()}
-        onClick={() => setVisible((previous) => !previous)}
-        className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
-        aria-label={visible ? "Hide password" : "Show password"}
-      >
-        {visible ? (
-          <EyeOff className="size-4" aria-hidden />
-        ) : (
-          <Eye className="size-4" aria-hidden />
-        )}
-      </button>
-    </div>
-  );
-}
 
 export default function SetPasswordForm({
   email = MOCK_INVITE_EMAIL,
@@ -117,23 +18,12 @@ export default function SetPasswordForm({
   /** Invite email for this user. Filled by the invite link once backend lands. */
   email?: string;
 }) {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [errors, setErrors] = useState<Errors>({});
-
-  function clearError(field: Field) {
-    if (!errors[field]) return;
-    setErrors((previous) => ({ ...previous, [field]: undefined }));
-  }
-
-  function handleBlur(field: Field) {
-    const next = validate(password, confirmPassword);
-    setErrors((previous) => ({ ...previous, [field]: next[field] }));
-  }
+  const { values, errors, handleChange, handleBlur, validate } =
+    useNewPassword();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setErrors(validate(password, confirmPassword));
+    validate();
     // Frontend-only: validate locally. No API call yet.
   }
 
@@ -171,59 +61,12 @@ export default function SetPasswordForm({
           />
         </FormField>
 
-        <FormField label="Password" htmlFor="password">
-          <PasswordField
-            id="password"
-            value={password}
-            placeholder="Create a password"
-            autoComplete="new-password"
-            invalid={Boolean(errors.password)}
-            describedBy={errors.password ? "password-error" : "password-hint"}
-            onChange={(value) => {
-              setPassword(value);
-              clearError("password");
-            }}
-            onBlur={() => handleBlur("password")}
-          />
-          {errors.password ? (
-            <StatusMessage
-              id="password-error"
-              message={errors.password}
-              tone="destructive"
-            />
-          ) : (
-            <StatusMessage
-              id="password-hint"
-              message={`Password must be at least ${MIN_PASSWORD_LENGTH} characters`}
-              tone="muted"
-            />
-          )}
-        </FormField>
-
-        <FormField label="Confirm password" htmlFor="confirmPassword">
-          <PasswordField
-            id="confirmPassword"
-            value={confirmPassword}
-            placeholder="Re-enter your password"
-            autoComplete="new-password"
-            invalid={Boolean(errors.confirmPassword)}
-            describedBy={
-              errors.confirmPassword ? "confirmPassword-error" : undefined
-            }
-            onChange={(value) => {
-              setConfirmPassword(value);
-              clearError("confirmPassword");
-            }}
-            onBlur={() => handleBlur("confirmPassword")}
-          />
-          {errors.confirmPassword ? (
-            <StatusMessage
-              id="confirmPassword-error"
-              message={errors.confirmPassword}
-              tone="destructive"
-            />
-          ) : null}
-        </FormField>
+        <NewPasswordFields
+          values={values}
+          errors={errors}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
 
         <Button
           type="submit"

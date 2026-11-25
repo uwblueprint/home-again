@@ -122,6 +122,10 @@ import {
   PickedUpBadge,
   CancelledBadge,
   PriorityBadge,
+  InvitePendingBadge,
+  SuperadminBadge,
+  AdminBadge,
+  InviteExpiredBadge,
 } from "@/common/components/status-labels";
 import {
   ApproveItemDialog,
@@ -284,6 +288,12 @@ function StatusLabelsDemo() {
         <div className="flex flex-wrap gap-sm">
           <PriorityBadge />
         </div>
+      </div>
+      <div className="flex flex-wrap gap-sm">
+        <SuperadminBadge />
+        <AdminBadge />
+        <InvitePendingBadge />
+        <InviteExpiredBadge />
       </div>
     </div>
   );

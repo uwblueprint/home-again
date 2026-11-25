@@ -42,6 +42,7 @@ export type ReferralCardAgent = Pick<
 
 export type ReferralCardItem = {
   id: string;
+  inventoryId?: string;
   name: string;
   /** Quantity requested. */
   quantity: number;

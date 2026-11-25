@@ -43,6 +43,7 @@ export function toReferralRequest(
             : CLIENT_REFERRAL_REQUEST_STATUS.REVIEWED,
     items: items.map((item) => ({
       id: item.id,
+      inventoryId: item.inventoryId,
       furniture: [item.name, item.size].filter(Boolean).join(" / "),
       quantity: item.quantity,
       stock: item.stock,

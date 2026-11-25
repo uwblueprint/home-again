@@ -10,6 +10,7 @@ import {
 import { StockItemChip } from "@/common/components/data-display";
 
 export type RequestedItem = {
+  inventoryId?: string;
   quantity: number;
   furniture: string;
   stock: number;

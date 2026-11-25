@@ -1,3 +1,4 @@
+import { CircleAlert } from "lucide-react";
 import { Badge } from "@/common/components/ui/badge";
 import { cn } from "@/common/lib/utils";
 
@@ -5,15 +6,16 @@ interface StockItemChipProps {
   name?: string;
   quantity?: number;
   stock: number;
-  variant?: "available" | "partial" | "unavailable";
+  variant?: "available" | "partial" | "unavailable" | "held";
 }
 
 /**
  * Displays a requested item with its current stock level.
  *
- * green = enough stock for the requested quantity
- * grey  = some stock, but less than requested
- * red   = none in stock
+ * Green means enough stock exists for the requested quantity.
+ * Grey means some stock exists, but less than requested.
+ * Red means no stock exists.
+ * Orange means units are held by approved or scheduled referral requests.
  */
 export function StockItemChip({
   name,
@@ -39,7 +41,9 @@ export function StockItemChip({
           ? "bg-(--unofficial-destructive-subtle)"
           : status === "partial"
             ? "bg-(--unofficial-border-0)"
-            : "bg-lime-100"
+            : status === "held"
+              ? "bg-orange-50"
+              : "bg-lime-100"
       )}
     >
       {hasItemDetails ? (
@@ -49,16 +53,26 @@ export function StockItemChip({
       ) : null}
       <span
         className={cn(
+          "inline-flex items-center gap-1",
           status === "unavailable"
             ? "text-destructive"
             : status === "partial"
               ? "text-muted-foreground"
-              : "text-(--brand-greens-200)"
+              : status === "held"
+                ? "text-orange-600"
+                : "text-(--brand-greens-200)"
         )}
       >
         {status === "unavailable" && hasItemDetails
           ? "Unavailable"
-          : `${stock} in stock`}
+          : status === "held"
+            ? `${stock} held`
+            : `${stock} in stock`}
+        {status === "held" ? (
+          <div className="inline-flex size-4 items-center">
+            <CircleAlert aria-hidden="true" className="size-4" />
+          </div>
+        ) : null}
       </span>
     </Badge>
   );

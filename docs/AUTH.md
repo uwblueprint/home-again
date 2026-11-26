@@ -4,6 +4,47 @@
 
 With `ENV=DEVELOPMENT` in `backend/.env`, requests that send no bearer token act as `DEV_USER_ID` instead of returning 401, so the API works locally before sign-in exists. Tokens that are sent are still verified, and the backend refuses to start in this mode unless `DEBUG=True`. See [ONBOARDING.md](./ONBOARDING.md#authentication-in-local-development).
 
+## Current user: `GET /api/me`
+
+Returns who the signed-in user is so the frontend can route them after login. It requires a valid bearer token, or acts as `DEV_USER_ID` in local development (see above). The backend looks up the token's Supabase user ID in `admins.supabase_user_id` first, then `agents.supabase_user_id`.
+
+### `200 OK`
+
+```json
+{
+  "role": "agent",
+  "id": "3f6c1e0a-…",
+  "email": "alex@agency.org",
+  "first_name": "Alex",
+  "last_name": "Agent",
+  "agency_id": "9b2d4c7e-…",
+  "is_agency_admin": true,
+  "intake_complete": true
+}
+```
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `role` | `"staff"` \| `"agent"` | `"staff"` when the user has an `admins` row, otherwise `"agent"` |
+| `id` | string (UUID) | The `admins.id` or `agents.id`, **not** the Supabase Auth user ID |
+| `email` | string | From the `admins` or `agents` row |
+| `first_name` | string | |
+| `last_name` | string | |
+| `agency_id` | string (UUID) \| `null` | `null` for staff |
+| `is_agency_admin` | boolean | `agents.is_admin`; always `false` for staff |
+| `intake_complete` | boolean | Whether the user's agency exists; always `false` for staff, so route on `role` first |
+
+### Errors
+
+| Status | When | `detail` |
+| --- | --- | --- |
+| `401` | No token, or the token is invalid/expired | `"Missing bearer token"`, `"Invalid token"`, … |
+| `403` | Valid token, but no `admins` or `agents` row is linked to that user | `"No Home Again account is linked to this login. Contact Home Again Furniture Bank for access."` |
+
+The intake flow creates the agency and the main contact's `agents` row together, and `agents.agency_id` is required. So a main contact who signs in before finishing intake has no row yet and gets the `403`. The frontend should show a "contact HAFB" message for any `403` from this endpoint.
+
+To try it locally without a token, set `DEV_USER_ID` to the `supabase_user_id` of an `admins` or `agents` row; otherwise the dev user gets the `403`.
+
 ## Create the first staff account
 
 Use [`scripts/seed_first_staff.py`](../scripts/seed_first_staff.py) to create the first HAFB staff account in **hafb-dev**, before another staff member is available to invite them. The script finds or creates a Supabase Auth user and creates or updates the linked `admins` row. The row's `supabase_user_id` contains the Auth user ID; its own `id` is separate.

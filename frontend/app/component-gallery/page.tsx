@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ChevronUp,
   Plus,
+  RefreshCw,
   Search,
   SquarePen,
   Trash2,
@@ -28,6 +29,7 @@ import {
   ReferralCardAgent,
   ReferralCardItem,
   RequestedItemCard,
+  RowActionsMenu,
 } from "@/common/components/data-display";
 import {
   Alert,
@@ -138,6 +140,12 @@ import {
   DonorsTable,
   type DonorListRow,
 } from "@/app/admin-donors/components";
+import {
+  AdminsTable,
+  MOCK_ACTIVE_ADMINS,
+  MOCK_INVITED_ADMINS,
+} from "@/app/user-management/components";
+import { InviteActionsMenu } from "@/app/manage-admins/components";
 import type { Donor, UpdateDonorInput } from "@/common/types";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
@@ -583,6 +591,38 @@ function RejectItemDialogDemo() {
     <RejectItemDialog
       trigger={<Button variant="outline">Reject item</Button>}
       item={SAMPLE_DONATION_ITEM}
+    />
+  );
+}
+
+function InviteActionsMenuDemo() {
+  const noop = () => {};
+  return <InviteActionsMenu onResend={noop} onCancel={noop} />;
+}
+
+function RowActionsMenuDemo() {
+  const noop = () => {};
+
+  return (
+    <RowActionsMenu
+      triggerLabel="Admin actions"
+      actions={[
+        {
+          label: (
+            <>
+              Change to <Badge variant="outline">Superadmin</Badge>
+            </>
+          ),
+          icon: RefreshCw,
+          onSelect: noop,
+        },
+        {
+          label: "Delete admin",
+          icon: Trash2,
+          variant: "destructive",
+          onSelect: noop,
+        },
+      ]}
     />
   );
 }
@@ -1397,6 +1437,15 @@ function makeDonorRows(): DonorListRow[] {
   });
 }
 
+function AdminsTableDemo() {
+  return (
+    <AdminsTable
+      activeAdmins={MOCK_ACTIVE_ADMINS}
+      invitedAdmins={MOCK_INVITED_ADMINS}
+    />
+  );
+}
+
 function DonorsTableDemo() {
   const [data] = useState(makeDonorRows);
   const [selectedRow, setSelectedRow] = useState<DonorListRow | null>(null);
@@ -1765,6 +1814,8 @@ const COMPOSED_COMPONENTS: {
   { name: "ApproveItemDialog", Demo: ApproveItemDialogDemo },
   { name: "RejectItemDialog", Demo: RejectItemDialogDemo },
   { name: "RequestedItemCard", Demo: RequestedItemCardDemo },
+  { name: "InviteActionsMenu", Demo: InviteActionsMenuDemo },
+  { name: "RowActionsMenu", Demo: RowActionsMenuDemo },
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
   { name: "DatePicker", Demo: DatePickerDemo },
   { name: "FurnitureItemCard", Demo: FurnitureItemCardDemo },
@@ -1774,6 +1825,7 @@ const COMPOSED_COMPONENTS: {
   { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
   { name: "DataTable", Demo: DataTableDemo, fullWidth: true },
   { name: "DonorsTable", Demo: DonorsTableDemo, fullWidth: true },
+  { name: "AdminsTable (temp)", Demo: AdminsTableDemo, fullWidth: true },
   { name: "BigToggleButton", Demo: BigToggleButtonDemo },
   { name: "PhotoStrip + Lightbox", Demo: PhotoStripDemo },
   { name: "AdminHeader", Demo: AdminHeaderDemo },

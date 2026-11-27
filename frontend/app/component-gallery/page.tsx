@@ -129,6 +129,11 @@ import {
   DonorsTable,
   type DonorListRow,
 } from "@/app/admin-donors/components";
+import {
+  ReviewPendingItemsDialog,
+  type HeldByReferral,
+  type ReviewItem,
+} from "@/app/client-referrals/[id]/components";
 import type { Donor, UpdateDonorInput } from "@/common/types";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
@@ -569,6 +574,98 @@ function RejectItemDialogDemo() {
       trigger={<Button variant="outline">Reject item</Button>}
       item={SAMPLE_DONATION_ITEM}
     />
+  );
+}
+
+/** Made-up referral item ids, one per unit: units("bed", 2) → ["bed-1", "bed-2"]. */
+const units = (prefix: string, count: number) =>
+  Array.from({ length: count }, (_, i) => `${prefix}-${i + 1}`);
+
+const HELD_BY = (count: number): HeldByReferral[] =>
+  Array.from({ length: count }, (_, i) => ({
+    referralId: `REF-10${i + 1}`,
+    clientName: "John Doe",
+    units: 1,
+  }));
+
+/** A demo item: `pending` and `approved` are unit counts. */
+const reviewItem = (
+  id: string,
+  name: string,
+  {
+    pending = 0,
+    approved = 0,
+    stock = 0,
+    heldBy = 0,
+  }: {
+    pending?: number;
+    approved?: number;
+    stock?: number;
+    heldBy?: number;
+  }
+): ReviewItem => ({
+  id,
+  name,
+  pendingUnitIds: units(`${id}-pending`, pending),
+  approvedUnitIds: units(`${id}-approved`, approved),
+  stock,
+  heldBy: heldBy > 0 ? HELD_BY(heldBy) : undefined,
+});
+
+// One entry per design state.
+const REVIEW_PENDING_DEMOS: { label: string; items: ReviewItem[] }[] = [
+  {
+    label: "Mixed stock",
+    items: [
+      reviewItem("bed", "Bed Frame", { pending: 1, stock: 8 }),
+      reviewItem("mattress", "Mattress Only / Twin", { pending: 2, stock: 8 }),
+      reviewItem("nightstand", "Nightstand", { pending: 2, stock: 1 }),
+      reviewItem("table", "Dining Table", { pending: 1, heldBy: 2 }),
+    ],
+  },
+  {
+    label: "Many held (scrolls)",
+    items: [
+      reviewItem("bed", "Bed Frame", { pending: 1, stock: 8 }),
+      reviewItem("table", "Dining Table", { pending: 1, heldBy: 6 }),
+    ],
+  },
+  {
+    label: "All out of stock",
+    items: [
+      reviewItem("bed", "Bed Frame", { approved: 1 }),
+      reviewItem("mattress", "Mattress Only / Twin", { approved: 2 }),
+      reviewItem("nightstand", "Nightstand", { pending: 1, approved: 1 }),
+      reviewItem("table", "Dining Table", { pending: 1 }),
+    ],
+  },
+  {
+    label: "With approved items",
+    items: [
+      reviewItem("bed", "Bed Frame", { approved: 1, stock: 8 }),
+      reviewItem("mattress", "Mattress Only / Twin", { approved: 2, stock: 8 }),
+      reviewItem("nightstand", "Nightstand", {
+        pending: 1,
+        approved: 1,
+        stock: 3,
+      }),
+      reviewItem("table", "Dining Table", { pending: 1, stock: 1 }),
+    ],
+  },
+];
+
+function ReviewPendingItemsDialogDemo() {
+  return (
+    <div className="flex flex-wrap gap-sm">
+      {REVIEW_PENDING_DEMOS.map((demo) => (
+        <ReviewPendingItemsDialog
+          key={demo.label}
+          trigger={<Button variant="outline">{demo.label}</Button>}
+          items={demo.items}
+          onConfirm={(result) => console.log("Review confirmed", result)}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -1711,6 +1808,7 @@ const COMPOSED_COMPONENTS: {
   { name: "DonationItemPreview", Demo: DonationItemPreviewDemo },
   { name: "ApproveItemDialog", Demo: ApproveItemDialogDemo },
   { name: "RejectItemDialog", Demo: RejectItemDialogDemo },
+  { name: "ReviewPendingItemsDialog", Demo: ReviewPendingItemsDialogDemo },
   { name: "RequestedItemCard", Demo: RequestedItemCardDemo },
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
   { name: "DatePicker", Demo: DatePickerDemo },

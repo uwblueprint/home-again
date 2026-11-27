@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ChevronUp,
   Plus,
+  RefreshCw,
   Search,
   SquarePen,
   Trash2,
@@ -28,6 +29,7 @@ import {
   ReferralCardAgent,
   ReferralCardItem,
   RequestedItemCard,
+  RowActionsMenu,
 } from "@/common/components/data-display";
 import {
   Alert,
@@ -583,6 +585,33 @@ function RejectItemDialogDemo() {
     <RejectItemDialog
       trigger={<Button variant="outline">Reject item</Button>}
       item={SAMPLE_DONATION_ITEM}
+    />
+  );
+}
+
+function RowActionsMenuDemo() {
+  const noop = () => {};
+
+  return (
+    <RowActionsMenu
+      triggerLabel="Admin actions"
+      actions={[
+        {
+          label: (
+            <>
+              Change to <Badge variant="outline">Superadmin</Badge>
+            </>
+          ),
+          icon: RefreshCw,
+          onSelect: noop,
+        },
+        {
+          label: "Delete admin",
+          icon: Trash2,
+          variant: "destructive",
+          onSelect: noop,
+        },
+      ]}
     />
   );
 }
@@ -1765,6 +1794,7 @@ const COMPOSED_COMPONENTS: {
   { name: "ApproveItemDialog", Demo: ApproveItemDialogDemo },
   { name: "RejectItemDialog", Demo: RejectItemDialogDemo },
   { name: "RequestedItemCard", Demo: RequestedItemCardDemo },
+  { name: "RowActionsMenu", Demo: RowActionsMenuDemo },
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
   { name: "DatePicker", Demo: DatePickerDemo },
   { name: "FurnitureItemCard", Demo: FurnitureItemCardDemo },

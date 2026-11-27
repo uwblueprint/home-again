@@ -118,6 +118,7 @@ maps to code below. **Check here before building any UI.** Import primitives fro
 | Upload                                  | `file-upload/FileUpload.tsx`                                                                                                     | Controlled modal upload; parent owns open state + file list.                                                     |
 | Status Pills / Badges                   | `ui/badge.tsx`; domain badges in `status-labels/donation-status-labels.tsx`                                                      | Referral/client/item/pickup/donation status render as preset `Badge`s. Add new domain statuses here, not inline. |
 | Priority / Tag variants                 | `ui/badge.tsx`                                                                                                                   |                                                                                                                  |
+| Row actions menu (⋮ per table row)      | `data-display/RowActionsMenu.tsx` — `RowActionsMenu`, `RowAction`; preset `app/manage-admins/components/InviteActionsMenu.tsx`                 | Generic: pass `actions` (`label`, `icon`, `variant: "destructive"`, `onSelect`). Presentational only — caller opens any confirm dialog. `InviteActionsMenu` = Resend/Cancel invite (`onResend`, `onCancel`). Build other row menus as presets the same way, in the flow that owns them. |
 | Filter & search / Sort dropdowns        | `ui/sort-menu.tsx`, `ui/dropdown-menu.tsx`                                                                                       |                                                                                                                  |
 | Tables                                  | `ui/table.tsx`; composed `data-display/data-table/*` — `DataTable`, `DataTableColumnHeader`, `DataTableFacetedFilter`, `DataTableToolbar`, `DataTablePagination` | See `data-table/README.md` for usage. Sortable headers toggle asc/desc directly on click (no dropdown, no column hiding). Row-nav chevron shows when `onRowClick` is passed. |
 | Calendar / Date & time picker           | `ui/calendar.tsx`; composed `forms/DatePicker.tsx`                                                                               | Use `DatePicker` for date fields; pass `disabled` (react-day-picker matchers) to block days, e.g. past dates.    |
@@ -167,6 +168,11 @@ Follow the pattern in `ui/button.tsx` when creating or extending a primitive:
 - **Folder-per-category.** Put a new shared component in the category that matches its role
   (`ui` = design-system primitive, `forms` = form block, `feedback` = alerts/modals, etc.).
   Colocate its test as `Component.test.tsx`.
+- **Component gallery is for shared components only.** `app/component-gallery/page.tsx`
+  demos what lives in `common/components`. When you add a shared component, add a demo there.
+  Don't add flow-specific components from `app/<flow>/components` (e.g. `InviteActionsMenu`
+  in `app/manage-admins/components`). Demo the shared base they're built on instead
+  (`RowActionsMenu`).
 
 ---
 

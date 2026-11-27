@@ -25,3 +25,5 @@ export type {
   ReferralCardItem,
   ReferralStatus,
 } from "./ReferralCard";
+export { RowActionsMenu } from "./RowActionsMenu";
+export type { RowAction, RowActionsMenuProps } from "./RowActionsMenu";

@@ -18,7 +18,12 @@ describe("ActiveAdminsTable", () => {
     const row = screen.getByTestId("active-admins-data-table-row-0");
     fireEvent.click(within(row).getByRole("button"));
 
-    expect(screen.getByText("Change role")).toBeInTheDocument();
+    // Jane Doe is superadmin, so the offered switch is to admin.
+    expect(
+      screen.getAllByText(
+        (_, element) => element?.textContent === "Change to Admin"
+      ).length
+    ).toBeGreaterThan(0);
     expect(screen.getByText("Delete admin")).toBeInTheDocument();
   });
 });

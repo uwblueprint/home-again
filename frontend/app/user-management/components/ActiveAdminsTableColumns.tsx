@@ -1,8 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Pencil, Trash2 } from "lucide-react";
 
 import { AdminBadge, SuperadminBadge } from "@/common/components/status-labels";
-import { RowActionsMenu } from "@/common/components/data-display";
+import { AdminActionsMenu } from "./AdminActionsMenu";
 
 export type AdminRole = "admin" | "superadmin";
 
@@ -40,18 +39,12 @@ export const activeAdminColumns: ColumnDef<ActiveAdminRow>[] = [
     header: "",
     enableSorting: false,
     cell: ({ row }) => (
-      <RowActionsMenu
+      <AdminActionsMenu
+        role={row.original.role}
         triggerLabel={`Admin actions for ${row.original.email}`}
-        actions={[
-          // Not wired up to anything yet.
-          { label: "Change role", icon: Pencil, onSelect: () => {} },
-          {
-            label: "Delete admin",
-            icon: Trash2,
-            variant: "destructive",
-            onSelect: () => {},
-          },
-        ]}
+        // Not wired up to anything yet.
+        onChangeRole={() => {}}
+        onDelete={() => {}}
       />
     ),
   },

@@ -132,7 +132,6 @@ import {
   DonorsTable,
   type DonorListRow,
 } from "@/app/admin-donors/components";
-import { InviteActionsMenu } from "@/app/manage-admins/components";
 import type { Donor, UpdateDonorInput } from "@/common/types";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
@@ -574,11 +573,6 @@ function RejectItemDialogDemo() {
       item={SAMPLE_DONATION_ITEM}
     />
   );
-}
-
-function InviteActionsMenuDemo() {
-  const noop = () => {};
-  return <InviteActionsMenu onResend={noop} onCancel={noop} />;
 }
 
 function RowActionsMenuDemo() {
@@ -1730,7 +1724,6 @@ const COMPOSED_COMPONENTS: {
   { name: "ApproveItemDialog", Demo: ApproveItemDialogDemo },
   { name: "RejectItemDialog", Demo: RejectItemDialogDemo },
   { name: "RequestedItemCard", Demo: RequestedItemCardDemo },
-  { name: "InviteActionsMenu", Demo: InviteActionsMenuDemo },
   { name: "RowActionsMenu", Demo: RowActionsMenuDemo },
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
   { name: "DatePicker", Demo: DatePickerDemo },

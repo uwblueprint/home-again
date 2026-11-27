@@ -168,6 +168,11 @@ Follow the pattern in `ui/button.tsx` when creating or extending a primitive:
 - **Folder-per-category.** Put a new shared component in the category that matches its role
   (`ui` = design-system primitive, `forms` = form block, `feedback` = alerts/modals, etc.).
   Colocate its test as `Component.test.tsx`.
+- **Component gallery is for shared components only.** `app/component-gallery/page.tsx`
+  demos what lives in `common/components`. When you add a shared component, add a demo there.
+  Don't add flow-specific components from `app/<flow>/components` (e.g. `InviteActionsMenu`
+  in `app/manage-admins/components`). Demo the shared base they're built on instead
+  (`RowActionsMenu`).
 
 ---
 

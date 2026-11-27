@@ -1,5 +1,6 @@
 export { AdminsTable } from "./AdminsTable";
 export { ActiveAdminsTable } from "./ActiveAdminsTable";
+export { AdminActionsMenu, type AdminActionsMenuProps } from "./AdminActionsMenu";
 export {
   activeAdminColumns,
   type ActiveAdminRow,

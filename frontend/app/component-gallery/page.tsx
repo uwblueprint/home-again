@@ -140,6 +140,11 @@ import {
   DonorsTable,
   type DonorListRow,
 } from "@/app/admin-donors/components";
+import {
+  AdminsTable,
+  MOCK_ACTIVE_ADMINS,
+  MOCK_INVITED_ADMINS,
+} from "@/app/user-management/components";
 import { InviteActionsMenu } from "@/app/manage-admins/components";
 import type { Donor, UpdateDonorInput } from "@/common/types";
 import { AdminHeader } from "@/common/components/layout";
@@ -1432,6 +1437,15 @@ function makeDonorRows(): DonorListRow[] {
   });
 }
 
+function AdminsTableDemo() {
+  return (
+    <AdminsTable
+      activeAdmins={MOCK_ACTIVE_ADMINS}
+      invitedAdmins={MOCK_INVITED_ADMINS}
+    />
+  );
+}
+
 function DonorsTableDemo() {
   const [data] = useState(makeDonorRows);
   const [selectedRow, setSelectedRow] = useState<DonorListRow | null>(null);
@@ -1811,6 +1825,7 @@ const COMPOSED_COMPONENTS: {
   { name: "Form breadcrumb", Demo: FormBreadcrumbDemo },
   { name: "DataTable", Demo: DataTableDemo, fullWidth: true },
   { name: "DonorsTable", Demo: DonorsTableDemo, fullWidth: true },
+  { name: "AdminsTable (temp)", Demo: AdminsTableDemo, fullWidth: true },
   { name: "BigToggleButton", Demo: BigToggleButtonDemo },
   { name: "PhotoStrip + Lightbox", Demo: PhotoStripDemo },
   { name: "AdminHeader", Demo: AdminHeaderDemo },

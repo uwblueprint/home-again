@@ -15,18 +15,16 @@ const invitedAdmins: InvitedAdminRow[] = [
     name: "Pending Invite",
     role: "admin",
     email: "pending@homeagainfb.com",
-    invitedBy: "Jane Doe",
-    inviteDate: "2026-03-14",
     status: "invite_pending",
+    hoursLeft: 48,
   },
   {
     id: "invite-2",
     name: "Expired Invite",
     role: "admin",
     email: "expired@homeagainfb.com",
-    invitedBy: "Jane Doe",
-    inviteDate: "2026-01-02",
     status: "invite_expired",
+    hoursLeft: 0,
   },
 ];
 
@@ -51,7 +49,6 @@ describe("AdminsTable", () => {
 
     expect(screen.getByText("Pending Invite")).toBeInTheDocument();
     expect(screen.getByText("Expired Invite")).toBeInTheDocument();
-    expect(screen.getByText("Invite Date")).toBeInTheDocument();
-    expect(screen.getByText("Invited By")).toBeInTheDocument();
+    expect(screen.getByText("Expires In")).toBeInTheDocument();
   });
 });

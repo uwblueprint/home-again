@@ -36,7 +36,7 @@ export interface AgencyRecord {
 
 export interface AgentRecord {
   id: string;
-  agency_id: string;
+  agency_id: string | null;
   supabase_user_id: string | null;
   phone_number: string | null;
   email: string | null;

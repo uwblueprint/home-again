@@ -16,7 +16,7 @@ Schema naming convention:
 
 import json
 from datetime import date, datetime, timezone
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -126,7 +126,7 @@ class AgentBase(BaseModel):
     last_name: str
     email: str
     phone_number: str
-    agency_id: str
+    agency_id: Optional[str] = None  # None until the agency exists (intake)
     is_admin: bool = False
 
 
@@ -163,6 +163,22 @@ class Agent(AgentBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ============ Current User Schemas ============
+
+
+class Me(BaseModel):
+    """The signed-in user, returned by GET /me for frontend routing."""
+
+    role: Literal["staff", "agent"]
+    id: str  # admins.id or agents.id, not the Supabase Auth user ID
+    email: str
+    first_name: str
+    last_name: str
+    agency_id: Optional[str] = None  # None for staff
+    is_agency_admin: bool
+    intake_complete: bool  # whether the user's agency exists; False for staff
 
 
 # ============ Donor Schemas ============

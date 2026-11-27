@@ -75,6 +75,27 @@ async def test_create_agent_missing_email(client):
     assert resp.status_code == 422
 
 
+async def test_create_agent_without_agency(client):
+    # A main contact can exist before intake creates their agency.
+    payload = {
+        "first_name": "Pre",
+        "last_name": "Intake",
+        "email": "preintake@example.com",
+        "phone_number": "555-0000",
+    }
+    resp = await client.post("/api/agents", json=payload)
+    assert resp.status_code == 201
+    assert resp.json()["agency_id"] is None
+
+
+async def test_create_agent_unknown_agency(client):
+    payload = await make_agent_payload(
+        "nonexistent-agency", email="noagency@example.com"
+    )
+    resp = await client.post("/api/agents", json=payload)
+    assert resp.status_code == 400
+
+
 async def test_get_agent(client):
     agency = await create_agency(client, name="GetAgent Agency")
     payload = await make_agent_payload(agency["id"], email="getagent@example.com")

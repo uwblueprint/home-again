@@ -80,7 +80,7 @@ Agency staff member. `is_admin=True` grants admin-level permissions within the a
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | id | string (UUID) | auto | Primary key |
-| agency_id | string (UUID) | yes | FK → Agency |
+| agency_id | string (UUID) | no | FK → Agency. `null` for a main contact whose agency hasn't been created yet (intake not finished) |
 | first_name | string | yes | |
 | last_name | string | yes | |
 | email | string | yes | |
@@ -91,7 +91,7 @@ Agency staff member. `is_admin=True` grants admin-level permissions within the a
 | updated_at | datetime | auto | |
 
 **Relationships:**
-- `agency` → Agency (many-to-one)
+- `agency` → Agency (many-to-one, optional)
 
 ---
 

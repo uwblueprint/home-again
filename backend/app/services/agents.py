@@ -39,10 +39,13 @@ async def get_agent(db: AsyncSession, agent_id: str) -> Agent | None:
 
 
 async def create_agent(db: AsyncSession, payload: AgentCreate) -> Agent:
-    # Validate agency exists
-    result = await db.execute(select(Agency.id).where(Agency.id == payload.agency_id))
-    if not result.scalar_one_or_none():
-        raise ValueError(f"Agency with ID '{payload.agency_id}' does not exist.")
+    # agency_id is optional (a main contact before intake), but must exist if set
+    if payload.agency_id is not None:
+        result = await db.execute(
+            select(Agency.id).where(Agency.id == payload.agency_id)
+        )
+        if not result.scalar_one_or_none():
+            raise ValueError(f"Agency with ID '{payload.agency_id}' does not exist.")
     if await email_taken(db, payload.email):
         raise AgentEmailTaken()
     db_agent = Agent(**payload.model_dump())

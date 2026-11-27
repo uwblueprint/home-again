@@ -7,6 +7,7 @@ export {
 } from "./ActiveAdminsTableColumns";
 export { InvitedAdminsTable } from "./InvitedAdminsTable";
 export {
+  compareInvitedAdmins,
   invitedAdminColumns,
   type InvitedAdminRow,
   type InviteStatus,

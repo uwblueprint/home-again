@@ -9,11 +9,16 @@ function makeRow(overrides: Partial<InvitedAdminRow> = {}): InvitedAdminRow {
     name: "Jane Doe",
     role: "admin",
     email: "jane@homeagainfb.com",
-    invitedBy: "John Smith",
-    inviteDate: "2026-03-14",
     status: "invite_pending",
+    hoursLeft: 48,
     ...overrides,
   };
+}
+
+function names() {
+  return screen
+    .getAllByTestId(/^invited-admins-data-table-row-/)
+    .map((row) => within(row).getAllByRole("cell")[0].textContent);
 }
 
 describe("InvitedAdminsTable", () => {
@@ -24,11 +29,10 @@ describe("InvitedAdminsTable", () => {
       screen.getAllByRole("columnheader").map((th) => th.textContent)
     ).toEqual([
       "Admin Name",
-      "Role",
       "Email",
-      "Invited By",
-      "Invite Date",
+      "Role",
       "Status",
+      "Expires In",
       "",
     ]);
   });
@@ -57,5 +61,38 @@ describe("InvitedAdminsTable", () => {
     fireEvent.click(button);
     expect(screen.queryByText("Resend invite")).not.toBeInTheDocument();
     expect(screen.queryByText("Cancel invite")).not.toBeInTheDocument();
+  });
+
+  it("pluralizes the hours remaining and reddens it at 0", () => {
+    render(
+      <InvitedAdminsTable
+        data={[
+          makeRow({ id: "a", hoursLeft: 48 }),
+          makeRow({ id: "b", hoursLeft: 1 }),
+          makeRow({ id: "c", hoursLeft: 0 }),
+        ]}
+      />
+    );
+
+    expect(screen.getByText("48 hours")).toBeInTheDocument();
+    expect(screen.getByText("1 hour")).toBeInTheDocument();
+
+    const zeroHours = screen.getByText("0 hours");
+    expect(zeroHours).toHaveClass("text-destructive");
+  });
+
+  it("defaults to soonest-to-expire first, then superadmin, then name", () => {
+    const rows: InvitedAdminRow[] = [
+      makeRow({ id: "a", name: "Zed", hoursLeft: 10 }),
+      makeRow({ id: "b", name: "Amy", hoursLeft: 5 }),
+      makeRow({ id: "c", name: "Bob", role: "admin", hoursLeft: 5 }),
+      makeRow({ id: "d", name: "Cara", role: "superadmin", hoursLeft: 5 }),
+    ];
+
+    render(<InvitedAdminsTable data={rows} />);
+
+    // hoursLeft 5 before 10; within hoursLeft 5, superadmin (Cara) before
+    // admins, then admins alphabetically (Amy before Bob).
+    expect(names()).toEqual(["Cara", "Amy", "Bob", "Zed"]);
   });
 });

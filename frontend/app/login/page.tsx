@@ -1,25 +1,18 @@
-import Link from "next/link";
+import LoginForm from "@/app/login/components/LoginForm";
+import {
+  PASSWORD_RESET_QUERY_KEY,
+  PASSWORD_RESET_QUERY_SUCCESS,
+} from "@/common/constants/AuthConstants";
 
-import { Button } from "@/common/components/ui/button";
-import { HOME_PAGE } from "@/common/constants";
+/** Agent portal sign-in UI. Auth wiring lands in a later ticket. */
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const passwordReset =
+    params[PASSWORD_RESET_QUERY_KEY] === PASSWORD_RESET_QUERY_SUCCESS;
 
-/** Destination for signOut() / expired-token redirects. Sign-in UI is a later ticket. */
-export default function LoginPage() {
-  return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-lg px-xl text-center">
-      <h1 className="text-heading-2 font-semibold text-foreground">Login</h1>
-      <p className="max-w-md text-paragraph-regular text-muted-foreground">
-        Sign-in UI will live here. The auth store already syncs with Supabase
-        when a session exists.
-      </p>
-      <Button
-        type="button"
-        variant="secondary"
-        nativeButton={false}
-        render={<Link href={HOME_PAGE} />}
-      >
-        Back to home
-      </Button>
-    </div>
-  );
+  return <LoginForm passwordReset={passwordReset} />;
 }

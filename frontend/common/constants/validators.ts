@@ -67,3 +67,28 @@ export function isValidAgencyUrl(value: string): boolean {
 
   return AGENCY_URL_HOST_REGEX.test(host);
 }
+
+export const MIN_PASSWORD_LENGTH = 8;
+
+export type NewPasswordField = "password" | "confirmPassword";
+export type NewPasswordErrors = Partial<Record<NewPasswordField, string>>;
+
+/**
+ * Validates a new password + confirmation pair (set password, reset password,
+ * account setup). Returns an error message per invalid field.
+ */
+export function validateNewPassword(
+  password: string,
+  confirmPassword: string
+): NewPasswordErrors {
+  const errors: NewPasswordErrors = {};
+
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    errors.password = `Password is less than ${MIN_PASSWORD_LENGTH} characters, please re-enter`;
+  }
+  if (password !== confirmPassword) {
+    errors.confirmPassword = "Passwords do not match, please re-enter";
+  }
+
+  return errors;
+}

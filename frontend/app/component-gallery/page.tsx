@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ChevronUp,
   Plus,
+  RefreshCw,
   Search,
   SquarePen,
   Trash2,
@@ -28,6 +29,7 @@ import {
   ReferralCardAgent,
   ReferralCardItem,
   RequestedItemCard,
+  RowActionsMenu,
 } from "@/common/components/data-display";
 import {
   Alert,
@@ -130,6 +132,7 @@ import {
   DonorsTable,
   type DonorListRow,
 } from "@/app/admin-donors/components";
+import { InviteActionsMenu } from "@/app/manage-admins/components";
 import type { Donor, UpdateDonorInput } from "@/common/types";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
@@ -569,6 +572,38 @@ function RejectItemDialogDemo() {
     <RejectItemDialog
       trigger={<Button variant="outline">Reject item</Button>}
       item={SAMPLE_DONATION_ITEM}
+    />
+  );
+}
+
+function InviteActionsMenuDemo() {
+  const noop = () => {};
+  return <InviteActionsMenu onResend={noop} onCancel={noop} />;
+}
+
+function RowActionsMenuDemo() {
+  const noop = () => {};
+
+  return (
+    <RowActionsMenu
+      triggerLabel="Admin actions"
+      actions={[
+        {
+          label: (
+            <>
+              Change to <Badge variant="outline">Superadmin</Badge>
+            </>
+          ),
+          icon: RefreshCw,
+          onSelect: noop,
+        },
+        {
+          label: "Delete admin",
+          icon: Trash2,
+          variant: "destructive",
+          onSelect: noop,
+        },
+      ]}
     />
   );
 }
@@ -1695,6 +1730,8 @@ const COMPOSED_COMPONENTS: {
   { name: "ApproveItemDialog", Demo: ApproveItemDialogDemo },
   { name: "RejectItemDialog", Demo: RejectItemDialogDemo },
   { name: "RequestedItemCard", Demo: RequestedItemCardDemo },
+  { name: "InviteActionsMenu", Demo: InviteActionsMenuDemo },
+  { name: "RowActionsMenu", Demo: RowActionsMenuDemo },
   { name: "SelectAndCombo", Demo: SelectAndComboDemo },
   { name: "DatePicker", Demo: DatePickerDemo },
   { name: "FurnitureItemCard", Demo: FurnitureItemCardDemo },

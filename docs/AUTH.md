@@ -30,7 +30,7 @@ Returns who the signed-in user is so the frontend can route them after login. It
 | `email` | string | From the `admins` or `agents` row |
 | `first_name` | string | |
 | `last_name` | string | |
-| `agency_id` | string (UUID) \| `null` | `null` for staff |
+| `agency_id` | string (UUID) \| `null` | `null` for staff, and for a main contact who hasn't finished intake |
 | `is_agency_admin` | boolean | `agents.is_admin`; always `false` for staff |
 | `intake_complete` | boolean | Whether the user's agency exists; always `false` for staff, so route on `role` first |
 
@@ -41,7 +41,7 @@ Returns who the signed-in user is so the frontend can route them after login. It
 | `401` | No token, or the token is invalid/expired | `"Missing bearer token"`, `"Invalid token"`, … |
 | `403` | Valid token, but no `admins` or `agents` row is linked to that user | `"No Home Again account is linked to this login. Contact Home Again Furniture Bank for access."` |
 
-The intake flow creates the agency and the main contact's `agents` row together, and `agents.agency_id` is required. So a main contact who signs in before finishing intake has no row yet and gets the `403`. The frontend should show a "contact HAFB" message for any `403` from this endpoint.
+A main contact who hasn't finished intake has an `agents` row with no agency yet, so they get a `200` with `role: "agent"`, `agency_id: null` and `intake_complete: false`; send them to intake. The frontend should show a "contact HAFB" message for any `403` from this endpoint.
 
 To try it locally without a token, set `DEV_USER_ID` to the `supabase_user_id` of an `admins` or `agents` row; otherwise the dev user gets the `403`.
 

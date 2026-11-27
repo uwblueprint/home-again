@@ -126,7 +126,7 @@ class AgentBase(BaseModel):
     last_name: str
     email: str
     phone_number: str
-    agency_id: str
+    agency_id: Optional[str] = None  # None until the agency exists (intake)
     is_admin: bool = False
 
 

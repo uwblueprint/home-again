@@ -105,12 +105,15 @@ class Agency(Base):
 
 
 class Agent(Base):
-    """Agency agent/worker. is_admin=True grants admin-level permissions."""
+    """Agency agent/worker. is_admin=True grants admin-level permissions.
+
+    agency_id is NULL for a main contact whose agency hasn't been created yet
+    (intake not finished)."""
 
     __tablename__ = "agents"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
-    agency_id = Column(String(36), ForeignKey("agencies.id"), nullable=False)
+    agency_id = Column(String(36), ForeignKey("agencies.id"), nullable=True)
     supabase_user_id = Column(String(255), unique=True, nullable=True)
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)

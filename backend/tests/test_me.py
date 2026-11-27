@@ -67,10 +67,10 @@ async def _admin(db_session, supabase_user_id: str | None) -> Admin:
 
 
 async def _agent(
-    db_session, agency: Agency, supabase_user_id: str | None, *, is_admin: bool
+    db_session, agency: Agency | None, supabase_user_id: str | None, *, is_admin: bool
 ) -> Agent:
     agent = Agent(
-        agency_id=agency.id,
+        agency_id=agency.id if agency else None,
         supabase_user_id=supabase_user_id,
         first_name="Alex",
         last_name="Agent",
@@ -141,14 +141,19 @@ async def test_agency_admin_token(make_client, db_session):
 
 
 @pytest.mark.asyncio
-async def test_main_contact_before_intake_is_forbidden(make_client, db_session):
-    # Intake creates the agency and the main contact's agents row together, and
-    # agents.agency_id is NOT NULL, so a main contact who signs in before
-    # finishing intake has no row yet and gets the "no account" 403.
-    response = await (await make_client(_user())).get("/api/me")
+async def test_main_contact_before_intake(make_client, db_session):
+    user = _user()
+    agent = await _agent(db_session, None, str(user.id), is_admin=True)
 
-    assert response.status_code == 403
-    assert "Contact Home Again" in response.json()["detail"]
+    response = await (await make_client(user)).get("/api/me")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["role"] == "agent"
+    assert body["id"] == agent.id
+    assert body["agency_id"] is None
+    assert body["is_agency_admin"] is True
+    assert body["intake_complete"] is False
 
 
 @pytest.mark.asyncio

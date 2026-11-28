@@ -4,20 +4,23 @@ import { StatusCard } from "./StatusCard";
 type AdminInviteCardProps = {
   firstName: string;
   lastName: string;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 };
 
 export function AdminInviteCard({
   firstName,
   lastName,
-  onClose,
+  open,
+  onOpenChange,
 }: AdminInviteCardProps) {
   return (
     <StatusCard
       icon={<UserRoundXIcon className="size-8 text-destructive" />}
       title="Admin invite cancelled"
       message={`Admin invite to ${firstName} ${lastName} has been cancelled.`}
-      onClose={onClose}
+      open={open}
+      onOpenChange={onOpenChange}
     />
   );
 }

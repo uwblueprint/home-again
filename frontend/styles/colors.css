@@ -71,6 +71,8 @@
 
     --secondary: var(--raw-colors-neutral-100);
     --secondary-foreground: var(--raw-colors-neutral-900);
+
+    --success: var(--brand-greens-200);
 }
 
 :root {

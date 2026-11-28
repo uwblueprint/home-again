@@ -5,8 +5,18 @@ import type { ActiveAdminRow } from "./ActiveAdminsTableColumns";
 import type { InvitedAdminRow } from "./InvitedAdminsTableColumns";
 
 const activeAdmins: ActiveAdminRow[] = [
-  { id: "admin-1", name: "Jane Doe", role: "superadmin", email: "jane@homeagainfb.com" },
-  { id: "admin-2", name: "John Smith", role: "admin", email: "john@homeagainfb.com" },
+  {
+    id: "admin-1",
+    name: "Jane Doe",
+    role: "superadmin",
+    email: "jane@homeagainfb.com",
+  },
+  {
+    id: "admin-2",
+    name: "John Smith",
+    role: "admin",
+    email: "john@homeagainfb.com",
+  },
 ];
 
 const invitedAdmins: InvitedAdminRow[] = [

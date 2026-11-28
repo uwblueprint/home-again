@@ -27,14 +27,7 @@ describe("InvitedAdminsTable", () => {
 
     expect(
       screen.getAllByRole("columnheader").map((th) => th.textContent)
-    ).toEqual([
-      "Admin Name",
-      "Email",
-      "Role",
-      "Status",
-      "Expires In",
-      "",
-    ]);
+    ).toEqual(["Admin Name", "Email", "Role", "Status", "Expires In", ""]);
   });
 
   it("shows the invite actions menu (Resend/Cancel) for a pending invite", () => {
@@ -49,13 +42,17 @@ describe("InvitedAdminsTable", () => {
   });
 
   it("shows a red trash button instead of the actions menu for an expired invite", () => {
-    render(<InvitedAdminsTable data={[makeRow({ status: "invite_expired" })]} />);
+    render(
+      <InvitedAdminsTable data={[makeRow({ status: "invite_expired" })]} />
+    );
 
     expect(screen.getByText("Invite Expired")).toBeInTheDocument();
 
     const row = screen.getByTestId("invited-admins-data-table-row-0");
     const button = within(row).getByRole("button");
-    expect(button).toHaveAccessibleName("Delete invite for jane@homeagainfb.com");
+    expect(button).toHaveAccessibleName(
+      "Delete invite for jane@homeagainfb.com"
+    );
 
     // No-op for now — clicking should not throw, and no menu should open.
     fireEvent.click(button);

@@ -4,7 +4,12 @@ import { ActiveAdminsTable } from "./ActiveAdminsTable";
 import type { ActiveAdminRow } from "./ActiveAdminsTableColumns";
 
 const rows: ActiveAdminRow[] = [
-  { id: "admin-1", name: "Jane Doe", role: "superadmin", email: "jane@homeagainfb.com" },
+  {
+    id: "admin-1",
+    name: "Jane Doe",
+    role: "superadmin",
+    email: "jane@homeagainfb.com",
+  },
 ];
 
 describe("ActiveAdminsTable", () => {

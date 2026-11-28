@@ -7,9 +7,9 @@ import {
   InviteExpiredBadge,
   InvitePendingBadge,
 } from "@/common/components/status-labels";
-import { InviteActionsMenu } from "@/app/manage-admins/components";
+import { InviteActionsMenu } from "./InviteActionsMenu";
 import { Button } from "@/common/components/ui/button";
-import type { AdminRole } from "./ActiveAdminsTableColumns";
+import type { AdminRole } from "./types";
 
 export type InviteStatus = "invite_pending" | "invite_expired";
 

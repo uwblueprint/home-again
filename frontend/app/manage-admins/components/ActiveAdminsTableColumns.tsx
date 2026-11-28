@@ -2,8 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { AdminBadge, SuperadminBadge } from "@/common/components/status-labels";
 import { AdminActionsMenu } from "./AdminActionsMenu";
-
-export type AdminRole = "admin" | "superadmin";
+import type { AdminRole } from "./types";
 
 export interface ActiveAdminRow {
   id: string;

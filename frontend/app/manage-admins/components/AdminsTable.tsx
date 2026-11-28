@@ -43,9 +43,17 @@ export function AdminsTable({
       </Tabs>
 
       {tab === "active" ? (
-        <ActiveAdminsTable data={activeAdmins} loading={loading} error={error} />
+        <ActiveAdminsTable
+          data={activeAdmins}
+          loading={loading}
+          error={error}
+        />
       ) : (
-        <InvitedAdminsTable data={invitedAdmins} loading={loading} error={error} />
+        <InvitedAdminsTable
+          data={invitedAdmins}
+          loading={loading}
+          error={error}
+        />
       )}
     </div>
   );

@@ -5,7 +5,7 @@ import { RotateCcw, Trash2 } from "lucide-react";
 
 import { RowActionsMenu } from "@/common/components/data-display";
 import { AdminBadge, SuperadminBadge } from "@/common/components/status-labels";
-import type { AdminRole } from "./ActiveAdminsTableColumns";
+import type { AdminRole } from "./types";
 
 type AdminActionsMenuProps = {
   /** The admin's current role — the menu offers switching to the other one. */
@@ -49,7 +49,11 @@ function AdminActionsMenu({
           label: (
             <span className="flex items-center gap-2">
               Change to{" "}
-              {targetRole === "superadmin" ? <SuperadminBadge /> : <AdminBadge />}
+              {targetRole === "superadmin" ? (
+                <SuperadminBadge />
+              ) : (
+                <AdminBadge />
+              )}
             </span>
           ),
           icon: RotateCcw,

@@ -142,10 +142,10 @@ import {
 } from "@/app/admin-donors/components";
 import {
   AdminsTable,
+  InviteActionsMenu,
   MOCK_ACTIVE_ADMINS,
   MOCK_INVITED_ADMINS,
-} from "@/app/user-management/components";
-import { InviteActionsMenu } from "@/app/manage-admins/components";
+} from "@/app/manage-admins/components";
 import type { Donor, UpdateDonorInput } from "@/common/types";
 import { AdminHeader } from "@/common/components/layout";
 import { cn } from "@/common/lib/utils";
